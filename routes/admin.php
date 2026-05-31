@@ -1,0 +1,207 @@
+<?php
+
+use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\DestinationController;
+use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\ProductFaqController;
+use App\Http\Controllers\Admin\ProductFeatureController;
+use App\Http\Controllers\Admin\ProductHighlightController;
+use App\Http\Controllers\Admin\ProductItineraryController;
+use App\Http\Controllers\Admin\ProductNoteController;
+use Illuminate\Support\Facades\Route;
+
+Route::middleware(['auth'])
+    ->prefix('admin')
+    ->name('admin.')
+    ->group(function () {
+
+        /*
+        |--------------------------------------------------------------------------
+        | Admin Dashboard
+        |--------------------------------------------------------------------------
+        */
+        Route::get('/dashboard', [
+            DashboardController::class,
+            'index'
+        ])->name('dashboard');
+
+        /*
+        |--------------------------------------------------------------------------
+        | Product Management
+        |--------------------------------------------------------------------------
+        */
+        Route::resource('products',
+            ProductController::class)
+            ->except(['show']);
+
+        Route::patch(
+            'products/{product}/toggle-featured',
+            [ProductController::class, 'toggleFeatured']
+        )->name('products.toggle-featured');
+
+        Route::patch(
+            'products/{product}/toggle-status',
+            [ProductController::class, 'toggleStatus']
+        )->name('products.toggle-status');
+
+        Route::put(
+            'products/{product}/search-booking',
+            [ProductController::class, 'updateSearchBooking']
+        )->name('products.search-booking.update');
+
+        Route::patch(
+            'product-images/{image}/thumbnail',
+            [ProductController::class, 'setThumbnailFromImage']
+        )->name('products.images.thumbnail');
+
+        Route::delete(
+            'product-images/{image}',
+            [ProductController::class, 'destroyImage']
+        )->name('products.images.destroy');
+
+        Route::delete(
+            'products/{product}/thumbnail',
+            [ProductController::class, 'destroyThumbnail']
+        )->name('products.thumbnail.destroy');
+
+        /*
+        |--------------------------------------------------------------------------
+        | Product Highlights
+        |--------------------------------------------------------------------------
+        */
+        Route::post(
+            'products/{product}/highlights',
+            [ProductHighlightController::class, 'store']
+        )->name('products.highlights.store');
+
+        Route::put(
+            'product-highlights/{highlight}',
+            [ProductHighlightController::class, 'update']
+        )->name('products.highlights.update');
+
+        Route::delete(
+            'product-highlights/{highlight}',
+            [ProductHighlightController::class, 'destroy']
+        )->name('products.highlights.destroy');
+
+        /*
+        |--------------------------------------------------------------------------
+        | Product Features
+        |--------------------------------------------------------------------------
+        */
+        Route::post(
+            'products/{product}/features',
+            [ProductFeatureController::class, 'store']
+        )->name('products.features.store');
+
+        Route::put(
+            'product-features/{feature}',
+            [ProductFeatureController::class, 'update']
+        )->name('products.features.update');
+
+        Route::delete(
+            'product-features/{feature}',
+            [ProductFeatureController::class, 'destroy']
+        )->name('products.features.destroy');
+
+        /*
+        |--------------------------------------------------------------------------
+        | Product FAQs
+        |--------------------------------------------------------------------------
+        */
+        Route::post(
+            'products/{product}/faqs',
+            [ProductFaqController::class, 'store']
+        )->name('products.faqs.store');
+
+        Route::put(
+            'product-faqs/{faq}',
+            [ProductFaqController::class, 'update']
+        )->name('products.faqs.update');
+
+        Route::delete(
+            'product-faqs/{faq}',
+            [ProductFaqController::class, 'destroy']
+        )->name('products.faqs.destroy');
+
+        /*
+        |--------------------------------------------------------------------------
+        | Product Itineraries
+        |--------------------------------------------------------------------------
+        */
+        Route::post(
+            'products/{product}/itineraries',
+            [ProductItineraryController::class, 'store']
+        )->name('products.itineraries.store');
+
+        Route::put(
+            'product-itineraries/{itinerary}',
+            [ProductItineraryController::class, 'update']
+        )->name('products.itineraries.update');
+
+        Route::delete(
+            'product-itineraries/{itinerary}',
+            [ProductItineraryController::class, 'destroy']
+        )->name('products.itineraries.destroy');
+
+        /*
+        |--------------------------------------------------------------------------
+        | Product Notes
+        |--------------------------------------------------------------------------
+        */
+        Route::post(
+            'products/{product}/notes',
+            [ProductNoteController::class, 'store']
+        )->name('products.notes.store');
+
+        Route::put(
+            'product-notes/{note}',
+            [ProductNoteController::class, 'update']
+        )->name('products.notes.update');
+
+        Route::delete(
+            'product-notes/{note}',
+            [ProductNoteController::class, 'destroy']
+        )->name('products.notes.destroy');
+
+        /*
+        |--------------------------------------------------------------------------
+        | Category Management
+        | CRUD, archive restore, and permanent delete for product categories.
+        |--------------------------------------------------------------------------
+        */
+        Route::patch(
+            'categories/{category}/restore',
+            [CategoryController::class, 'restore']
+        )->name('categories.restore');
+
+        Route::delete(
+            'categories/{category}/force-delete',
+            [CategoryController::class, 'forceDelete']
+        )->name('categories.force-delete');
+
+        Route::resource('categories',
+            CategoryController::class)
+            ->except(['show']);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Destination Management
+        | CRUD, archive restore, and permanent delete for travel destinations.
+        |--------------------------------------------------------------------------
+        */
+        Route::patch(
+            'destinations/{destination}/restore',
+            [DestinationController::class, 'restore']
+        )->name('destinations.restore');
+
+        Route::delete(
+            'destinations/{destination}/force-delete',
+            [DestinationController::class, 'forceDelete']
+        )->name('destinations.force-delete');
+
+        Route::resource('destinations',
+            DestinationController::class)
+            ->except(['show']);
+    });
