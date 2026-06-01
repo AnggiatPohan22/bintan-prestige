@@ -25,6 +25,10 @@
     <meta name="twitter:description" content="{{ $seoDescription ?? '' }}">
     <meta name="twitter:image" content="{{ $seoImage ?? '' }}">
 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Forum&display=swap" rel="stylesheet">
+
     @vite([
         'resources/css/frontend.css',
         'resources/js/app.js'

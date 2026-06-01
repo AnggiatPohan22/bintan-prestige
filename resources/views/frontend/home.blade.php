@@ -6,7 +6,7 @@
 
     <section
         class="home-hero"
-        style="{{ $heroBackgroundUrl ? '--home-hero-image: url(' . $heroBackgroundUrl . ');' : '' }}"
+        data-hero-background="{{ $heroBackgroundUrl }}"
     >
         <div class="home-container">
             <div class="home-hero__stage">
@@ -15,11 +15,11 @@
                         Luxury Bintan Travel
                     </span>
 
-                    <h1 class="home-hero__title">
+                    <h1 class="home-hero__title title-hero">
                         BINTAN PRESTIGE
                     </h1>
 
-                    <p class="home-hero__text">
+                    <p class="home-hero__text text-body">
                         Private tours, island transfers, and curated experiences designed for a smoother premium escape.
                     </p>
                 </div>
@@ -61,7 +61,7 @@
                     </button>
                 </form>
 
-                <p class="home-hero__softcopy">
+                <p class="home-hero__softcopy text-muted">
                     Discover premium Bintan packages with local assistance, flexible pickup, and simple WhatsApp booking.
                 </p>
             </div>
@@ -73,7 +73,7 @@
             <div class="home-section__header">
                 <div>
                     <span class="home-section__kicker">Curated stays and tours</span>
-                    <h2 class="home-section__title">
+                    <h2 class="home-section__title title-section">
                         Your journey to a refined Bintan escape begins here
                     </h2>
                 </div>
@@ -100,7 +100,7 @@
                                     {{ $product->category?->name ?: 'Bintan Package' }}
                                 </span>
 
-                                <h3 class="home-feature-card__title">
+                                <h3 class="home-feature-card__title title-card">
                                     {{ $product->name }}
                                 </h3>
 
@@ -129,11 +129,11 @@
         <div class="home-container home-story__grid">
             <div>
                 <span class="home-section__kicker">Bintan Prestige</span>
-                <h2 class="home-section__title">
+                <h2 class="home-section__title title-section">
                     Travel feels better when every detail is arranged.
                 </h2>
 
-                <p class="home-section__text">
+                <p class="home-section__text text-muted">
                     From ferry terminal pickup to resort transfers and private sightseeing, we help guests move through Bintan with confidence and a more polished travel rhythm.
                 </p>
 
@@ -155,7 +155,7 @@
             <div class="home-section__header">
                 <div>
                     <span class="home-section__kicker">Browse by style</span>
-                    <h2 class="home-section__title">
+                    <h2 class="home-section__title title-section">
                         Categories
                     </h2>
                 </div>
@@ -168,7 +168,7 @@
                             Category Image
                         </div>
 
-                        <h3 class="home-mini-card__title">
+                        <h3 class="home-mini-card__title title-card">
                             {{ $category->name }}
                         </h3>
 
@@ -185,7 +185,7 @@
         <div class="home-container">
             <div class="home-stats__intro">
                 <span class="home-section__kicker">Our promise</span>
-                <h2 class="home-stats__title">
+                <h2 class="home-stats__title title-section">
                     Premium island travel, arranged with consistency.
                 </h2>
             </div>
@@ -222,7 +222,7 @@
             <div class="home-section__header">
                 <div>
                     <span class="home-section__kicker">Places to explore</span>
-                    <h2 class="home-section__title">
+                    <h2 class="home-section__title title-section">
                         Destinations
                     </h2>
                 </div>
@@ -235,7 +235,7 @@
                             Destination Image
                         </div>
 
-                        <h3 class="home-mini-card__title">
+                        <h3 class="home-mini-card__title title-card">
                             {{ $destination->name }}
                         </h3>
 
@@ -253,7 +253,7 @@
             <div class="home-section__header home-section__header--center">
                 <div>
                     <span class="home-section__kicker">Why choose us</span>
-                    <h2 class="home-section__title">
+                    <h2 class="home-section__title title-section">
                         Designed for guests who value comfort.
                     </h2>
                 </div>
@@ -262,7 +262,7 @@
             <div class="home-why-grid">
                 <div class="home-why-card">
                     <span class="home-why-card__number">01</span>
-                    <h3 class="home-why-card__title">Curated Packages</h3>
+                    <h3 class="home-why-card__title title-card">Curated Packages</h3>
                     <p class="home-why-card__text">
                         Selected tours and transfers with clean details, practical routes, and guest-friendly schedules.
                     </p>
@@ -270,7 +270,7 @@
 
                 <div class="home-why-card">
                     <span class="home-why-card__number">02</span>
-                    <h3 class="home-why-card__title">Flexible Pickup</h3>
+                    <h3 class="home-why-card__title title-card">Flexible Pickup</h3>
                     <p class="home-why-card__text">
                         Travel from hotels, ferry terminals, resorts, and meeting points with convenient pickup options.
                     </p>
@@ -278,7 +278,7 @@
 
                 <div class="home-why-card">
                     <span class="home-why-card__number">03</span>
-                    <h3 class="home-why-card__title">Fast WhatsApp Booking</h3>
+                    <h3 class="home-why-card__title title-card">Fast WhatsApp Booking</h3>
                     <p class="home-why-card__text">
                         Ask questions, confirm availability, and arrange bookings quickly through WhatsApp.
                     </p>
@@ -291,7 +291,7 @@
         <div class="home-container home-faq-preview__grid">
             <div>
                 <span class="home-section__kicker">Before your journey</span>
-                <h2 class="home-section__title">
+                <h2 class="home-section__title title-section">
                     All you should know before embarking on your Bintan journey
                 </h2>
 
@@ -324,11 +324,11 @@
             <div class="home-whatsapp__panel">
                 <div>
                     <span class="home-section__kicker">Start planning</span>
-                    <h2 class="home-whatsapp__title">
+                    <h2 class="home-whatsapp__title title-section">
                         Plan your perfect Bintan escape today.
                     </h2>
 
-                    <p class="home-whatsapp__text">
+                    <p class="home-whatsapp__text text-body">
                         Tell us your arrival point, travel date, and preferred experience. Our team will help you choose the right package.
                     </p>
                 </div>

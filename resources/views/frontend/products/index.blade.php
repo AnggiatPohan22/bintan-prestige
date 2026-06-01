@@ -22,11 +22,11 @@
                     Bintan Travel Experience
                 </span>
 
-                <h1 class="product-hero__title">
+                <h1 class="product-hero__title title-section">
                     Explore Tours, Taxi & Activities in Bintan
                 </h1>
 
-                <p class="product-hero__description">
+                <p class="product-hero__description text-body">
                     Choose curated island tours, private transfers, and activities with easy WhatsApp booking support.
                 </p>
             </div>
@@ -59,11 +59,11 @@
 
             <div class="product-toolbar">
                 <div>
-                    <h2 class="product-toolbar__title">
+                    <h2 class="product-toolbar__title title-card">
                         Available Products
                     </h2>
 
-                    <p class="product-toolbar__text">
+                    <p class="product-toolbar__text text-muted">
                         {{ $products->total() }} packages available for your next Bintan experience.
                     </p>
                 </div>
@@ -157,7 +157,7 @@
                         Refine packages
                     </p>
 
-                    <h3 class="product-modal__title">
+                    <h3 class="product-modal__title title-card">
                         Filter
                     </h3>
                 </div>
@@ -220,7 +220,7 @@
                                 <span>{{ $duration }}</span>
                             </label>
                         @empty
-                            <p class="product-filter__empty">No duration options yet.</p>
+                        <p class="product-filter__empty text-muted">No duration options yet.</p>
                         @endforelse
                     </div>
                 </section>
@@ -282,7 +282,7 @@
                                 <span>{{ $vehicleType }}</span>
                             </label>
                         @empty
-                            <p class="product-filter__empty">No vehicle options yet.</p>
+                            <p class="product-filter__empty text-muted">No vehicle options yet.</p>
                         @endforelse
                     </div>
                 </section>
@@ -351,7 +351,7 @@
                         Sort packages
                     </p>
 
-                    <h3 class="product-modal__title">
+                    <h3 class="product-modal__title title-card">
                         Urutkan
                     </h3>
                 </div>

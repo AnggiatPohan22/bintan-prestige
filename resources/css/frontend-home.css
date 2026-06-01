@@ -44,18 +44,15 @@
 
     /* HOME HERO TITLE: Creates the oversized destination word inspired by the reference. */
     .home-hero__title {
-        @apply mt-8 text-[3.6rem] font-black uppercase leading-[0.92] sm:text-[5.8rem] md:text-[7.4rem] lg:text-[8.6rem] xl:text-[9.7rem];
+        @apply mt-8 uppercase;
         color: rgba(255, 255, 255, 0.92);
-        font-family: var(--frontend-font-display);
-        letter-spacing: 0;
         text-shadow: 0 24px 80px rgba(0, 0, 0, 0.34);
     }
 
     /* HOME HERO TEXT: Styles the hero supporting paragraph with soft contrast. */
     .home-hero__text {
-        @apply mt-8 max-w-lg text-base font-semibold leading-8 sm:text-xl lg:text-2xl;
+        @apply mt-8 max-w-xl text-base font-semibold sm:text-xl lg:text-2xl;
         color: rgba(255, 255, 255, 0.78);
-        font-family: var(--frontend-font-display);
     }
 
     /* HOME IMAGE PLACEHOLDER: Represents future photography without loading extra image assets. */
@@ -196,9 +193,8 @@
 
     /* HOME SECTION TITLE: Styles main section headings. */
     .home-section__title {
-        @apply max-w-2xl text-3xl font-black leading-tight sm:text-4xl;
+        @apply max-w-2xl;
         color: var(--frontend-charcoal);
-        letter-spacing: 0;
     }
 
     /* HOME SECTION TEXT: Styles supporting copy below section titles. */
@@ -348,7 +344,6 @@
 
     /* HOME STATS TITLE: Styles the central statistics headline. */
     .home-stats__title {
-        @apply text-3xl font-black leading-tight sm:text-4xl;
         color: var(--frontend-charcoal);
     }
 
@@ -490,7 +485,7 @@
 
     /* HOME WHATSAPP TITLE: Styles the final CTA headline. */
     .home-whatsapp__title {
-        @apply text-3xl font-black leading-tight sm:text-4xl;
+        @apply max-w-2xl;
     }
 
     /* HOME WHATSAPP TEXT: Styles the final CTA supporting copy. */

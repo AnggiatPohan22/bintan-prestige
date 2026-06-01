@@ -37,11 +37,11 @@
             @endif
         </div>
 
-        <h2 class="product-card__title">
+        <h2 class="product-card__title title-card">
             {{ $product->name }}
         </h2>
 
-        <p class="product-card__description">
+        <p class="product-card__description text-muted">
             {{ $product->short_description }}
         </p>
 

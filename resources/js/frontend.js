@@ -1,4 +1,5 @@
 const headerSelector = '[data-frontend-header]';
+const heroBackgroundSelector = '[data-hero-background]';
 const scrolledClass = 'frontend-header--scrolled';
 const scrollThreshold = 24;
 
@@ -46,9 +47,29 @@ export function initFrontendHeader() {
 }
 
 /**
+ * Applies backend-provided hero background images without inline Blade styles.
+ * Used on the homepage hero through the `data-hero-background` attribute, then
+ * forwarded to the CSS variable consumed by `frontend-home.css`.
+ */
+export function initDynamicHeroBackground() {
+    const heroSections = document.querySelectorAll(heroBackgroundSelector);
+
+    heroSections.forEach((section) => {
+        const backgroundUrl = section.dataset.heroBackground;
+
+        if (!backgroundUrl) {
+            return;
+        }
+
+        section.style.setProperty('--home-hero-image', `url("${backgroundUrl}")`);
+    });
+}
+
+/**
  * Bootstraps all custom frontend interactions.
  * Add future lightweight homepage, menu, or shared public-site behavior here.
  */
 export function initFrontend() {
     initFrontendHeader();
+    initDynamicHeroBackground();
 }

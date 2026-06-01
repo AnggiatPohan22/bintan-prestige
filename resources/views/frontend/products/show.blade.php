@@ -65,12 +65,12 @@
                         @endif
                     </div>
 
-                    <h1 class="product-detail-title">
+                    <h1 class="product-detail-title title-section">
                         {{ $product->name }}
                     </h1>
 
                     @if($product->short_description)
-                        <p class="product-detail-description">
+                        <p class="product-detail-description text-body">
                             {{ $product->short_description }}
                         </p>
                     @endif
@@ -159,18 +159,18 @@
             <div class="product-detail-main">
 
                 <section class="product-detail-panel">
-                    <h2 class="product-detail-panel__title">
+                    <h2 class="product-detail-panel__title title-card">
                         Overview
                     </h2>
 
-                    <div class="product-detail-richtext">
+                    <div class="product-detail-richtext text-body">
                         {!! nl2br(e($product->description)) !!}
                     </div>
                 </section>
 
                 @if($product->features->count())
                     <section class="product-detail-panel">
-                        <h2 class="product-detail-panel__title">
+                        <h2 class="product-detail-panel__title title-card">
                             What's Included
                         </h2>
 
@@ -189,7 +189,7 @@
 
                                 @if($items->count())
                                     <div class="product-detail-feature-group">
-                                        <h3 class="product-detail-feature-group__title">
+                                        <h3 class="product-detail-feature-group__title title-card">
                                             {{ $title }}
                                         </h3>
 
@@ -211,7 +211,7 @@
 
                 @if($product->itineraries->count())
                     <section class="product-detail-panel">
-                        <h2 class="product-detail-panel__title">
+                        <h2 class="product-detail-panel__title title-card">
                             Itinerary
                         </h2>
 
@@ -223,7 +223,7 @@
                                     </div>
 
                                     <div class="product-detail-timeline__content">
-                                        <h3 class="product-detail-timeline__title">
+                                        <h3 class="product-detail-timeline__title title-card">
                                             {{ $itinerary->title }}
                                         </h3>
 
@@ -241,7 +241,7 @@
 
                 @if($product->notes->count())
                     <section class="product-detail-panel">
-                        <h2 class="product-detail-panel__title">
+                        <h2 class="product-detail-panel__title title-card">
                             Important Notes
                         </h2>
 
@@ -249,7 +249,7 @@
                             @foreach($product->notes as $note)
                                 <div class="product-detail-note">
                                     @if($note->title)
-                                        <h3 class="product-detail-note__title">
+                                        <h3 class="product-detail-note__title title-card">
                                             {{ $note->title }}
                                         </h3>
                                     @endif
@@ -265,7 +265,7 @@
 
                 @if($product->faqs->count())
                     <section class="product-detail-panel">
-                        <h2 class="product-detail-panel__title">
+                        <h2 class="product-detail-panel__title title-card">
                             FAQ
                         </h2>
 
@@ -289,7 +289,7 @@
 
             <aside class="product-detail-sidebar">
                 <div class="product-detail-booking-card">
-                    <h3 class="product-detail-booking-card__title">
+                    <h3 class="product-detail-booking-card__title title-card">
                         Booking Information
                     </h3>
 
