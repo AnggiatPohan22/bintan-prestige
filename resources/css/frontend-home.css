@@ -1,0 +1,506 @@
+@layer components {
+
+    /* HOME PAGE: Provides the public homepage base spacing and luxury theme inheritance. */
+    .home-page {
+        color: var(--frontend-charcoal);
+        overflow: hidden;
+    }
+
+    /* HOME CONTAINER: Keeps homepage sections aligned and responsive. */
+    .home-container {
+        @apply mx-auto max-w-7xl px-4 sm:px-6 lg:px-8;
+    }
+
+    /* HOME HERO: Creates a dramatic travel landing area with depth and gold atmosphere. */
+    .home-hero {
+        @apply relative overflow-hidden;
+        min-height: 100vh;
+        background:
+            linear-gradient(180deg, rgba(9, 8, 6, 0.12), rgba(9, 8, 6, 0.76)),
+            linear-gradient(90deg, rgba(9, 8, 6, 0.5), rgba(9, 8, 6, 0.04) 48%, rgba(9, 8, 6, 0.62)),
+            var(--home-hero-image, linear-gradient(135deg, rgba(200, 162, 74, 0.18), rgba(9, 8, 6, 0.1))),
+            linear-gradient(135deg, #060504 0%, #14100a 44%, #352810 100%);
+        background-position: center;
+        background-size: cover;
+    }
+
+    /* HOME EYEBROW: Adds a small premium label above section headlines. */
+    .home-eyebrow {
+        @apply inline-flex w-fit rounded-full border px-4 py-2 text-xs font-extrabold uppercase;
+        background: rgba(255, 255, 255, 0.08);
+        border-color: rgba(200, 162, 74, 0.38);
+        color: var(--frontend-gold-soft);
+    }
+
+    /* HOME HERO STAGE: Layers huge typography and the image placeholder into one composition. */
+    .home-hero__stage {
+        @apply relative grid min-h-screen gap-12 pb-28 pt-40 lg:grid-cols-1 lg:items-end lg:pb-32 lg:pt-44;
+    }
+
+    /* HOME HERO COPY: Keeps the main hero copy above the decorative media. */
+    .home-hero__copy {
+        @apply relative z-10;
+    }
+
+    /* HOME HERO TITLE: Creates the oversized destination word inspired by the reference. */
+    .home-hero__title {
+        @apply mt-8 text-[3.6rem] font-black uppercase leading-[0.92] sm:text-[5.8rem] md:text-[7.4rem] lg:text-[8.6rem] xl:text-[9.7rem];
+        color: rgba(255, 255, 255, 0.92);
+        font-family: var(--frontend-font-display);
+        letter-spacing: 0;
+        text-shadow: 0 24px 80px rgba(0, 0, 0, 0.34);
+    }
+
+    /* HOME HERO TEXT: Styles the hero supporting paragraph with soft contrast. */
+    .home-hero__text {
+        @apply mt-8 max-w-lg text-base font-semibold leading-8 sm:text-xl lg:text-2xl;
+        color: rgba(255, 255, 255, 0.78);
+        font-family: var(--frontend-font-display);
+    }
+
+    /* HOME IMAGE PLACEHOLDER: Represents future photography without loading extra image assets. */
+    .home-image-placeholder {
+        @apply flex items-center justify-center rounded-[1.35rem] border border-dashed text-center text-xs font-extrabold uppercase;
+        min-height: 180px;
+        background:
+            linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(200, 162, 74, 0.18)),
+            repeating-linear-gradient(135deg, rgba(255,255,255,0.08) 0 1px, transparent 1px 16px);
+        border-color: rgba(200, 162, 74, 0.36);
+        color: var(--frontend-gold-soft);
+    }
+
+    /* HOME BUTTON: Styles main homepage buttons with smooth luxury interactions. */
+    .home-button {
+        @apply inline-flex min-h-12 items-center justify-center rounded-full border px-6 py-3 text-sm font-extrabold transition focus:outline-none;
+        background: var(--frontend-black);
+        border-color: var(--frontend-black);
+        color: var(--frontend-gold-soft);
+        box-shadow: 0 16px 38px rgba(9, 8, 6, 0.16);
+    }
+
+    /* HOME PRIMARY BUTTON VARIANT: Uses gold for the strongest homepage action. */
+    .home-button--primary {
+        background: var(--frontend-gold);
+        border-color: var(--frontend-gold);
+        color: var(--frontend-black);
+        box-shadow: 0 16px 38px rgba(200, 162, 74, 0.22);
+    }
+
+    /* HOME DARK BUTTON VARIANT: Uses black for secondary content actions on white sections. */
+    .home-button--dark {
+        background: var(--frontend-black);
+        border-color: var(--frontend-black);
+        color: var(--frontend-gold-soft);
+    }
+
+    /* HOME SECONDARY BUTTON VARIANT: Uses a transparent luxury outline action. */
+    .home-button--secondary {
+        border: 1px solid rgba(200, 162, 74, 0.42);
+        background: transparent;
+        color: var(--frontend-gold-soft);
+    }
+
+    /* HOME BUTTON HOVER: Adds a subtle lift to homepage buttons. */
+    .home-button:hover {
+        transform: translateY(-2px);
+        background: var(--frontend-gold);
+        border-color: var(--frontend-gold);
+        color: var(--frontend-black);
+    }
+
+    /* HOME SEARCH CTA: Floats the booking form between the hero and the next section. */
+    .home-search {
+        @apply relative z-20 -mt-16;
+    }
+
+    /* HOME SEARCH PANEL: Creates a centered floating booking panel between sections. */
+    .home-search__panel {
+        @apply mx-auto max-w-4xl rounded-[1.35rem] border bg-white/95 p-4 shadow-2xl sm:p-5;
+        border-color: var(--frontend-border);
+        box-shadow: 0 28px 80px rgba(23, 19, 12, 0.16);
+        backdrop-filter: blur(16px);
+    }
+
+    /* HOME SEARCH FORM: Lays out destination, category, browse link, and CTA controls. */
+    .home-search__form {
+        @apply grid gap-4 md:grid-cols-[1fr_1fr_auto] md:items-end;
+    }
+
+    /* HOME FIELD: Groups homepage filter labels and controls. */
+    .home-field {
+        @apply block;
+    }
+
+    /* HOME FIELD LABEL: Keeps homepage form labels compact. */
+    .home-field__label {
+        @apply mb-2 block px-1 text-[0.72rem] font-extrabold uppercase text-stone-500;
+    }
+
+    /* HOME FIELD CONTROL: Styles homepage select controls with minimal chrome. */
+    .home-field__control {
+        @apply min-h-12 w-full rounded-2xl border bg-stone-50 px-4 text-sm font-extrabold text-stone-900 shadow-sm focus:outline-none;
+        border-color: rgba(23, 19, 12, 0.06);
+    }
+
+    /* HOME FIELD CONTROL FOCUS: Applies the gold focus state to booking controls. */
+    .home-field__control:focus {
+        border-color: var(--frontend-gold);
+        box-shadow: 0 0 0 4px rgba(200, 162, 74, 0.16);
+    }
+
+    /* HOME SEARCH BUTTON: Matches the compact pill height of the booking fields. */
+    .home-button--search {
+        @apply min-h-12 px-7;
+        box-shadow: none;
+    }
+
+    /* HOME SEARCH LINK: Styles the browse-all shortcut inside the search panel. */
+    .home-search__link {
+        @apply inline-flex min-h-12 items-center justify-center rounded-full border px-5 text-sm font-extrabold transition;
+        border-color: var(--frontend-border);
+        color: var(--frontend-charcoal);
+    }
+
+    /* HOME SEARCH LINK HOVER: Applies a soft gold hover state to browse-all. */
+    .home-search__link:hover {
+        background: var(--frontend-gold-pale);
+        border-color: var(--frontend-gold);
+    }
+
+    /* HOME HERO SOFT COPY: Places soft-selling copy under the search bar only. */
+    .home-hero__softcopy {
+        @apply mt-5 max-w-2xl text-sm leading-7;
+        color: var(--frontend-gray);
+    }
+
+    /* HOME SECTION: Adds consistent vertical rhythm for homepage content sections. */
+    .home-section {
+        @apply py-14 sm:py-16 lg:py-20;
+    }
+
+    /* HOME SECTION HEADER: Aligns homepage section headings and supporting links. */
+    .home-section__header {
+        @apply mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between;
+    }
+
+    /* HOME CENTERED HEADER: Centers selected section headers for editorial emphasis. */
+    .home-section__header--center {
+        @apply justify-center text-center;
+    }
+
+    /* HOME SECTION KICKER: Adds small luxury section labels. */
+    .home-section__kicker {
+        @apply mb-3 inline-flex text-xs font-extrabold uppercase;
+        color: #8a681a;
+    }
+
+    /* HOME SECTION TITLE: Styles main section headings. */
+    .home-section__title {
+        @apply max-w-2xl text-3xl font-black leading-tight sm:text-4xl;
+        color: var(--frontend-charcoal);
+        letter-spacing: 0;
+    }
+
+    /* HOME SECTION TEXT: Styles supporting copy below section titles. */
+    .home-section__text {
+        @apply mt-4 max-w-xl text-sm leading-7 text-stone-600;
+    }
+
+    /* HOME SECTION LINK: Makes section header links match the gold brand. */
+    .home-section__link {
+        @apply inline-flex rounded-full border px-4 py-2 text-sm font-extrabold transition;
+        border-color: var(--frontend-border);
+        color: var(--frontend-charcoal);
+    }
+
+    /* HOME SECTION LINK HOVER: Adds gold hover treatment to section links. */
+    .home-section__link:hover {
+        background: var(--frontend-gold);
+        border-color: var(--frontend-gold);
+        color: var(--frontend-black);
+    }
+
+    /* HOME FEATURED ROW: Displays featured packages as large editorial travel cards. */
+    .home-featured-row {
+        @apply grid gap-5 md:grid-cols-3;
+    }
+
+    /* HOME FEATURE CARD: Frames one featured package with image and overlay copy. */
+    .home-feature-card {
+        @apply relative overflow-hidden rounded-[1.5rem] bg-stone-900 shadow-xl transition hover:-translate-y-1;
+        min-height: 380px;
+    }
+
+    /* HOME FEATURE CARD MEDIA: Keeps package media full-card and clickable. */
+    .home-feature-card__media {
+        @apply absolute inset-0;
+    }
+
+    /* HOME FEATURE CARD IMAGE: Makes package thumbnails fill the editorial card. */
+    .home-feature-card__image {
+        @apply h-full w-full object-cover;
+    }
+
+    /* HOME FEATURE CARD BODY: Overlays readable product text on featured cards. */
+    .home-feature-card__body {
+        @apply absolute inset-x-0 bottom-0 z-10 p-5;
+        background: linear-gradient(180deg, transparent, rgba(9, 8, 6, 0.88));
+        color: var(--frontend-white);
+    }
+
+    /* HOME FEATURE CARD TAG: Styles featured product category text. */
+    .home-feature-card__tag {
+        @apply text-xs font-extrabold uppercase;
+        color: var(--frontend-gold);
+    }
+
+    /* HOME FEATURE CARD TITLE: Styles featured package names. */
+    .home-feature-card__title {
+        @apply mt-2 text-xl font-black leading-tight;
+    }
+
+    /* HOME FEATURE CARD TEXT: Styles featured package metadata. */
+    .home-feature-card__text {
+        @apply mt-2 text-sm;
+        color: rgba(255, 255, 255, 0.72);
+    }
+
+    /* HOME STORY: Creates an alternating white editorial section. */
+    .home-story {
+        @apply bg-white py-14 sm:py-16 lg:py-20;
+    }
+
+    /* HOME STORY GRID: Aligns story copy and staggered image placeholders. */
+    .home-story__grid {
+        @apply grid gap-10 lg:grid-cols-[0.82fr_1fr] lg:items-center;
+    }
+
+    /* HOME STORY GALLERY: Builds a compact collage inspired by travel editorial layouts. */
+    .home-story__gallery {
+        @apply grid grid-cols-2 gap-4;
+    }
+
+    /* HOME STORY IMAGE: Styles one image placeholder in the story collage. */
+    .home-story__image {
+        min-height: 190px;
+        color: #8a681a;
+        background: var(--frontend-gold-pale);
+        border-color: var(--frontend-border);
+    }
+
+    /* HOME STORY LARGE IMAGE: Spans the main story image across two rows. */
+    .home-story__image--large {
+        @apply row-span-2;
+        min-height: 396px;
+    }
+
+    /* HOME CATEGORY GRID: Displays categories as compact luxury cards. */
+    .home-category-grid {
+        @apply grid gap-4 sm:grid-cols-2 lg:grid-cols-4;
+    }
+
+    /* HOME DESTINATION GRID: Creates a responsive layout for destination cards. */
+    .home-destination-grid {
+        @apply grid gap-4 md:grid-cols-3;
+    }
+
+    /* HOME MINI CARD: Styles category and destination cards. */
+    .home-mini-card {
+        @apply rounded-[1.4rem] border bg-white p-4 transition hover:-translate-y-1;
+        border-color: var(--frontend-border);
+        box-shadow: var(--frontend-shadow);
+    }
+
+    /* HOME DESTINATION CARD: Gives destination cards a slightly taller visual rhythm. */
+    .home-mini-card--destination .home-mini-card__image {
+        @apply aspect-[16/11];
+    }
+
+    /* HOME MINI CARD IMAGE: Creates an image placeholder area for compact cards. */
+    .home-mini-card__image {
+        @apply mb-4 flex aspect-[16/10] items-center justify-center rounded-[1rem] border border-dashed text-xs font-extrabold uppercase;
+        background: var(--frontend-gold-pale);
+        border-color: var(--frontend-border);
+        color: #8a681a;
+    }
+
+    /* HOME MINI CARD TITLE: Styles compact card titles. */
+    .home-mini-card__title {
+        @apply text-lg font-black;
+        color: var(--frontend-charcoal);
+    }
+
+    /* HOME MINI CARD TEXT: Styles compact card supporting text. */
+    .home-mini-card__text {
+        @apply mt-2 text-sm text-stone-500;
+    }
+
+    /* HOME STATS: Creates a soft premium proof section with a central globe motif. */
+    .home-stats {
+        @apply relative overflow-hidden py-16 sm:py-20;
+        background: linear-gradient(180deg, #f8f5ee, #ffffff);
+    }
+
+    /* HOME STATS INTRO: Centers the statistics headline. */
+    .home-stats__intro {
+        @apply mx-auto max-w-xl text-center;
+    }
+
+    /* HOME STATS TITLE: Styles the central statistics headline. */
+    .home-stats__title {
+        @apply text-3xl font-black leading-tight sm:text-4xl;
+        color: var(--frontend-charcoal);
+    }
+
+    /* HOME ORBIT: Creates the floating-label globe composition without image assets. */
+    .home-orbit {
+        @apply relative mx-auto mt-10 flex min-h-[280px] max-w-3xl items-center justify-center;
+    }
+
+    /* HOME ORBIT LABEL: Styles floating service labels around the globe. */
+    .home-orbit span {
+        @apply absolute rounded-full bg-white px-4 py-2 text-xs font-extrabold shadow-sm;
+        border: 1px solid var(--frontend-border);
+        color: #8a681a;
+    }
+
+    .home-orbit span:nth-child(1) { left: 4%; top: 18%; transform: rotate(-18deg); }
+    .home-orbit span:nth-child(2) { right: 5%; top: 12%; transform: rotate(16deg); }
+    .home-orbit span:nth-child(3) { left: 9%; bottom: 20%; transform: rotate(14deg); }
+    .home-orbit span:nth-child(4) { right: 4%; bottom: 24%; transform: rotate(-16deg); }
+
+    /* HOME ORBIT GLOBE: Draws a lightweight decorative globe with CSS only. */
+    .home-orbit__globe {
+        @apply h-52 w-52 rounded-full;
+        background:
+            radial-gradient(circle at 35% 30%, #f5d991 0 12%, transparent 13%),
+            radial-gradient(circle at 58% 54%, #c8a24a 0 16%, transparent 17%),
+            linear-gradient(135deg, #213448, #0b1117);
+        box-shadow: 0 32px 80px rgba(9, 8, 6, 0.2);
+    }
+
+    /* HOME STATS GRID: Lays out trust statistics below the globe motif. */
+    .home-stats__grid {
+        @apply grid gap-4 md:grid-cols-3;
+    }
+
+    /* HOME STAT CARD: Styles one trust statistic. */
+    .home-stat-card {
+        @apply rounded-2xl border bg-white p-5;
+        border-color: var(--frontend-border);
+        box-shadow: var(--frontend-shadow);
+    }
+
+    /* HOME STAT NUMBER: Highlights statistic numbers in gold. */
+    .home-stat-card strong {
+        @apply block text-3xl font-black;
+        color: var(--frontend-gold);
+    }
+
+    /* HOME STAT TEXT: Styles statistic descriptions. */
+    .home-stat-card span {
+        @apply mt-2 block text-sm leading-6 text-stone-600;
+    }
+
+    /* HOME WHY GRID: Displays trust reasons in a clean three-column layout. */
+    .home-why-grid {
+        @apply grid gap-4 md:grid-cols-3;
+    }
+
+    /* HOME WHY CARD: Styles each reason to choose the travel service. */
+    .home-why-card {
+        @apply rounded-[1.35rem] border bg-white p-6;
+        border-color: var(--frontend-border);
+        box-shadow: var(--frontend-shadow);
+    }
+
+    /* HOME WHY NUMBER: Gives each reason a small gold marker. */
+    .home-why-card__number {
+        @apply mb-4 inline-flex h-10 w-10 items-center justify-center rounded-full text-sm font-black;
+        background: var(--frontend-black);
+        color: var(--frontend-gold);
+    }
+
+    /* HOME WHY TITLE: Styles reason titles. */
+    .home-why-card__title {
+        @apply text-lg font-black;
+        color: var(--frontend-charcoal);
+    }
+
+    /* HOME WHY TEXT: Styles reason descriptions. */
+    .home-why-card__text {
+        @apply mt-2 text-sm leading-6 text-stone-600;
+    }
+
+    /* HOME FAQ PREVIEW: Creates a soft information section before the final CTA. */
+    .home-faq-preview {
+        @apply bg-white py-14 sm:py-16 lg:py-20;
+    }
+
+    /* HOME FAQ GRID: Aligns FAQ intro and accordion list responsively. */
+    .home-faq-preview__grid {
+        @apply grid gap-8 lg:grid-cols-[0.82fr_1fr] lg:items-start;
+    }
+
+    /* HOME FAQ IMAGE: Adds a compact placeholder below the FAQ intro. */
+    .home-faq-preview__image {
+        @apply mt-6 aspect-[16/10];
+        color: #8a681a;
+        background: var(--frontend-gold-pale);
+        border-color: var(--frontend-border);
+    }
+
+    /* HOME FAQ LIST: Adds spacing for homepage FAQ preview items. */
+    .home-faq-list {
+        @apply space-y-3;
+    }
+
+    /* HOME FAQ ITEM: Styles native details elements as premium accordions. */
+    .home-faq-list details {
+        @apply rounded-2xl border bg-white p-5;
+        border-color: var(--frontend-border);
+        box-shadow: var(--frontend-shadow);
+    }
+
+    /* HOME FAQ QUESTION: Styles FAQ summary text. */
+    .home-faq-list summary {
+        @apply cursor-pointer text-sm font-black;
+        color: var(--frontend-charcoal);
+    }
+
+    /* HOME FAQ ANSWER: Styles FAQ answer copy. */
+    .home-faq-list p {
+        @apply mt-3 text-sm leading-6 text-stone-600;
+    }
+
+    /* HOME WHATSAPP CTA: Creates the final conversion band. */
+    .home-whatsapp {
+        @apply py-14 sm:py-16;
+    }
+
+    /* HOME WHATSAPP PANEL: Frames the final WhatsApp CTA in black and gold. */
+    .home-whatsapp__panel {
+        @apply overflow-hidden rounded-[1.75rem] p-6 sm:p-8 lg:flex lg:items-center lg:justify-between lg:gap-8;
+        background:
+            radial-gradient(circle at top right, rgba(200, 162, 74, 0.24), transparent 30%),
+            linear-gradient(135deg, var(--frontend-black), #20180b);
+        color: var(--frontend-white);
+        box-shadow: 0 34px 90px rgba(9, 8, 6, 0.2);
+    }
+
+    /* HOME WHATSAPP TITLE: Styles the final CTA headline. */
+    .home-whatsapp__title {
+        @apply text-3xl font-black leading-tight sm:text-4xl;
+    }
+
+    /* HOME WHATSAPP TEXT: Styles the final CTA supporting copy. */
+    .home-whatsapp__text {
+        @apply mt-3 max-w-2xl text-sm leading-6;
+        color: rgba(255, 255, 255, 0.72);
+    }
+
+    /* HOME WHATSAPP ACTION: Aligns the WhatsApp button inside the CTA panel. */
+    .home-whatsapp__action {
+        @apply mt-6 lg:mt-0;
+    }
+}

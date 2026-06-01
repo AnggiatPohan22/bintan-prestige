@@ -10,32 +10,20 @@
     </title>
 
     @vite([
-        'resources/css/app.css',
+        'resources/css/frontend.css',
         'resources/js/app.js'
     ])
 </head>
 
-<body class="bg-slate-50 text-slate-800">
+<body class="frontend-body">
 
-    <header class="bg-white border-b">
-        <div class="max-w-7xl mx-auto px-6 py-5 flex items-center justify-between">
-            <a href="{{ route('products.index') }}"
-               class="text-xl font-bold text-slate-900">
-                Bintan Prestige
-            </a>
+    @include('frontend.partials.header')
 
-            <nav class="flex gap-6 text-sm font-medium">
-                <a href="{{ route('products.index') }}"
-                   class="hover:text-emerald-600">
-                    Products
-                </a>
-            </nav>
-        </div>
-    </header>
-
-    <main>
+    <main class="frontend-main">
         @yield('content')
     </main>
+
+    @include('frontend.partials.footer')
 
 </body>
 </html>

@@ -1,0 +1,855 @@
+@layer components {
+
+    /* PRODUCT PAGE: Root wrapper for consistent font rendering and modern page color. */
+    .product-page {
+        @apply text-slate-800;
+        background: transparent;
+        color: var(--frontend-charcoal);
+        font-family: "Figtree", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    /* PRODUCT HERO: Creates a clean responsive header area for the products page. */
+    .product-hero {
+        @apply relative overflow-hidden border-b;
+        background:
+            radial-gradient(circle at top right, rgba(200, 162, 74, 0.14), transparent 34%),
+            linear-gradient(135deg, var(--frontend-black) 0%, var(--frontend-charcoal) 44%, #2a2111 100%);
+        border-color: rgba(200, 162, 74, 0.28);
+    }
+
+    /* PRODUCT HERO CONTAINER: Keeps hero content centered with balanced desktop and mobile spacing. */
+    .product-hero__container {
+        @apply mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:px-6 md:grid-cols-[1fr_auto] md:items-end md:py-16 lg:px-8;
+    }
+
+    /* PRODUCT HERO CONTENT: Limits text width so the headline remains readable. */
+    .product-hero__content {
+        @apply max-w-3xl;
+    }
+
+    /* PRODUCT EYEBROW: Adds a subtle category label above the main title. */
+    .product-hero__eyebrow {
+        @apply inline-flex items-center rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-bold uppercase text-amber-800;
+        background: rgba(200, 162, 74, 0.12);
+        border-color: rgba(200, 162, 74, 0.42);
+        color: var(--frontend-gold-soft);
+    }
+
+    /* PRODUCT TITLE: Controls headline size responsively without breaking mobile layout. */
+    .product-hero__title {
+        @apply mt-5 max-w-3xl text-3xl font-extrabold leading-tight text-slate-950 sm:text-4xl lg:text-5xl;
+        color: var(--frontend-white);
+    }
+
+    /* PRODUCT DESCRIPTION: Styles supporting copy with comfortable line height. */
+    .product-hero__description {
+        @apply mt-4 max-w-2xl text-base leading-7 text-slate-600 sm:text-lg;
+        color: rgba(255, 255, 255, 0.74);
+    }
+
+    /* PRODUCT HERO SUMMARY: Shows product count in a compact modern stat box. */
+    .product-hero__summary {
+        @apply w-full rounded-lg border border-slate-200 bg-slate-50 p-4 shadow-sm md:w-56;
+    }
+
+    /* PRODUCT HERO SUMMARY LABEL: Keeps helper text small and secondary. */
+    .product-hero__summary-label {
+        @apply text-xs font-semibold uppercase text-slate-500;
+    }
+
+    /* PRODUCT HERO SUMMARY VALUE: Highlights total products without overwhelming the hero. */
+    .product-hero__summary-value {
+        @apply mt-1 text-2xl font-extrabold text-slate-950;
+    }
+
+    /* PRODUCT HERO SOFT CARD: Replaces hard product count with a softer selling message. */
+    .product-hero__soft-card {
+        @apply w-full rounded-lg border border-slate-200 bg-slate-50 p-5 shadow-sm md:w-72;
+        background: rgba(255, 255, 255, 0.08);
+        border-color: rgba(200, 162, 74, 0.32);
+        box-shadow: none;
+    }
+
+    /* PRODUCT HERO SOFT TITLE: Gives the soft-selling card a clear headline. */
+    .product-hero__soft-title {
+        @apply text-sm font-extrabold text-slate-950;
+        color: var(--frontend-gold);
+    }
+
+    /* PRODUCT HERO SOFT TEXT: Keeps the supporting sales copy concise and readable. */
+    .product-hero__soft-text {
+        @apply mt-2 text-sm leading-6 text-slate-600;
+        color: rgba(255, 255, 255, 0.72);
+    }
+
+    /* PRODUCT SECTION: Provides consistent vertical rhythm for the product listing area. */
+    .product-section {
+        @apply py-10 sm:py-12 lg:py-14;
+    }
+
+    /* PRODUCT CONTAINER: Aligns listing content with the hero and keeps side padding responsive. */
+    .product-container {
+        @apply mx-auto max-w-7xl px-4 sm:px-6 lg:px-8;
+    }
+
+    /* PRODUCT TOOLBAR: Arranges section heading and count neatly across breakpoints. */
+    .product-toolbar {
+        @apply mb-7 flex flex-col gap-4 border-b border-slate-200 pb-6 lg:flex-row lg:items-end lg:justify-between;
+        border-color: var(--frontend-border);
+    }
+
+    /* PRODUCT TOOLBAR TITLE: Gives the product list a clear visual anchor. */
+    .product-toolbar__title {
+        @apply text-2xl font-extrabold text-slate-950;
+    }
+
+    /* PRODUCT TOOLBAR TEXT: Keeps supporting text subtle and readable. */
+    .product-toolbar__text {
+        @apply mt-2 max-w-2xl text-sm leading-6 text-slate-500;
+    }
+
+    /* PRODUCT TOOLBAR COUNT: Styles the result count as a restrained badge. */
+    .product-toolbar__count {
+        @apply inline-flex w-fit items-center rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-600 shadow-sm;
+    }
+
+    /* PRODUCT BREADCRUMB: Shows the visitor where they are in the product catalog. */
+    .product-breadcrumb {
+        @apply mb-5 flex flex-wrap items-center gap-2 text-sm font-semibold text-slate-500;
+    }
+
+    /* PRODUCT BREADCRUMB LINK: Makes parent breadcrumb items look clickable. */
+    .product-breadcrumb__link {
+        @apply text-slate-600 transition hover:text-amber-800;
+        color: var(--frontend-gray);
+    }
+
+    /* PRODUCT BREADCRUMB LINK HOVER: Uses gold for breadcrumb hover states. */
+    .product-breadcrumb__link:hover {
+        color: var(--frontend-gold);
+    }
+
+    /* PRODUCT BREADCRUMB SEPARATOR: Adds a subtle visual separator between breadcrumb items. */
+    .product-breadcrumb__separator {
+        @apply text-slate-300;
+    }
+
+    /* PRODUCT BREADCRUMB CURRENT: Highlights the active catalog location. */
+    .product-breadcrumb__current {
+        @apply text-slate-950;
+        color: var(--frontend-charcoal);
+    }
+
+    /* PRODUCT ACTIONS: Groups filter and sort controls beside the toolbar heading. */
+    .product-actions {
+        @apply flex flex-wrap gap-3;
+    }
+
+    /* PRODUCT ACTION BUTTON: Styles toolbar buttons for opening filter and sort popups. */
+    .product-action-button {
+        @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-extrabold text-slate-800 shadow-sm transition hover:border-amber-200 hover:text-amber-800 focus:outline-none focus:ring-4 focus:ring-amber-100;
+        border-color: var(--frontend-border);
+        color: var(--frontend-charcoal);
+    }
+
+    /* PRODUCT ACTION BUTTON HOVER: Applies the luxury gold hover treatment. */
+    .product-action-button:hover {
+        border-color: var(--frontend-gold);
+        color: var(--frontend-black);
+        background: var(--frontend-gold-pale);
+    }
+
+    /* PRODUCT ACTION BADGE: Shows how many filter groups are currently active. */
+    .product-action-button__badge {
+        @apply inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-amber-700 px-1.5 text-xs font-extrabold text-white;
+        background: var(--frontend-gold);
+        color: var(--frontend-black);
+    }
+
+    /* PRODUCT ACTION LABEL: Displays the active sort label without dominating the button. */
+    .product-action-button__label {
+        @apply hidden text-xs font-bold text-slate-400 sm:inline;
+    }
+
+    /* PRODUCT GRID SHELL: Allows horizontal swipe for cards on smaller screens. */
+    .product-grid-shell {
+        @apply -mx-4 overflow-x-auto px-4 pb-2 sm:mx-0 sm:overflow-visible sm:px-0 sm:pb-0;
+        scroll-snap-type: x mandatory;
+        scrollbar-width: thin;
+    }
+
+    /* PRODUCT GRID: Builds a swipeable mobile row and a four-column desktop grid. */
+    .product-grid {
+        display: grid;
+        grid-auto-columns: minmax(252px, 84vw);
+        grid-auto-flow: column;
+        gap: 1rem;
+    }
+
+    @media (min-width: 640px) {
+        .product-grid {
+            grid-auto-flow: row;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @media (min-width: 1024px) {
+        .product-grid {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 1.25rem;
+        }
+    }
+
+    @media (min-width: 1280px) {
+        .product-grid {
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+    }
+
+    /* PRODUCT CARD: Defines the main product card with stable height and clean edges. */
+    .product-card {
+        @apply flex h-full flex-col overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:border-amber-200 hover:shadow-lg;
+        border-color: var(--frontend-border);
+        box-shadow: var(--frontend-shadow);
+        scroll-snap-align: start;
+    }
+
+    /* PRODUCT CARD HOVER: Gives cards a subtle gold accent on hover. */
+    .product-card:hover {
+        border-color: var(--frontend-gold);
+    }
+
+    /* PRODUCT CARD MEDIA: Keeps product images at a consistent ratio for a symmetric grid. */
+    .product-card__media {
+        @apply relative aspect-[16/11] overflow-hidden bg-slate-100;
+    }
+
+    /* PRODUCT CARD IMAGE: Makes images fill the card without distortion and adds a soft hover zoom. */
+    .product-card__image {
+        @apply h-full w-full object-cover transition duration-500;
+    }
+
+    /* PRODUCT CARD IMAGE HOVER: Zooms only the image when the full card is hovered. */
+    .product-card:hover .product-card__image {
+        transform: scale(1.05);
+    }
+
+    /* PRODUCT CARD PLACEHOLDER: Provides a polished empty state when an image is unavailable. */
+    .product-card__placeholder {
+        @apply flex h-full w-full items-center justify-center bg-slate-100 text-sm font-semibold text-slate-400;
+    }
+
+    /* PRODUCT CATEGORY BADGE: Places category information over the image with good contrast. */
+    .product-card__category {
+        @apply absolute left-3 top-3 max-w-[calc(100%-1.5rem)] truncate rounded-lg bg-white/95 px-3 py-1.5 text-xs font-bold text-slate-700 shadow-sm ring-1 ring-slate-200;
+        background: rgba(9, 8, 6, 0.84);
+        color: var(--frontend-gold-soft);
+        --tw-ring-color: rgba(200, 162, 74, 0.36);
+    }
+
+    /* PRODUCT CARD BODY: Uses flex layout so prices and buttons align across cards. */
+    .product-card__body {
+        @apply flex flex-1 flex-col p-4;
+    }
+
+    /* PRODUCT META: Displays destination and duration in one tidy responsive row. */
+    .product-card__meta {
+        @apply mb-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs font-semibold text-slate-500;
+    }
+
+    /* PRODUCT META DOT: Adds a small separator that stays visually balanced. */
+    .product-card__meta-dot {
+        @apply h-1 w-1 rounded-full bg-slate-300;
+    }
+
+    /* PRODUCT CARD TITLE: Keeps product names strong while preventing uneven card heights. */
+    .product-card__title {
+        @apply text-base font-extrabold leading-snug text-slate-950;
+        display: -webkit-box;
+        min-height: 2.75rem;
+        overflow: hidden;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+    }
+
+    /* PRODUCT CARD DESCRIPTION: Clamps summaries so cards stay clean and symmetric. */
+    .product-card__description {
+        @apply mt-2 text-sm leading-5 text-slate-600;
+        display: -webkit-box;
+        min-height: 2.5rem;
+        overflow: hidden;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+    }
+
+    /* PRODUCT HIGHLIGHTS: Arranges short feature tags without crowding the card. */
+    .product-card__highlights {
+        @apply mt-4 flex flex-wrap gap-2;
+    }
+
+    /* PRODUCT HIGHLIGHT CHIP: Styles each highlight as a small modern chip. */
+    .product-card__highlight {
+        @apply max-w-full truncate rounded-lg bg-amber-50 px-2.5 py-1.5 text-xs font-semibold text-amber-800 ring-1 ring-amber-100;
+        background: var(--frontend-gold-pale);
+        color: #7c5e18;
+        --tw-ring-color: rgba(200, 162, 74, 0.26);
+    }
+
+    /* PRODUCT CARD FOOTER: Pins pricing and actions to the bottom for consistent alignment. */
+    .product-card__footer {
+        @apply mt-auto flex items-end justify-between gap-3 border-t border-slate-100 pt-4;
+        border-color: rgba(200, 162, 74, 0.18);
+    }
+
+    /* PRODUCT PRICE LABEL: Keeps the price helper text quiet and compact. */
+    .product-card__price-label {
+        @apply text-xs font-semibold uppercase text-slate-400;
+    }
+
+    /* PRODUCT PRICE MAIN: Emphasizes the IDR price with a clear hierarchy. */
+    .product-card__price-main {
+        @apply mt-1 text-lg font-extrabold leading-none text-slate-950;
+    }
+
+    /* PRODUCT PRICE SECONDARY: Shows alternate currency without competing with the main price. */
+    .product-card__price-secondary {
+        @apply mt-1 text-sm font-medium text-slate-500;
+    }
+
+    /* PRODUCT BUTTON: Creates a compact call-to-action with modern focus and hover states. */
+    .product-card__button {
+        @apply inline-flex min-h-10 shrink-0 items-center justify-center rounded-lg bg-amber-700 px-4 py-2 text-sm font-bold text-white shadow-sm transition duration-200 hover:bg-amber-800 focus:outline-none focus:ring-4 focus:ring-amber-100;
+        background: var(--frontend-black);
+        color: var(--frontend-gold-soft);
+    }
+
+    /* PRODUCT BUTTON HOVER: Turns product card actions gold on hover. */
+    .product-card__button:hover {
+        background: var(--frontend-gold);
+        color: var(--frontend-black);
+    }
+
+    /* PRODUCT MODAL CLOAK: Prevents Alpine popups from flashing before JavaScript starts. */
+    [x-cloak] {
+        display: none !important;
+    }
+
+    /* PRODUCT MODAL: Places filter and sort popups above the product catalog. */
+    .product-modal {
+        @apply fixed inset-0 z-50 flex items-end justify-center p-0 sm:items-center sm:p-6;
+    }
+
+    /* PRODUCT MODAL BACKDROP: Dims the page and closes the popup when clicked. */
+    .product-modal__backdrop {
+        @apply absolute inset-0 bg-slate-950/40;
+        background: rgba(9, 8, 6, 0.58);
+    }
+
+    /* PRODUCT MODAL PANEL: Creates a responsive popup panel for filter controls. */
+    .product-modal__panel {
+        @apply relative z-10 flex max-h-[86vh] w-full flex-col overflow-hidden rounded-t-lg border border-slate-200 bg-white shadow-xl sm:max-w-2xl sm:rounded-lg;
+        border-color: var(--frontend-border);
+    }
+
+    /* PRODUCT MODAL SMALL PANEL: Narrows the sort popup so choices scan quickly. */
+    .product-modal__panel--small {
+        @apply sm:max-w-md;
+    }
+
+    /* PRODUCT MODAL HEADER: Aligns popup title and close button. */
+    .product-modal__header {
+        @apply flex items-start justify-between gap-4 border-b border-slate-200 p-5;
+    }
+
+    /* PRODUCT MODAL EYEBROW: Adds secondary context above popup titles. */
+    .product-modal__eyebrow {
+        @apply text-xs font-bold uppercase text-amber-800;
+        color: #8a681a;
+    }
+
+    /* PRODUCT MODAL TITLE: Styles filter and sort popup titles. */
+    .product-modal__title {
+        @apply mt-1 text-2xl font-extrabold text-slate-950;
+    }
+
+    /* PRODUCT MODAL CLOSE: Provides a compact close button for popups. */
+    .product-modal__close {
+        @apply inline-flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 text-sm font-extrabold text-slate-500 transition hover:bg-slate-50 hover:text-slate-900;
+    }
+
+    /* PRODUCT MODAL FOOTER: Keeps popup actions pinned below scrollable content. */
+    .product-modal__footer {
+        @apply flex gap-3 border-t border-slate-200 bg-white p-4;
+    }
+
+    /* PRODUCT MODAL RESET: Styles reset links in filter and sort popups. */
+    .product-modal__reset {
+        @apply inline-flex min-h-11 flex-1 items-center justify-center rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-extrabold text-slate-700 transition hover:bg-slate-50;
+    }
+
+    /* PRODUCT MODAL SUBMIT: Styles apply buttons in filter and sort popups. */
+    .product-modal__submit {
+        @apply inline-flex min-h-11 flex-[1.4] items-center justify-center rounded-lg bg-amber-700 px-4 py-2 text-center text-sm font-extrabold text-white shadow-sm transition hover:bg-amber-800 focus:outline-none focus:ring-4 focus:ring-amber-100;
+        background: var(--frontend-black);
+        color: var(--frontend-gold-soft);
+    }
+
+    /* PRODUCT MODAL SUBMIT HOVER: Uses gold as the primary apply action hover color. */
+    .product-modal__submit:hover {
+        background: var(--frontend-gold);
+        color: var(--frontend-black);
+    }
+
+    /* PRODUCT FILTER: Makes the filter popup content scroll while footer stays visible. */
+    .product-filter {
+        @apply flex-1 space-y-6 overflow-y-auto p-5;
+    }
+
+    /* PRODUCT FILTER GROUP: Separates each filter category cleanly. */
+    .product-filter__group {
+        @apply border-b border-slate-100 pb-5 last:border-b-0 last:pb-0;
+    }
+
+    /* PRODUCT FILTER TITLE: Labels one filter group inside the popup. */
+    .product-filter__title {
+        @apply text-sm font-extrabold text-slate-950;
+    }
+
+    /* PRODUCT FILTER PRICE GRID: Places min and max price fields side by side when possible. */
+    .product-filter__price-grid {
+        @apply mt-3 grid gap-3 sm:grid-cols-2;
+    }
+
+    /* PRODUCT FILTER OPTIONS: Wraps checkbox filter choices into clean chips. */
+    .product-filter__options {
+        @apply mt-3 flex flex-wrap gap-2;
+    }
+
+    /* PRODUCT FILTER EMPTY: Styles empty filter option states. */
+    .product-filter__empty {
+        @apply text-sm text-slate-400;
+    }
+
+    /* PRODUCT FIELD: Groups one form label and input. */
+    .product-field {
+        @apply block;
+    }
+
+    /* PRODUCT FIELD LABEL: Keeps form labels small and readable. */
+    .product-field__label {
+        @apply mb-2 block text-xs font-bold uppercase text-slate-400;
+    }
+
+    /* PRODUCT FIELD INPUT: Styles price inputs inside the filter popup. */
+    .product-field__input {
+        @apply w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm font-semibold text-slate-800 shadow-sm transition focus:border-amber-500 focus:outline-none focus:ring-4 focus:ring-amber-100;
+        border-color: var(--frontend-border);
+    }
+
+    /* PRODUCT FIELD INPUT FOCUS: Uses a soft gold focus ring for form fields. */
+    .product-field__input:focus {
+        border-color: var(--frontend-gold);
+        --tw-ring-color: rgba(200, 162, 74, 0.22);
+    }
+
+    /* PRODUCT CHECK: Styles checkbox options as compact selectable pills. */
+    .product-check {
+        @apply inline-flex cursor-pointer items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-bold text-slate-600 transition hover:border-amber-200 hover:text-amber-800;
+        border-color: var(--frontend-border);
+    }
+
+    /* PRODUCT CHECK HOVER: Applies gold hover states to filter chips. */
+    .product-check:hover {
+        border-color: var(--frontend-gold);
+        color: var(--frontend-black);
+    }
+
+    /* PRODUCT CHECK INPUT: Keeps checkbox controls aligned inside filter pills. */
+    .product-check input {
+        @apply h-4 w-4 rounded border-slate-300 text-amber-700 focus:ring-amber-500;
+        color: var(--frontend-gold);
+    }
+
+    /* PRODUCT SORT LIST: Adds spacing between sort choices. */
+    .product-sort-list {
+        @apply flex-1 space-y-2 overflow-y-auto p-5;
+    }
+
+    /* PRODUCT SORT OPTION: Styles one radio option in the sort popup. */
+    .product-sort-option {
+        @apply flex cursor-pointer items-center gap-3 rounded-lg border border-slate-200 bg-white p-4 text-sm font-extrabold text-slate-700 transition hover:border-amber-200 hover:text-amber-800;
+        border-color: var(--frontend-border);
+    }
+
+    /* PRODUCT SORT OPTION HOVER: Applies gold hover states to sort choices. */
+    .product-sort-option:hover {
+        border-color: var(--frontend-gold);
+        color: var(--frontend-black);
+    }
+
+    /* PRODUCT SORT RADIO: Keeps sort radio controls consistent with the brand color. */
+    .product-sort-option input {
+        @apply h-4 w-4 border-slate-300 text-amber-700 focus:ring-amber-500;
+        color: var(--frontend-gold);
+    }
+
+    /* PRODUCT EMPTY STATE: Centers the empty product message in a clean bordered panel. */
+    .product-empty {
+        @apply rounded-lg border border-dashed border-slate-300 bg-white p-10 text-center shadow-sm sm:p-12;
+    }
+
+    /* PRODUCT EMPTY TITLE: Makes the empty state heading visible without feeling oversized. */
+    .product-empty__title {
+        @apply text-xl font-extrabold text-slate-950;
+    }
+
+    /* PRODUCT EMPTY TEXT: Keeps empty state description calm and concise. */
+    .product-empty__text {
+        @apply mt-2 text-sm text-slate-500;
+    }
+
+    /* PRODUCT PAGINATION: Adds spacing and alignment around Laravel pagination links. */
+    .product-pagination {
+        @apply mt-10;
+    }
+
+    /* PRODUCT DETAIL HERO: Creates a bright first section for tour detail pages. */
+    .product-detail-hero {
+        @apply border-b border-slate-200 bg-white py-8 sm:py-10 lg:py-12;
+    }
+
+    /* PRODUCT DETAIL CONTAINER: Keeps detail content aligned with the product listing page. */
+    .product-detail-container {
+        @apply mx-auto max-w-7xl px-4 sm:px-6 lg:px-8;
+    }
+
+    /* PRODUCT DETAIL HERO GRID: Places gallery and booking summary in a responsive layout. */
+    .product-detail-hero__grid {
+        @apply grid gap-8 lg:grid-cols-[minmax(0,1.08fr)_minmax(360px,0.92fr)] lg:items-start;
+    }
+
+    /* PRODUCT DETAIL GALLERY: Groups the main product image and thumbnails. */
+    .product-detail-gallery {
+        @apply space-y-3;
+    }
+
+    /* PRODUCT DETAIL MAIN IMAGE: Provides a stable frame for the primary tour image. */
+    .product-detail-gallery__main {
+        @apply aspect-[16/10] overflow-hidden rounded-lg bg-slate-100 shadow-sm ring-1 ring-slate-200;
+    }
+
+    /* PRODUCT DETAIL IMAGE: Makes the primary image fill its frame cleanly. */
+    .product-detail-gallery__image {
+        @apply h-full w-full object-cover;
+    }
+
+    /* PRODUCT DETAIL IMAGE PLACEHOLDER: Keeps the gallery polished when no image exists. */
+    .product-detail-gallery__placeholder {
+        @apply flex h-full w-full items-center justify-center text-sm font-semibold text-slate-400;
+    }
+
+    /* PRODUCT DETAIL THUMBNAILS: Creates a neat thumbnail row under the main image. */
+    .product-detail-gallery__thumbs {
+        @apply grid grid-cols-4 gap-3;
+    }
+
+    /* PRODUCT DETAIL THUMBNAIL: Keeps thumbnail images consistent and clickable-looking. */
+    .product-detail-gallery__thumb {
+        @apply aspect-[4/3] w-full rounded-lg border border-slate-200 object-cover shadow-sm;
+    }
+
+    /* PRODUCT DETAIL SUMMARY: Aligns title, meta, price, and CTA with balanced spacing. */
+    .product-detail-summary {
+        @apply flex flex-col gap-5;
+    }
+
+    /* PRODUCT DETAIL BADGES: Wraps category and destination chips neatly. */
+    .product-detail-badges {
+        @apply flex flex-wrap gap-2;
+    }
+
+    /* PRODUCT DETAIL BADGE: Styles secondary product metadata chips. */
+    .product-detail-badge {
+        @apply inline-flex max-w-full items-center rounded-lg bg-slate-100 px-3 py-1.5 text-sm font-semibold text-slate-600;
+    }
+
+    /* PRODUCT DETAIL PRIMARY BADGE: Gives the main category a stronger travel accent. */
+    .product-detail-badge--primary {
+        @apply border border-amber-200 bg-amber-50 text-amber-800;
+        background: var(--frontend-gold-pale);
+        border-color: rgba(200, 162, 74, 0.34);
+        color: #7c5e18;
+    }
+
+    /* PRODUCT DETAIL TITLE: Sets a strong responsive page title for the product. */
+    .product-detail-title {
+        @apply text-3xl font-extrabold leading-tight text-slate-950 sm:text-4xl lg:text-5xl;
+    }
+
+    /* PRODUCT DETAIL DESCRIPTION: Keeps the intro copy readable and calm. */
+    .product-detail-description {
+        @apply max-w-2xl text-base leading-7 text-slate-600 sm:text-lg;
+    }
+
+    /* PRODUCT DETAIL META: Shows key booking facts in compact responsive tiles. */
+    .product-detail-meta {
+        @apply grid gap-3 sm:grid-cols-2;
+    }
+
+    /* PRODUCT DETAIL META ITEM: Frames one compact fact such as duration or pickup. */
+    .product-detail-meta__item {
+        @apply rounded-lg border border-slate-200 bg-slate-50 p-4;
+    }
+
+    /* PRODUCT DETAIL META LABEL: Keeps metadata labels secondary. */
+    .product-detail-meta__label {
+        @apply block text-xs font-bold uppercase text-slate-400;
+    }
+
+    /* PRODUCT DETAIL META VALUE: Emphasizes the actual metadata value. */
+    .product-detail-meta__value {
+        @apply mt-1 block text-sm font-bold text-slate-800;
+    }
+
+    /* PRODUCT DETAIL PRICE CARD: Creates a focused booking CTA block beside the gallery. */
+    .product-detail-price-card {
+        @apply rounded-lg border border-slate-200 bg-slate-50 p-5 shadow-sm;
+    }
+
+    /* PRODUCT DETAIL PRICE LABEL: Adds subtle context above the main price. */
+    .product-detail-price-card__label {
+        @apply text-xs font-bold uppercase text-slate-400;
+    }
+
+    /* PRODUCT DETAIL MAIN PRICE: Highlights the main IDR price for quick scanning. */
+    .product-detail-price-card__main {
+        @apply mt-2 text-3xl font-extrabold leading-none text-slate-950 sm:text-4xl;
+    }
+
+    /* PRODUCT DETAIL SECONDARY PRICE: Shows alternate currency below the main price. */
+    .product-detail-price-card__secondary {
+        @apply mt-2 text-sm font-semibold text-slate-500;
+    }
+
+    /* PRODUCT DETAIL BUTTON: Defines the main WhatsApp booking action. */
+    .product-detail-button {
+        @apply mt-5 inline-flex min-h-12 w-full items-center justify-center rounded-lg bg-amber-700 px-5 py-3 text-center text-sm font-extrabold text-white shadow-sm transition duration-200 hover:bg-amber-800 focus:outline-none focus:ring-4 focus:ring-amber-100;
+        background: var(--frontend-black);
+        color: var(--frontend-gold-soft);
+    }
+
+    /* PRODUCT DETAIL BUTTON HOVER: Turns detail page CTAs gold on hover. */
+    .product-detail-button:hover {
+        background: var(--frontend-gold);
+        color: var(--frontend-black);
+    }
+
+    /* PRODUCT DETAIL CTA NOTE: Adds optional booking helper copy below the main button. */
+    .product-detail-cta-note {
+        @apply mt-4 rounded-lg border border-slate-200 bg-white p-4 text-sm leading-6 text-slate-600;
+    }
+
+    /* PRODUCT DETAIL CTA TITLE: Makes optional CTA title stand out slightly. */
+    .product-detail-cta-note__title {
+        @apply font-bold text-slate-900;
+    }
+
+    /* PRODUCT DETAIL CTA TEXT: Spaces optional CTA description under the title. */
+    .product-detail-cta-note__text {
+        @apply mt-1;
+    }
+
+    /* PRODUCT DETAIL HIGHLIGHTS: Builds a responsive grid for tour highlights. */
+    .product-detail-highlights {
+        @apply grid gap-3 sm:grid-cols-2;
+    }
+
+    /* PRODUCT DETAIL HIGHLIGHT: Styles one highlight as a compact bordered tile. */
+    .product-detail-highlight {
+        @apply flex items-center gap-3 rounded-lg border border-slate-200 bg-white p-4 shadow-sm;
+    }
+
+    /* PRODUCT DETAIL HIGHLIGHT ICON: Colors optional font-awesome highlight icons. */
+    .product-detail-highlight__icon {
+        @apply shrink-0 text-amber-700;
+        color: var(--frontend-gold);
+    }
+
+    /* PRODUCT DETAIL HIGHLIGHT DOT: Provides a fallback marker when no icon is saved. */
+    .product-detail-highlight__dot {
+        @apply h-2.5 w-2.5 shrink-0 rounded-full bg-amber-500;
+        background: var(--frontend-gold);
+    }
+
+    /* PRODUCT DETAIL HIGHLIGHT TEXT: Keeps highlight labels readable and compact. */
+    .product-detail-highlight__text {
+        @apply text-sm font-bold leading-5 text-slate-700;
+    }
+
+    /* PRODUCT DETAIL CONTENT: Gives the lower detail area a quiet page background. */
+    .product-detail-content {
+        @apply bg-slate-50 py-10 lg:py-12;
+    }
+
+    /* PRODUCT DETAIL CONTENT GRID: Creates main content and sticky booking sidebar columns. */
+    .product-detail-content__grid {
+        @apply grid gap-8 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start;
+    }
+
+    /* PRODUCT DETAIL MAIN: Controls vertical spacing between content panels. */
+    .product-detail-main {
+        @apply space-y-6;
+    }
+
+    /* PRODUCT DETAIL PANEL: Frames each content section with clean tour-site styling. */
+    .product-detail-panel {
+        @apply rounded-lg border border-slate-200 bg-white p-5 shadow-sm sm:p-6;
+    }
+
+    /* PRODUCT DETAIL PANEL TITLE: Sets consistent section headings. */
+    .product-detail-panel__title {
+        @apply text-2xl font-extrabold text-slate-950;
+    }
+
+    /* PRODUCT DETAIL RICHTEXT: Styles overview body text entered from the admin panel. */
+    .product-detail-richtext {
+        @apply mt-4 max-w-none whitespace-pre-line text-sm leading-7 text-slate-600 sm:text-base;
+    }
+
+    /* PRODUCT DETAIL FEATURE GRID: Arranges included and excluded groups responsively. */
+    .product-detail-feature-grid {
+        @apply mt-5 grid gap-5 md:grid-cols-2;
+    }
+
+    /* PRODUCT DETAIL FEATURE GROUP: Keeps one feature label group visually separated. */
+    .product-detail-feature-group {
+        @apply rounded-lg border border-slate-100 bg-slate-50 p-4;
+    }
+
+    /* PRODUCT DETAIL FEATURE GROUP TITLE: Labels one group of product features. */
+    .product-detail-feature-group__title {
+        @apply font-extrabold text-slate-900;
+    }
+
+    /* PRODUCT DETAIL LIST: Adds vertical rhythm for feature lists. */
+    .product-detail-list {
+        @apply mt-3 space-y-2;
+    }
+
+    /* PRODUCT DETAIL LIST ITEM: Aligns each list marker and text cleanly. */
+    .product-detail-list__item {
+        @apply flex gap-3 text-sm leading-6 text-slate-600;
+    }
+
+    /* PRODUCT DETAIL LIST MARKER: Uses a small brand-color marker instead of text bullets. */
+    .product-detail-list__marker {
+        @apply mt-2 h-2 w-2 shrink-0 rounded-full bg-amber-500;
+        background: var(--frontend-gold);
+    }
+
+    /* PRODUCT DETAIL TIMELINE: Spaces itinerary items as a vertical timeline. */
+    .product-detail-timeline {
+        @apply mt-6 space-y-5;
+    }
+
+    /* PRODUCT DETAIL TIMELINE ITEM: Aligns itinerary time and description columns. */
+    .product-detail-timeline__item {
+        @apply grid gap-3 sm:grid-cols-[6rem_1fr];
+    }
+
+    /* PRODUCT DETAIL TIMELINE TIME: Highlights the itinerary time slot. */
+    .product-detail-timeline__time {
+        @apply text-sm font-extrabold text-amber-800;
+        color: #8a681a;
+    }
+
+    /* PRODUCT DETAIL TIMELINE CONTENT: Draws a subtle vertical line for itinerary flow. */
+    .product-detail-timeline__content {
+        @apply border-l border-slate-200 pl-4;
+    }
+
+    /* PRODUCT DETAIL TIMELINE TITLE: Styles itinerary activity names. */
+    .product-detail-timeline__title {
+        @apply font-extrabold text-slate-950;
+    }
+
+    /* PRODUCT DETAIL TIMELINE TEXT: Styles itinerary descriptions. */
+    .product-detail-timeline__text {
+        @apply mt-1 text-sm leading-6 text-slate-600;
+    }
+
+    /* PRODUCT DETAIL NOTE LIST: Adds spacing between important notes. */
+    .product-detail-note-list {
+        @apply mt-4 space-y-4;
+    }
+
+    /* PRODUCT DETAIL NOTE: Styles one note as a soft information block. */
+    .product-detail-note {
+        @apply rounded-lg bg-slate-50 p-4;
+    }
+
+    /* PRODUCT DETAIL NOTE TITLE: Emphasizes optional note titles. */
+    .product-detail-note__title {
+        @apply font-extrabold text-slate-900;
+    }
+
+    /* PRODUCT DETAIL NOTE TEXT: Keeps note descriptions readable. */
+    .product-detail-note__text {
+        @apply mt-1 text-sm leading-6 text-slate-600;
+    }
+
+    /* PRODUCT DETAIL FAQ LIST: Controls spacing between FAQ items. */
+    .product-detail-faq-list {
+        @apply mt-4 space-y-3;
+    }
+
+    /* PRODUCT DETAIL FAQ: Frames collapsible questions with subtle borders. */
+    .product-detail-faq {
+        @apply rounded-lg border border-slate-200 bg-white p-4;
+    }
+
+    /* PRODUCT DETAIL FAQ QUESTION: Makes summaries feel clickable and clear. */
+    .product-detail-faq__question {
+        @apply cursor-pointer font-extrabold text-slate-900;
+    }
+
+    /* PRODUCT DETAIL FAQ ANSWER: Styles revealed FAQ answers. */
+    .product-detail-faq__answer {
+        @apply mt-3 text-sm leading-6 text-slate-600;
+    }
+
+    /* PRODUCT DETAIL SIDEBAR: Keeps sidebar content positioned nicely on desktop. */
+    .product-detail-sidebar {
+        @apply lg:sticky lg:top-24;
+    }
+
+    /* PRODUCT DETAIL BOOKING CARD: Creates the sticky booking information card. */
+    .product-detail-booking-card {
+        @apply rounded-lg border border-slate-200 bg-white p-5 shadow-sm sm:p-6;
+    }
+
+    /* PRODUCT DETAIL BOOKING TITLE: Styles the sidebar heading. */
+    .product-detail-booking-card__title {
+        @apply text-xl font-extrabold text-slate-950;
+    }
+
+    /* PRODUCT DETAIL BOOKING LIST: Spaces booking facts inside the sidebar card. */
+    .product-detail-booking-card__list {
+        @apply mt-5 space-y-3;
+    }
+
+    /* PRODUCT DETAIL BOOKING ROW: Aligns booking labels and values for easy scanning. */
+    .product-detail-booking-card__row {
+        @apply flex items-start justify-between gap-4 border-b border-slate-100 pb-3 text-sm text-slate-500;
+    }
+
+    /* PRODUCT DETAIL BOOKING ROW VALUE: Keeps sidebar values strong and right-aligned. */
+    .product-detail-booking-card__row strong {
+        @apply text-right font-bold text-slate-800;
+    }
+
+    /* PRODUCT DETAIL BOOKING NOTE: Styles pickup notes as supporting information. */
+    .product-detail-booking-card__note {
+        @apply rounded-lg bg-slate-50 p-3 text-sm leading-6 text-slate-600;
+    }
+}

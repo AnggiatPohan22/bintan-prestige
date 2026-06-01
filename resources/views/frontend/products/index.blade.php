@@ -2,124 +2,395 @@
 
 @section('content')
 
-<section class="py-12">
-    <div class="max-w-7xl mx-auto px-6">
+@php
+    $selectedDurations = (array) request('duration', []);
+    $selectedDestinations = (array) request('destination', []);
+    $selectedCategories = (array) request('category', []);
+    $selectedVehicleTypes = (array) request('vehicle_type', []);
+@endphp
 
-        <div class="mb-10">
-            <h1 class="text-3xl md:text-4xl font-bold text-slate-900">
-                Tour, Taxi & Activity
-            </h1>
+<div
+    class="product-page"
+    x-data="{ filterOpen: false, sortOpen: false }"
+    x-on:keydown.escape.window="filterOpen = false; sortOpen = false"
+>
+    <section class="product-hero">
+        <div class="product-hero__container">
 
-            <p class="mt-3 text-slate-600 max-w-2xl">
-                Explore selected travel experiences, transfers, and activities.
-            </p>
-        </div>
+            <div class="product-hero__content">
+                <span class="product-hero__eyebrow">
+                    Bintan Travel Experience
+                </span>
 
-        @if($products->count())
+                <h1 class="product-hero__title">
+                    Explore Tours, Taxi & Activities in Bintan
+                </h1>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-
-                @foreach($products as $product)
-
-                    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden hover:shadow-md transition">
-
-                        <div class="aspect-[16/10] bg-slate-100 overflow-hidden">
-
-                            @if($product->thumbnail_url)
-                                <img
-                                    src="{{ $product->thumbnail_url }}"
-                                    alt="{{ $product->name }}"
-                                    class="w-full h-full object-cover"
-                                    loading="lazy"
-                                >
-                            @else
-                                <div class="w-full h-full flex items-center justify-center text-slate-400">
-                                    No Image
-                                </div>
-                            @endif
-
-                        </div>
-
-                        <div class="p-5">
-
-                            <div class="flex items-center gap-2 mb-3">
-                                <span class="text-xs px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 font-medium">
-                                    {{ $product->category?->name }}
-                                </span>
-
-                                <span class="text-xs px-3 py-1 rounded-full bg-slate-100 text-slate-600">
-                                    {{ $product->destination?->name }}
-                                </span>
-                            </div>
-
-                            <h2 class="text-lg font-bold text-slate-900 line-clamp-2">
-                                {{ $product->name }}
-                            </h2>
-
-                            <p class="mt-2 text-sm text-slate-600 line-clamp-2">
-                                {{ $product->short_description }}
-                            </p>
-
-                            <div class="mt-4">
-                                <p class="text-xs text-slate-400">
-                                    Start from
-                                </p>
-
-                                <p class="text-xl font-bold text-slate-900">
-                                    Rp {{ number_format($product->idr_price ?? 0, 0, ',', '.') }}
-                                </p>
-
-                                @if($product->sgd_price)
-                                    <p class="text-sm text-slate-500">
-                                        SGD {{ number_format($product->sgd_price, 0) }}
-                                    </p>
-                                @endif
-                            </div>
-
-                            <div class="mt-5 flex items-center justify-between">
-
-                                <a
-                                    href="#"
-                                    class="btn-primary"
-                                >
-                                    View Details
-                                </a>
-
-                                @if($product->highlights->count())
-                                    <span class="text-xs text-slate-400">
-                                        {{ $product->highlights->count() }} highlights
-                                    </span>
-                                @endif
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                @endforeach
-
-            </div>
-
-            <div class="mt-10">
-                {{ $products->links() }}
-            </div>
-
-        @else
-
-            <div class="bg-white border rounded-2xl p-10 text-center">
-                <h3 class="text-lg font-bold">
-                    No products available
-                </h3>
-
-                <p class="mt-2 text-slate-500">
-                    Published products will appear here.
+                <p class="product-hero__description">
+                    Choose curated island tours, private transfers, and activities with easy WhatsApp booking support.
                 </p>
             </div>
 
-        @endif
+            <div class="product-hero__soft-card">
+                <p class="product-hero__soft-title">
+                    Travel made simple
+                </p>
 
+                <p class="product-hero__soft-text">
+                    Local team, flexible pickup, and packages prepared for guests who want a smooth Bintan trip.
+                </p>
+            </div>
+
+        </div>
+    </section>
+
+    <section class="product-section">
+        <div class="product-container">
+
+            <nav class="product-breadcrumb" aria-label="Breadcrumb">
+                <a href="{{ route('products.index') }}" class="product-breadcrumb__link">
+                    Products
+                </a>
+                <span class="product-breadcrumb__separator" aria-hidden="true">/</span>
+                <span class="product-breadcrumb__current">
+                    All Tour
+                </span>
+            </nav>
+
+            <div class="product-toolbar">
+                <div>
+                    <h2 class="product-toolbar__title">
+                        Available Products
+                    </h2>
+
+                    <p class="product-toolbar__text">
+                        {{ $products->total() }} packages available for your next Bintan experience.
+                    </p>
+                </div>
+
+                <div class="product-actions">
+                    <button
+                        type="button"
+                        class="product-action-button"
+                        x-on:click="filterOpen = true"
+                    >
+                        Filter
+                        @if($activeFilterCount)
+                            <span class="product-action-button__badge">
+                                {{ $activeFilterCount }}
+                            </span>
+                        @endif
+                    </button>
+
+                    <button
+                        type="button"
+                        class="product-action-button"
+                        x-on:click="sortOpen = true"
+                    >
+                        Urutkan
+                        <span class="product-action-button__label">
+                            {{ $sortOptions[$sort] ?? 'Tour Terbaru' }}
+                        </span>
+                    </button>
+                </div>
+            </div>
+
+            @if($products->count())
+
+                <div class="product-grid-shell">
+                    <div class="product-grid">
+                        @foreach($products as $product)
+                            @include('frontend.products.partials.card', [
+                                'product' => $product
+                            ])
+                        @endforeach
+                    </div>
+                </div>
+
+                <div class="product-pagination">
+                    {{ $products->links() }}
+                </div>
+
+            @else
+
+                <div class="product-empty">
+                    <h3 class="product-empty__title">
+                        No products available
+                    </h3>
+
+                    <p class="product-empty__text">
+                        Try clearing filters or choose another destination.
+                    </p>
+                </div>
+
+            @endif
+
+        </div>
+    </section>
+
+    <div
+        class="product-modal"
+        x-cloak
+        x-show="filterOpen"
+        x-transition.opacity
+        aria-modal="true"
+        role="dialog"
+    >
+        <button
+            type="button"
+            class="product-modal__backdrop"
+            aria-label="Close filter"
+            x-on:click="filterOpen = false"
+        ></button>
+
+        <form
+            method="GET"
+            action="{{ route('products.index') }}"
+            class="product-modal__panel"
+            x-transition
+        >
+            <input type="hidden" name="sort" value="{{ $sort }}">
+
+            <div class="product-modal__header">
+                <div>
+                    <p class="product-modal__eyebrow">
+                        Refine packages
+                    </p>
+
+                    <h3 class="product-modal__title">
+                        Filter
+                    </h3>
+                </div>
+
+                <button
+                    type="button"
+                    class="product-modal__close"
+                    x-on:click="filterOpen = false"
+                    aria-label="Close filter"
+                >
+                    X
+                </button>
+            </div>
+
+            <div class="product-filter">
+                <section class="product-filter__group">
+                    <h4 class="product-filter__title">
+                        Rentang Harga
+                    </h4>
+
+                    <div class="product-filter__price-grid">
+                        <label class="product-field">
+                            <span class="product-field__label">Minimum</span>
+                            <input
+                                type="number"
+                                name="min_price"
+                                value="{{ request('min_price') }}"
+                                placeholder="{{ $priceRange['min'] ? number_format($priceRange['min'], 0, ',', '.') : '0' }}"
+                                class="product-field__input"
+                            >
+                        </label>
+
+                        <label class="product-field">
+                            <span class="product-field__label">Maximum</span>
+                            <input
+                                type="number"
+                                name="max_price"
+                                value="{{ request('max_price') }}"
+                                placeholder="{{ $priceRange['max'] ? number_format($priceRange['max'], 0, ',', '.') : '0' }}"
+                                class="product-field__input"
+                            >
+                        </label>
+                    </div>
+                </section>
+
+                <section class="product-filter__group">
+                    <h4 class="product-filter__title">
+                        Durasi
+                    </h4>
+
+                    <div class="product-filter__options">
+                        @forelse($durations as $duration)
+                            <label class="product-check">
+                                <input
+                                    type="checkbox"
+                                    name="duration[]"
+                                    value="{{ $duration }}"
+                                    @checked(in_array($duration, $selectedDurations))
+                                >
+                                <span>{{ $duration }}</span>
+                            </label>
+                        @empty
+                            <p class="product-filter__empty">No duration options yet.</p>
+                        @endforelse
+                    </div>
+                </section>
+
+                <section class="product-filter__group">
+                    <h4 class="product-filter__title">
+                        Destinations
+                    </h4>
+
+                    <div class="product-filter__options">
+                        @foreach($destinations as $destination)
+                            <label class="product-check">
+                                <input
+                                    type="checkbox"
+                                    name="destination[]"
+                                    value="{{ $destination->id }}"
+                                    @checked(in_array((string) $destination->id, $selectedDestinations))
+                                >
+                                <span>{{ $destination->name }}</span>
+                            </label>
+                        @endforeach
+                    </div>
+                </section>
+
+                <section class="product-filter__group">
+                    <h4 class="product-filter__title">
+                        Jenis Tour
+                    </h4>
+
+                    <div class="product-filter__options">
+                        @foreach($categories as $category)
+                            <label class="product-check">
+                                <input
+                                    type="checkbox"
+                                    name="category[]"
+                                    value="{{ $category->id }}"
+                                    @checked(in_array((string) $category->id, $selectedCategories))
+                                >
+                                <span>{{ $category->name }}</span>
+                            </label>
+                        @endforeach
+                    </div>
+                </section>
+
+                <section class="product-filter__group">
+                    <h4 class="product-filter__title">
+                        Jenis Mobil
+                    </h4>
+
+                    <div class="product-filter__options">
+                        @forelse($vehicleTypes as $vehicleType)
+                            <label class="product-check">
+                                <input
+                                    type="checkbox"
+                                    name="vehicle_type[]"
+                                    value="{{ $vehicleType }}"
+                                    @checked(in_array($vehicleType, $selectedVehicleTypes))
+                                >
+                                <span>{{ $vehicleType }}</span>
+                            </label>
+                        @empty
+                            <p class="product-filter__empty">No vehicle options yet.</p>
+                        @endforelse
+                    </div>
+                </section>
+            </div>
+
+            <div class="product-modal__footer">
+                <a href="{{ route('products.index', ['sort' => $sort]) }}" class="product-modal__reset">
+                    Hapus Filter
+                </a>
+
+                <button type="submit" class="product-modal__submit">
+                    Tampilkan {{ $filteredPackageCount }} Package
+                </button>
+            </div>
+        </form>
     </div>
-</section>
+
+    <div
+        class="product-modal"
+        x-cloak
+        x-show="sortOpen"
+        x-transition.opacity
+        aria-modal="true"
+        role="dialog"
+    >
+        <button
+            type="button"
+            class="product-modal__backdrop"
+            aria-label="Close sort"
+            x-on:click="sortOpen = false"
+        ></button>
+
+        <form
+            method="GET"
+            action="{{ route('products.index') }}"
+            class="product-modal__panel product-modal__panel--small"
+            x-transition
+        >
+            @if(request('min_price'))
+                <input type="hidden" name="min_price" value="{{ request('min_price') }}">
+            @endif
+
+            @if(request('max_price'))
+                <input type="hidden" name="max_price" value="{{ request('max_price') }}">
+            @endif
+
+            @foreach($selectedDurations as $duration)
+                <input type="hidden" name="duration[]" value="{{ $duration }}">
+            @endforeach
+
+            @foreach($selectedDestinations as $destination)
+                <input type="hidden" name="destination[]" value="{{ $destination }}">
+            @endforeach
+
+            @foreach($selectedCategories as $category)
+                <input type="hidden" name="category[]" value="{{ $category }}">
+            @endforeach
+
+            @foreach($selectedVehicleTypes as $vehicleType)
+                <input type="hidden" name="vehicle_type[]" value="{{ $vehicleType }}">
+            @endforeach
+
+            <div class="product-modal__header">
+                <div>
+                    <p class="product-modal__eyebrow">
+                        Sort packages
+                    </p>
+
+                    <h3 class="product-modal__title">
+                        Urutkan
+                    </h3>
+                </div>
+
+                <button
+                    type="button"
+                    class="product-modal__close"
+                    x-on:click="sortOpen = false"
+                    aria-label="Close sort"
+                >
+                    X
+                </button>
+            </div>
+
+            <div class="product-sort-list">
+                @foreach($sortOptions as $value => $label)
+                    <label class="product-sort-option">
+                        <input
+                            type="radio"
+                            name="sort"
+                            value="{{ $value }}"
+                            @checked($sort === $value)
+                        >
+                        <span>{{ $label }}</span>
+                    </label>
+                @endforeach
+            </div>
+
+            <div class="product-modal__footer">
+                <a href="{{ route('products.index', request()->except('sort', 'page')) }}" class="product-modal__reset">
+                    Reset
+                </a>
+
+                <button type="submit" class="product-modal__submit">
+                    Terapkan
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
 
 @endsection
