@@ -33,13 +33,13 @@
         </nav>
 
         <div class="frontend-header__actions">
-            <a href="{{ route('home') }}#whatsapp-cta" class="frontend-header__cta">
+            <a href="{{ route('home') }}#whatsapp-cta" class="btn btn-outline btn-sm frontend-header__cta">
                 Plan Trip
             </a>
 
             <a
                 href="{{ route('home') }}#whatsapp-cta"
-                class="frontend-header__icon"
+                class="btn btn-outline btn-icon frontend-header__icon"
                 aria-label="Plan trip"
             >
                 <svg

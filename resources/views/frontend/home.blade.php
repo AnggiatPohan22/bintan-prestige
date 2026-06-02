@@ -56,7 +56,7 @@
                         </select>
                     </label>
 
-                    <button type="submit" class="home-button home-button--dark home-button--search">
+                    <button type="submit" class="btn btn-submit home-button home-button--dark home-button--search">
                         Find Packages
                     </button>
                 </form>
@@ -68,34 +68,29 @@
         </div>
     </section>
 
-    <section class="home-section">
-        <div class="home-container">
-            <div class="home-section__header">
-                <div>
-                    <span class="home-section__kicker">Curated stays and tours</span>
-                    <h2 class="home-section__title title-section">
-                        Your journey to a refined Bintan escape begins here
-                    </h2>
-                </div>
+    @include('frontend.sections.popular-tour')
 
-                <a href="{{ route('products.index') }}" class="home-section__link">
-                    View all packages
-                </a>
-            </div>
+    @include('frontend.sections.popular-products')
+
+    {{-- Legacy package carousel replaced by the centered editorial popular-tour section.
+    <section class="home-section home-section--legacy-featured" hidden>
+        <div class="home-container">
 
             @if($featuredProducts->count())
-                <div class="home-featured-row">
-                    @foreach($featuredProducts->take(3) as $product)
-                        <article class="home-feature-card">
+                <div class="package-carousel" data-package-carousel>
+                    <div class="package-carousel-track" data-carousel-track>
+                    @foreach($featuredProducts as $product)
+                        <article class="package-carousel-card home-feature-card">
                             <a href="{{ route('products.show', $product) }}" class="home-feature-card__media">
                                 @if($product->thumbnail_url)
-                                    <img src="{{ $product->thumbnail_url }}" alt="{{ $product->name }}" class="home-feature-card__image" loading="lazy">
+                                    <img src="{{ $product->thumbnail_url }}" alt="{{ $product->name }}" class="home-feature-card__image" loading="lazy" decoding="async">
                                 @else
                                     <span class="home-image-placeholder">Package Image</span>
                                 @endif
                             </a>
 
-                            <div class="home-feature-card__body">
+                            <div class="package-card-overlay home-feature-card__body">
+                                <div class="package-card-content">
                                 <span class="home-feature-card__tag">
                                     {{ $product->category?->name ?: 'Bintan Package' }}
                                 </span>
@@ -107,9 +102,11 @@
                                 <p class="home-feature-card__text">
                                     {{ $product->destination?->name ?: 'Bintan' }} · {{ $product->duration ?: 'Flexible duration' }}
                                 </p>
+                                </div>
                             </div>
                         </article>
                     @endforeach
+                    </div>
                 </div>
             @else
                 <div class="product-empty">
@@ -124,129 +121,15 @@
             @endif
         </div>
     </section>
+    --}}
 
-    <section class="home-story">
-        <div class="home-container home-story__grid">
-            <div>
-                <span class="home-section__kicker">Bintan Prestige</span>
-                <h2 class="home-section__title title-section">
-                    Travel feels better when every detail is arranged.
-                </h2>
+    @include('frontend.sections.about-journey')
 
-                <p class="home-section__text text-muted">
-                    From ferry terminal pickup to resort transfers and private sightseeing, we help guests move through Bintan with confidence and a more polished travel rhythm.
-                </p>
+    @include('frontend.sections.categories')
 
-                <a href="{{ route('products.index') }}" class="home-button home-button--dark">
-                    Discover Packages
-                </a>
-            </div>
+    @include('frontend.sections.explore-banner')
 
-            <div class="home-story__gallery">
-                <div class="home-image-placeholder home-story__image home-story__image--large">Island View</div>
-                <div class="home-image-placeholder home-story__image">Resort Transfer</div>
-                <div class="home-image-placeholder home-story__image">Coastal Tour</div>
-            </div>
-        </div>
-    </section>
-
-    <section class="home-section" id="categories">
-        <div class="home-container">
-            <div class="home-section__header">
-                <div>
-                    <span class="home-section__kicker">Browse by style</span>
-                    <h2 class="home-section__title title-section">
-                        Categories
-                    </h2>
-                </div>
-            </div>
-
-            <div class="home-category-grid">
-                @foreach($categories->take(4) as $category)
-                    <a href="{{ route('products.index', ['category' => [$category->id]]) }}" class="home-mini-card">
-                        <div class="home-mini-card__image">
-                            Category Image
-                        </div>
-
-                        <h3 class="home-mini-card__title title-card">
-                            {{ $category->name }}
-                        </h3>
-
-                        <p class="home-mini-card__text">
-                            {{ $category->products_count }} packages available
-                        </p>
-                    </a>
-                @endforeach
-            </div>
-        </div>
-    </section>
-
-    <section class="home-stats">
-        <div class="home-container">
-            <div class="home-stats__intro">
-                <span class="home-section__kicker">Our promise</span>
-                <h2 class="home-stats__title title-section">
-                    Premium island travel, arranged with consistency.
-                </h2>
-            </div>
-
-            <div class="home-orbit">
-                <span>Private pickup</span>
-                <span>Local planning</span>
-                <span>Flexible tours</span>
-                <span>WhatsApp booking</span>
-                <div class="home-orbit__globe"></div>
-            </div>
-
-            <div class="home-stats__grid">
-                <div class="home-stat-card">
-                    <strong>300+</strong>
-                    <span>guest arrangements supported</span>
-                </div>
-
-                <div class="home-stat-card">
-                    <strong>12k+</strong>
-                    <span>travel moments planned</span>
-                </div>
-
-                <div class="home-stat-card">
-                    <strong>100%</strong>
-                    <span>direct WhatsApp assistance</span>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section class="home-section" id="destinations">
-        <div class="home-container">
-            <div class="home-section__header">
-                <div>
-                    <span class="home-section__kicker">Places to explore</span>
-                    <h2 class="home-section__title title-section">
-                        Destinations
-                    </h2>
-                </div>
-            </div>
-
-            <div class="home-destination-grid">
-                @foreach($destinations->take(6) as $destination)
-                    <a href="{{ route('products.index', ['destination' => [$destination->id]]) }}" class="home-mini-card home-mini-card--destination">
-                        <div class="home-mini-card__image">
-                            Destination Image
-                        </div>
-
-                        <h3 class="home-mini-card__title title-card">
-                            {{ $destination->name }}
-                        </h3>
-
-                        <p class="home-mini-card__text">
-                            {{ $destination->products_count }} packages available
-                        </p>
-                    </a>
-                @endforeach
-            </div>
-        </div>
-    </section>
+    @include('frontend.sections.testimonials')
 
     <section class="home-section" id="why-choose-us">
         <div class="home-container">
@@ -315,33 +198,6 @@
                     <summary>Can packages be customized?</summary>
                     <p>Many tours and transfers can be adjusted for timing, route, or pickup location.</p>
                 </details>
-            </div>
-        </div>
-    </section>
-
-    <section class="home-whatsapp" id="whatsapp-cta">
-        <div class="home-container">
-            <div class="home-whatsapp__panel">
-                <div>
-                    <span class="home-section__kicker">Start planning</span>
-                    <h2 class="home-whatsapp__title title-section">
-                        Plan your perfect Bintan escape today.
-                    </h2>
-
-                    <p class="home-whatsapp__text text-body">
-                        Tell us your arrival point, travel date, and preferred experience. Our team will help you choose the right package.
-                    </p>
-                </div>
-
-                <div class="home-whatsapp__action">
-                    <a
-                        href="https://wa.me/?text={{ urlencode('Hello Bintan Prestige, I want to plan a Bintan trip.') }}"
-                        target="_blank"
-                        class="home-button home-button--primary"
-                    >
-                        Chat via WhatsApp
-                    </a>
-                </div>
             </div>
         </div>
     </section>

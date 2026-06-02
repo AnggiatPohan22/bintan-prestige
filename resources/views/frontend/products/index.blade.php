@@ -71,7 +71,7 @@
                 <div class="product-actions">
                     <button
                         type="button"
-                        class="product-action-button"
+                        class="btn btn-outline btn-sm product-action-button"
                         x-on:click="filterOpen = true"
                     >
                         Filter
@@ -84,7 +84,7 @@
 
                     <button
                         type="button"
-                        class="product-action-button"
+                        class="btn btn-outline btn-sm product-action-button"
                         x-on:click="sortOpen = true"
                     >
                         Urutkan
@@ -164,7 +164,7 @@
 
                 <button
                     type="button"
-                    class="product-modal__close"
+                    class="btn btn-ghost btn-icon product-modal__close"
                     x-on:click="filterOpen = false"
                     aria-label="Close filter"
                 >
@@ -289,11 +289,11 @@
             </div>
 
             <div class="product-modal__footer">
-                <a href="{{ route('products.index', ['sort' => $sort]) }}" class="product-modal__reset">
+                <a href="{{ route('products.index', ['sort' => $sort]) }}" class="btn btn-outline product-modal__reset">
                     Hapus Filter
                 </a>
 
-                <button type="submit" class="product-modal__submit">
+                <button type="submit" class="btn btn-submit product-modal__submit">
                     Tampilkan {{ $filteredPackageCount }} Package
                 </button>
             </div>
@@ -358,7 +358,7 @@
 
                 <button
                     type="button"
-                    class="product-modal__close"
+                    class="btn btn-ghost btn-icon product-modal__close"
                     x-on:click="sortOpen = false"
                     aria-label="Close sort"
                 >
@@ -381,11 +381,11 @@
             </div>
 
             <div class="product-modal__footer">
-                <a href="{{ route('products.index', request()->except('sort', 'page')) }}" class="product-modal__reset">
+                <a href="{{ route('products.index', request()->except('sort', 'page')) }}" class="btn btn-outline product-modal__reset">
                     Reset
                 </a>
 
-                <button type="submit" class="product-modal__submit">
+                <button type="submit" class="btn btn-submit product-modal__submit">
                     Terapkan
                 </button>
             </div>

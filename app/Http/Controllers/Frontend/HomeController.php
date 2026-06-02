@@ -21,6 +21,19 @@ class HomeController extends Controller
             ->take(6)
             ->get();
 
+        $homeProducts = Product::query()
+            ->published()
+            ->frontendReady()
+            ->latest()
+            ->take(12)
+            ->get();
+
+        $homeProductCategories = $homeProducts
+            ->pluck('category')
+            ->filter()
+            ->unique('id')
+            ->values();
+
         $categories = Category::query()
             ->where('is_active', true)
             ->withCount([
@@ -41,6 +54,8 @@ class HomeController extends Controller
             'frontend.home',
             compact(
                 'featuredProducts',
+                'homeProducts',
+                'homeProductCategories',
                 'categories',
                 'destinations',
                 'heroBackgroundUrl'

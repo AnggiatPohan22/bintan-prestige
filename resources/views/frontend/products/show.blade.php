@@ -28,6 +28,7 @@
                                 src="{{ $product->thumbnail_url }}"
                                 alt="{{ $product->name }}"
                                 class="product-detail-gallery__image"
+                                decoding="async"
                             >
                         @else
                             <div class="product-detail-gallery__placeholder">
@@ -44,6 +45,7 @@
                                     class="product-detail-gallery__thumb"
                                     alt="{{ $product->name }}"
                                     loading="lazy"
+                                    decoding="async"
                                 >
                             @endforeach
                         </div>
@@ -107,7 +109,7 @@
                         <a
                             href="https://wa.me/{{ $waNumber }}?text={{ $waMessage }}"
                             target="_blank"
-                            class="product-detail-button"
+                            class="btn btn-whatsapp product-detail-button"
                         >
                             {{ $product->cta_button_text ?: 'Chat via WhatsApp' }}
                         </a>
@@ -321,7 +323,7 @@
                     <a
                         href="https://wa.me/{{ $waNumber }}?text={{ $bookingMessage }}"
                         target="_blank"
-                        class="product-detail-button"
+                        class="btn btn-whatsapp product-detail-button"
                     >
                         {{ $product->cta_button_text ?: 'Book via WhatsApp' }}
                     </a>

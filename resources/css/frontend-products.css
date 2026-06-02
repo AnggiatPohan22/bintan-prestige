@@ -146,16 +146,9 @@
 
     /* PRODUCT ACTION BUTTON: Styles toolbar buttons for opening filter and sort popups. */
     .product-action-button {
-        @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-extrabold text-slate-800 shadow-sm transition hover:border-amber-200 hover:text-amber-800 focus:outline-none focus:ring-4 focus:ring-amber-100;
-        border-color: var(--frontend-border);
+        @apply gap-2;
+        --btn-border: var(--frontend-border);
         color: var(--frontend-charcoal);
-    }
-
-    /* PRODUCT ACTION BUTTON HOVER: Applies the luxury gold hover treatment. */
-    .product-action-button:hover {
-        border-color: var(--frontend-gold);
-        color: var(--frontend-black);
-        background: var(--frontend-gold-pale);
     }
 
     /* PRODUCT ACTION BADGE: Shows how many filter groups are currently active. */
@@ -317,15 +310,7 @@
 
     /* PRODUCT BUTTON: Creates a compact call-to-action with modern focus and hover states. */
     .product-card__button {
-        @apply inline-flex min-h-10 shrink-0 items-center justify-center rounded-lg bg-amber-700 px-4 py-2 text-sm font-bold text-white shadow-sm transition duration-200 hover:bg-amber-800 focus:outline-none focus:ring-4 focus:ring-amber-100;
-        background: var(--frontend-black);
-        color: var(--frontend-gold-soft);
-    }
-
-    /* PRODUCT BUTTON HOVER: Turns product card actions gold on hover. */
-    .product-card__button:hover {
-        background: var(--frontend-gold);
-        color: var(--frontend-black);
+        @apply min-h-10 shrink-0 px-4 py-2 text-sm;
     }
 
     /* PRODUCT MODAL CLOAK: Prevents Alpine popups from flashing before JavaScript starts. */
@@ -373,7 +358,8 @@
 
     /* PRODUCT MODAL CLOSE: Provides a compact close button for popups. */
     .product-modal__close {
-        @apply inline-flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 text-sm font-extrabold text-slate-500 transition hover:bg-slate-50 hover:text-slate-900;
+        @apply h-9 w-9 min-h-9 text-sm;
+        --btn-color: var(--frontend-gray);
     }
 
     /* PRODUCT MODAL FOOTER: Keeps popup actions pinned below scrollable content. */
@@ -383,20 +369,13 @@
 
     /* PRODUCT MODAL RESET: Styles reset links in filter and sort popups. */
     .product-modal__reset {
-        @apply inline-flex min-h-11 flex-1 items-center justify-center rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-extrabold text-slate-700 transition hover:bg-slate-50;
+        @apply flex-1;
+        --btn-border: var(--frontend-border);
     }
 
     /* PRODUCT MODAL SUBMIT: Styles apply buttons in filter and sort popups. */
     .product-modal__submit {
-        @apply inline-flex min-h-11 flex-[1.4] items-center justify-center rounded-lg bg-amber-700 px-4 py-2 text-center text-sm font-extrabold text-white shadow-sm transition hover:bg-amber-800 focus:outline-none focus:ring-4 focus:ring-amber-100;
-        background: var(--frontend-black);
-        color: var(--frontend-gold-soft);
-    }
-
-    /* PRODUCT MODAL SUBMIT HOVER: Uses gold as the primary apply action hover color. */
-    .product-modal__submit:hover {
-        background: var(--frontend-gold);
-        color: var(--frontend-black);
+        @apply flex-[1.4];
     }
 
     /* PRODUCT FILTER: Makes the filter popup content scroll while footer stays visible. */
@@ -632,15 +611,7 @@
 
     /* PRODUCT DETAIL BUTTON: Defines the main WhatsApp booking action. */
     .product-detail-button {
-        @apply mt-5 inline-flex min-h-12 w-full items-center justify-center rounded-lg bg-amber-700 px-5 py-3 text-center text-sm font-extrabold text-white shadow-sm transition duration-200 hover:bg-amber-800 focus:outline-none focus:ring-4 focus:ring-amber-100;
-        background: var(--frontend-black);
-        color: var(--frontend-gold-soft);
-    }
-
-    /* PRODUCT DETAIL BUTTON HOVER: Turns detail page CTAs gold on hover. */
-    .product-detail-button:hover {
-        background: var(--frontend-gold);
-        color: var(--frontend-black);
+        @apply mt-5 w-full;
     }
 
     /* PRODUCT DETAIL CTA NOTE: Adds optional booking helper copy below the main button. */

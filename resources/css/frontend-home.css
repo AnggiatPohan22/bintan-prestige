@@ -68,41 +68,31 @@
 
     /* HOME BUTTON: Styles main homepage buttons with smooth luxury interactions. */
     .home-button {
-        @apply inline-flex min-h-12 items-center justify-center rounded-full border px-6 py-3 text-sm font-extrabold transition focus:outline-none;
-        background: var(--frontend-black);
-        border-color: var(--frontend-black);
-        color: var(--frontend-gold-soft);
-        box-shadow: 0 16px 38px rgba(9, 8, 6, 0.16);
+        @apply min-h-12;
     }
 
     /* HOME PRIMARY BUTTON VARIANT: Uses gold for the strongest homepage action. */
     .home-button--primary {
-        background: var(--frontend-gold);
-        border-color: var(--frontend-gold);
-        color: var(--frontend-black);
-        box-shadow: 0 16px 38px rgba(200, 162, 74, 0.22);
+        --btn-bg: var(--frontend-gold);
+        --btn-border: var(--frontend-gold);
+        --btn-color: var(--frontend-black);
+        --btn-hover-bg: var(--frontend-black);
+        --btn-hover-border: var(--frontend-black);
+        --btn-hover-color: var(--frontend-gold-soft);
     }
 
     /* HOME DARK BUTTON VARIANT: Uses black for secondary content actions on white sections. */
     .home-button--dark {
-        background: var(--frontend-black);
-        border-color: var(--frontend-black);
-        color: var(--frontend-gold-soft);
+        --btn-bg: var(--frontend-black);
+        --btn-border: var(--frontend-black);
+        --btn-color: var(--frontend-gold-soft);
     }
 
     /* HOME SECONDARY BUTTON VARIANT: Uses a transparent luxury outline action. */
     .home-button--secondary {
-        border: 1px solid rgba(200, 162, 74, 0.42);
-        background: transparent;
-        color: var(--frontend-gold-soft);
-    }
-
-    /* HOME BUTTON HOVER: Adds a subtle lift to homepage buttons. */
-    .home-button:hover {
-        transform: translateY(-2px);
-        background: var(--frontend-gold);
-        border-color: var(--frontend-gold);
-        color: var(--frontend-black);
+        --btn-bg: transparent;
+        --btn-border: rgba(200, 162, 74, 0.42);
+        --btn-color: var(--frontend-gold-soft);
     }
 
     /* HOME SEARCH CTA: Floats the booking form between the hero and the next section. */
@@ -148,20 +138,13 @@
     /* HOME SEARCH BUTTON: Matches the compact pill height of the booking fields. */
     .home-button--search {
         @apply min-h-12 px-7;
-        box-shadow: none;
+        --btn-shadow-current: none;
     }
 
     /* HOME SEARCH LINK: Styles the browse-all shortcut inside the search panel. */
     .home-search__link {
-        @apply inline-flex min-h-12 items-center justify-center rounded-full border px-5 text-sm font-extrabold transition;
-        border-color: var(--frontend-border);
+        --btn-border: var(--frontend-border);
         color: var(--frontend-charcoal);
-    }
-
-    /* HOME SEARCH LINK HOVER: Applies a soft gold hover state to browse-all. */
-    .home-search__link:hover {
-        background: var(--frontend-gold-pale);
-        border-color: var(--frontend-gold);
     }
 
     /* HOME HERO SOFT COPY: Places soft-selling copy under the search bar only. */
@@ -178,6 +161,11 @@
     /* HOME SECTION HEADER: Aligns homepage section headings and supporting links. */
     .home-section__header {
         @apply mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between;
+    }
+
+    /* HOME CAROUSEL HEADER: Keeps carousel title, view-all link, and arrows aligned responsively. */
+    .home-section__header--carousel {
+        @apply gap-5;
     }
 
     /* HOME CENTERED HEADER: Centers selected section headers for editorial emphasis. */
@@ -204,27 +192,459 @@
 
     /* HOME SECTION LINK: Makes section header links match the gold brand. */
     .home-section__link {
-        @apply inline-flex rounded-full border px-4 py-2 text-sm font-extrabold transition;
-        border-color: var(--frontend-border);
+        --btn-border: var(--frontend-border);
         color: var(--frontend-charcoal);
     }
 
-    /* HOME SECTION LINK HOVER: Adds gold hover treatment to section links. */
-    .home-section__link:hover {
-        background: var(--frontend-gold);
-        border-color: var(--frontend-gold);
-        color: var(--frontend-black);
+    /* BP POPULAR TOUR: Builds the centered editorial promo section for popular tours. */
+    .bp-popular-tour {
+        @apply relative overflow-hidden bg-white py-16 sm:py-20 lg:py-24;
     }
 
-    /* HOME FEATURED ROW: Displays featured packages as large editorial travel cards. */
-    .home-featured-row {
-        @apply grid gap-5 md:grid-cols-3;
+    /* BP POPULAR TOUR INNER: Centers the promo layout with decorative image columns. */
+    .bp-popular-tour__inner {
+        @apply mx-auto grid max-w-7xl gap-8 px-4 sm:px-6 lg:grid-cols-[minmax(190px,0.8fr)_minmax(360px,1.18fr)_minmax(190px,0.8fr)] lg:items-center lg:px-8;
+    }
+
+    /* BP POPULAR TOUR CONTENT: Keeps logo, label, headline, body, and CTA centered. */
+    .bp-popular-tour__content {
+        @apply order-1 mx-auto max-w-2xl text-center lg:order-2;
+    }
+
+    /* BP POPULAR TOUR LOGO FRAME: Provides a fixed placeholder until the real logo is uploaded. */
+    .bp-popular-tour__logo-frame {
+        @apply mx-auto flex h-20 w-20 items-center justify-center rounded-full border text-[0.65rem] font-extrabold uppercase;
+        background: var(--frontend-gold-pale);
+        border-color: rgba(200, 162, 74, 0.34);
+        color: #8a681a;
+        box-shadow: var(--frontend-shadow);
+    }
+
+    /* BP POPULAR TOUR LABEL: Styles the small centered editorial label. */
+    .bp-popular-tour__label {
+        @apply mt-6 inline-flex text-xs font-extrabold uppercase;
+        color: #8a681a;
+    }
+
+    /* BP POPULAR TOUR TITLE: Gives the promo headline a refined centered hierarchy. */
+    .bp-popular-tour__title {
+        @apply mx-auto mt-4 max-w-2xl;
+        color: var(--frontend-charcoal);
+    }
+
+    /* BP POPULAR TOUR TEXT: Keeps the centered description readable and balanced. */
+    .bp-popular-tour__text {
+        @apply mx-auto mt-5 max-w-xl text-sm leading-7 sm:text-base;
+    }
+
+    /* BP POPULAR TOUR BUTTON: Adds spacing and icon alignment for the CTA. */
+    .bp-popular-tour__button {
+        @apply mt-7 gap-3;
+    }
+
+    /* BP POPULAR TOUR BUTTON ICON: Draws the CTA arrow using the global button color. */
+    .bp-popular-tour__button-icon {
+        @apply h-5 w-5;
+        fill: none;
+        stroke: currentColor;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        stroke-width: 2.1;
+        transition: transform var(--frontend-transition-fast) var(--frontend-ease-press);
+    }
+
+    /* BP POPULAR TOUR BUTTON HOVER: Moves the CTA arrow subtly on interaction. */
+    .bp-popular-tour__button:hover .bp-popular-tour__button-icon {
+        transform: translate(1px, -1px);
+    }
+
+    /* BP POPULAR TOUR MEDIA: Places decorative image frames around the centered content. */
+    .bp-popular-tour__media {
+        @apply order-2 grid grid-cols-2 gap-4 sm:gap-5 lg:grid-cols-1;
+    }
+
+    /* BP POPULAR TOUR LEFT MEDIA: Aligns left decorative frames on desktop. */
+    .bp-popular-tour__media--left {
+        @apply lg:order-1 lg:justify-items-start;
+    }
+
+    /* BP POPULAR TOUR RIGHT MEDIA: Aligns right decorative frames on desktop. */
+    .bp-popular-tour__media--right {
+        @apply lg:order-3 lg:justify-items-end;
+    }
+
+    /* BP POPULAR TOUR MEDIA FRAME: Locks image dimensions so future uploads cannot break layout. */
+    .bp-popular-tour__media-frame {
+        @apply relative w-full overflow-hidden rounded-[1.5rem] border bg-stone-100 shadow-xl;
+        border-color: rgba(200, 162, 74, 0.24);
+        box-shadow: 0 22px 64px rgba(23, 19, 12, 0.12);
+    }
+
+    /* BP POPULAR TOUR WIDE FRAME: Creates the larger top landscape image frame. */
+    .bp-popular-tour__media-frame--wide {
+        aspect-ratio: 16 / 11;
+    }
+
+    /* BP POPULAR TOUR SMALL FRAME: Creates the smaller lower landscape image frame. */
+    .bp-popular-tour__media-frame--small {
+        aspect-ratio: 16 / 10;
+    }
+
+    @media (min-width: 1024px) {
+        /* BP POPULAR TOUR DESKTOP FRAMES: Gives fixed premium sizing to desktop image frames. */
+        .bp-popular-tour__media-frame--wide {
+            width: min(100%, 230px);
+        }
+
+        .bp-popular-tour__media-frame--small {
+            width: min(100%, 190px);
+        }
+
+        .bp-popular-tour__media--left .bp-popular-tour__media-frame--small,
+        .bp-popular-tour__media--right .bp-popular-tour__media-frame--wide {
+            margin-top: 1.5rem;
+        }
+    }
+
+    /* BP POPULAR TOUR FRAME IMAGE: Crops future uploaded images cleanly inside fixed frames. */
+    .bp-popular-tour__media-frame img {
+        @apply absolute inset-0 h-full w-full object-cover;
+        max-width: none;
+    }
+
+    /* BP POPULAR TOUR PLACEHOLDER: Shows a reusable no-image state inside every fixed frame. */
+    .bp-popular-tour__placeholder {
+        @apply absolute inset-0 flex items-center justify-center text-xs font-extrabold uppercase;
+        background:
+            linear-gradient(135deg, rgba(255, 255, 255, 0.84), rgba(200, 162, 74, 0.2)),
+            repeating-linear-gradient(135deg, rgba(23, 19, 12, 0.05) 0 1px, transparent 1px 18px);
+        color: #8a681a;
+    }
+
+    /* BP PRODUCT SECTION: Creates the homepage product listing area below the promo block. */
+    .bp-product-section {
+        @apply bg-white py-14 sm:py-16 lg:py-20;
+    }
+
+    /* BP PRODUCT SECTION HEADER: Centers the product section label and headline. */
+    .bp-product-section__header {
+        @apply mx-auto max-w-2xl text-center;
+    }
+
+    /* BP PRODUCT SECTION LABEL: Styles the small product listing eyebrow. */
+    .bp-product-section__label {
+        @apply inline-flex text-xs font-extrabold uppercase;
+        color: #8a681a;
+    }
+
+    /* BP PRODUCT SECTION TITLE: Controls the centered product section heading. */
+    .bp-product-section__title {
+        @apply mx-auto mt-3 max-w-2xl;
+        color: var(--frontend-charcoal);
+    }
+
+    /* BP PRODUCT FILTER BAR: Aligns category filters, view-all CTA, and page controls cleanly. */
+    .bp-product-filterbar {
+        @apply mt-8 flex flex-col items-center justify-between gap-4 lg:flex-row;
+    }
+
+    /* BP PRODUCT TABS: Wraps category filter buttons responsively. */
+    .bp-product-tabs {
+        @apply flex flex-wrap items-center justify-center gap-2 sm:gap-3 lg:justify-start;
+    }
+
+    /* BP PRODUCT TAB BUTTON: Styles one category filter button. */
+    .bp-product-tabs__button {
+        @apply inline-flex min-h-10 items-center justify-center rounded-full border px-4 py-2 text-sm font-extrabold transition focus:outline-none;
+        background: var(--frontend-white);
+        border-color: var(--frontend-border);
+        color: var(--frontend-gray);
+        transition:
+            background-color var(--frontend-transition-duration) var(--frontend-ease),
+            border-color var(--frontend-transition-duration) var(--frontend-ease),
+            color var(--frontend-transition-duration) var(--frontend-ease),
+            box-shadow var(--frontend-transition-duration) var(--frontend-ease),
+            transform var(--frontend-transition-fast) var(--frontend-ease-press);
+    }
+
+    /* BP PRODUCT TAB HOVER: Adds a subtle gold interaction to inactive tabs. */
+    .bp-product-tabs__button:hover {
+        border-color: var(--frontend-gold);
+        color: var(--frontend-black);
+        transform: translateY(var(--btn-hover-lift));
+    }
+
+    /* BP PRODUCT TAB ACTIVE: Uses the primary black and gold identity for the active filter. */
+    .bp-product-tabs__button.is-active {
+        background: var(--frontend-black);
+        border-color: var(--frontend-black);
+        color: var(--frontend-gold-soft);
+        box-shadow: var(--btn-shadow);
+    }
+
+    /* BP PRODUCT TAB FOCUS: Preserves keyboard visibility for category filters. */
+    .bp-product-tabs__button:focus-visible {
+        box-shadow: var(--btn-focus-ring);
+    }
+
+    /* BP PRODUCT ACTIONS: Groups the homepage product list link and pagination buttons. */
+    .bp-product-actions {
+        @apply flex w-full flex-col items-center gap-3 sm:w-auto sm:flex-row sm:justify-center lg:justify-end;
+    }
+
+    /* BP PRODUCT VIEW ALL: Keeps the all-packages CTA balanced beside filter controls. */
+    .bp-product-view-all {
+        @apply w-full sm:w-auto;
+    }
+
+    .bp-product-view-all__icon {
+        @apply h-4 w-4;
+        fill: none;
+        stroke: currentColor;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        stroke-width: 2.1;
+        transition: transform var(--frontend-transition-fast) var(--frontend-ease-press);
+    }
+
+    .bp-product-view-all:hover .bp-product-view-all__icon {
+        transform: translate(2px, -2px);
+    }
+
+    /* BP PRODUCT PAGINATION: Provides compact controls when a filtered group exceeds one page. */
+    .bp-product-pagination {
+        @apply flex items-center justify-center gap-2;
+    }
+
+    /* BP PRODUCT PAGINATION STATUS: Shows the current filtered page without overpowering the UI. */
+    .bp-product-pagination__status {
+        @apply min-w-12 text-center text-xs font-extrabold;
+        color: var(--frontend-gray);
+    }
+
+    /* BP PRODUCT GRID: Displays product cards in 1/2/4 responsive columns. */
+    .bp-product-grid {
+        @apply mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-4;
+    }
+
+    /* BP PRODUCT GRID HIDDEN CARD: Ensures filtered or paginated cards do not occupy grid space. */
+    .bp-product-grid [hidden] {
+        display: none !important;
+    }
+
+    /* BP PRODUCT CARD: Creates a white card with stable height and premium border shadow. */
+    .bp-product-card {
+        @apply flex h-full flex-col overflow-hidden rounded-[1.35rem] border bg-white shadow-sm;
+        border-color: var(--frontend-border);
+        box-shadow: var(--frontend-shadow);
+        transition:
+            transform var(--frontend-transition-fast) var(--frontend-ease-press),
+            border-color var(--frontend-transition-duration) var(--frontend-ease),
+            box-shadow var(--frontend-transition-duration) var(--frontend-ease);
+    }
+
+    /* BP PRODUCT CARD HOVER: Adds a soft premium lift to product cards. */
+    .bp-product-card:hover {
+        border-color: var(--frontend-gold);
+        box-shadow: 0 24px 70px rgba(23, 19, 12, 0.14);
+        transform: translateY(var(--btn-hover-lift));
+    }
+
+    /* BP PRODUCT CARD IMAGE: Locks the top image frame so uploads cannot stretch the card. */
+    .bp-product-card__image {
+        @apply relative block h-[180px] overflow-hidden bg-stone-100 focus:outline-none;
+    }
+
+    /* BP PRODUCT CARD IMAGE MEDIA: Crops product imagery cleanly inside the fixed frame. */
+    .bp-product-card__image img {
+        @apply absolute inset-0 h-full w-full object-cover;
+        max-width: none;
+        transition: transform 620ms var(--frontend-ease);
+    }
+
+    /* BP PRODUCT CARD IMAGE HOVER: Adds a restrained zoom to product images. */
+    .bp-product-card:hover .bp-product-card__image img {
+        transform: scale(1.045);
+    }
+
+    /* BP PRODUCT CARD PLACEHOLDER: Provides a centered no-image state for missing product thumbnails. */
+    .bp-product-card__placeholder {
+        @apply absolute inset-0 flex items-center justify-center text-xs font-extrabold uppercase;
+        background:
+            linear-gradient(135deg, rgba(255, 255, 255, 0.84), rgba(200, 162, 74, 0.2)),
+            repeating-linear-gradient(135deg, rgba(23, 19, 12, 0.05) 0 1px, transparent 1px 18px);
+        color: #8a681a;
+    }
+
+    /* BP PRODUCT CARD BODY: Gives product card text and actions consistent spacing. */
+    .bp-product-card__body {
+        @apply flex flex-1 flex-col p-5;
+    }
+
+    /* BP PRODUCT CARD CATEGORY: Shows category text without badge/ribbon treatment. */
+    .bp-product-card__category {
+        @apply mb-2 text-xs font-extrabold uppercase;
+        color: #8a681a;
+    }
+
+    /* BP PRODUCT CARD TITLE: Keeps package names readable and clamped. */
+    .bp-product-card__title {
+        @apply text-xl leading-tight;
+        color: var(--frontend-charcoal);
+        display: -webkit-box;
+        overflow: hidden;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+    }
+
+    /* BP PRODUCT CARD DESCRIPTION: Adds optional short description without uneven card growth. */
+    .bp-product-card__description {
+        @apply mt-2 text-sm leading-6;
+        color: var(--frontend-gray);
+        display: -webkit-box;
+        min-height: 3rem;
+        overflow: hidden;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+    }
+
+    /* BP PRODUCT CARD META: Displays destination and duration in a compact row. */
+    .bp-product-card__meta {
+        @apply mt-4 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs font-bold;
+        color: var(--frontend-gray);
+    }
+
+    /* BP PRODUCT CARD DOT: Separates location and duration metadata. */
+    .bp-product-card__dot {
+        @apply h-1 w-1 rounded-full;
+        background: var(--frontend-border);
+    }
+
+    /* BP PRODUCT CARD FOOTER: Pins price and detail button to the bottom of each card. */
+    .bp-product-card__footer {
+        @apply mt-auto flex items-end justify-between gap-3 border-t pt-5;
+        border-color: rgba(200, 162, 74, 0.18);
+    }
+
+    /* BP PRODUCT CARD PRICE: Groups price label and amount. */
+    .bp-product-card__price {
+        @apply min-w-0;
+    }
+
+    /* BP PRODUCT CARD PRICE LABEL: Keeps price context quiet. */
+    .bp-product-card__price span {
+        @apply block text-xs font-bold uppercase;
+        color: var(--frontend-gray);
+    }
+
+    /* BP PRODUCT CARD PRICE VALUE: Highlights the existing IDR price. */
+    .bp-product-card__price strong {
+        @apply mt-1 block text-base font-extrabold leading-none sm:text-lg;
+        color: var(--frontend-charcoal);
+    }
+
+    /* BP PRODUCT CARD BUTTON: Keeps the detail button compact inside card footer. */
+    .bp-product-card__button {
+        @apply shrink-0;
+    }
+
+    /* CAROUSEL ACTIONS: Groups the view-all CTA and carousel arrows for responsive headers. */
+    .carousel-actions {
+        @apply flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center sm:justify-end;
+    }
+
+    /* CAROUSEL ACTION ARROWS: Keeps previous and next controls compact and easy to tap. */
+    .carousel-actions__arrows {
+        @apply flex items-center gap-2;
+    }
+
+    /* CAROUSEL ARROW: Reusable arrow button style for horizontal package carousels. */
+    .carousel-arrow {
+        --btn-bg: var(--frontend-white);
+        --btn-border: var(--frontend-border);
+        --btn-color: var(--frontend-charcoal);
+        --btn-shadow-current: 0 12px 28px rgba(23, 19, 12, 0.08);
+    }
+
+    /* CAROUSEL ARROW ICON: Draws crisp line icons for reusable carousel controls. */
+    .carousel-arrow__icon {
+        @apply h-5 w-5;
+        fill: none;
+        stroke: currentColor;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        stroke-width: 2.2;
+    }
+
+    /* PACKAGE CAROUSEL: Creates a clipped responsive carousel shell without page overflow. */
+    .package-carousel {
+        @apply relative -mx-4 overflow-hidden px-4 sm:mx-0 sm:px-0;
+    }
+
+    /* PACKAGE CAROUSEL TRACK: Enables smooth horizontal scroll and CSS scroll snapping. */
+    .package-carousel-track {
+        --package-carousel-gap: 1rem;
+        @apply flex overflow-x-auto scroll-smooth pb-2;
+        gap: var(--package-carousel-gap);
+        scroll-padding-inline: 0;
+        scroll-snap-type: x mandatory;
+        scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* PACKAGE CAROUSEL SCROLLBAR: Hides visual scrollbars while preserving native swipe. */
+    .package-carousel-track::-webkit-scrollbar {
+        display: none;
+    }
+
+    /* PACKAGE CAROUSEL CARD: Sets mobile to one card per view with stable premium sizing. */
+    .package-carousel-card {
+        @apply shrink-0;
+        flex-basis: 100%;
+        scroll-snap-align: start;
+        scroll-snap-stop: always;
+    }
+
+    @media (min-width: 640px) {
+        /* PACKAGE CAROUSEL TABLET: Shows two cards per view with equal spacing. */
+        .package-carousel-track {
+            --package-carousel-gap: 1.125rem;
+        }
+
+        .package-carousel-card {
+            flex-basis: calc((100% - var(--package-carousel-gap)) / 2);
+        }
+    }
+
+    @media (min-width: 1024px) {
+        /* PACKAGE CAROUSEL DESKTOP: Shows a maximum of three cards per view. */
+        .package-carousel-track {
+            --package-carousel-gap: 1.25rem;
+        }
+
+        .package-carousel-card {
+            flex-basis: calc((100% - (var(--package-carousel-gap) * 2)) / 3);
+        }
     }
 
     /* HOME FEATURE CARD: Frames one featured package with image and overlay copy. */
     .home-feature-card {
         @apply relative overflow-hidden rounded-[1.5rem] bg-stone-900 shadow-xl transition hover:-translate-y-1;
-        min-height: 380px;
+        min-height: 360px;
+    }
+
+    @media (min-width: 640px) {
+        /* HOME FEATURE CARD TABLET: Gives carousel cards a medium editorial height. */
+        .home-feature-card {
+            min-height: 410px;
+        }
+    }
+
+    @media (min-width: 1024px) {
+        /* HOME FEATURE CARD DESKTOP: Gives carousel cards a large premium travel visual. */
+        .home-feature-card {
+            min-height: 460px;
+        }
     }
 
     /* HOME FEATURE CARD MEDIA: Keeps package media full-card and clickable. */
@@ -232,16 +652,26 @@
         @apply absolute inset-0;
     }
 
+    /* HOME FEATURE CARD PLACEHOLDER: Fills the media area when no package photo exists. */
+    .home-feature-card__media .home-image-placeholder {
+        @apply h-full min-h-full rounded-none;
+    }
+
     /* HOME FEATURE CARD IMAGE: Makes package thumbnails fill the editorial card. */
     .home-feature-card__image {
         @apply h-full w-full object-cover;
     }
 
-    /* HOME FEATURE CARD BODY: Overlays readable product text on featured cards. */
-    .home-feature-card__body {
+    /* PACKAGE CARD OVERLAY: Adds a readable gradient for text on all package carousel cards. */
+    .package-card-overlay {
         @apply absolute inset-x-0 bottom-0 z-10 p-5;
-        background: linear-gradient(180deg, transparent, rgba(9, 8, 6, 0.88));
+        background: linear-gradient(180deg, transparent, rgba(9, 8, 6, 0.52) 28%, rgba(9, 8, 6, 0.92));
         color: var(--frontend-white);
+    }
+
+    /* PACKAGE CARD CONTENT: Keeps overlay text readable and prevents crowding on mobile. */
+    .package-card-content {
+        @apply max-w-sm;
     }
 
     /* HOME FEATURE CARD TAG: Styles featured product category text. */
@@ -252,28 +682,44 @@
 
     /* HOME FEATURE CARD TITLE: Styles featured package names. */
     .home-feature-card__title {
-        @apply mt-2 text-xl font-black leading-tight;
+        @apply mt-2 text-xl font-black leading-tight sm:text-2xl;
+        display: -webkit-box;
+        overflow: hidden;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
     }
 
     /* HOME FEATURE CARD TEXT: Styles featured package metadata. */
     .home-feature-card__text {
-        @apply mt-2 text-sm;
+        @apply mt-2 text-sm leading-6;
         color: rgba(255, 255, 255, 0.72);
+    }
+
+    @media (max-width: 639px) {
+        /* HOME FEATURE MOBILE ACTIONS: Makes carousel controls comfortable on narrow screens. */
+        .home-section__header--carousel .home-section__link {
+            @apply w-full;
+        }
+
+        .carousel-actions__arrows {
+            @apply justify-center;
+        }
     }
 
     /* HOME STORY: Creates an alternating white editorial section. */
     .home-story {
-        @apply bg-white py-14 sm:py-16 lg:py-20;
+        @apply bg-white py-14 sm:py-16 lg:py-24;
     }
 
     /* HOME STORY GRID: Aligns story copy and staggered image placeholders. */
     .home-story__grid {
-        @apply grid gap-10 lg:grid-cols-[0.82fr_1fr] lg:items-center;
+        @apply grid gap-10 lg:grid-cols-[minmax(0,0.48fr)_minmax(360px,0.42fr)] lg:items-center lg:justify-between;
+        max-width: 1200px;
     }
 
     /* HOME STORY GALLERY: Builds a compact collage inspired by travel editorial layouts. */
     .home-story__gallery {
-        @apply grid grid-cols-2 gap-4;
+        @apply grid gap-6;
     }
 
     /* HOME STORY IMAGE: Styles one image placeholder in the story collage. */
@@ -288,6 +734,530 @@
     .home-story__image--large {
         @apply row-span-2;
         min-height: 396px;
+    }
+
+    /* HOME STORY CONTENT: Keeps about-section copy calm, readable, and premium. */
+    .home-story__content {
+        @apply max-w-2xl;
+    }
+
+    /* HOME STORY LABEL: Creates the small pill label used above the about heading. */
+    .home-story__label {
+        @apply inline-flex rounded-full border px-4 py-2 text-xs font-extrabold uppercase;
+        background: var(--frontend-gold-pale);
+        border-color: var(--frontend-border);
+        color: #8a681a;
+    }
+
+    /* HOME STORY TITLE: Gives the about heading a wide editorial travel rhythm. */
+    .home-story__title {
+        @apply mt-5 max-w-2xl;
+        color: var(--frontend-charcoal);
+    }
+
+    /* HOME STORY SUBTITLE: Adds the stronger intro line under the main heading. */
+    .home-story__subtitle {
+        @apply mt-5 max-w-xl text-lg font-extrabold leading-8 sm:text-xl;
+        color: var(--frontend-charcoal);
+    }
+
+    /* HOME STORY TEXT: Styles the longer about paragraph with generous spacing. */
+    .home-story__text {
+        @apply mt-4 max-w-xl text-sm leading-7 sm:text-base;
+    }
+
+    /* HOME STORY CTA: Builds the text pill plus separate round arrow CTA from the reference style. */
+    .home-story__cta {
+        @apply mt-7 inline-flex items-center gap-3 rounded-full text-sm font-extrabold transition focus:outline-none;
+        color: var(--frontend-black);
+    }
+
+    /* HOME STORY CTA TEXT: Styles the text side of the split CTA pill. */
+    .home-story__cta > span:first-child {
+        @apply inline-flex min-h-12 items-center rounded-full border px-6 py-3;
+        background: var(--frontend-white);
+        border-color: var(--frontend-border);
+        box-shadow: var(--frontend-shadow);
+        transition:
+            background-color var(--frontend-transition-duration) var(--frontend-ease),
+            border-color var(--frontend-transition-duration) var(--frontend-ease),
+            transform var(--frontend-transition-fast) var(--frontend-ease-press);
+    }
+
+    /* HOME STORY CTA ICON: Creates the separate circular arrow beside the text button. */
+    .home-story__cta-icon {
+        @apply inline-flex h-12 w-12 items-center justify-center rounded-full;
+        background: var(--frontend-black);
+        color: var(--frontend-gold-soft);
+        box-shadow: var(--btn-shadow);
+        transition:
+            background-color var(--frontend-transition-duration) var(--frontend-ease),
+            color var(--frontend-transition-duration) var(--frontend-ease),
+            transform var(--frontend-transition-fast) var(--frontend-ease-press);
+    }
+
+    /* HOME STORY CTA ICON SVG: Draws a crisp diagonal arrow for the about CTA. */
+    .home-story__cta-icon svg,
+    .home-story__image-arrow svg {
+        @apply h-5 w-5;
+        fill: none;
+        stroke: currentColor;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        stroke-width: 2.1;
+    }
+
+    /* HOME STORY CTA HOVER: Adds a subtle premium hover motion to both CTA pieces. */
+    .home-story__cta:hover > span:first-child {
+        background: var(--frontend-gold-pale);
+        border-color: var(--frontend-gold);
+        transform: translateY(var(--btn-hover-lift));
+    }
+
+    /* HOME STORY CTA ICON HOVER: Recolors and moves the round arrow on hover. */
+    .home-story__cta:hover .home-story__cta-icon {
+        background: var(--frontend-gold);
+        color: var(--frontend-black);
+        transform: translate(1px, -2px);
+    }
+
+    /* HOME STORY CTA FOCUS: Keeps keyboard focus visible across the split CTA. */
+    .home-story__cta:focus-visible .home-story__cta-icon {
+        box-shadow: var(--btn-shadow), var(--btn-focus-ring);
+    }
+
+    /* HOME STORY IMAGE CARD: Frames about-section travel imagery with rounded corners. */
+    .home-story__image-card {
+        @apply relative block h-[220px] overflow-hidden rounded-[1.5rem] bg-stone-100 shadow-xl focus:outline-none;
+        border: 1px solid rgba(200, 162, 74, 0.24);
+        box-shadow: 0 24px 70px rgba(23, 19, 12, 0.12);
+    }
+
+    @media (min-width: 1024px) {
+        /* HOME STORY IMAGE CARD DESKTOP: Sets the reference-like 260px card height on large screens. */
+        .home-story__image-card {
+            @apply h-[260px];
+        }
+    }
+
+    /* HOME STORY IMAGE: Keeps both about images cropped cleanly. */
+    .home-story__image-card img {
+        @apply absolute inset-0 h-full w-full object-cover;
+        max-width: none;
+        transition: transform 620ms var(--frontend-ease);
+    }
+
+    /* HOME STORY EMPTY IMAGE: Shows a premium no-image state until images are added in code. */
+    .home-story__image-empty {
+        @apply absolute inset-0 flex h-full w-full items-center justify-center text-xs font-extrabold uppercase;
+        background:
+            linear-gradient(135deg, rgba(255, 255, 255, 0.84), rgba(200, 162, 74, 0.2)),
+            repeating-linear-gradient(135deg, rgba(23, 19, 12, 0.05) 0 1px, transparent 1px 18px);
+        color: #8a681a;
+    }
+
+    /* HOME STORY IMAGE HOVER: Adds a soft zoom for the interactive first image card. */
+    .home-story__image-card:hover img {
+        transform: scale(1.045);
+    }
+
+    /* HOME STORY IMAGE FOCUS: Adds accessible focus styling for the linked image card. */
+    .home-story__image-card:focus-visible {
+        box-shadow: 0 24px 70px rgba(23, 19, 12, 0.12), var(--btn-focus-ring);
+    }
+
+    /* HOME STORY IMAGE OVERLAY: Positions overlay text and arrow on the first image card. */
+    .home-story__image-overlay {
+        @apply absolute inset-0 flex items-end justify-between gap-4 p-5;
+        background:
+            linear-gradient(180deg, transparent 22%, rgba(9, 8, 6, 0.72)),
+            linear-gradient(90deg, rgba(9, 8, 6, 0.54), transparent 68%);
+        color: var(--frontend-white);
+    }
+
+    /* HOME STORY IMAGE OVERLAY TEXT: Keeps overlay copy readable in the bottom-left corner. */
+    .home-story__image-overlay p {
+        @apply max-w-[15rem] text-base font-extrabold leading-6;
+        color: var(--frontend-white);
+    }
+
+    /* HOME STORY IMAGE ARROW: Creates the small circular arrow at bottom-right of the image card. */
+    .home-story__image-arrow {
+        @apply inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full;
+        background: rgba(255, 255, 255, 0.94);
+        color: var(--frontend-black);
+        box-shadow: 0 16px 34px rgba(9, 8, 6, 0.18);
+        transition:
+            background-color var(--frontend-transition-duration) var(--frontend-ease),
+            color var(--frontend-transition-duration) var(--frontend-ease),
+            transform var(--frontend-transition-fast) var(--frontend-ease-press);
+    }
+
+    /* HOME STORY IMAGE ARROW HOVER: Adds a premium gold interaction to the image card arrow. */
+    .home-story__image-card:hover .home-story__image-arrow {
+        background: var(--frontend-gold);
+        color: var(--frontend-black);
+        transform: translate(1px, -1px);
+    }
+
+    @media (max-width: 639px) {
+        /* HOME STORY MOBILE CTA: Keeps the split CTA comfortable and centered on small screens. */
+        .home-story__cta {
+            @apply w-full justify-center;
+        }
+
+        .home-story__cta > span:first-child {
+            @apply flex-1 justify-center;
+        }
+    }
+
+    /* BP JOURNEY SECTION: Builds the premium about/journey block with editorial travel spacing. */
+    .bp-journey-section {
+        @apply overflow-hidden bg-white py-14 sm:py-16 lg:py-24;
+    }
+
+    /* BP JOURNEY GRID: Places copy and visual composition in two balanced columns. */
+    .bp-journey-section__grid {
+        @apply grid gap-12 lg:grid-cols-[minmax(0,0.48fr)_minmax(360px,0.52fr)] lg:items-center;
+    }
+
+    /* BP JOURNEY CONTENT: Keeps the left text column readable with a refined max width. */
+    .bp-journey-content {
+        @apply max-w-2xl;
+    }
+
+    /* BP JOURNEY LABEL: Styles the small soft-gold pill above the title. */
+    .bp-journey-label {
+        @apply inline-flex rounded-full border px-4 py-2 text-xs font-extrabold uppercase;
+        background: var(--frontend-gold-pale);
+        border-color: var(--frontend-border);
+        color: #8a681a;
+    }
+
+    /* BP JOURNEY TITLE: Gives the new journey heading strong luxury hierarchy. */
+    .bp-journey-title {
+        @apply mt-5 max-w-2xl;
+        color: var(--frontend-charcoal);
+    }
+
+    /* BP JOURNEY TEXT: Controls paragraph rhythm below the title. */
+    .bp-journey-text {
+        @apply mt-5 max-w-xl text-sm leading-7 sm:text-base;
+    }
+
+    /* BP JOURNEY FEATURES: Stacks the two service highlights with calm spacing. */
+    .bp-journey-features {
+        @apply mt-8 grid gap-5;
+    }
+
+    /* BP JOURNEY FEATURE: Aligns one icon and text item without card heaviness. */
+    .bp-journey-feature {
+        @apply flex gap-4;
+    }
+
+    /* BP JOURNEY FEATURE ICON: Creates a compact gold icon marker for each feature. */
+    .bp-journey-feature__icon {
+        @apply inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full border;
+        background: var(--frontend-gold-pale);
+        border-color: rgba(200, 162, 74, 0.34);
+        color: #8a681a;
+        box-shadow: 0 14px 34px rgba(23, 19, 12, 0.08);
+    }
+
+    /* BP JOURNEY FEATURE ICON SVG: Keeps feature line icons crisp and consistent. */
+    .bp-journey-feature__icon svg {
+        @apply h-5 w-5;
+        fill: none;
+        stroke: currentColor;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        stroke-width: 2;
+    }
+
+    /* BP JOURNEY FEATURE TITLE: Styles feature item headings with the global title font. */
+    .bp-journey-feature__title {
+        @apply text-lg leading-tight;
+        color: var(--frontend-charcoal);
+    }
+
+    /* BP JOURNEY FEATURE TEXT: Keeps supporting feature descriptions compact and readable. */
+    .bp-journey-feature__text {
+        @apply mt-2 text-sm leading-6;
+    }
+
+    /* BP JOURNEY CTA: Adds icon spacing to the global primary button. */
+    .bp-journey-cta {
+        @apply mt-8 gap-3;
+    }
+
+    /* BP JOURNEY CTA ICON: Draws the small arrow inside the booking CTA. */
+    .bp-journey-cta__icon {
+        @apply h-5 w-5;
+        fill: none;
+        stroke: currentColor;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        stroke-width: 2.1;
+        transition: transform var(--frontend-transition-fast) var(--frontend-ease-press);
+    }
+
+    /* BP JOURNEY CTA HOVER: Moves the arrow subtly for a premium interaction. */
+    .bp-journey-cta:hover .bp-journey-cta__icon {
+        transform: translate(1px, -1px);
+    }
+
+    /* BP JOURNEY VISUAL: Creates the right-side layered image composition. */
+    .bp-journey-visual {
+        @apply relative mx-auto min-h-[410px] w-full max-w-[560px] lg:min-h-[540px];
+    }
+
+    /* BP JOURNEY MAIN FRAME: Locks the large vertical travel image frame. */
+    .bp-journey-main-frame {
+        @apply absolute right-8 top-0 overflow-hidden rounded-[1.75rem] border bg-stone-100 shadow-2xl;
+        width: min(76vw, 410px);
+        height: 460px;
+        border-color: rgba(200, 162, 74, 0.26);
+        box-shadow: 0 30px 90px rgba(23, 19, 12, 0.14);
+    }
+
+    /* BP JOURNEY SMALL FRAME: Locks the smaller overlapping image frame. */
+    .bp-journey-small-frame {
+        @apply absolute left-0 top-1/2 z-20 overflow-hidden rounded-[1.5rem] border bg-stone-100 shadow-xl;
+        width: min(54vw, 260px);
+        height: 180px;
+        border-color: rgba(200, 162, 74, 0.3);
+        box-shadow: 0 24px 70px rgba(23, 19, 12, 0.16);
+        transform: translateY(-50%);
+    }
+
+    /* BP JOURNEY FRAME IMAGE: Crops future uploaded images safely inside both frames. */
+    .bp-journey-main-frame img,
+    .bp-journey-small-frame img {
+        @apply absolute inset-0 h-full w-full object-cover;
+        max-width: none;
+    }
+
+    /* BP JOURNEY PLACEHOLDER: Shows the fixed no-image state until images are added. */
+    .bp-journey-placeholder {
+        @apply absolute inset-0 flex items-center justify-center text-xs font-extrabold uppercase;
+        background:
+            linear-gradient(135deg, rgba(255, 255, 255, 0.86), rgba(200, 162, 74, 0.22)),
+            repeating-linear-gradient(135deg, rgba(23, 19, 12, 0.05) 0 1px, transparent 1px 18px);
+        color: #8a681a;
+    }
+
+    /* BP JOURNEY COMPASS: Adds a light decorative travel icon behind the image frames. */
+    .bp-journey-compass {
+        @apply absolute left-8 top-2 z-0 hidden text-stone-200 sm:block;
+        opacity: 0.9;
+    }
+
+    /* BP JOURNEY COMPASS SVG: Draws the decorative compass with thin premium lines. */
+    .bp-journey-compass svg {
+        @apply h-32 w-32;
+        fill: none;
+        stroke: currentColor;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        stroke-width: 2;
+    }
+
+    /* BP JOURNEY VERTICAL TEXT: Creates the outlined TRAVEL typography on the far right. */
+    .bp-journey-vertical-text {
+        @apply absolute right-0 top-1/2 hidden select-none text-7xl font-black uppercase leading-none lg:block;
+        color: transparent;
+        font-family: var(--frontend-font-display);
+        letter-spacing: 0;
+        opacity: 0.32;
+        transform: translate(44%, -50%) rotate(90deg);
+        -webkit-text-stroke: 1px rgba(200, 162, 74, 0.54);
+        text-stroke: 1px rgba(200, 162, 74, 0.54);
+    }
+
+    @media (max-width: 1023px) {
+        /* BP JOURNEY TABLET VISUAL: Centers the layered frame composition below or beside content. */
+        .bp-journey-visual {
+            @apply max-w-[520px];
+        }
+
+        .bp-journey-main-frame {
+            @apply right-0;
+        }
+    }
+
+    @media (max-width: 639px) {
+        /* BP JOURNEY MOBILE GRID: Keeps content first and prevents horizontal overflow. */
+        .bp-journey-section__grid {
+            @apply gap-10;
+        }
+
+        /* BP JOURNEY MOBILE CTA: Makes the booking action comfortable on small screens. */
+        .bp-journey-cta {
+            @apply w-full;
+        }
+
+        /* BP JOURNEY MOBILE VISUAL: Converts overlap into a stable stacked visual area. */
+        .bp-journey-visual {
+            @apply grid min-h-0 max-w-none gap-4;
+        }
+
+        /* BP JOURNEY MOBILE MAIN FRAME: Makes the main visual full-width with a safe ratio. */
+        .bp-journey-main-frame {
+            @apply relative right-auto top-auto w-full;
+            aspect-ratio: 4 / 5;
+            height: auto;
+        }
+
+        /* BP JOURNEY MOBILE SMALL FRAME: Stacks the small frame below the main image. */
+        .bp-journey-small-frame {
+            @apply relative left-auto top-auto w-full;
+            aspect-ratio: 4 / 3;
+            height: auto;
+            transform: none;
+        }
+
+        /* BP JOURNEY MOBILE DECORATION: Hides large decorative elements that could crowd mobile. */
+        .bp-journey-compass,
+        .bp-journey-vertical-text {
+            @apply hidden;
+        }
+    }
+
+    /* BP CATEGORY SECTION: Creates the centered destination-style category area. */
+    .bp-category-section {
+        @apply bg-white py-14 sm:py-16 lg:py-24;
+        background:
+            radial-gradient(circle at 50% 0%, rgba(200, 162, 74, 0.12), transparent 34rem),
+            var(--frontend-white);
+    }
+
+    /* BP CATEGORY HEADER: Centers label, title, and description with calm spacing. */
+    .bp-category-header {
+        @apply mx-auto max-w-4xl text-center;
+    }
+
+    /* BP CATEGORY LABEL: Styles the small gold label above the category title. */
+    .bp-category-header__label {
+        @apply inline-flex text-xs font-extrabold uppercase;
+        color: #8a681a;
+    }
+
+    /* BP CATEGORY TITLE: Controls the main centered category heading. */
+    .bp-category-header__title {
+        @apply mx-auto mt-3 max-w-4xl;
+        color: var(--frontend-charcoal);
+    }
+
+    /* BP CATEGORY DESCRIPTION: Keeps the category intro readable and narrow. */
+    .bp-category-header__text {
+        @apply mx-auto mt-4 max-w-xl text-sm leading-7 sm:text-base;
+    }
+
+    /* BP CATEGORY GRID: Displays database categories in 1/2/4 responsive columns. */
+    .bp-category-grid {
+        @apply mt-12 grid gap-7;
+        grid-template-columns: minmax(0, min(100%, 22rem));
+        justify-content: center;
+    }
+
+    /* BP CATEGORY CARD: Builds a white destination card with layered bottom depth. */
+    .bp-category-card {
+        @apply relative rounded-[1.75rem] border bg-white p-4 text-center no-underline transition focus:outline-none;
+        border-color: var(--frontend-border);
+        box-shadow: 0 16px 44px rgba(23, 19, 12, 0.08);
+        color: var(--frontend-charcoal);
+        isolation: isolate;
+        transition:
+            transform var(--frontend-transition-fast) var(--frontend-ease-press),
+            border-color var(--frontend-transition-duration) var(--frontend-ease),
+            box-shadow var(--frontend-transition-duration) var(--frontend-ease);
+    }
+
+    /* BP CATEGORY CARD LAYER: Adds the subtle stacked bottom border effect from the reference. */
+    .bp-category-card::after {
+        @apply absolute inset-x-8 -bottom-3 h-6 rounded-b-[1.5rem] border bg-white;
+        border-color: rgba(200, 162, 74, 0.24);
+        box-shadow: 0 18px 36px rgba(23, 19, 12, 0.05);
+        content: "";
+        z-index: -1;
+    }
+
+    /* BP CATEGORY CARD HOVER: Adds a refined lift and gold border interaction. */
+    .bp-category-card:hover {
+        border-color: var(--frontend-gold);
+        box-shadow: 0 24px 70px rgba(23, 19, 12, 0.13);
+        transform: translateY(var(--btn-hover-lift));
+    }
+
+    /* BP CATEGORY CARD FOCUS: Preserves keyboard-visible navigation for category links. */
+    .bp-category-card:focus-visible {
+        box-shadow: 0 16px 44px rgba(23, 19, 12, 0.08), var(--btn-focus-ring);
+    }
+
+    /* BP CATEGORY IMAGE FRAME: Locks the inner category image area for future uploads. */
+    .bp-category-image-frame {
+        @apply relative rounded-[1.35rem] bg-stone-100;
+        aspect-ratio: 1 / 0.76;
+        margin-bottom: 2rem;
+    }
+
+    /* BP CATEGORY IMAGE MEDIA: Crops future category images cleanly inside the fixed frame. */
+    .bp-category-image-frame img {
+        @apply absolute inset-0 h-full w-full rounded-[1.35rem] object-cover;
+        max-width: none;
+        transition: transform 620ms var(--frontend-ease);
+    }
+
+    /* BP CATEGORY IMAGE HOVER: Adds a soft zoom once real category images are available. */
+    .bp-category-card:hover .bp-category-image-frame img {
+        transform: scale(1.045);
+    }
+
+    /* BP CATEGORY PLACEHOLDER: Shows a premium placeholder while category images are not ready. */
+    .bp-category-placeholder {
+        @apply absolute inset-0 flex items-center justify-center rounded-[1.35rem] text-xs font-extrabold uppercase;
+        background:
+            linear-gradient(135deg, rgba(255, 255, 255, 0.86), rgba(200, 162, 74, 0.22)),
+            repeating-linear-gradient(135deg, rgba(23, 19, 12, 0.05) 0 1px, transparent 1px 18px);
+        color: #8a681a;
+    }
+
+    /* BP CATEGORY COUNT BADGE: Overlaps the bottom-center of the image frame with package count. */
+    .bp-category-count-badge {
+        @apply absolute inset-x-0 bottom-0 z-10 mx-auto inline-flex w-max translate-y-1/2 items-center justify-center rounded-full border px-5 py-2 text-xs font-extrabold uppercase;
+        background: var(--frontend-white);
+        border-color: rgba(200, 162, 74, 0.34);
+        color: #8a681a;
+        box-shadow: 0 14px 34px rgba(23, 19, 12, 0.1);
+    }
+
+    /* BP CATEGORY NAME: Centers the category name below the image and badge. */
+    .bp-category-name {
+        @apply px-2 pb-4 pt-1 text-xl leading-tight;
+        color: var(--frontend-charcoal);
+    }
+
+    @media (min-width: 640px) {
+        /* BP CATEGORY TABLET GRID: Keeps two cards centered with equal card width. */
+        .bp-category-grid {
+            grid-template-columns: repeat(2, minmax(0, 20rem));
+        }
+    }
+
+    @media (min-width: 1024px) {
+        /* BP CATEGORY DESKTOP GRID: Centers up to four category cards without leaving short rows off-center. */
+        .bp-category-grid {
+            grid-template-columns: repeat(auto-fit, minmax(15.5rem, 18.5rem));
+            max-width: 82rem;
+            margin-inline: auto;
+        }
+    }
+
+    @media (max-width: 639px) {
+        /* BP CATEGORY MOBILE CARD: Keeps category cards comfortably sized on narrow screens. */
+        .bp-category-card {
+            @apply mx-auto w-full max-w-sm;
+        }
     }
 
     /* HOME CATEGORY GRID: Displays categories as compact luxury cards. */
@@ -312,6 +1282,114 @@
         @apply aspect-[16/11];
     }
 
+    /* BP TESTIMONIALS: Creates the guest review section that replaces destination cards. */
+    .bp-testimonials {
+        @apply bg-white py-14 sm:py-16 lg:py-24;
+        background:
+            radial-gradient(circle at 50% 0%, rgba(200, 162, 74, 0.1), transparent 34rem),
+            var(--frontend-white);
+    }
+
+    /* BP TESTIMONIALS HEADER: Centers testimonial label, title, and intro copy. */
+    .bp-testimonials__header {
+        @apply mx-auto max-w-3xl text-center;
+    }
+
+    /* BP TESTIMONIALS LABEL: Styles the small testimonial eyebrow in brand gold. */
+    .bp-testimonials__label {
+        @apply inline-flex text-xs font-extrabold uppercase;
+        color: #8a681a;
+    }
+
+    /* BP TESTIMONIALS TITLE: Gives the review section a premium centered heading. */
+    .bp-testimonials__title {
+        @apply mx-auto mt-3 max-w-3xl;
+        color: var(--frontend-charcoal);
+    }
+
+    /* BP TESTIMONIALS TEXT: Keeps the review intro readable and balanced. */
+    .bp-testimonials__text {
+        @apply mx-auto mt-4 max-w-xl text-sm leading-7 sm:text-base;
+    }
+
+    /* BP TESTIMONIALS GRID: Displays reviews in 1/2/3 columns responsively. */
+    .bp-testimonials__grid {
+        @apply mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-3;
+    }
+
+    /* BP TESTIMONIAL CARD: Styles one white review card with soft premium depth. */
+    .bp-testimonial-card {
+        @apply relative flex h-full flex-col rounded-[1.5rem] border bg-white p-6;
+        border-color: var(--frontend-border);
+        box-shadow: var(--frontend-shadow);
+    }
+
+    /* BP TESTIMONIAL CARD TOP: Aligns avatar, client meta, and quote icon. */
+    .bp-testimonial-card__top {
+        @apply flex items-start gap-4;
+    }
+
+    /* BP TESTIMONIAL AVATAR: Creates a fixed initials placeholder for future avatar images. */
+    .bp-testimonial-card__avatar {
+        @apply flex h-12 w-12 shrink-0 items-center justify-center rounded-full border text-sm font-extrabold;
+        background: var(--frontend-gold-pale);
+        border-color: rgba(200, 162, 74, 0.34);
+        color: #8a681a;
+    }
+
+    /* BP TESTIMONIAL AVATAR IMAGE: Crops future avatar photos inside the circular frame. */
+    .bp-testimonial-card__avatar img {
+        @apply h-full w-full rounded-full object-cover;
+    }
+
+    /* BP TESTIMONIAL META: Holds client name and role text. */
+    .bp-testimonial-card__meta {
+        @apply min-w-0 flex-1;
+    }
+
+    /* BP TESTIMONIAL NAME: Styles the client name with global heading font. */
+    .bp-testimonial-card__name {
+        @apply text-lg leading-tight;
+        color: var(--frontend-charcoal);
+    }
+
+    /* BP TESTIMONIAL ROLE: Styles client role or location as quiet metadata. */
+    .bp-testimonial-card__meta p {
+        @apply mt-1 text-xs font-bold uppercase;
+        color: var(--frontend-gray);
+    }
+
+    /* BP TESTIMONIAL QUOTE: Places a decorative quote mark on the top-right. */
+    .bp-testimonial-card__quote {
+        @apply ml-auto text-5xl leading-none;
+        color: rgba(200, 162, 74, 0.3);
+        font-family: var(--frontend-font-display);
+    }
+
+    /* BP TESTIMONIAL TEXT: Gives review copy a softer italic editorial tone. */
+    .bp-testimonial-card__text {
+        @apply mt-6 flex-1 text-sm italic leading-7 sm:text-base;
+        color: var(--frontend-gray);
+    }
+
+    /* BP TESTIMONIAL STARS: Displays the rating row at the bottom of the card. */
+    .bp-testimonial-card__stars {
+        @apply mt-6 flex items-center gap-1 text-sm;
+        color: rgba(111, 106, 96, 0.28);
+    }
+
+    /* BP TESTIMONIAL FILLED STAR: Applies the gold accent to active rating stars. */
+    .bp-testimonial-card__stars .is-filled {
+        color: var(--frontend-gold);
+    }
+
+    @media (max-width: 639px) {
+        /* BP TESTIMONIAL MOBILE CARD: Keeps review cards comfortably sized on small screens. */
+        .bp-testimonial-card {
+            @apply mx-auto w-full max-w-sm;
+        }
+    }
+
     /* HOME MINI CARD IMAGE: Creates an image placeholder area for compact cards. */
     .home-mini-card__image {
         @apply mb-4 flex aspect-[16/10] items-center justify-center rounded-[1rem] border border-dashed text-xs font-extrabold uppercase;
@@ -329,6 +1407,119 @@
     /* HOME MINI CARD TEXT: Styles compact card supporting text. */
     .home-mini-card__text {
         @apply mt-2 text-sm text-stone-500;
+    }
+
+    /* BP EXPLORE BANNER: Creates a full-width cinematic image banner for the promise section. */
+    .bp-explore-banner {
+        @apply relative flex min-h-[460px] w-full overflow-hidden py-14 sm:min-h-[520px] lg:min-h-[680px];
+        background: var(--frontend-charcoal);
+    }
+
+    /* BP EXPLORE BANNER BACKGROUND: Holds the future full-cover background media. */
+    .bp-explore-banner__bg {
+        @apply absolute inset-0;
+    }
+
+    /* BP EXPLORE BANNER BACKGROUND IMAGE: Crops future uploaded background images edge-to-edge. */
+    .bp-explore-banner__bg img {
+        @apply h-full w-full object-cover;
+        max-width: none;
+    }
+
+    /* BP EXPLORE BANNER PLACEHOLDER: Shows a fixed full-cover no-image background state. */
+    .bp-explore-banner__placeholder {
+        @apply absolute inset-0 flex items-center justify-center text-xs font-extrabold uppercase;
+        background:
+            linear-gradient(135deg, rgba(255, 255, 255, 0.18), rgba(200, 162, 74, 0.28)),
+            repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.06) 0 1px, transparent 1px 20px),
+            linear-gradient(120deg, #17130c 0%, #2a2417 48%, #090806 100%);
+        color: rgba(245, 234, 208, 0.58);
+        letter-spacing: 0;
+    }
+
+    /* BP EXPLORE BANNER OVERLAY: Keeps centered content readable over future background images. */
+    .bp-explore-banner__overlay {
+        @apply absolute inset-0;
+        background:
+            linear-gradient(180deg, rgba(9, 8, 6, 0.22), rgba(9, 8, 6, 0.38) 46%, rgba(9, 8, 6, 0.72)),
+            radial-gradient(circle at 50% 28%, rgba(200, 162, 74, 0.18), transparent 34rem);
+    }
+
+    /* BP EXPLORE BANNER CONTENT: Centers label, heading, and CTA in the upper-middle of the banner. */
+    .bp-explore-banner__content {
+        @apply relative z-10 flex flex-col items-center justify-center text-center;
+        padding-bottom: clamp(5rem, 12vw, 11rem);
+    }
+
+    /* BP EXPLORE BANNER LABEL: Styles the small gold label above the banner heading. */
+    .bp-explore-banner__label {
+        @apply inline-flex text-xs font-extrabold uppercase;
+        color: var(--frontend-gold-soft);
+    }
+
+    /* BP EXPLORE BANNER TITLE: Gives the full-width banner a centered luxury heading. */
+    .bp-explore-banner__title {
+        @apply mx-auto mt-4 max-w-4xl;
+        color: var(--frontend-white);
+        text-shadow: 0 18px 46px rgba(9, 8, 6, 0.32);
+    }
+
+    /* BP EXPLORE BANNER CTA: Spaces the booking action below the heading. */
+    .bp-explore-banner__cta {
+        @apply mt-8 gap-3;
+    }
+
+    /* BP EXPLORE BANNER CTA ICON: Draws the CTA arrow inside the global button. */
+    .bp-explore-banner__cta-icon {
+        @apply h-5 w-5;
+        fill: none;
+        stroke: currentColor;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        stroke-width: 2.1;
+        transition: transform var(--frontend-transition-fast) var(--frontend-ease-press);
+    }
+
+    /* BP EXPLORE BANNER CTA HOVER: Adds a subtle arrow movement to the banner CTA. */
+    .bp-explore-banner__cta:hover .bp-explore-banner__cta-icon {
+        transform: translate(1px, -1px);
+    }
+
+    /* BP EXPLORE BANNER OUTLINE TEXT: Places the large outlined destination text near the bottom. */
+    .bp-explore-banner__outline-text {
+        @apply pointer-events-none absolute inset-x-0 bottom-8 z-10 select-none text-center font-black uppercase leading-none;
+        color: transparent;
+        font-family: var(--frontend-font-display);
+        font-size: clamp(3.25rem, 10vw, 9.5rem);
+        letter-spacing: 0;
+        opacity: 0.52;
+        -webkit-text-stroke: 1px rgba(245, 234, 208, 0.72);
+        text-stroke: 1px rgba(245, 234, 208, 0.72);
+        white-space: nowrap;
+    }
+
+    @media (max-width: 639px) {
+        /* BP EXPLORE BANNER MOBILE: Keeps the banner compact and readable on narrow screens. */
+        .bp-explore-banner {
+            @apply min-h-[460px] py-12;
+        }
+
+        /* BP EXPLORE BANNER MOBILE CONTENT: Gives CTA enough room above the outline text. */
+        .bp-explore-banner__content {
+            padding-bottom: 6.5rem;
+        }
+
+        /* BP EXPLORE BANNER MOBILE CTA: Makes the booking button easy to tap. */
+        .bp-explore-banner__cta {
+            @apply w-full max-w-xs;
+        }
+
+        /* BP EXPLORE BANNER MOBILE OUTLINE: Reduces bottom outline text to avoid overflow. */
+        .bp-explore-banner__outline-text {
+            bottom: 2.25rem;
+            font-size: clamp(2.4rem, 13vw, 4rem);
+            white-space: normal;
+        }
     }
 
     /* HOME STATS: Creates a soft premium proof section with a central globe motif. */

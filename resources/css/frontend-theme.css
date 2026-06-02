@@ -13,6 +13,20 @@
         --frontend-shadow: 0 18px 48px rgba(23, 19, 12, 0.08);
         --frontend-font-display: "Forum", Georgia, "Times New Roman", serif;
         --frontend-font-body: "Montserrat", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        --frontend-ease: cubic-bezier(0.22, 1, 0.36, 1);
+        --frontend-ease-press: cubic-bezier(0.2, 0, 0.2, 1);
+        --frontend-transition-fast: 160ms;
+        --frontend-transition-duration: 280ms;
+        --btn-radius: 9999px;
+        --btn-hover-lift: -2px;
+        --btn-active-lift: 0px;
+        --btn-hover-scale: 1.012;
+        --btn-active-scale: 0.982;
+        --btn-shadow: 0 16px 38px rgba(9, 8, 6, 0.16);
+        --btn-shadow-hover: 0 22px 54px rgba(9, 8, 6, 0.22);
+        --btn-shadow-soft: 0 14px 32px rgba(200, 162, 74, 0.18);
+        --btn-focus-ring: 0 0 0 4px rgba(200, 162, 74, 0.24);
+        --btn-disabled-opacity: 0.48;
     }
 
     /* FRONTEND BODY: Applies the base luxury background and text color for public pages. */
@@ -57,6 +71,171 @@
 }
 
 @layer components {
+
+    /* BUTTON CORE: Centralizes frontend button layout, transitions, focus, and tactile motion. */
+    .btn {
+        @apply inline-flex min-h-12 select-none items-center justify-center gap-2 border px-6 py-3 text-center text-sm font-extrabold no-underline focus:outline-none;
+        background: var(--btn-bg, var(--frontend-black));
+        border-color: var(--btn-border, var(--frontend-black));
+        border-radius: var(--btn-radius);
+        box-shadow: var(--btn-shadow-current, var(--btn-shadow));
+        color: var(--btn-color, var(--frontend-gold-soft));
+        cursor: pointer;
+        transform: translateY(0) scale(1);
+        transition:
+            transform var(--frontend-transition-fast) var(--frontend-ease-press),
+            box-shadow var(--frontend-transition-duration) var(--frontend-ease),
+            background-color var(--frontend-transition-duration) var(--frontend-ease),
+            border-color var(--frontend-transition-duration) var(--frontend-ease),
+            color var(--frontend-transition-duration) var(--frontend-ease),
+            filter var(--frontend-transition-duration) var(--frontend-ease),
+            opacity var(--frontend-transition-duration) var(--frontend-ease);
+        will-change: transform;
+    }
+
+    /* BUTTON HOVER: Adds one globally controlled luxury lift effect for all frontend buttons. */
+    .btn:hover {
+        background: var(--btn-hover-bg, var(--frontend-gold));
+        border-color: var(--btn-hover-border, var(--frontend-gold));
+        box-shadow: var(--btn-shadow-hover-current, var(--btn-shadow-hover));
+        color: var(--btn-hover-color, var(--frontend-black));
+        filter: brightness(1.025);
+        transform: translateY(var(--btn-hover-lift)) scale(var(--btn-hover-scale));
+    }
+
+    /* BUTTON ACTIVE: Gives all frontend buttons a fast premium press-down interaction. */
+    .btn:active {
+        box-shadow: var(--btn-shadow-active, 0 10px 24px rgba(9, 8, 6, 0.14));
+        filter: brightness(0.985);
+        transform: translateY(var(--btn-active-lift)) scale(var(--btn-active-scale));
+        transition-duration: var(--frontend-transition-fast);
+    }
+
+    /* BUTTON FOCUS: Keeps keyboard navigation visible and consistent across frontend CTAs. */
+    .btn:focus-visible {
+        box-shadow: var(--btn-shadow-current, var(--btn-shadow)), var(--btn-focus-ring);
+    }
+
+    /* BUTTON DISABLED: Provides a reusable disabled state for anchors and native buttons. */
+    .btn:disabled,
+    .btn[aria-disabled="true"],
+    .btn.is-disabled {
+        cursor: not-allowed;
+        opacity: var(--btn-disabled-opacity);
+        pointer-events: none;
+        transform: none;
+    }
+
+    /* BUTTON PRIMARY: Uses the main black and soft-gold luxury treatment. */
+    .btn-primary {
+        --btn-bg: var(--frontend-black);
+        --btn-border: var(--frontend-black);
+        --btn-color: var(--frontend-gold-soft);
+        --btn-hover-bg: var(--frontend-gold);
+        --btn-hover-border: var(--frontend-gold);
+        --btn-hover-color: var(--frontend-black);
+    }
+
+    /* BUTTON SECONDARY: Uses gold as a stronger conversion action. */
+    .btn-secondary {
+        --btn-bg: var(--frontend-gold);
+        --btn-border: var(--frontend-gold);
+        --btn-color: var(--frontend-black);
+        --btn-hover-bg: var(--frontend-black);
+        --btn-hover-border: var(--frontend-black);
+        --btn-hover-color: var(--frontend-gold-soft);
+        --btn-shadow-current: var(--btn-shadow-soft);
+    }
+
+    /* BUTTON OUTLINE: Creates a transparent luxury outline action for light and glass surfaces. */
+    .btn-outline {
+        --btn-bg: transparent;
+        --btn-border: rgba(200, 162, 74, 0.46);
+        --btn-color: currentColor;
+        --btn-hover-bg: var(--frontend-gold);
+        --btn-hover-border: var(--frontend-gold);
+        --btn-hover-color: var(--frontend-black);
+        --btn-shadow-current: none;
+        --btn-shadow-hover-current: 0 16px 36px rgba(200, 162, 74, 0.18);
+    }
+
+    /* BUTTON GHOST: Provides a quiet button for icon-only and low-emphasis controls. */
+    .btn-ghost {
+        --btn-bg: transparent;
+        --btn-border: transparent;
+        --btn-color: var(--frontend-charcoal);
+        --btn-hover-bg: var(--frontend-gold-pale);
+        --btn-hover-border: var(--frontend-gold-pale);
+        --btn-hover-color: var(--frontend-black);
+        --btn-shadow-current: none;
+        --btn-shadow-hover-current: none;
+    }
+
+    /* BUTTON DANGER: Gives destructive frontend actions a refined but clear warning style. */
+    .btn-danger {
+        --btn-bg: #7f1d1d;
+        --btn-border: #7f1d1d;
+        --btn-color: #fff7ed;
+        --btn-hover-bg: #991b1b;
+        --btn-hover-border: #991b1b;
+        --btn-hover-color: #ffffff;
+    }
+
+    /* BUTTON SUBMIT: Standardizes form submit buttons in filters, booking, and contact flows. */
+    .btn-submit {
+        --btn-bg: var(--frontend-black);
+        --btn-border: var(--frontend-black);
+        --btn-color: var(--frontend-gold-soft);
+        --btn-hover-bg: var(--frontend-gold);
+        --btn-hover-border: var(--frontend-gold);
+        --btn-hover-color: var(--frontend-black);
+    }
+
+    /* BUTTON WHATSAPP: Keeps WhatsApp CTAs aligned with the black-gold brand system. */
+    .btn-whatsapp {
+        --btn-bg: var(--frontend-black);
+        --btn-border: var(--frontend-black);
+        --btn-color: var(--frontend-gold-soft);
+        --btn-hover-bg: var(--frontend-gold);
+        --btn-hover-border: var(--frontend-gold);
+        --btn-hover-color: var(--frontend-black);
+    }
+
+    /* BUTTON SMALL: Provides compact button sizing while preserving mobile tap comfort. */
+    .btn-sm {
+        @apply min-h-11 px-5 py-2.5 text-sm;
+    }
+
+    /* BUTTON LARGE: Provides a stronger CTA size for hero and booking actions. */
+    .btn-lg {
+        @apply min-h-14 px-8 py-4 text-base;
+    }
+
+    /* BUTTON ICON: Creates square and circular icon buttons with centered alignment. */
+    .btn-icon {
+        @apply h-11 w-11 min-h-11 shrink-0 px-0 py-0;
+    }
+
+    /* INTERACTION SMOOTH: Reusable transition helper for future frontend interactive elements. */
+    .interaction-smooth {
+        transition:
+            transform var(--frontend-transition-fast) var(--frontend-ease-press),
+            box-shadow var(--frontend-transition-duration) var(--frontend-ease),
+            background-color var(--frontend-transition-duration) var(--frontend-ease),
+            border-color var(--frontend-transition-duration) var(--frontend-ease),
+            color var(--frontend-transition-duration) var(--frontend-ease),
+            opacity var(--frontend-transition-duration) var(--frontend-ease);
+    }
+
+    /* INTERACTION LIFT: Reusable hover and active motion for non-button frontend controls. */
+    .interaction-lift:hover {
+        transform: translateY(var(--btn-hover-lift)) scale(var(--btn-hover-scale));
+    }
+
+    /* INTERACTION PRESS: Reusable active press feedback for non-button frontend controls. */
+    .interaction-lift:active {
+        transform: translateY(var(--btn-active-lift)) scale(var(--btn-active-scale));
+    }
 
     /* TITLE HERO: Reusable luxury hero typography for frontend landing and detail pages. */
     .title-hero {
@@ -111,6 +290,277 @@
         font-weight: 600;
         line-height: 1.5;
         letter-spacing: 0;
+    }
+
+    /* SECTION CORE: Provides a reusable frontend section wrapper with consistent spacing. */
+    .section {
+        @apply relative overflow-hidden py-14 sm:py-16 lg:py-20;
+        color: var(--section-text, var(--frontend-charcoal));
+        background: var(--section-bg, transparent);
+    }
+
+    /* SECTION CONTAINER: Aligns reusable frontend sections with the public site grid. */
+    .section-container {
+        @apply relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8;
+    }
+
+    /* SECTION CONTENT: Limits text-heavy section copy for readable editorial rhythm. */
+    .section-content {
+        @apply max-w-2xl;
+    }
+
+    /* SECTION WHITE: Creates a plain clean information section background. */
+    .section-white {
+        --section-bg: var(--frontend-white);
+    }
+
+    /* SECTION SOFT GOLD: Creates a subtle premium CTA or feature section background. */
+    .section-soft-gold {
+        --section-bg: linear-gradient(180deg, var(--frontend-gold-pale), #ffffff);
+    }
+
+    /* SECTION DARK: Creates a black-gold luxury section for high contrast messaging. */
+    .section-dark {
+        --section-bg: linear-gradient(135deg, var(--frontend-black), #20180b);
+        --section-text: var(--frontend-white);
+    }
+
+    /* SECTION IMAGE BACKGROUND: Turns a section into a responsive image-backed content block. */
+    .section-image-bg {
+        @apply min-h-[460px] text-white sm:min-h-[520px];
+        --section-text: var(--frontend-white);
+        background: var(--frontend-black);
+    }
+
+    /* SECTION BACKGROUND MEDIA: Positions dynamic section images behind the content. */
+    .section-bg-media {
+        @apply absolute inset-0 z-0;
+    }
+
+    /* SECTION BACKGROUND IMAGE: Ensures background images cover the entire section safely. */
+    .section-bg-media img {
+        @apply h-full w-full object-cover;
+    }
+
+    /* SECTION BACKGROUND OVERLAY: Adds readable dark contrast on top of image backgrounds. */
+    .section-bg-overlay {
+        @apply absolute inset-0 z-[1];
+        background:
+            linear-gradient(90deg, rgba(9, 8, 6, 0.82), rgba(9, 8, 6, 0.42)),
+            linear-gradient(180deg, rgba(9, 8, 6, 0.12), rgba(9, 8, 6, 0.72));
+    }
+
+    /* SECTION OVERLAY GOLD: Adds a soft gold atmosphere over image background sections. */
+    .section-overlay-gold .section-bg-overlay,
+    .section-bg-overlay--gold {
+        background:
+            linear-gradient(90deg, rgba(9, 8, 6, 0.72), rgba(64, 45, 12, 0.38)),
+            radial-gradient(circle at 78% 20%, rgba(200, 162, 74, 0.38), transparent 34%);
+    }
+
+    /* SECTION OVERLAY DARK: Strengthens contrast for bright or visually busy image backgrounds. */
+    .section-overlay-dark .section-bg-overlay,
+    .section-bg-overlay--dark {
+        background: rgba(9, 8, 6, 0.72);
+    }
+
+    /* SECTION IMAGE SPLIT: Enables reusable text plus image sections without custom page CSS. */
+    .section-image-split {
+        @apply overflow-hidden;
+    }
+
+    /* SECTION SPLIT: Stacks on mobile and creates text-left image-right layout on desktop. */
+    .section-split {
+        @apply grid gap-8 lg:grid-cols-[minmax(0,0.92fr)_minmax(360px,1fr)] lg:items-center lg:gap-12;
+    }
+
+    /* SECTION REVERSE: Reverses split section order on desktop while keeping mobile readable. */
+    .section-reverse .section-split,
+    .section-split.section-reverse {
+        @apply lg:grid-cols-[minmax(360px,1fr)_minmax(0,0.92fr)];
+    }
+
+    /* SECTION REVERSE MEDIA: Moves media to the left side for reversed desktop layouts. */
+    .section-reverse .section-media,
+    .section-split.section-reverse .section-media {
+        @apply lg:order-first;
+    }
+
+    /* SECTION MEDIA: Frames dynamic split-section imagery with premium radius and shadow. */
+    .section-media {
+        @apply relative overflow-hidden rounded-[1.5rem] border bg-white shadow-xl;
+        aspect-ratio: 16 / 11;
+        border-color: rgba(200, 162, 74, 0.28);
+        box-shadow: 0 28px 80px rgba(23, 19, 12, 0.14);
+    }
+
+    /* SECTION MEDIA IMAGE: Keeps imported split-section images cropped cleanly. */
+    .section-media img {
+        @apply h-full w-full object-cover;
+    }
+
+    /* SECTION MEDIA FALLBACK: Keeps media blocks premium even before an image is uploaded. */
+    .section-media:empty {
+        background:
+            linear-gradient(135deg, rgba(255, 255, 255, 0.68), rgba(200, 162, 74, 0.18)),
+            repeating-linear-gradient(135deg, rgba(200, 162, 74, 0.14) 0 1px, transparent 1px 18px);
+    }
+
+    /* FEATURE CARD CORE: Creates reusable information cards that support plain, thumbnail, and image background modes. */
+    .feature-card {
+        @apply relative block overflow-hidden rounded-[1.35rem] border bg-white p-5 text-left no-underline shadow-sm focus:outline-none;
+        border-color: var(--frontend-border);
+        box-shadow: var(--frontend-shadow);
+        color: var(--frontend-charcoal);
+        transition:
+            transform var(--frontend-transition-fast) var(--frontend-ease-press),
+            box-shadow var(--frontend-transition-duration) var(--frontend-ease),
+            border-color var(--frontend-transition-duration) var(--frontend-ease);
+    }
+
+    /* FEATURE CARD HOVER: Adds a soft premium lift shared by all feature card variants. */
+    .feature-card:hover {
+        border-color: var(--frontend-gold);
+        box-shadow: 0 24px 70px rgba(23, 19, 12, 0.14);
+        transform: translateY(var(--btn-hover-lift));
+    }
+
+    /* FEATURE CARD FOCUS: Preserves keyboard accessibility for card links. */
+    .feature-card:focus-visible {
+        box-shadow: var(--frontend-shadow), var(--btn-focus-ring);
+    }
+
+    /* FEATURE CARD CONTENT: Keeps card text above media and overlay layers. */
+    .feature-card-content {
+        @apply relative z-10;
+    }
+
+    /* FEATURE CARD KICKER: Styles compact card labels, numbers, and category text. */
+    .feature-card-kicker {
+        @apply mb-3 inline-flex text-xs font-extrabold uppercase;
+        color: #8a681a;
+    }
+
+    /* FEATURE CARD MEDIA: Adds thumbnail image support inside feature cards. */
+    .feature-card-media {
+        @apply mb-5 overflow-hidden rounded-[1rem] bg-stone-100;
+        aspect-ratio: 16 / 10;
+    }
+
+    /* FEATURE CARD MEDIA IMAGE: Optimizes card thumbnails for imported dynamic images. */
+    .feature-card-media img {
+        @apply h-full w-full object-cover;
+        transition: transform 520ms var(--frontend-ease);
+    }
+
+    /* FEATURE CARD MEDIA FALLBACK: Keeps thumbnail card variants presentable without uploaded images. */
+    .feature-card-media:empty {
+        background:
+            linear-gradient(135deg, var(--frontend-gold-pale), #ffffff),
+            repeating-linear-gradient(135deg, rgba(200, 162, 74, 0.16) 0 1px, transparent 1px 16px);
+    }
+
+    /* FEATURE CARD IMAGE: Provides spacing and fallback style for thumbnail card variants. */
+    .feature-card-image {
+        background:
+            linear-gradient(180deg, #ffffff, var(--frontend-gold-pale));
+    }
+
+    /* FEATURE CARD IMAGE HOVER: Adds a subtle thumbnail zoom on interactive cards. */
+    .feature-card-image:hover .feature-card-media img {
+        transform: scale(1.045);
+    }
+
+    /* FEATURE CARD BACKGROUND: Turns a feature card into a full-image overlay card. */
+    .feature-card-bg {
+        @apply min-h-[320px] p-0 text-white sm:min-h-[360px];
+        background: var(--frontend-black);
+        color: var(--frontend-white);
+    }
+
+    /* FEATURE CARD BACKGROUND IMAGE: Positions imported full-card imagery behind text. */
+    .feature-card-bg-image {
+        @apply absolute inset-0 h-full w-full object-cover;
+        transition: transform 620ms var(--frontend-ease);
+    }
+
+    /* FEATURE CARD BACKGROUND HOVER: Adds soft image zoom for premium image cards. */
+    .feature-card-bg:hover .feature-card-bg-image {
+        transform: scale(1.045);
+    }
+
+    /* FEATURE CARD OVERLAY: Keeps text readable on full-background image cards. */
+    .feature-card-overlay {
+        @apply absolute inset-0 z-[1];
+        background:
+            linear-gradient(180deg, rgba(9, 8, 6, 0.08), rgba(9, 8, 6, 0.84)),
+            linear-gradient(90deg, rgba(9, 8, 6, 0.64), rgba(9, 8, 6, 0.18));
+    }
+
+    /* FEATURE CARD GOLD OVERLAY: Adds a warmer gold wash for destination or resort image cards. */
+    .feature-card-overlay--gold {
+        background:
+            linear-gradient(180deg, rgba(9, 8, 6, 0.08), rgba(9, 8, 6, 0.82)),
+            radial-gradient(circle at 82% 18%, rgba(200, 162, 74, 0.42), transparent 38%);
+    }
+
+    /* FEATURE CARD BACKGROUND CONTENT: Places text at the bottom of image background cards. */
+    .feature-card-bg .feature-card-content {
+        @apply flex min-h-[320px] flex-col justify-end p-5 sm:min-h-[360px] sm:p-6;
+    }
+
+    /* FEATURE CARD BACKGROUND KICKER: Recolors labels on dark image cards. */
+    .feature-card-bg .feature-card-kicker {
+        color: var(--frontend-gold);
+    }
+
+    /* FEATURE CARD BACKGROUND FALLBACK: Keeps background cards polished when no image is present. */
+    .feature-card-bg:not(:has(.feature-card-bg-image)) {
+        background:
+            radial-gradient(circle at top right, rgba(200, 162, 74, 0.22), transparent 34%),
+            linear-gradient(135deg, var(--frontend-black), #241a0a);
+    }
+
+    /* INFO IMAGE CARD: Creates decorative image blocks for mixed image and content grids. */
+    .info-image-card {
+        @apply relative overflow-hidden rounded-[1.35rem] border bg-white shadow-sm;
+        aspect-ratio: 16 / 11;
+        border-color: var(--frontend-border);
+        box-shadow: var(--frontend-shadow);
+    }
+
+    /* INFO IMAGE CARD IMAGE: Crops decorative card images responsively. */
+    .info-image-card img {
+        @apply h-full w-full object-cover;
+        transition: transform 620ms var(--frontend-ease);
+    }
+
+    /* INFO IMAGE CARD HOVER: Adds subtle visual depth when the block is interactive. */
+    a.info-image-card:hover img,
+    button.info-image-card:hover img {
+        transform: scale(1.045);
+    }
+
+    /* INFO IMAGE CARD FALLBACK: Prevents empty decorative image blocks from looking broken. */
+    .info-image-card:empty {
+        background:
+            linear-gradient(135deg, rgba(255, 255, 255, 0.7), rgba(200, 162, 74, 0.2)),
+            repeating-linear-gradient(135deg, rgba(23, 19, 12, 0.05) 0 1px, transparent 1px 18px);
+    }
+
+    /* FEATURE CARD GRID: Creates a reusable responsive grid for image or plain feature cards. */
+    .feature-card-grid {
+        @apply grid gap-4 sm:grid-cols-2 lg:grid-cols-3;
+    }
+
+    /* FEATURE CARD MIXED GRID: Supports one large visual card beside smaller information cards. */
+    .feature-card-grid--mixed {
+        @apply grid gap-4 lg:grid-cols-3;
+    }
+
+    /* FEATURE CARD GRID FEATURED: Lets one card become a larger image-led feature on desktop. */
+    .feature-card-grid--mixed .feature-card--featured {
+        @apply lg:col-span-2;
     }
 
     /* FRONTEND HEADER: Gives the public navbar a black and gold identity. */
@@ -238,33 +688,24 @@
 
     /* FRONTEND HEADER CTA: Styles the small trip-planning button in the navbar. */
     .frontend-header__cta {
-        @apply hidden min-h-11 items-center rounded-full border px-5 py-2.5 text-sm font-extrabold transition sm:inline-flex;
-        background: transparent;
-        border-color: rgba(255, 255, 255, 0.58);
-        color: var(--frontend-white);
+        @apply hidden sm:inline-flex;
+        --btn-bg: transparent;
+        --btn-border: rgba(255, 255, 255, 0.58);
+        --btn-color: var(--frontend-white);
     }
 
     /* FRONTEND HEADER CTA SCROLLED: Recolors the plan trip button after scroll. */
     .frontend-header--scrolled .frontend-header__cta {
-        background: var(--frontend-black);
-        border-color: var(--frontend-black);
-        color: var(--frontend-gold-soft);
-    }
-
-    /* FRONTEND HEADER CTA HOVER: Adds a smooth interaction to the navbar CTA. */
-    .frontend-header__cta:hover {
-        transform: translateY(-1px);
-        background: var(--frontend-gold);
-        border-color: var(--frontend-gold);
-        color: var(--frontend-black);
+        --btn-bg: var(--frontend-black);
+        --btn-border: var(--frontend-black);
+        --btn-color: var(--frontend-gold-soft);
     }
 
     /* FRONTEND HEADER ICON: Creates the circular arrow link beside Plan Trip. */
     .frontend-header__icon {
-        @apply inline-flex h-11 w-11 items-center justify-center rounded-full border transition;
-        background: transparent;
-        border-color: rgba(255, 255, 255, 0.58);
-        color: var(--frontend-white);
+        --btn-bg: transparent;
+        --btn-border: rgba(255, 255, 255, 0.58);
+        --btn-color: var(--frontend-white);
     }
 
     /* FRONTEND HEADER ICON SVG: Draws a crisp modern arrow without loading an icon package. */
@@ -280,17 +721,9 @@
 
     /* FRONTEND HEADER ICON SCROLLED: Makes the arrow circle visible on soft gold background. */
     .frontend-header--scrolled .frontend-header__icon {
-        background: var(--frontend-black);
-        border-color: var(--frontend-black);
-        color: var(--frontend-gold-soft);
-    }
-
-    /* FRONTEND HEADER ICON HOVER: Uses gold fill for the circular arrow interaction. */
-    .frontend-header__icon:hover {
-        transform: translateY(-1px);
-        background: var(--frontend-gold);
-        border-color: var(--frontend-gold);
-        color: var(--frontend-black);
+        --btn-bg: var(--frontend-black);
+        --btn-border: var(--frontend-black);
+        --btn-color: var(--frontend-gold-soft);
     }
 
     /* FRONTEND HEADER ICON SVG HOVER: Adds a tiny arrow motion for a polished feel. */
@@ -298,55 +731,211 @@
         transform: translate(1px, -1px);
     }
 
-    /* FRONTEND FOOTER: Creates a dark luxury footer reusable across frontend pages. */
-    .frontend-footer {
-        @apply mt-12;
+    /* BP FOOTER: Wraps the floating CTA and reusable global footer system. */
+    .bp-footer {
+        @apply relative mt-40 pt-24 sm:mt-44 sm:pt-28 lg:mt-52;
         background:
-            radial-gradient(circle at 12% 0%, rgba(200, 162, 74, 0.16), transparent 28%),
-            linear-gradient(135deg, var(--frontend-black), #18202a);
+            radial-gradient(circle at 12% 0%, rgba(200, 162, 74, 0.18), transparent 28rem),
+            linear-gradient(135deg, var(--frontend-black), #17202a 58%, #0b0d10);
         color: rgba(255, 255, 255, 0.74);
     }
 
-    /* FRONTEND FOOTER INNER: Lays out footer brand and links responsively. */
-    .frontend-footer__inner {
-        @apply mx-auto grid max-w-7xl gap-10 px-4 py-10 sm:px-6 md:grid-cols-[1fr_1fr] lg:px-8;
+    /* BP FOOTER CTA: Creates the floating card that overlaps the top of the footer. */
+    .bp-footer-cta {
+        @apply absolute left-1/2 top-0 z-10 grid w-[calc(100%-2rem)] max-w-7xl -translate-x-1/2 -translate-y-1/2 gap-6 overflow-hidden rounded-[1.75rem] border bg-white p-5 shadow-2xl md:grid-cols-[minmax(0,1fr)_minmax(240px,0.42fr)] md:items-center md:p-6 lg:p-8;
+        border-color: var(--frontend-border);
+        box-shadow: 0 30px 90px rgba(23, 19, 12, 0.16);
     }
 
-    /* FRONTEND FOOTER BRAND: Limits footer brand copy width. */
-    .frontend-footer__brand {
-        @apply max-w-sm;
+    /* BP FOOTER CTA CONTENT: Holds the CTA label, title, text, and WhatsApp button. */
+    .bp-footer-cta__content {
+        @apply max-w-3xl;
     }
 
-    /* FRONTEND FOOTER TEXT: Styles footer description copy. */
-    .frontend-footer__text {
-        @apply mt-4 text-sm leading-6;
+    /* BP FOOTER CTA LABEL: Styles the small gold label inside the floating CTA. */
+    .bp-footer-cta__label {
+        @apply inline-flex text-xs font-extrabold uppercase;
+        color: #8a681a;
     }
 
-    /* FRONTEND FOOTER GRID: Arranges footer link columns. */
-    .frontend-footer__grid {
-        @apply grid gap-8 sm:grid-cols-2;
+    /* BP FOOTER CTA TITLE: Gives the CTA a strong but compact premium heading. */
+    .bp-footer-cta__title {
+        @apply mt-3 max-w-2xl;
+        color: var(--frontend-charcoal);
     }
 
-    /* FRONTEND FOOTER TITLE: Labels footer link groups. */
-    .frontend-footer__title {
-        @apply mb-4 text-sm font-extrabold uppercase;
-        color: var(--frontend-gold);
+    /* BP FOOTER CTA TEXT: Keeps the CTA description readable inside the card. */
+    .bp-footer-cta__text {
+        @apply mt-4 max-w-2xl text-sm leading-7 sm:text-base;
+        color: var(--frontend-gray);
     }
 
-    /* FRONTEND FOOTER LINK: Styles reusable footer links. */
-    .frontend-footer__link {
-        @apply mb-3 block text-sm transition;
+    /* BP FOOTER CTA BUTTON: Adds spacing for the WhatsApp conversion action. */
+    .bp-footer-cta__button {
+        @apply mt-6;
     }
 
-    /* FRONTEND FOOTER LINK HOVER: Applies the gold hover state to footer links. */
-    .frontend-footer__link:hover {
+    /* BP FOOTER CTA VISUAL: Locks a fixed responsive frame for future CTA imagery. */
+    .bp-footer-cta__visual {
+        @apply relative hidden min-h-[210px] overflow-hidden rounded-[1.35rem] bg-stone-100 md:block;
+        aspect-ratio: 4 / 3;
+    }
+
+    /* BP FOOTER CTA VISUAL IMAGE: Crops future CTA images safely inside the frame. */
+    .bp-footer-cta__visual img {
+        @apply absolute inset-0 h-full w-full object-cover;
+        max-width: none;
+    }
+
+    /* BP FOOTER CTA PLACEHOLDER: Shows a premium no-image state until visual assets are added. */
+    .bp-footer-cta__placeholder {
+        @apply absolute inset-0 flex items-center justify-center text-xs font-extrabold uppercase;
+        background:
+            linear-gradient(135deg, rgba(255, 255, 255, 0.86), rgba(200, 162, 74, 0.22)),
+            repeating-linear-gradient(135deg, rgba(23, 19, 12, 0.05) 0 1px, transparent 1px 18px);
+        color: #8a681a;
+    }
+
+    /* BP FOOTER BODY: Adds spacing below the floating CTA and contains main footer content. */
+    .bp-footer__body {
+        @apply pt-24 sm:pt-28 lg:pt-32;
+    }
+
+    /* BP FOOTER INNER: Lays out brand/newsletter and footer columns responsively. */
+    .bp-footer__inner {
+        @apply mx-auto grid max-w-7xl gap-10 px-4 pb-10 sm:px-6 lg:grid-cols-[minmax(280px,0.95fr)_minmax(0,1.55fr)] lg:px-8;
+    }
+
+    /* BP FOOTER BRAND: Keeps logo, description, newsletter, and socials grouped. */
+    .bp-footer__brand {
+        @apply max-w-md;
+    }
+
+    /* BP FOOTER BRAND LINK: Styles the reusable footer logo placeholder. */
+    .bp-footer__brand-link {
+        @apply inline-flex items-center gap-3 text-lg font-extrabold no-underline;
+        color: var(--frontend-white);
+    }
+
+    /* BP FOOTER BRAND MARK: Creates the fixed BP logo placeholder circle. */
+    .bp-footer__brand-mark {
+        @apply flex h-11 w-11 items-center justify-center rounded-full border text-sm font-extrabold;
+        background: rgba(200, 162, 74, 0.12);
+        border-color: rgba(200, 162, 74, 0.42);
         color: var(--frontend-gold-soft);
     }
 
-    /* FRONTEND FOOTER BOTTOM: Adds copyright and secondary footer copy. */
-    .frontend-footer__bottom {
+    /* BP FOOTER TEXT: Styles the brand description in the dark footer. */
+    .bp-footer__text {
+        @apply mt-5 text-sm leading-7;
+        color: rgba(255, 255, 255, 0.66);
+    }
+
+    /* BP FOOTER NEWSLETTER: Creates the compact subscription form. */
+    .bp-footer__newsletter {
+        @apply mt-6 flex flex-col gap-3 sm:flex-row;
+    }
+
+    /* BP FOOTER NEWSLETTER INPUT: Styles the email field for the dark footer. */
+    .bp-footer__newsletter input {
+        @apply min-h-12 flex-1 rounded-full border px-5 text-sm outline-none transition;
+        background: rgba(255, 255, 255, 0.08);
+        border-color: rgba(200, 162, 74, 0.24);
+        color: var(--frontend-white);
+    }
+
+    /* BP FOOTER NEWSLETTER PLACEHOLDER: Keeps placeholder copy subtle. */
+    .bp-footer__newsletter input::placeholder {
+        color: rgba(255, 255, 255, 0.48);
+    }
+
+    /* BP FOOTER NEWSLETTER FOCUS: Adds keyboard focus visibility to the email field. */
+    .bp-footer__newsletter input:focus {
+        border-color: var(--frontend-gold);
+        box-shadow: var(--btn-focus-ring);
+    }
+
+    /* BP FOOTER SOCIALS: Groups compact social icon placeholders. */
+    .bp-footer__socials {
+        @apply mt-6 flex items-center gap-3;
+    }
+
+    /* BP FOOTER SOCIAL LINK: Styles one circular social placeholder. */
+    .bp-footer__socials a {
+        @apply inline-flex h-10 w-10 items-center justify-center rounded-full border text-xs font-extrabold transition;
+        border-color: rgba(200, 162, 74, 0.28);
+        color: var(--frontend-gold-soft);
+    }
+
+    /* BP FOOTER SOCIAL HOVER: Applies the global gold interaction to social links. */
+    .bp-footer__socials a:hover {
+        background: var(--frontend-gold);
+        border-color: var(--frontend-gold);
+        color: var(--frontend-black);
+        transform: translateY(var(--btn-hover-lift));
+    }
+
+    /* BP FOOTER COLUMNS: Arranges quick links, information, and utility pages. */
+    .bp-footer__columns {
+        @apply grid gap-8 sm:grid-cols-2 lg:grid-cols-3;
+    }
+
+    /* BP FOOTER COLUMN: Keeps each footer column compact and scannable. */
+    .bp-footer__column {
+        @apply flex flex-col items-start gap-3;
+    }
+
+    /* BP FOOTER COLUMN TITLE: Styles footer column headings. */
+    .bp-footer__column h3 {
+        @apply mb-1 text-sm font-extrabold uppercase;
+        color: var(--frontend-gold);
+    }
+
+    /* BP FOOTER COLUMN LINK AND TEXT: Gives links and info rows consistent typography. */
+    .bp-footer__column a,
+    .bp-footer__column span {
+        @apply text-sm leading-6 transition;
+        color: rgba(255, 255, 255, 0.66);
+    }
+
+    /* BP FOOTER COLUMN HOVER: Adds a subtle gold hover state to footer links. */
+    .bp-footer__column a:hover {
+        color: var(--frontend-gold-soft);
+    }
+
+    /* BP FOOTER BOTTOM: Adds copyright and secondary footer copy. */
+    .bp-footer__bottom {
         @apply mx-auto flex max-w-7xl flex-col gap-2 border-t px-4 py-5 text-xs sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8;
         border-color: rgba(200, 162, 74, 0.18);
         color: rgba(255, 255, 255, 0.52);
+    }
+
+    @media (max-width: 767px) {
+        /* BP FOOTER CTA MOBILE: Keeps the floating CTA stacked and readable on small screens. */
+        .bp-footer-cta {
+            @apply static w-auto translate-x-0 translate-y-0 rounded-[1.5rem];
+            margin-inline: 1rem;
+            margin-top: 0;
+        }
+
+        /* BP FOOTER MOBILE: Reduces top padding because CTA is no longer absolutely floated. */
+        .bp-footer {
+            @apply mt-16 pt-0;
+        }
+
+        /* BP FOOTER BODY MOBILE: Tightens the gap between CTA and footer columns. */
+        .bp-footer__body {
+            @apply pt-10;
+        }
+
+        /* BP FOOTER CTA BUTTON MOBILE: Makes WhatsApp CTA full-width on narrow screens. */
+        .bp-footer-cta__button {
+            @apply w-full;
+        }
+
+        /* BP FOOTER NEWSLETTER MOBILE: Makes newsletter controls full-width. */
+        .bp-footer__newsletter .btn {
+            @apply w-full;
+        }
     }
 }

@@ -7,6 +7,7 @@
                 alt="{{ $product->name }}"
                 class="product-card__image"
                 loading="lazy"
+                decoding="async"
             >
         @else
             <div class="product-card__placeholder">
@@ -74,7 +75,7 @@
             </div>
 
             <a href="{{ route('products.show', $product) }}"
-               class="product-card__button">
+               class="btn btn-primary btn-sm product-card__button">
                 View
             </a>
 
