@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Frontend;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Destination;
+use App\Models\Faq;
+use App\Models\PageSection;
 use App\Models\Product;
 
 class HomeController extends Controller
@@ -12,6 +14,21 @@ class HomeController extends Controller
     public function index()
     {
         $heroBackgroundUrl = null;
+
+        $sections = PageSection::query()
+            ->where('page_key', 'home')
+            ->where('is_active', true)
+            ->with('activeMedia')
+            ->orderBy('sort_order')
+            ->get()
+            ->keyBy('section_key');
+
+        $faqs = Faq::query()
+            ->active()
+            ->orderBy('sort_order')
+            ->orderBy('id')
+            ->take(6)
+            ->get();
 
         $featuredProducts = Product::query()
             ->published()
@@ -58,7 +75,9 @@ class HomeController extends Controller
                 'homeProductCategories',
                 'categories',
                 'destinations',
-                'heroBackgroundUrl'
+                'heroBackgroundUrl',
+                'sections',
+                'faqs'
             )
         );
     }
