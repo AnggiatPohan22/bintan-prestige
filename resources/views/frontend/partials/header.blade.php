@@ -6,7 +6,25 @@
         <a href="{{ route('home') }}"
            class="frontend-brand"
            aria-label="Bintan Prestige home">
-            <span class="frontend-brand__mark">BP</span>
+            <span
+                id="frontend-header-logo-frame"
+                class="frontend-brand__mark"
+                data-logo-frame="frontend-header"
+            >
+                @if(!empty($frontendLogoUrl))
+                    <img
+                        id="frontend-header-logo"
+                        src="{{ $frontendLogoUrl }}"
+                        alt="Bintan Prestige"
+                        loading="eager"
+                        decoding="async"
+                    >
+                @else
+                    <span id="frontend-header-logo-placeholder">
+                        BP
+                    </span>
+                @endif
+            </span>
             <span>Bintan Prestige</span>
         </a>
 
@@ -34,16 +52,9 @@
 
         <div class="frontend-header__actions">
             <a href="{{ route('home') }}#whatsapp-cta" class="btn btn-outline btn-sm frontend-header__cta">
-                Plan Trip
-            </a>
-
-            <a
-                href="{{ route('home') }}#whatsapp-cta"
-                class="btn btn-outline btn-icon frontend-header__icon"
-                aria-label="Plan trip"
-            >
+                <span>Plan Trip</span>
                 <svg
-                    class="frontend-header__icon-svg"
+                    class="frontend-header__cta-icon"
                     viewBox="0 0 24 24"
                     aria-hidden="true"
                 >

@@ -14,14 +14,131 @@
     /* HOME HERO: Creates a dramatic travel landing area with depth and gold atmosphere. */
     .home-hero {
         @apply relative overflow-hidden;
-        min-height: 100vh;
+        min-height: 780px;
+        background: linear-gradient(135deg, #060504 0%, #14100a 44%, #352810 100%);
+        --home-hero-fit: cover;
+        --home-hero-position: center center;
+        --home-hero-overlay-opacity: 0.72;
+        --home-hero-animation-duration: 6500ms;
+    }
+
+    @media (max-width: 1023px) {
+        /* HOME HERO TABLET: Keeps the hero cinematic while reducing height for tablet viewports. */
+        .home-hero {
+            min-height: 680px;
+        }
+    }
+
+    @media (max-width: 639px) {
+        /* HOME HERO MOBILE: Keeps the hero frame stable and compact on smaller screens. */
+        .home-hero {
+            min-height: 620px;
+        }
+    }
+
+    /* HOME HERO MEDIA: Locks all admin-provided hero images inside a full-cover frame. */
+    .home-hero__media {
+        @apply absolute inset-0;
+        z-index: 0;
+    }
+
+    /* HOME HERO SLIDE: Makes every hero image fill the fixed responsive frame without layout shift. */
+    .home-hero__slide {
+        @apply absolute inset-0 h-full w-full;
+        max-width: none;
+        object-fit: var(--home-hero-fit);
+        object-position: var(--home-hero-position);
+        opacity: 0;
+        transform: scale(1.02);
+        transition: opacity 1100ms var(--frontend-ease), transform var(--home-hero-animation-duration) linear;
+        will-change: opacity, transform;
+    }
+
+    /* HOME HERO ACTIVE SLIDE: Reveals the current hero image while preserving the frame size. */
+    .home-hero__slide.is-active {
+        opacity: 1;
+        z-index: 1;
+    }
+
+    /* HOME HERO PLACEHOLDER: Provides a fixed no-image state while admin images are not uploaded. */
+    .home-hero__placeholder {
+        @apply absolute inset-0 flex items-center justify-center text-xs font-extrabold uppercase;
         background:
-            linear-gradient(180deg, rgba(9, 8, 6, 0.12), rgba(9, 8, 6, 0.76)),
-            linear-gradient(90deg, rgba(9, 8, 6, 0.5), rgba(9, 8, 6, 0.04) 48%, rgba(9, 8, 6, 0.62)),
-            var(--home-hero-image, linear-gradient(135deg, rgba(200, 162, 74, 0.18), rgba(9, 8, 6, 0.1))),
+            linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(200, 162, 74, 0.22)),
+            repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.06) 0 1px, transparent 1px 20px),
             linear-gradient(135deg, #060504 0%, #14100a 44%, #352810 100%);
-        background-position: center;
-        background-size: cover;
+        color: rgba(245, 234, 208, 0.52);
+    }
+
+    /* HOME HERO OVERLAY: Keeps hero text and transparent header readable over any image brightness. */
+    .home-hero__overlay {
+        @apply absolute inset-0;
+        z-index: 1;
+        background:
+            linear-gradient(180deg, rgba(9, 8, 6, 0.12), rgba(9, 8, 6, var(--home-hero-overlay-opacity))),
+            linear-gradient(90deg, rgba(9, 8, 6, 0.58), rgba(9, 8, 6, 0.1) 52%, rgba(9, 8, 6, 0.56)),
+            radial-gradient(circle at 20% 40%, rgba(200, 162, 74, 0.16), transparent 34rem);
+        pointer-events: none;
+    }
+
+    /* HOME HERO ZOOM IN: Slowly enlarges active hero images for a cinematic travel feel. */
+    .home-hero[data-hero-animation="zoom-in"] .home-hero__slide.is-active {
+        animation: homeHeroZoomIn var(--home-hero-animation-duration) linear both;
+    }
+
+    /* HOME HERO ZOOM OUT: Slowly pulls active hero images back for a spacious effect. */
+    .home-hero[data-hero-animation="zoom-out"] .home-hero__slide.is-active {
+        animation: homeHeroZoomOut var(--home-hero-animation-duration) linear both;
+    }
+
+    /* HOME HERO PAN LEFT: Moves active hero images gently left inside the fixed frame. */
+    .home-hero[data-hero-animation="pan-left"] .home-hero__slide.is-active {
+        animation: homeHeroPanLeft var(--home-hero-animation-duration) linear both;
+    }
+
+    /* HOME HERO PAN RIGHT: Moves active hero images gently right inside the fixed frame. */
+    .home-hero[data-hero-animation="pan-right"] .home-hero__slide.is-active {
+        animation: homeHeroPanRight var(--home-hero-animation-duration) linear both;
+    }
+
+    /* HOME HERO KEN BURNS: Combines subtle zoom and pan for premium travel motion. */
+    .home-hero[data-hero-animation="ken-burns"] .home-hero__slide.is-active {
+        animation: homeHeroKenBurns var(--home-hero-animation-duration) linear both;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        /* HOME HERO REDUCED MOTION: Disables animated transforms for visitors who prefer less motion. */
+        .home-hero__slide,
+        .home-hero__slide.is-active {
+            animation: none !important;
+            transition: opacity 320ms ease;
+            transform: none;
+        }
+    }
+
+    @keyframes homeHeroZoomIn {
+        from { transform: scale(1); }
+        to { transform: scale(1.1); }
+    }
+
+    @keyframes homeHeroZoomOut {
+        from { transform: scale(1.1); }
+        to { transform: scale(1); }
+    }
+
+    @keyframes homeHeroPanLeft {
+        from { transform: scale(1.06) translateX(2%); }
+        to { transform: scale(1.06) translateX(-2%); }
+    }
+
+    @keyframes homeHeroPanRight {
+        from { transform: scale(1.06) translateX(-2%); }
+        to { transform: scale(1.06) translateX(2%); }
+    }
+
+    @keyframes homeHeroKenBurns {
+        from { transform: scale(1.02) translateX(1.5%); }
+        to { transform: scale(1.1) translateX(-1.5%); }
     }
 
     /* HOME EYEBROW: Adds a small premium label above section headlines. */
@@ -34,7 +151,23 @@
 
     /* HOME HERO STAGE: Layers huge typography and the image placeholder into one composition. */
     .home-hero__stage {
-        @apply relative grid min-h-screen gap-12 pb-28 pt-40 lg:grid-cols-1 lg:items-end lg:pb-32 lg:pt-44;
+        @apply relative grid gap-12 pb-28 pt-40 lg:grid-cols-1 lg:items-end lg:pb-32 lg:pt-44;
+        min-height: 780px;
+        z-index: 2;
+    }
+
+    @media (max-width: 1023px) {
+        /* HOME HERO STAGE TABLET: Matches content height to the responsive hero frame. */
+        .home-hero__stage {
+            min-height: 680px;
+        }
+    }
+
+    @media (max-width: 639px) {
+        /* HOME HERO STAGE MOBILE: Keeps hero content aligned inside the mobile frame. */
+        .home-hero__stage {
+            min-height: 620px;
+        }
     }
 
     /* HOME HERO COPY: Keeps the main hero copy above the decorative media. */
@@ -53,6 +186,16 @@
     .home-hero__text {
         @apply mt-8 max-w-xl text-base font-semibold sm:text-xl lg:text-2xl;
         color: rgba(255, 255, 255, 0.78);
+    }
+
+    /* HOME HERO CENTER ALIGN: Lets admin switch hero copy to a centered layout. */
+    .home-hero[data-hero-align="center"] .home-hero__copy {
+        @apply mx-auto max-w-5xl text-center;
+    }
+
+    /* HOME HERO CENTER TEXT: Keeps supporting copy centered when admin selects center alignment. */
+    .home-hero[data-hero-align="center"] .home-hero__text {
+        @apply mx-auto;
     }
 
     /* HOME IMAGE PLACEHOLDER: Represents future photography without loading extra image assets. */
@@ -97,20 +240,84 @@
 
     /* HOME SEARCH CTA: Floats the booking form between the hero and the next section. */
     .home-search {
-        @apply relative z-20 -mt-16;
+        @apply relative z-20 -mt-14;
     }
 
     /* HOME SEARCH PANEL: Creates a centered floating booking panel between sections. */
     .home-search__panel {
-        @apply mx-auto max-w-4xl rounded-[1.35rem] border bg-white/95 p-4 shadow-2xl sm:p-5;
-        border-color: var(--frontend-border);
-        box-shadow: 0 28px 80px rgba(23, 19, 12, 0.16);
-        backdrop-filter: blur(16px);
+        @apply mx-auto max-w-6xl rounded-[1.1rem] border p-2 shadow-2xl;
+        background:
+            linear-gradient(90deg, rgba(9, 8, 6, 0.92), rgba(36, 29, 19, 0.94)),
+            rgba(9, 8, 6, 0.88);
+        border-color: rgba(200, 162, 74, 0.32);
+        box-shadow: 0 28px 80px rgba(9, 8, 6, 0.24);
+        backdrop-filter: blur(18px) saturate(1.15);
     }
 
     /* HOME SEARCH FORM: Lays out destination, category, browse link, and CTA controls. */
     .home-search__form {
-        @apply grid gap-4 md:grid-cols-[1fr_1fr_auto] md:items-end;
+        @apply grid gap-3 lg:grid-cols-[auto_1fr_auto] lg:items-center;
+    }
+
+    /* HOME SEARCH TABS: Holds Taxi, Hotel, and Activity tabs with a moving active indicator. */
+    .home-search-tabs {
+        @apply relative flex items-center gap-1 overflow-hidden rounded-xl p-1;
+        background: rgba(255, 255, 255, 0.04);
+    }
+
+    /* HOME SEARCH TABS INDICATOR: Moves under the active tab with a wave-like transition. */
+    .home-search-tabs__indicator {
+        @apply absolute bottom-1 top-1 rounded-lg;
+        left: var(--home-search-indicator-left, 0.25rem);
+        width: var(--home-search-indicator-width, 0px);
+        background: var(--frontend-gold);
+        box-shadow: 0 12px 30px rgba(200, 162, 74, 0.22);
+        transform: translateX(0);
+        transition:
+            left 520ms cubic-bezier(0.34, 1.56, 0.64, 1),
+            width 520ms cubic-bezier(0.34, 1.56, 0.64, 1),
+            border-radius 360ms var(--frontend-ease);
+        z-index: 0;
+    }
+
+    /* HOME SEARCH TAB BUTTON: Styles one package type tab above the moving indicator. */
+    .home-search-tabs__button {
+        @apply relative z-10 inline-flex min-h-11 items-center justify-center gap-2 rounded-lg px-4 text-sm font-extrabold transition focus:outline-none;
+        color: rgba(245, 234, 208, 0.74);
+        transition:
+            color 260ms var(--frontend-ease),
+            transform 260ms var(--frontend-ease);
+    }
+
+    /* HOME SEARCH TAB ACTIVE: Recolors active tab text against the gold indicator. */
+    .home-search-tabs__button.is-active {
+        color: var(--frontend-black);
+    }
+
+    /* HOME SEARCH TAB HOVER: Adds a subtle lift for inactive tabs. */
+    .home-search-tabs__button:hover {
+        color: var(--frontend-white);
+        transform: translateY(-1px);
+    }
+
+    /* HOME SEARCH TAB ACTIVE HOVER: Keeps active text readable on hover. */
+    .home-search-tabs__button.is-active:hover {
+        color: var(--frontend-black);
+    }
+
+    /* HOME SEARCH TAB FOCUS: Provides keyboard focus visibility for package tabs. */
+    .home-search-tabs__button:focus-visible {
+        box-shadow: var(--btn-focus-ring);
+    }
+
+    /* HOME SEARCH TAB ICON: Draws compact line icons for Taxi, Hotel, and Activity. */
+    .home-search-tabs__icon svg {
+        @apply h-4 w-4;
+        fill: none;
+        stroke: currentColor;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        stroke-width: 2;
     }
 
     /* HOME FIELD: Groups homepage filter labels and controls. */
@@ -118,27 +325,60 @@
         @apply block;
     }
 
+    /* HOME DESTINATION FIELD: Aligns destination label and select like the reference bar. */
+    .home-field--destination {
+        @apply flex min-h-12 items-center gap-4 border-l px-4;
+        border-color: rgba(200, 162, 74, 0.18);
+    }
+
     /* HOME FIELD LABEL: Keeps homepage form labels compact. */
     .home-field__label {
-        @apply mb-2 block px-1 text-[0.72rem] font-extrabold uppercase text-stone-500;
+        @apply shrink-0 text-[0.72rem] font-extrabold uppercase;
+        color: var(--frontend-gold);
     }
 
     /* HOME FIELD CONTROL: Styles homepage select controls with minimal chrome. */
     .home-field__control {
-        @apply min-h-12 w-full rounded-2xl border bg-stone-50 px-4 text-sm font-extrabold text-stone-900 shadow-sm focus:outline-none;
-        border-color: rgba(23, 19, 12, 0.06);
+        @apply min-h-12 w-full border-0 bg-transparent px-0 text-sm font-extrabold shadow-none focus:outline-none;
+        color: rgba(255, 255, 255, 0.9);
     }
 
     /* HOME FIELD CONTROL FOCUS: Applies the gold focus state to booking controls. */
     .home-field__control:focus {
-        border-color: var(--frontend-gold);
-        box-shadow: 0 0 0 4px rgba(200, 162, 74, 0.16);
+        box-shadow: none;
+    }
+
+    /* HOME FIELD CONTROL OPTIONS: Keeps dropdown options readable in native select menus. */
+    .home-field__control option {
+        color: var(--frontend-charcoal);
     }
 
     /* HOME SEARCH BUTTON: Matches the compact pill height of the booking fields. */
     .home-button--search {
-        @apply min-h-12 px-7;
-        --btn-shadow-current: none;
+        @apply min-h-12 gap-3 px-7;
+        --btn-bg: var(--frontend-gold);
+        --btn-border: var(--frontend-gold);
+        --btn-color: var(--frontend-black);
+        --btn-hover-bg: var(--frontend-gold-soft);
+        --btn-hover-border: var(--frontend-gold-soft);
+        --btn-hover-color: var(--frontend-black);
+        --btn-shadow-current: 0 12px 32px rgba(200, 162, 74, 0.18);
+    }
+
+    /* HOME SEARCH BUTTON ICON: Draws the diagonal arrow inside Find Package. */
+    .home-search__button-icon {
+        @apply h-5 w-5;
+        fill: none;
+        stroke: currentColor;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        stroke-width: 2.1;
+        transition: transform var(--frontend-transition-fast) var(--frontend-ease-press);
+    }
+
+    /* HOME SEARCH BUTTON HOVER ICON: Adds a tiny travel-forward motion to the arrow. */
+    .home-button--search:hover .home-search__button-icon {
+        transform: translate(1px, -1px);
     }
 
     /* HOME SEARCH LINK: Styles the browse-all shortcut inside the search panel. */
@@ -149,8 +389,39 @@
 
     /* HOME HERO SOFT COPY: Places soft-selling copy under the search bar only. */
     .home-hero__softcopy {
-        @apply mt-5 max-w-2xl text-sm leading-7;
-        color: var(--frontend-gray);
+        @apply mt-4 max-w-2xl text-sm leading-7;
+        color: rgba(245, 234, 208, 0.76);
+    }
+
+    @media (max-width: 1023px) {
+        /* HOME SEARCH TABLET: Stacks the search controls cleanly below the hero. */
+        .home-search__form {
+            @apply grid-cols-1;
+        }
+
+        .home-field--destination {
+            @apply border-l-0 border-t;
+        }
+    }
+
+    @media (max-width: 639px) {
+        /* HOME SEARCH MOBILE: Keeps tabs scrollable without horizontal page overflow. */
+        .home-search-tabs {
+            @apply overflow-x-auto;
+            scrollbar-width: none;
+        }
+
+        .home-search-tabs::-webkit-scrollbar {
+            display: none;
+        }
+
+        .home-search-tabs__button {
+            @apply shrink-0 px-4;
+        }
+
+        .home-button--search {
+            @apply w-full;
+        }
     }
 
     /* HOME SECTION: Adds consistent vertical rhythm for homepage content sections. */

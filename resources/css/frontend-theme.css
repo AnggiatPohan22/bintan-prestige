@@ -566,7 +566,7 @@
     /* FRONTEND HEADER: Gives the public navbar a black and gold identity. */
     .frontend-header {
         position: fixed;
-        top: 18px;
+        top: 20px;
         left: 0;
         right: 0;
         z-index: 50;
@@ -574,7 +574,7 @@
         border-bottom: 1px solid transparent;
         color: var(--frontend-white);
         pointer-events: none;
-        transition: top 320ms ease, color 260ms ease;
+        transition: top 420ms var(--frontend-ease), color 320ms var(--frontend-ease);
     }
 
     /* FRONTEND HEADER SCROLLED: Adds soft gold background after the visitor scrolls. */
@@ -598,44 +598,70 @@
 
     /* FRONTEND HEADER INNER: Keeps navbar spacing aligned with frontend content. */
     .frontend-header__inner {
-        @apply mx-auto flex max-w-7xl items-center justify-between gap-4 rounded-full px-4 py-3 sm:px-5 lg:px-6;
+        @apply mx-auto flex max-w-7xl items-center justify-between gap-4 rounded-full border px-4 py-3 sm:px-5 lg:px-6;
         pointer-events: auto;
-        transition: background-color 320ms ease, border-color 320ms ease, box-shadow 320ms ease, backdrop-filter 320ms ease, transform 320ms ease;
+        transition:
+            background-color 420ms var(--frontend-ease),
+            border-color 420ms var(--frontend-ease),
+            box-shadow 420ms var(--frontend-ease),
+            backdrop-filter 420ms var(--frontend-ease),
+            transform 420ms var(--frontend-ease);
     }
 
     /* FRONTEND HEADER INNER TRANSPARENT: Adds a faint glass layer while still feeling transparent. */
     .frontend-header:not(.frontend-header--scrolled) .frontend-header__inner {
-        background: transparent;
-        border:rgba(255, 255, 255, 0.12);
-        backdrop-filter: blur(8px);
+        background:
+            linear-gradient(90deg, rgba(9, 8, 6, 0.18), rgba(9, 8, 6, 0.08)),
+            rgba(255, 255, 255, 0.04);
+        border-color: rgba(255, 255, 255, 0.18);
+        box-shadow: 0 18px 52px rgba(9, 8, 6, 0.18);
+        backdrop-filter: blur(18px) saturate(1.12);
+        -webkit-backdrop-filter: blur(18px) saturate(1.12);
     }
 
     /* FRONTEND HEADER INNER SCROLLED: Creates the soft gold blurred floating navigation state. */
     .frontend-header--scrolled .frontend-header__inner {
-        background: rgba(251, 247, 237, 0.297);
-        border:  rgba(200, 162, 74, 0.32);
+        background:
+            linear-gradient(90deg, rgba(251, 247, 237, 0.86), rgba(245, 234, 208, 0.78)),
+            rgba(251, 247, 237, 0.82);
+        border-color: rgba(200, 162, 74, 0.38);
         box-shadow: 0 22px 60px rgba(23, 19, 12, 0.12);
         backdrop-filter: blur(22px) saturate(1.18);
+        -webkit-backdrop-filter: blur(22px) saturate(1.18);
         transform: translateY(0);
     }
 
     /* FRONTEND BRAND: Styles the brand text to work beside a future gold logo. */
     .frontend-brand {
         color: var(--frontend-white);
-        @apply inline-flex items-center gap-3 text-lg font-extrabold sm:text-xl;
+        @apply inline-flex items-center gap-3 text-base font-extrabold sm:text-lg;
+        text-shadow: 0 10px 24px rgba(9, 8, 6, 0.28);
+        transition: color 320ms var(--frontend-ease), text-shadow 320ms var(--frontend-ease);
     }
 
     /* FRONTEND BRAND SCROLLED: Makes brand readable on soft gold header background. */
     .frontend-header--scrolled .frontend-brand {
         color: var(--frontend-black);
+        text-shadow: none;
     }
 
     /* FRONTEND BRAND MARK: Gives the future logo area a gold-framed placeholder. */
     .frontend-brand__mark {
-        @apply inline-flex h-10 w-10 items-center justify-center rounded-full text-xs font-black;
-        background: rgba(255, 255, 255, 0.12);
-        border: 1px solid rgba(255, 255, 255, 0.42);
+        @apply inline-flex h-11 w-11 items-center justify-center overflow-hidden rounded-full text-xs font-black;
+        background: rgba(9, 8, 6, 0.22);
+        border: 1px solid rgba(245, 234, 208, 0.5);
         color: var(--frontend-gold-soft);
+        box-shadow: inset 0 0 0 1px rgba(200, 162, 74, 0.12), 0 14px 30px rgba(9, 8, 6, 0.18);
+        transition:
+            background-color 320ms var(--frontend-ease),
+            border-color 320ms var(--frontend-ease),
+            box-shadow 320ms var(--frontend-ease),
+            color 320ms var(--frontend-ease);
+    }
+
+    /* FRONTEND BRAND LOGO IMAGE: Keeps future backend-provided logos contained inside the frame. */
+    .frontend-brand__mark img {
+        @apply h-full w-full object-contain p-1.5;
     }
 
     /* FRONTEND BRAND MARK SCROLLED: Recolors the brand mark for the soft gold state. */
@@ -647,27 +673,46 @@
 
     /* FRONTEND NAV: Controls spacing and typography for public navigation links. */
     .frontend-nav {
-        @apply hidden gap-6 text-sm font-bold md:flex;
+        @apply hidden items-center gap-1 rounded-full px-2 py-1 text-sm font-bold md:flex;
+        background: rgba(9, 8, 6, 0.12);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        transition:
+            background-color 320ms var(--frontend-ease),
+            border-color 320ms var(--frontend-ease);
+    }
+
+    /* FRONTEND NAV SCROLLED: Softens the nav capsule on the scrolled gold header. */
+    .frontend-header--scrolled .frontend-nav {
+        background: rgba(255, 255, 255, 0.34);
+        border-color: rgba(200, 162, 74, 0.28);
     }
 
     /* FRONTEND NAV LINK: Makes frontend links follow the gold hover state. */
     .frontend-nav__link {
-        color: rgba(255, 255, 255, 0.82);
-        @apply transition;
+        color: rgba(255, 255, 255, 0.9);
+        @apply rounded-full px-4 py-2 transition;
+        text-shadow: 0 10px 22px rgba(9, 8, 6, 0.24);
+        transition:
+            background-color 260ms var(--frontend-ease),
+            color 260ms var(--frontend-ease),
+            text-shadow 260ms var(--frontend-ease);
     }
 
     /* FRONTEND NAV LINK SCROLLED: Keeps navigation visible on soft gold background. */
     .frontend-header--scrolled .frontend-nav__link {
         color: rgba(23, 19, 12, 0.72);
+        text-shadow: none;
     }
 
     /* FRONTEND NAV LINK HOVER: Uses gold as the primary interactive color. */
     .frontend-nav__link:hover {
+        background: rgba(255, 255, 255, 0.12);
         color: var(--frontend-gold);
     }
 
     /* FRONTEND NAV LINK HOVER SCROLLED: Uses black-gold contrast on the scrolled header. */
     .frontend-header--scrolled .frontend-nav__link:hover {
+        background: rgba(200, 162, 74, 0.16);
         color: var(--frontend-black);
     }
 
@@ -683,15 +728,16 @@
 
     /* FRONTEND HEADER ACTIONS: Groups the plan trip button and circular arrow link. */
     .frontend-header__actions {
-        @apply flex items-center gap-2;
+        @apply flex items-center;
     }
 
-    /* FRONTEND HEADER CTA: Styles the small trip-planning button in the navbar. */
+    /* FRONTEND HEADER CTA: Styles the combined Plan Trip and arrow button in the navbar. */
     .frontend-header__cta {
-        @apply hidden sm:inline-flex;
-        --btn-bg: transparent;
-        --btn-border: rgba(255, 255, 255, 0.58);
+        @apply inline-flex gap-3 px-4 sm:px-5;
+        --btn-bg: rgba(9, 8, 6, 0.18);
+        --btn-border: rgba(255, 255, 255, 0.44);
         --btn-color: var(--frontend-white);
+        --btn-shadow-current: 0 14px 34px rgba(9, 8, 6, 0.18);
     }
 
     /* FRONTEND HEADER CTA SCROLLED: Recolors the plan trip button after scroll. */
@@ -701,34 +747,140 @@
         --btn-color: var(--frontend-gold-soft);
     }
 
-    /* FRONTEND HEADER ICON: Creates the circular arrow link beside Plan Trip. */
-    .frontend-header__icon {
-        --btn-bg: transparent;
-        --btn-border: rgba(255, 255, 255, 0.58);
-        --btn-color: var(--frontend-white);
-    }
-
-    /* FRONTEND HEADER ICON SVG: Draws a crisp modern arrow without loading an icon package. */
-    .frontend-header__icon-svg {
+    /* FRONTEND HEADER CTA ICON: Draws a crisp modern arrow inside the combined button. */
+    .frontend-header__cta-icon {
         @apply h-5 w-5;
         fill: none;
         stroke: currentColor;
         stroke-linecap: round;
         stroke-linejoin: round;
         stroke-width: 2.1;
-        transition: transform 220ms ease;
+        transition: transform 220ms var(--frontend-ease);
     }
 
-    /* FRONTEND HEADER ICON SCROLLED: Makes the arrow circle visible on soft gold background. */
-    .frontend-header--scrolled .frontend-header__icon {
-        --btn-bg: var(--frontend-black);
-        --btn-border: var(--frontend-black);
-        --btn-color: var(--frontend-gold-soft);
-    }
-
-    /* FRONTEND HEADER ICON SVG HOVER: Adds a tiny arrow motion for a polished feel. */
-    .frontend-header__icon:hover .frontend-header__icon-svg {
+    /* FRONTEND HEADER CTA HOVER ICON: Adds a tiny arrow motion for a polished feel. */
+    .frontend-header__cta:hover .frontend-header__cta-icon {
         transform: translate(1px, -1px);
+    }
+
+    @media (max-width: 420px) {
+        /* FRONTEND HEADER MOBILE CTA TEXT: Keeps the header compact on very narrow devices. */
+        .frontend-header__cta span {
+            @apply sr-only;
+        }
+
+        .frontend-header__cta {
+            @apply px-3;
+        }
+    }
+
+    /* BP MANUAL ADS: Provides reusable spacing for the manual promo banner partial. */
+    .bp-manual-ads {
+        @apply bg-white py-10 sm:py-12 lg:py-14;
+    }
+
+    /* BP MANUAL ADS INNER: Creates the rounded full-width promo container. */
+    .bp-manual-ads__inner {
+        @apply relative grid min-h-[260px] overflow-hidden rounded-[1.75rem] border shadow-2xl md:grid-cols-[minmax(0,0.36fr)_minmax(0,0.64fr)];
+        background: var(--frontend-black);
+        border-color: rgba(200, 162, 74, 0.28);
+        box-shadow: 0 30px 90px rgba(23, 19, 12, 0.14);
+    }
+
+    /* BP MANUAL ADS CONTENT: Styles the left accent panel and centers promo copy vertically. */
+    .bp-manual-ads__content {
+        @apply relative z-10 flex flex-col items-start justify-center p-6 sm:p-8 lg:p-10;
+        background:
+            radial-gradient(circle at 12% 10%, rgba(200, 162, 74, 0.22), transparent 18rem),
+            linear-gradient(135deg, var(--frontend-black), #1e1a12);
+        color: var(--frontend-white);
+    }
+
+    /* BP MANUAL ADS LABEL: Applies a soft gold label for the promo category. */
+    .bp-manual-ads__label {
+        @apply inline-flex rounded-full border px-4 py-2 text-xs font-extrabold uppercase;
+        background: rgba(200, 162, 74, 0.12);
+        border-color: rgba(200, 162, 74, 0.34);
+        color: var(--frontend-gold-soft);
+    }
+
+    /* BP MANUAL ADS TITLE: Gives the discount headline a compact luxury hierarchy. */
+    .bp-manual-ads__title {
+        @apply mt-5 max-w-sm;
+        color: var(--frontend-white);
+    }
+
+    /* BP MANUAL ADS BUTTON: Adds spacing and icon alignment for the promo CTA. */
+    .bp-manual-ads__button {
+        @apply mt-7 gap-3;
+    }
+
+    /* BP MANUAL ADS BUTTON ICON: Draws the CTA arrow inside the promo button. */
+    .bp-manual-ads__button-icon {
+        @apply h-5 w-5;
+        fill: none;
+        stroke: currentColor;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        stroke-width: 2.1;
+        transition: transform var(--frontend-transition-fast) var(--frontend-ease-press);
+    }
+
+    /* BP MANUAL ADS BUTTON HOVER: Moves the promo CTA arrow subtly on hover. */
+    .bp-manual-ads__button:hover .bp-manual-ads__button-icon {
+        transform: translate(1px, -1px);
+    }
+
+    /* BP MANUAL ADS VISUAL: Locks the right-side promo visual frame. */
+    .bp-manual-ads__visual {
+        @apply relative min-h-[240px] overflow-hidden bg-stone-100 md:min-h-[300px];
+    }
+
+    /* BP MANUAL ADS VISUAL IMAGE: Crops future promo images cleanly inside the visual frame. */
+    .bp-manual-ads__visual img {
+        @apply absolute inset-0 h-full w-full object-cover;
+        max-width: none;
+    }
+
+    /* BP MANUAL ADS PLACEHOLDER: Shows a premium no-image state while promo imagery is not ready. */
+    .bp-manual-ads__placeholder {
+        @apply absolute inset-0 flex items-center justify-center text-xs font-extrabold uppercase;
+        background:
+            linear-gradient(135deg, rgba(255, 255, 255, 0.86), rgba(200, 162, 74, 0.22)),
+            repeating-linear-gradient(135deg, rgba(23, 19, 12, 0.05) 0 1px, transparent 1px 18px);
+        color: #8a681a;
+    }
+
+    /* BP MANUAL ADS OVERLAY TITLE: Places the travel promo line over the visual side. */
+    .bp-manual-ads__overlay-title {
+        @apply absolute bottom-6 left-6 z-10 max-w-sm text-3xl font-black leading-tight sm:text-4xl lg:text-5xl;
+        color: var(--frontend-white);
+        font-family: var(--frontend-font-display);
+        text-shadow: 0 18px 42px rgba(9, 8, 6, 0.42);
+    }
+
+    /* BP MANUAL ADS DECOR: Adds a subtle compass-like decorative glow inside the promo card. */
+    .bp-manual-ads__decor {
+        @apply pointer-events-none absolute -left-20 -top-20 h-48 w-48 rounded-full border;
+        border-color: rgba(200, 162, 74, 0.18);
+        box-shadow: 0 0 0 28px rgba(200, 162, 74, 0.05);
+    }
+
+    @media (max-width: 767px) {
+        /* BP MANUAL ADS MOBILE: Stacks content and visual without horizontal overflow. */
+        .bp-manual-ads__inner {
+            @apply min-h-0;
+        }
+
+        /* BP MANUAL ADS MOBILE BUTTON: Keeps the promo CTA comfortably tappable. */
+        .bp-manual-ads__button {
+            @apply w-full;
+        }
+
+        /* BP MANUAL ADS MOBILE OVERLAY: Reduces overlay size on small screens. */
+        .bp-manual-ads__overlay-title {
+            @apply bottom-5 left-5 max-w-[16rem] text-3xl;
+        }
     }
 
     /* BP FOOTER: Wraps the floating CTA and reusable global footer system. */

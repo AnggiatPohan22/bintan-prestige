@@ -1,7 +1,8 @@
 const headerSelector = '[data-frontend-header]';
-const heroBackgroundSelector = '[data-hero-background]';
+const heroSelector = '[data-hero-slider], [data-hero-background]';
 const packageCarouselSelector = '[data-package-carousel]';
 const productGridSelector = '[data-product-grid]';
+const homeSearchSelector = '[data-home-search]';
 const scrolledClass = 'frontend-header--scrolled';
 const scrollThreshold = 24;
 
@@ -49,21 +50,57 @@ export function initFrontendHeader() {
 }
 
 /**
- * Applies backend-provided hero background images without inline Blade styles.
- * Used on the homepage hero through the `data-hero-background` attribute, then
- * forwarded to the CSS variable consumed by `frontend-home.css`.
+ * Applies backend-provided hero media settings and initializes lightweight slides.
+ * Used by the homepage hero so admin-provided images, object position, fit,
+ * overlay strength, and animation style can be controlled without inline styles.
  */
-export function initDynamicHeroBackground() {
-    const heroSections = document.querySelectorAll(heroBackgroundSelector);
+export function initHeroMedia() {
+    const heroSections = document.querySelectorAll(heroSelector);
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     heroSections.forEach((section) => {
         const backgroundUrl = section.dataset.heroBackground;
+        const slides = Array.from(section.querySelectorAll('[data-hero-slide]'));
+        const slideDuration = Number.parseInt(section.dataset.heroDuration || '6500', 10);
+        let currentIndex = 0;
 
-        if (!backgroundUrl) {
+        section.style.setProperty('--home-hero-fit', section.dataset.heroFit || 'cover');
+        section.style.setProperty('--home-hero-position', section.dataset.heroPosition || 'center center');
+        section.style.setProperty('--home-hero-overlay-opacity', section.dataset.heroOverlay || '0.72');
+        section.style.setProperty('--home-hero-animation-duration', `${slideDuration}ms`);
+
+        if (!slides.length && backgroundUrl) {
+            section.style.setProperty('--home-hero-image', `url("${backgroundUrl}")`);
             return;
         }
 
-        section.style.setProperty('--home-hero-image', `url("${backgroundUrl}")`);
+        if (!slides.length) {
+            return;
+        }
+
+        const activateSlide = (index) => {
+            const activeSlide = slides[index];
+            const slidePosition = activeSlide?.dataset.slidePosition;
+
+            if (slidePosition) {
+                section.style.setProperty('--home-hero-position', slidePosition);
+            }
+
+            slides.forEach((slide, slideIndex) => {
+                slide.classList.toggle('is-active', slideIndex === index);
+            });
+        };
+
+        activateSlide(currentIndex);
+
+        if (slides.length < 2 || prefersReducedMotion || section.dataset.heroAnimation === 'none') {
+            return;
+        }
+
+        window.setInterval(() => {
+            currentIndex = (currentIndex + 1) % slides.length;
+            activateSlide(currentIndex);
+        }, slideDuration);
     });
 }
 
@@ -247,12 +284,71 @@ export function initProductFilters() {
 }
 
 /**
+ * Initializes the homepage search type tabs.
+ * The active indicator follows Taxi, Hotel, and Activity with a spring-like
+ * movement, while the hidden category input keeps the form compatible with the
+ * existing product listing route.
+ */
+export function initHomeSearchTabs() {
+    document.querySelectorAll(homeSearchSelector).forEach((form) => {
+        const tabs = Array.from(form.querySelectorAll('[data-home-search-tab]'));
+        const indicator = form.querySelector('[data-home-search-indicator]');
+        const categoryInput = form.querySelector('[data-home-search-category]');
+
+        if (!tabs.length || !indicator) {
+            return;
+        }
+
+        const syncIndicator = (activeTab) => {
+            const container = activeTab.parentElement;
+
+            if (!container) {
+                return;
+            }
+
+            const tabRect = activeTab.getBoundingClientRect();
+            const containerRect = container.getBoundingClientRect();
+            const left = tabRect.left - containerRect.left + container.scrollLeft;
+
+            container.style.setProperty('--home-search-indicator-left', `${left}px`);
+            container.style.setProperty('--home-search-indicator-width', `${tabRect.width}px`);
+        };
+
+        let selectedTab = tabs.find((tab) => tab.classList.contains('is-active')) || tabs[0];
+
+        const activateTab = (activeTab) => {
+            selectedTab = activeTab;
+
+            tabs.forEach((tab) => {
+                const isActive = tab === activeTab;
+                tab.classList.toggle('is-active', isActive);
+                tab.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+            });
+
+            if (categoryInput) {
+                categoryInput.value = activeTab.dataset.categoryValue || '';
+            }
+
+            syncIndicator(activeTab);
+        };
+
+        tabs.forEach((tab) => {
+            tab.addEventListener('click', () => activateTab(tab));
+        });
+
+        window.addEventListener('resize', () => syncIndicator(selectedTab));
+        window.requestAnimationFrame(() => activateTab(selectedTab));
+    });
+}
+
+/**
  * Bootstraps all custom frontend interactions.
  * Add future lightweight homepage, menu, or shared public-site behavior here.
  */
 export function initFrontend() {
     initFrontendHeader();
-    initDynamicHeroBackground();
+    initHeroMedia();
     initPackageCarousels();
     initProductFilters();
+    initHomeSearchTabs();
 }

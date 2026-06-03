@@ -1,32 +1,43 @@
+@php
+    $footerCtaSection = $sections['home.footer_cta'] ?? null;
+    $footerCtaImage = $footerCtaSection?->image;
+@endphp
+
 <footer class="bp-footer" aria-labelledby="footer-title">
-    <section class="bp-footer-cta" id="whatsapp-cta" aria-labelledby="footer-cta-title">
+    <section id="home-footer-cta" class="bp-footer-cta" data-section-key="home.footer_cta" aria-labelledby="footer-cta-title">
+        <span id="whatsapp-cta" class="sr-only" aria-hidden="true"></span>
+
         <div class="bp-footer-cta__content">
             <span class="bp-footer-cta__label">
-                Explore Tour
+                {{ $footerCtaSection->label ?? 'Explore Tour' }}
             </span>
 
             <h2 id="footer-cta-title" class="bp-footer-cta__title title-section">
-                Plan Your Perfect Bintan Escape With Us
+                {{ $footerCtaSection->title ?? 'Plan Your Perfect Bintan Escape With Us' }}
             </h2>
 
             <p class="bp-footer-cta__text text-body">
-                Tell us your arrival point, travel date, and preferred experience. Our team will help you choose the right package.
+                {{ $footerCtaSection->description ?? 'Tell us your arrival point, travel date, and preferred experience. Our team will help you choose the right package.' }}
             </p>
 
             <a
-                href="https://wa.me/?text={{ urlencode('Hello Bintan Prestige, I want to plan a Bintan trip.') }}"
+                href="{{ $footerCtaSection->button_url ?? 'https://wa.me/?text=' . urlencode('Hello Bintan Prestige, I want to plan a Bintan trip.') }}"
                 target="_blank"
                 rel="noopener noreferrer"
                 class="btn btn-whatsapp bp-footer-cta__button"
             >
-                Chat via WhatsApp
+                {{ $footerCtaSection->button_text ?? 'Chat via WhatsApp' }}
             </a>
         </div>
 
         <div class="bp-footer-cta__visual" aria-hidden="true">
-            <div class="bp-footer-cta__placeholder">
-                NO IMAGE
-            </div>
+            @if($footerCtaImage)
+                <img src="{{ \Illuminate\Support\Str::startsWith($footerCtaImage, ['http://', 'https://', '/']) ? $footerCtaImage : asset('storage/' . $footerCtaImage) }}" alt="" loading="lazy" decoding="async">
+            @else
+                <div class="bp-footer-cta__placeholder">
+                    NO IMAGE
+                </div>
+            @endif
         </div>
     </section>
 
