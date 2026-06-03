@@ -24,6 +24,72 @@
         background-size: cover;
     }
 
+    .home-hero[data-section-has-media] {
+        background:
+            linear-gradient(180deg, rgba(9, 8, 6, 0.12), rgba(9, 8, 6, 0.76)),
+            linear-gradient(90deg, rgba(9, 8, 6, 0.5), rgba(9, 8, 6, 0.04) 48%, rgba(9, 8, 6, 0.62)),
+            linear-gradient(135deg, #060504 0%, #14100a 44%, #352810 100%);
+    }
+
+    .home-hero__slider {
+        @apply absolute inset-0 z-0;
+    }
+
+    .home-hero__slide {
+        @apply absolute inset-0 opacity-0;
+        transition: opacity 1200ms var(--frontend-ease);
+    }
+
+    .home-hero__slide.is-active {
+        @apply opacity-100;
+    }
+
+    .home-hero__slide img {
+        @apply h-full w-full object-cover;
+        max-width: none;
+    }
+
+    .home-hero[data-section-animation="ken-burns"] .home-hero__slide.is-active img,
+    .home-hero[data-section-animation="zoom-in"] .home-hero__slide.is-active img {
+        animation: homeHeroZoomIn 6200ms linear both;
+    }
+
+    .home-hero[data-section-animation="zoom-out"] .home-hero__slide.is-active img {
+        animation: homeHeroZoomOut 6200ms linear both;
+    }
+
+    .home-hero[data-section-animation="pan-left"] .home-hero__slide.is-active img {
+        animation: homeHeroPanLeft 6200ms linear both;
+    }
+
+    .home-hero[data-section-animation="pan-right"] .home-hero__slide.is-active img {
+        animation: homeHeroPanRight 6200ms linear both;
+    }
+
+    .home-hero > .home-container {
+        @apply relative z-10;
+    }
+
+    @keyframes homeHeroZoomIn {
+        from { transform: scale(1); }
+        to { transform: scale(1.08); }
+    }
+
+    @keyframes homeHeroZoomOut {
+        from { transform: scale(1.08); }
+        to { transform: scale(1); }
+    }
+
+    @keyframes homeHeroPanLeft {
+        from { transform: scale(1.06) translateX(2%); }
+        to { transform: scale(1.06) translateX(-2%); }
+    }
+
+    @keyframes homeHeroPanRight {
+        from { transform: scale(1.06) translateX(-2%); }
+        to { transform: scale(1.06) translateX(2%); }
+    }
+
     /* HOME EYEBROW: Adds a small premium label above section headlines. */
     .home-eyebrow {
         @apply inline-flex w-fit rounded-full border px-4 py-2 text-xs font-extrabold uppercase;

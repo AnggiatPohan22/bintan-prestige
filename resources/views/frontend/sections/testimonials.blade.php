@@ -1,4 +1,5 @@
 @php
+    $section = $sections['home.testimonials'] ?? null;
     $testimonials = [
         [
             'name' => 'Floyd Miles',
@@ -24,19 +25,19 @@
     ];
 @endphp
 
-<section class="bp-testimonials" id="testimonials" aria-labelledby="testimonials-title">
+<section class="bp-testimonials" id="home-testimonials" data-section-key="home.testimonials" aria-labelledby="testimonials-title">
     <div class="home-container">
         <div class="bp-testimonials__header">
             <span class="bp-testimonials__label">
-                Clients Feedback About Us
+                {{ $section?->label ?? 'Clients Feedback About Us' }}
             </span>
 
             <h2 id="testimonials-title" class="bp-testimonials__title title-section">
-                See Those Lovely Words From Clients
+                {{ $section?->title ?? 'See Those Lovely Words From Clients' }}
             </h2>
 
             <p class="bp-testimonials__text text-muted">
-                Read what our guests say about their Bintan travel experience with Bintan Prestige.
+                {{ $section?->description ?? 'Read what our guests say about their Bintan travel experience with Bintan Prestige.' }}
             </p>
         </div>
 

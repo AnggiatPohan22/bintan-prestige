@@ -2,6 +2,8 @@ const headerSelector = '[data-frontend-header]';
 const heroBackgroundSelector = '[data-hero-background]';
 const packageCarouselSelector = '[data-package-carousel]';
 const productGridSelector = '[data-product-grid]';
+const sectionSliderSelector = '[data-section-slider]';
+const sectionSlideSelector = '[data-section-slide]';
 const scrolledClass = 'frontend-header--scrolled';
 const scrollThreshold = 24;
 
@@ -247,6 +249,33 @@ export function initProductFilters() {
 }
 
 /**
+ * Initializes reusable CMS section image sliders.
+ * Any section can opt in with data-section-slider and data-section-slide items.
+ */
+export function initSectionMediaSliders() {
+    document.querySelectorAll(sectionSliderSelector).forEach((section) => {
+        const slides = Array.from(section.querySelectorAll(sectionSlideSelector));
+
+        if (slides.length <= 1) {
+            return;
+        }
+
+        let activeIndex = slides.findIndex((slide) => slide.classList.contains('is-active'));
+
+        if (activeIndex < 0) {
+            activeIndex = 0;
+            slides[activeIndex].classList.add('is-active');
+        }
+
+        window.setInterval(() => {
+            slides[activeIndex].classList.remove('is-active');
+            activeIndex = (activeIndex + 1) % slides.length;
+            slides[activeIndex].classList.add('is-active');
+        }, 5200);
+    });
+}
+
+/**
  * Bootstraps all custom frontend interactions.
  * Add future lightweight homepage, menu, or shared public-site behavior here.
  */
@@ -255,4 +284,5 @@ export function initFrontend() {
     initDynamicHeroBackground();
     initPackageCarousels();
     initProductFilters();
+    initSectionMediaSliders();
 }

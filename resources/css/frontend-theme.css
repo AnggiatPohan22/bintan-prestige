@@ -731,6 +731,77 @@
         transform: translate(1px, -1px);
     }
 
+    .bp-manual-ads {
+        @apply bg-white py-14 sm:py-16 lg:py-20;
+    }
+
+    .bp-manual-ads__inner {
+        @apply grid gap-8 overflow-hidden rounded-[1.75rem] border bg-white p-5 shadow-xl md:grid-cols-[minmax(0,0.86fr)_minmax(320px,1fr)] md:items-center md:p-7 lg:p-9;
+        border-color: var(--frontend-border);
+        box-shadow: 0 28px 80px rgba(23, 19, 12, 0.12);
+    }
+
+    .bp-manual-ads__content {
+        @apply max-w-xl;
+    }
+
+    .bp-manual-ads__label {
+        @apply inline-flex text-xs font-extrabold uppercase;
+        color: #8a681a;
+    }
+
+    .bp-manual-ads__title {
+        @apply mt-3;
+        color: var(--frontend-charcoal);
+    }
+
+    .bp-manual-ads__text {
+        @apply mt-4;
+    }
+
+    .bp-manual-ads__button {
+        @apply mt-6 gap-3;
+    }
+
+    .bp-manual-ads__button-icon {
+        @apply h-5 w-5;
+        fill: none;
+        stroke: currentColor;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        stroke-width: 2.1;
+        transition: transform var(--frontend-transition-fast) var(--frontend-ease-press);
+    }
+
+    .bp-manual-ads__button:hover .bp-manual-ads__button-icon {
+        transform: translate(1px, -1px);
+    }
+
+    .bp-manual-ads__visual {
+        @apply relative min-h-[260px] overflow-hidden rounded-[1.5rem] bg-stone-100;
+        aspect-ratio: 16 / 10;
+    }
+
+    .bp-manual-ads__visual img {
+        @apply absolute inset-0 h-full w-full object-cover;
+        max-width: none;
+    }
+
+    .bp-manual-ads__placeholder {
+        @apply absolute inset-0 flex items-center justify-center text-xs font-extrabold uppercase;
+        background:
+            linear-gradient(135deg, rgba(255, 255, 255, 0.84), rgba(200, 162, 74, 0.2)),
+            repeating-linear-gradient(135deg, rgba(23, 19, 12, 0.05) 0 1px, transparent 1px 18px);
+        color: #8a681a;
+    }
+
+    .bp-manual-ads__overlay-title {
+        @apply absolute inset-x-5 bottom-5 rounded-2xl px-5 py-4 text-xl font-black leading-tight text-white sm:text-2xl;
+        background: rgba(9, 8, 6, 0.58);
+        backdrop-filter: blur(14px);
+        font-family: var(--frontend-font-display);
+    }
+
     /* BP FOOTER: Wraps the floating CTA and reusable global footer system. */
     .bp-footer {
         @apply relative mt-40 pt-24 sm:mt-44 sm:pt-28 lg:mt-52;

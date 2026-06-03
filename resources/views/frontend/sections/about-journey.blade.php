@@ -1,16 +1,20 @@
-<section class="bp-journey-section" aria-labelledby="journey-title">
+@php
+    $section = $sections['home.about_journey'] ?? null;
+@endphp
+
+<section class="bp-journey-section" id="home-about-journey" data-section-key="home.about_journey" aria-labelledby="journey-title">
     <div class="home-container bp-journey-section__grid">
         <div class="bp-journey-content">
             <span class="bp-journey-label">
-                Dream Your Next Trip
+                {{ $section?->label ?? 'Dream Your Next Trip' }}
             </span>
 
             <h2 id="journey-title" class="bp-journey-title title-section">
-                Discover When Even You Want To Go
+                {{ $section?->title ?? 'Discover When Even You Want To Go' }}
             </h2>
 
             <p class="bp-journey-text text-muted">
-                Are you tired of the typical tourist destinations and looking to step out of your comfort zone? Adventure travel may be the perfect solution for you! Here are four.
+                {{ $section?->description ?? 'Are you tired of the typical tourist destinations and looking to step out of your comfort zone? Adventure travel may be the perfect solution for you! Here are four.' }}
             </p>
 
             <div class="bp-journey-features">
@@ -55,8 +59,8 @@
                 </article>
             </div>
 
-            <a href="{{ route('products.index') }}" class="btn btn-primary btn-lg bp-journey-cta">
-                BOOK YOUR TRIP
+            <a href="{{ $section?->button_url ?: route('products.index') }}" class="btn btn-primary btn-lg bp-journey-cta">
+                {{ $section?->button_text ?? 'BOOK YOUR TRIP' }}
                 <svg class="bp-journey-cta__icon" viewBox="0 0 24 24" aria-hidden="true">
                     <path d="M7 17L17 7"></path>
                     <path d="M9 7h8v8"></path>

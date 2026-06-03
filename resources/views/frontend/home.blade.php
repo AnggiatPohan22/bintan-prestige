@@ -2,25 +2,63 @@
 
 @section('content')
 
+@php
+    $heroSection = $sections['home.hero'] ?? null;
+    $heroSlides = $heroSection?->activeMedia ?? collect();
+    $heroBackground = $heroSection?->image_url ?? $heroBackgroundUrl;
+    $heroAnimation = $heroSection?->animation ?? 'ken-burns';
+    $fallbackFaqs = collect([
+        [
+            'question' => 'Can I arrange pickup from ferry terminal or resort?',
+            'answer' => 'Yes, pickup options can be arranged depending on package, meeting point, and route availability.',
+        ],
+        [
+            'question' => 'How do I confirm a booking?',
+            'answer' => 'Choose a package and contact us through WhatsApp to confirm date, guests, pickup, and availability.',
+        ],
+        [
+            'question' => 'Can packages be customized?',
+            'answer' => 'Many tours and transfers can be adjusted for timing, route, or pickup location.',
+        ],
+    ]);
+    $faqItems = isset($faqs) && $faqs->count() ? $faqs : $fallbackFaqs;
+@endphp
+
 <div class="home-page">
 
     <section
+        id="home-hero"
         class="home-hero"
-        data-hero-background="{{ $heroBackgroundUrl }}"
+        data-section-key="home.hero"
+        data-hero-background="{{ $heroBackground }}"
+        data-section-animation="{{ $heroAnimation }}"
+        @if($heroSlides->count())
+            data-section-slider
+            data-section-has-media
+        @endif
     >
+        @if($heroSlides->count())
+            @include('frontend.components.section-media-slider', [
+                'mediaItems' => $heroSlides,
+                'wrapperClass' => 'home-hero__slider',
+                'slideClass' => 'home-hero__slide',
+                'imageAlt' => $heroSection?->title ?? 'Bintan Prestige',
+            ])
+        @endif
+
         <div class="home-container">
             <div class="home-hero__stage">
                 <div class="home-hero__copy">
                     <span class="home-eyebrow">
-                        Luxury Bintan Travel
+                        {{ $heroSection?->label ?? 'Luxury Bintan Travel' }}
                     </span>
 
                     <h1 class="home-hero__title title-hero">
-                        BINTAN PRESTIGE
+                        {{ $heroSection?->title ?? 'BINTAN PRESTIGE' }}
                     </h1>
 
                     <p class="home-hero__text text-body">
-                        Private tours, island transfers, and curated experiences designed for a smoother premium escape.
+                        {{ $heroSection?->description ?? 'Private tours, island transfers, and curated experiences designed for a smoother premium escape.' }}
                     </p>
                 </div>
 
@@ -71,6 +109,8 @@
     @include('frontend.sections.popular-tour')
 
     @include('frontend.sections.popular-products')
+
+    @include('frontend.partials.manual-ads')
 
     {{-- Legacy package carousel replaced by the centered editorial popular-tour section.
     <section class="home-section home-section--legacy-featured" hidden>
@@ -184,20 +224,12 @@
             </div>
 
             <div class="home-faq-list">
-                <details open>
-                    <summary>Can I arrange pickup from ferry terminal or resort?</summary>
-                    <p>Yes, pickup options can be arranged depending on package, meeting point, and route availability.</p>
-                </details>
-
-                <details>
-                    <summary>How do I confirm a booking?</summary>
-                    <p>Choose a package and contact us through WhatsApp to confirm date, guests, pickup, and availability.</p>
-                </details>
-
-                <details>
-                    <summary>Can packages be customized?</summary>
-                    <p>Many tours and transfers can be adjusted for timing, route, or pickup location.</p>
-                </details>
+                @foreach($faqItems as $faqIndex => $faq)
+                    <details @if($faqIndex === 0) open @endif>
+                        <summary>{{ is_array($faq) ? $faq['question'] : $faq->question }}</summary>
+                        <p>{{ is_array($faq) ? $faq['answer'] : $faq->answer }}</p>
+                    </details>
+                @endforeach
             </div>
         </div>
     </section>

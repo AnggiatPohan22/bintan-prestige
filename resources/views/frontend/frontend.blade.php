@@ -5,25 +5,9 @@
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0">
 
-    <title>{{ $seoTitle ?? config('app.name') }}</title>
-
-    <meta name="description" content="{{ $seoDescription ?? '' }}">
-    <meta name="keywords" content="{{ $seoKeywords ?? '' }}">
-
-    @if(!empty($canonicalUrl))
-        <link rel="canonical" href="{{ $canonicalUrl }}">
-    @endif
-
-    <meta property="og:title" content="{{ $seoTitle ?? config('app.name') }}">
-    <meta property="og:description" content="{{ $seoDescription ?? '' }}">
-    <meta property="og:image" content="{{ $seoImage ?? '' }}">
-    <meta property="og:url" content="{{ $canonicalUrl ?? url()->current() }}">
-    <meta property="og:type" content="website">
-
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="{{ $seoTitle ?? config('app.name') }}">
-    <meta name="twitter:description" content="{{ $seoDescription ?? '' }}">
-    <meta name="twitter:image" content="{{ $seoImage ?? '' }}">
+    <title>
+        {{ $title ?? config('app.name') }}
+    </title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
