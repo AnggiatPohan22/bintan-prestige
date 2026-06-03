@@ -4,23 +4,51 @@
 
 <div class="home-page">
 
+    @php
+        $heroSection = $sections['home.hero'] ?? null;
+        $heroBackground = $heroSection?->image_url ?? $heroBackgroundUrl;
+        $heroSlides = collect($heroSection?->activeMedia ?? [])
+            ->take(\App\Models\PageSection::MEDIA_LIMIT);
+        $heroAnimation = $heroSection?->animation ?? 'ken-burns';
+    @endphp
+
     <section
         class="home-hero"
-        data-hero-background="{{ $heroBackgroundUrl }}"
+        id="home-hero"
+        data-section-key="home.hero"
+        data-hero-background="{{ $heroBackground }}"
+        @if($heroSlides->count())
+            data-section-has-media
+        @endif
+        @if($heroSlides->count() > 1)
+            data-section-slider
+            data-section-slider-interval="6500"
+        @endif
+        data-section-animation="{{ $heroAnimation }}"
     >
+        @if($heroSlides->count())
+            @include('frontend.components.section-media-slider', [
+                'section' => $heroSection,
+                'mediaItems' => $heroSlides,
+                'wrapperClass' => 'home-hero__slider section-media-slider',
+                'slideClass' => 'home-hero__slide section-media-slider__slide',
+                'imageAlt' => $heroSection->title ?? 'Bintan Prestige',
+            ])
+        @endif
+
         <div class="home-container">
             <div class="home-hero__stage">
                 <div class="home-hero__copy">
                     <span class="home-eyebrow">
-                        Luxury Bintan Travel
+                        {{ $heroSection->label ?? 'Luxury Bintan Travel' }}
                     </span>
 
                     <h1 class="home-hero__title title-hero">
-                        BINTAN PRESTIGE
+                        {{ $heroSection->title ?? 'BINTAN PRESTIGE' }}
                     </h1>
 
                     <p class="home-hero__text text-body">
-                        Private tours, island transfers, and curated experiences designed for a smoother premium escape.
+                        {{ $heroSection->description ?? 'Private tours, island transfers, and curated experiences designed for a smoother premium escape.' }}
                     </p>
                 </div>
 
@@ -71,6 +99,8 @@
     @include('frontend.sections.popular-tour')
 
     @include('frontend.sections.popular-products')
+
+    @include('frontend.partials.manual-ads')
 
     {{-- Legacy package carousel replaced by the centered editorial popular-tour section.
     <section class="home-section home-section--legacy-featured" hidden>
@@ -184,20 +214,27 @@
             </div>
 
             <div class="home-faq-list">
-                <details open>
-                    <summary>Can I arrange pickup from ferry terminal or resort?</summary>
-                    <p>Yes, pickup options can be arranged depending on package, meeting point, and route availability.</p>
-                </details>
+                @forelse($faqs ?? [] as $faq)
+                    <details @if($loop->first) open @endif>
+                        <summary>{{ $faq->question }}</summary>
+                        <p>{{ $faq->answer }}</p>
+                    </details>
+                @empty
+                    <details open>
+                        <summary>Can I arrange pickup from ferry terminal or resort?</summary>
+                        <p>Yes, pickup options can be arranged depending on package, meeting point, and route availability.</p>
+                    </details>
 
-                <details>
-                    <summary>How do I confirm a booking?</summary>
-                    <p>Choose a package and contact us through WhatsApp to confirm date, guests, pickup, and availability.</p>
-                </details>
+                    <details>
+                        <summary>How do I confirm a booking?</summary>
+                        <p>Choose a package and contact us through WhatsApp to confirm date, guests, pickup, and availability.</p>
+                    </details>
 
-                <details>
-                    <summary>Can packages be customized?</summary>
-                    <p>Many tours and transfers can be adjusted for timing, route, or pickup location.</p>
-                </details>
+                    <details>
+                        <summary>Can packages be customized?</summary>
+                        <p>Many tours and transfers can be adjusted for timing, route, or pickup location.</p>
+                    </details>
+                @endforelse
             </div>
         </div>
     </section>

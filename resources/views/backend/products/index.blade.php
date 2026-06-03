@@ -52,9 +52,9 @@
 
             <div class="rounded-xl bg-white p-4 shadow">
                 <div class="flex gap-4">
-                    @if($product->thumbnail)
+                    @if($product->main_image_url)
                         <img
-                            src="{{ asset('storage/'.$product->thumbnail) }}"
+                            src="{{ $product->main_image_url }}"
                             class="h-20 w-24 shrink-0 rounded-lg border object-cover"
                             alt="{{ $product->name }}"
                         >
@@ -183,9 +183,9 @@
                         <tr class="border-b hover:bg-slate-50">
                             <td class="px-4 py-4">
                                 <div class="flex items-center gap-3">
-                                    @if($product->thumbnail)
+                                    @if($product->main_image_url)
                                         <img
-                                            src="{{ asset('storage/'.$product->thumbnail) }}"
+                                            src="{{ $product->main_image_url }}"
                                             class="h-16 w-20 rounded-lg border object-cover"
                                             alt="{{ $product->name }}"
                                         >

@@ -1,5 +1,7 @@
 const headerSelector = '[data-frontend-header]';
 const heroBackgroundSelector = '[data-hero-background]';
+const sectionSliderSelector = '[data-section-slider]';
+const sectionSlideSelector = '[data-section-slide]';
 const packageCarouselSelector = '[data-package-carousel]';
 const productGridSelector = '[data-product-grid]';
 const scrolledClass = 'frontend-header--scrolled';
@@ -64,6 +66,35 @@ export function initDynamicHeroBackground() {
         }
 
         section.style.setProperty('--home-hero-image', `url("${backgroundUrl}")`);
+    });
+}
+
+/**
+ * Initializes reusable section image sliders.
+ * Any future page section can opt in by rendering `[data-section-slider]`
+ * with child slides marked as `[data-section-slide]`.
+ */
+export function initSectionSliders() {
+    document.querySelectorAll(sectionSliderSelector).forEach((section) => {
+        const slides = Array.from(section.querySelectorAll(sectionSlideSelector));
+
+        if (slides.length < 2) {
+            return;
+        }
+
+        const interval = Number.parseInt(section.dataset.sectionSliderInterval || '6500', 10);
+        let activeIndex = slides.findIndex((slide) => slide.classList.contains('is-active'));
+
+        if (activeIndex < 0) {
+            activeIndex = 0;
+            slides[activeIndex].classList.add('is-active');
+        }
+
+        window.setInterval(() => {
+            slides[activeIndex].classList.remove('is-active');
+            activeIndex = (activeIndex + 1) % slides.length;
+            slides[activeIndex].classList.add('is-active');
+        }, interval);
     });
 }
 
@@ -253,6 +284,7 @@ export function initProductFilters() {
 export function initFrontend() {
     initFrontendHeader();
     initDynamicHeroBackground();
+    initSectionSliders();
     initPackageCarousels();
     initProductFilters();
 }

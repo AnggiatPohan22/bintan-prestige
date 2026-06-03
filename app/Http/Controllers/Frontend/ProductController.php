@@ -187,7 +187,7 @@ class ProductController extends Controller
 
                 'seoImage' =>
                     $product->og_image_url
-                    ?: $product->thumbnail_url,
+                    ?: $product->main_image_url,
             ]
         );
     }

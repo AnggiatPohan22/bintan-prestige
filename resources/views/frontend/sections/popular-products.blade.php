@@ -1,12 +1,16 @@
-<section class="bp-product-section" aria-labelledby="popular-products-title">
+@php
+    $section = $sections['home.popular_products_intro'] ?? null;
+@endphp
+
+<section class="bp-product-section" id="home-popular-products" data-section-key="home.popular_products_intro" aria-labelledby="popular-products-title">
     <div class="home-container">
         <div class="bp-product-section__header">
             <span class="bp-product-section__label">
-                Most Popular Tour Packages
+                {{ $section->label ?? 'Most Popular Tour Packages' }}
             </span>
 
             <h2 id="popular-products-title" class="bp-product-section__title title-section">
-                Something Amazing Waiting For You
+                {{ $section->title ?? 'Something Amazing Waiting For You' }}
             </h2>
         </div>
 

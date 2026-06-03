@@ -12,6 +12,9 @@
     );
 
     $bookingMessage = urlencode('Hello, I want to book ' . $product->name);
+    $galleryImages = $product->images
+        ->filter(fn ($image) => filled($image->image_url))
+        ->take(4);
 @endphp
 
 <div class="product-page">
@@ -23,9 +26,9 @@
 
                 <div class="product-detail-gallery">
                     <div class="product-detail-gallery__main">
-                        @if($product->thumbnail_url)
+                        @if($product->main_image_url)
                             <img
-                                src="{{ $product->thumbnail_url }}"
+                                src="{{ $product->main_image_url }}"
                                 alt="{{ $product->name }}"
                                 class="product-detail-gallery__image"
                                 decoding="async"
@@ -37,11 +40,11 @@
                         @endif
                     </div>
 
-                    @if($product->images->count())
+                    @if($galleryImages->count())
                         <div class="product-detail-gallery__thumbs">
-                            @foreach($product->images->take(4) as $image)
+                            @foreach($galleryImages as $image)
                                 <img
-                                    src="{{ asset('storage/' . $image->image) }}"
+                                    src="{{ $image->image_url }}"
                                     class="product-detail-gallery__thumb"
                                     alt="{{ $product->name }}"
                                     loading="lazy"

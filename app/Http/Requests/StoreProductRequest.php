@@ -84,6 +84,18 @@ class StoreProductRequest
                 'mimes:jpg,jpeg,png,webp',
                 'max:2048'
             ],
+
+            'gallery' => [
+                'nullable',
+                'array',
+            ],
+
+            'gallery.*' => [
+                'image',
+                'mimes:jpg,jpeg,png,webp',
+                'max:2048',
+            ],
+
             'pickup_available' => ['nullable'],
             'pickup_type' => ['nullable', 'max:255'],
             'pickup_note' => ['nullable'],

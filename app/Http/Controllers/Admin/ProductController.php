@@ -14,6 +14,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
 use App\Services\ProductService;
+use App\Services\ProductImageService;
 
 use App\Http\Requests\StoreProductRequest;
 use App\Http\Requests\UpdateProductRequest;
@@ -24,12 +25,13 @@ class ProductController extends Controller
 
     public function __construct(
     protected ProductService $productService,
+    protected ProductImageService $productImageService,
     ) {}
 
     public function index(Request $request)
     {
         $products = Product::query()
-            ->with(['category', 'destination', 'prices'])
+            ->with(['category', 'destination', 'prices', 'images'])
             ->withCount([
                 'highlights',
                 'features',
@@ -234,8 +236,8 @@ class ProductController extends Controller
             $product
             && $product->thumbnail === $image->image;
 
-        Storage::disk('public')
-            ->delete($image->image);
+        $this->productImageService
+            ->deleteIfLocalProductImage($image->image);
 
         $image->delete();
 
@@ -295,15 +297,15 @@ class ProductController extends Controller
                 ->exists();
 
         if (! $isGalleryImage) {
-            Storage::disk('public')
-                ->delete($thumbnail);
+            $this->productImageService
+                ->deleteIfLocalProductImage($thumbnail);
         }
 
         $product->update([
             'thumbnail' => null,
         ]);
 
-        app(\App\Services\ProductImageService::class)
+        $this->productImageService
             ->autoThumbnail($product);
 
         return redirect()

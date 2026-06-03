@@ -24,6 +24,122 @@
         background-size: cover;
     }
 
+    .home-hero[data-section-has-media]::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: 1;
+        pointer-events: none;
+        background:
+            linear-gradient(180deg, rgba(9, 8, 6, 0.12), rgba(9, 8, 6, 0.76)),
+            linear-gradient(90deg, rgba(9, 8, 6, 0.5), rgba(9, 8, 6, 0.04) 48%, rgba(9, 8, 6, 0.62));
+    }
+
+    .home-hero__slider {
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+        overflow: hidden;
+    }
+
+    .home-hero__slide {
+        position: absolute;
+        inset: 0;
+        opacity: 0;
+        transition: opacity 1200ms ease;
+    }
+
+    .home-hero__slide.is-active {
+        opacity: 1;
+    }
+
+    .home-hero__slide img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transform: scale(1.02);
+    }
+
+    .home-hero[data-section-animation="ken-burns"] .home-hero__slide.is-active img {
+        animation: homeHeroKenBurns 7000ms ease forwards;
+    }
+
+    .home-hero[data-section-animation="zoom-in"] .home-hero__slide.is-active img {
+        animation: homeHeroZoomIn 7000ms ease forwards;
+    }
+
+    .home-hero[data-section-animation="zoom-out"] .home-hero__slide.is-active img {
+        animation: homeHeroZoomOut 7000ms ease forwards;
+    }
+
+    .home-hero[data-section-animation="pan-left"] .home-hero__slide.is-active img {
+        animation: homeHeroPanLeft 7000ms ease forwards;
+    }
+
+    .home-hero[data-section-animation="pan-right"] .home-hero__slide.is-active img {
+        animation: homeHeroPanRight 7000ms ease forwards;
+    }
+
+    .home-hero[data-section-animation="fade"] .home-hero__slide.is-active img,
+    .home-hero[data-section-animation="none"] .home-hero__slide.is-active img {
+        animation: none;
+    }
+
+    .home-hero > .home-container {
+        position: relative;
+        z-index: 2;
+    }
+
+    @keyframes homeHeroKenBurns {
+        from {
+            transform: scale(1.02) translate3d(0, 0, 0);
+        }
+
+        to {
+            transform: scale(1.12) translate3d(-1.5%, -1.5%, 0);
+        }
+    }
+
+    @keyframes homeHeroZoomIn {
+        from {
+            transform: scale(1);
+        }
+
+        to {
+            transform: scale(1.14);
+        }
+    }
+
+    @keyframes homeHeroZoomOut {
+        from {
+            transform: scale(1.14);
+        }
+
+        to {
+            transform: scale(1.02);
+        }
+    }
+
+    @keyframes homeHeroPanLeft {
+        from {
+            transform: scale(1.08) translate3d(2%, 0, 0);
+        }
+
+        to {
+            transform: scale(1.08) translate3d(-2%, 0, 0);
+        }
+    }
+
+    @keyframes homeHeroPanRight {
+        from {
+            transform: scale(1.08) translate3d(-2%, 0, 0);
+        }
+
+        to {
+            transform: scale(1.08) translate3d(2%, 0, 0);
+        }
+    }
+
     /* HOME EYEBROW: Adds a small premium label above section headlines. */
     .home-eyebrow {
         @apply inline-flex w-fit rounded-full border px-4 py-2 text-xs font-extrabold uppercase;

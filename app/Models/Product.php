@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 
@@ -74,7 +75,9 @@ class Product extends Model
 
     public function images(): HasMany
     {
-        return $this->hasMany(ProductImage::class);
+        return $this->hasMany(ProductImage::class)
+            ->orderBy('sort_order')
+            ->orderBy('id');
     }
 
     public function prices(): HasMany
@@ -116,22 +119,54 @@ class Product extends Model
 
     public function getThumbnailUrlAttribute()
     {
-        if (! $this->thumbnail) {
-            return null;
+        return $this->resolveImageUrl($this->thumbnail);
+    }
+
+    public function getMainImageUrlAttribute(): ?string
+    {
+        if ($this->thumbnail_url) {
+            return $this->thumbnail_url;
         }
 
-        return asset('storage/' . $this->thumbnail);
+        $images = $this->relationLoaded('images')
+            ? $this->images
+            : $this->images()->get();
+
+        foreach ($images as $image) {
+            if ($image->image_url) {
+                return $image->image_url;
+            }
+        }
+
+        return null;
     }
 
     public function getOgImageUrlAttribute()
     {
         if (! $this->og_image) {
-            return $this->thumbnail_url;
+            return $this->main_image_url;
         }
 
-        return asset('storage/' . $this->og_image);
+        return $this->resolveImageUrl($this->og_image);
     }
     // end of accessors
+
+    protected function resolveImageUrl(?string $path): ?string
+    {
+        if (! $path) {
+            return null;
+        }
+
+        if (str_starts_with($path, 'http')) {
+            return $path;
+        }
+
+        if (! Storage::disk('public')->exists($path)) {
+            return null;
+        }
+
+        return asset('storage/' . $path);
+    }
 
     public function highlights(): HasMany
     {

@@ -3,6 +3,8 @@
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DestinationController;
+use App\Http\Controllers\Admin\FaqController;
+use App\Http\Controllers\Admin\PageSectionController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\ProductFaqController;
 use App\Http\Controllers\Admin\ProductFeatureController;
@@ -25,6 +27,39 @@ Route::middleware(['auth'])
             DashboardController::class,
             'index'
         ])->name('dashboard');
+
+        /*
+        |--------------------------------------------------------------------------
+        | Page Sections CMS Foundation
+        |--------------------------------------------------------------------------
+        */
+        Route::get('page-sections', [
+            PageSectionController::class,
+            'index'
+        ])->name('page-sections.index');
+
+        Route::get('page-sections/{pageSection}/edit', [
+            PageSectionController::class,
+            'edit'
+        ])->name('page-sections.edit');
+
+        Route::put('page-sections/{pageSection}', [
+            PageSectionController::class,
+            'update'
+        ])->name('page-sections.update');
+
+        Route::delete('page-section-media/{media}', [
+            PageSectionController::class,
+            'destroyMedia'
+        ])->name('page-sections.media.destroy');
+
+        /*
+        |--------------------------------------------------------------------------
+        | Global FAQs
+        |--------------------------------------------------------------------------
+        */
+        Route::resource('faqs', FaqController::class)
+            ->except(['show']);
 
         /*
         |--------------------------------------------------------------------------

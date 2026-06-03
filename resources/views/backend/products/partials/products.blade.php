@@ -387,6 +387,7 @@
 
                 <input type="file"
                     name="thumbnail"
+                    accept="image/jpeg,image/png,image/webp"
                     class="w-full border rounded-lg p-3">
 
                 @error('thumbnail')
@@ -411,11 +412,18 @@
                     type="file"
                     name="gallery[]"
                     multiple
+                    accept="image/jpeg,image/png,image/webp"
                     class="w-full border rounded-lg p-3">
+
+                @error('gallery.*')
+                    <p class="text-red-500 text-sm mt-1">
+                        {{ $message }}
+                    </p>
+                @enderror
 
                 <p class="text-sm text-gray-500 mt-2">
                     Multiple upload supported.
-                    Auto optimized to WEBP.
+                    JPG, PNG, or WEBP up to 2MB each. Auto optimized to WEBP.
                 </p>
 
             </div>
@@ -435,13 +443,16 @@
 
                         <div class="relative overflow-hidden rounded-xl border bg-white shadow">
 
-                            <img
-                                src="{{ asset(
-                                    'storage/' .
-                                    $image->image
-                                ) }}"
-                                class="w-full aspect-[16/9]
-                                object-cover">
+                            @if($image->image_url)
+                                <img
+                                    src="{{ $image->image_url }}"
+                                    class="w-full aspect-[16/9] object-cover"
+                                    alt="{{ $product->name }}">
+                            @else
+                                <div class="flex aspect-[16/9] w-full items-center justify-center bg-slate-100 text-xs font-semibold uppercase text-slate-400">
+                                    No Image
+                                </div>
+                            @endif
 
                             <div class="space-y-2 p-3">
                                 @if(($product->thumbnail ?? null) === $image->image)
@@ -481,7 +492,7 @@
             
 
             {{-- Preview Image --}}
-            @if(isset($product) && $product->thumbnail)
+            @if(isset($product) && $product->thumbnail_url)
 
             <div class="md:col-span-2">
 
@@ -489,7 +500,7 @@
                     Current Thumbnail
                 </label>
 
-                <img src="{{ asset('storage/'.$product->thumbnail) }}"
+                <img src="{{ $product->thumbnail_url }}"
                     class="w-48 rounded-lg border shadow">
 
                 <button

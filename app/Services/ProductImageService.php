@@ -24,9 +24,13 @@ class ProductImageService
         array $images = []
     ): void {
 
+        $nextSortOrder =
+            ((int) $product->images()
+                ->max('sort_order')) + 1;
+
         foreach (
             $images
-            as $index => $image
+            as $image
         ) {
 
             $path =
@@ -41,7 +45,7 @@ class ProductImageService
                     $path,
 
                 'sort_order' =>
-                    $index,
+                    $nextSortOrder++,
             ]);
         }
 
@@ -83,10 +87,9 @@ class ProductImageService
             && ! $thumbnailIsGalleryImage
         ) {
 
-            Storage::disk('public')
-                ->delete(
-                    $product->thumbnail
-                );
+            $this->deleteIfLocalProductImage(
+                $product->thumbnail
+            );
         }
 
         return $this->imageService
@@ -111,9 +114,6 @@ class ProductImageService
 
         $firstImage =
             $product->images()
-                ->orderBy(
-                    'sort_order'
-                )
                 ->first();
 
         if (! $firstImage) {
@@ -124,5 +124,15 @@ class ProductImageService
             'thumbnail' =>
                 $firstImage->image
         ]);
+    }
+
+    public function deleteIfLocalProductImage(?string $path): void
+    {
+        if (! $path || ! str_starts_with($path, 'products/')) {
+            return;
+        }
+
+        Storage::disk('public')
+            ->delete($path);
     }
 }

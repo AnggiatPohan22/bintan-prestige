@@ -4,9 +4,9 @@
     data-category-id="{{ $product->category?->id }}"
 >
     <a href="{{ route('products.show', $product) }}" class="bp-product-card__image" aria-label="View {{ $product->name }}">
-        @if($product->thumbnail_url)
+        @if($product->main_image_url)
             <img
-                src="{{ $product->thumbnail_url }}"
+                src="{{ $product->main_image_url }}"
                 alt="{{ $product->name }}"
                 loading="lazy"
                 decoding="async"

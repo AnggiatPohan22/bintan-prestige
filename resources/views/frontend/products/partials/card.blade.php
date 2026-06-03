@@ -1,9 +1,9 @@
 <article class="product-card">
 
     <div class="product-card__media">
-        @if($product->thumbnail_url)
+        @if($product->main_image_url)
             <img
-                src="{{ $product->thumbnail_url }}"
+                src="{{ $product->main_image_url }}"
                 alt="{{ $product->name }}"
                 class="product-card__image"
                 loading="lazy"
