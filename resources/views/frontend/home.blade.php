@@ -68,9 +68,9 @@
         </div>
     </section>
 
-    @include('frontend.sections.popular-tour')
+    @include('frontend.home.popular-tour')
 
-    @include('frontend.sections.popular-products')
+    @include('frontend.home.popular-products')
 
     {{-- Legacy package carousel replaced by the centered editorial popular-tour section.
     <section class="home-section home-section--legacy-featured" hidden>
@@ -123,13 +123,13 @@
     </section>
     --}}
 
-    @include('frontend.sections.about-journey')
+    @include('frontend.home.about-journey')
 
-    @include('frontend.sections.categories')
+    @include('frontend.home.categories')
 
-    @include('frontend.sections.explore-banner')
+    @include('frontend.home.explore-banner')
 
-    @include('frontend.sections.testimonials')
+    @include('frontend.home.testimonials')
 
     <section class="home-section" id="why-choose-us">
         <div class="home-container">

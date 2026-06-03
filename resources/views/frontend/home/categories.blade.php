@@ -1,16 +1,22 @@
-<section class="bp-category-section" id="categories" aria-labelledby="categories-title">
+@php
+    $section = $sections['home.categories_intro'] ?? null;
+@endphp
+
+<section id="home-categories" class="bp-category-section" data-section-key="home.categories_intro" aria-labelledby="categories-title">
+    <span id="categories" class="sr-only" aria-hidden="true"></span>
+
     <div class="home-container">
         <div class="bp-category-header">
             <span class="bp-category-header__label">
-                Next Adventure Destination
+                {{ $section->label ?? 'Next Adventure Destination' }}
             </span>
 
             <h2 id="categories-title" class="bp-category-header__title title-section">
-                Popular Travel Categories Available In Bintan
+                {{ $section->title ?? 'Popular Travel Categories Available In Bintan' }}
             </h2>
 
             <p class="bp-category-header__text text-muted">
-                Explore Bintan by travel style and discover curated packages that match your journey.
+                {{ $section->description ?? 'Explore Bintan by travel style and discover curated packages that match your journey.' }}
             </p>
         </div>
 

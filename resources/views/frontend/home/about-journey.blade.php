@@ -1,16 +1,23 @@
-<section class="bp-journey-section" aria-labelledby="journey-title">
+@php
+    $section = $sections['home.about_journey'] ?? null;
+    $extraData = $section?->extra_data ?? [];
+    $mainImage = $section?->image;
+    $smallImage = $extraData['small_image'] ?? $section?->mobile_image;
+@endphp
+
+<section id="home-about-journey" class="bp-journey-section" data-section-key="home.about_journey" aria-labelledby="journey-title">
     <div class="home-container bp-journey-section__grid">
         <div class="bp-journey-content">
             <span class="bp-journey-label">
-                Dream Your Next Trip
+                {{ $section->label ?? 'Dream Your Next Trip' }}
             </span>
 
             <h2 id="journey-title" class="bp-journey-title title-section">
-                Discover When Even You Want To Go
+                {{ $section->title ?? 'Discover When Even You Want To Go' }}
             </h2>
 
             <p class="bp-journey-text text-muted">
-                Are you tired of the typical tourist destinations and looking to step out of your comfort zone? Adventure travel may be the perfect solution for you! Here are four.
+                {{ $section->description ?? 'Are you tired of the typical tourist destinations and looking to step out of your comfort zone? Adventure travel may be the perfect solution for you! Here are four.' }}
             </p>
 
             <div class="bp-journey-features">
@@ -24,11 +31,11 @@
 
                     <div>
                         <h3 class="bp-journey-feature__title title-card">
-                            Best Travel Agency
+                            {{ $extraData['feature_one_title'] ?? 'Best Travel Agency' }}
                         </h3>
 
                         <p class="bp-journey-feature__text text-muted">
-                            Thoughtfully arranged Bintan travel experiences for guests who want comfort, quality, and reliable service.
+                            {{ $extraData['feature_one_text'] ?? 'Thoughtfully arranged Bintan travel experiences for guests who want comfort, quality, and reliable service.' }}
                         </p>
                     </div>
                 </article>
@@ -45,18 +52,18 @@
 
                     <div>
                         <h3 class="bp-journey-feature__title title-card">
-                            Secure Journey With Us
+                            {{ $extraData['feature_two_title'] ?? 'Secure Journey With Us' }}
                         </h3>
 
                         <p class="bp-journey-feature__text text-muted">
-                            Travel with confidence through organized transfers, curated tours, and clear guest support.
+                            {{ $extraData['feature_two_text'] ?? 'Travel with confidence through organized transfers, curated tours, and clear guest support.' }}
                         </p>
                     </div>
                 </article>
             </div>
 
-            <a href="{{ route('products.index') }}" class="btn btn-primary btn-lg bp-journey-cta">
-                BOOK YOUR TRIP
+            <a href="{{ $section->button_url ?? route('products.index') }}" class="btn btn-primary btn-lg bp-journey-cta">
+                {{ $section->button_text ?? 'BOOK YOUR TRIP' }}
                 <svg class="bp-journey-cta__icon" viewBox="0 0 24 24" aria-hidden="true">
                     <path d="M7 17L17 7"></path>
                     <path d="M9 7h8v8"></path>
@@ -77,19 +84,27 @@
             </span>
 
             <span class="bp-journey-vertical-text" aria-hidden="true">
-                TRAVEL
+                {{ $extraData['vertical_text'] ?? 'TRAVEL' }}
             </span>
 
             <div class="bp-journey-main-frame">
-                <div class="bp-journey-placeholder">
-                    NO IMAGE
-                </div>
+                @if($mainImage)
+                    <img src="{{ \Illuminate\Support\Str::startsWith($mainImage, ['http://', 'https://', '/']) ? $mainImage : asset('storage/' . $mainImage) }}" alt="{{ $section->title ?? 'Bintan Prestige journey' }}" loading="lazy" decoding="async">
+                @else
+                    <div class="bp-journey-placeholder">
+                        NO IMAGE
+                    </div>
+                @endif
             </div>
 
             <div class="bp-journey-small-frame">
-                <div class="bp-journey-placeholder">
-                    NO IMAGE
-                </div>
+                @if($smallImage)
+                    <img src="{{ \Illuminate\Support\Str::startsWith($smallImage, ['http://', 'https://', '/']) ? $smallImage : asset('storage/' . $smallImage) }}" alt="{{ $section->title ?? 'Bintan Prestige journey detail' }}" loading="lazy" decoding="async">
+                @else
+                    <div class="bp-journey-placeholder">
+                        NO IMAGE
+                    </div>
+                @endif
             </div>
         </div>
     </div>
