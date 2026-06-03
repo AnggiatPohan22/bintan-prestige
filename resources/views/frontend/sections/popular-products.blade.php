@@ -1,12 +1,16 @@
-<section class="bp-product-section" aria-labelledby="popular-products-title">
+@php
+    $section = $sections['home.popular_products_intro'] ?? null;
+@endphp
+
+<section id="home-popular-products" class="bp-product-section" data-section-key="home.popular_products_intro" aria-labelledby="popular-products-title">
     <div class="home-container">
         <div class="bp-product-section__header">
             <span class="bp-product-section__label">
-                Most Popular Tour Packages
+                {{ $section->label ?? 'Most Popular Tour Packages' }}
             </span>
 
             <h2 id="popular-products-title" class="bp-product-section__title title-section">
-                Something Amazing Waiting For You
+                {{ $section->title ?? 'Something Amazing Waiting For You' }}
             </h2>
         </div>
 
@@ -34,8 +38,8 @@
             </div>
 
             <div class="bp-product-actions">
-                <a href="{{ route('products.index') }}" class="btn btn-primary bp-product-view-all">
-                   <span> View All Package </span>
+                <a href="{{ $section->button_url ?? route('products.index') }}" class="btn btn-primary bp-product-view-all">
+                   <span>{{ $section->button_text ?? 'View All Package' }}</span>
                     <svg class="bp-product-view-all__icon" viewBox="0 0 24 24" aria-hidden="true">
                         <path d="M7 17L17 7"></path>
                         <path d="M9 7h8v8"></path>

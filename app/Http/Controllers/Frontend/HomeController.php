@@ -6,9 +6,14 @@ use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Destination;
 use App\Models\Product;
+use App\Services\PageSectionService;
 
 class HomeController extends Controller
 {
+    public function __construct(
+        protected PageSectionService $pageSectionService,
+    ) {}
+
     public function index()
     {
         $heroBackgroundUrl = null;
@@ -50,6 +55,8 @@ class HomeController extends Controller
             ->orderBy('name')
             ->get();
 
+        $sections = $this->pageSectionService->getHomeSections();
+
         return view(
             'frontend.home',
             compact(
@@ -58,7 +65,8 @@ class HomeController extends Controller
                 'homeProductCategories',
                 'categories',
                 'destinations',
-                'heroBackgroundUrl'
+                'heroBackgroundUrl',
+                'sections'
             )
         );
     }

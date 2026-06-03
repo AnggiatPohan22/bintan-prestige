@@ -1,23 +1,32 @@
-<section class="bp-explore-banner" aria-labelledby="explore-banner-title">
+@php
+    $section = $sections['home.explore_banner'] ?? null;
+    $extraData = $section?->extra_data ?? [];
+@endphp
+
+<section id="home-explore-banner" class="bp-explore-banner" data-section-key="home.explore_banner" aria-labelledby="explore-banner-title">
     <div class="bp-explore-banner__bg" aria-hidden="true">
-        <div class="bp-explore-banner__placeholder">
-            NO IMAGE
-        </div>
+        @if($section?->image_url)
+            <img src="{{ $section->image_url }}" alt="" loading="lazy" decoding="async">
+        @else
+            <div class="bp-explore-banner__placeholder">
+                NO IMAGE
+            </div>
+        @endif
     </div>
 
     <div class="bp-explore-banner__overlay" aria-hidden="true"></div>
 
     <div class="home-container bp-explore-banner__content">
         <span class="bp-explore-banner__label">
-            Next Adventure Destination
+            {{ $section->label ?? 'Next Adventure Destination' }}
         </span>
 
         <h2 id="explore-banner-title" class="bp-explore-banner__title title-section">
-            Popular Travel Destinations Available Worldwide
+            {{ $section->title ?? 'Popular Travel Destinations Available Worldwide' }}
         </h2>
 
-        <a href="{{ route('products.index') }}" class="btn btn-primary btn-lg bp-explore-banner__cta">
-            BOOK YOUR TRIP NOW
+        <a href="{{ $section->button_url ?? route('products.index') }}" class="btn btn-primary btn-lg bp-explore-banner__cta">
+            {{ $section->button_text ?? 'BOOK YOUR TRIP NOW' }}
             <svg class="bp-explore-banner__cta-icon" viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M7 17L17 7"></path>
                 <path d="M9 7h8v8"></path>
@@ -26,6 +35,6 @@
     </div>
 
     <div class="bp-explore-banner__outline-text" aria-hidden="true">
-        EXPLORE THE WORLD
+        {{ $extraData['outline_text'] ?? 'EXPLORE THE WORLD' }}
     </div>
 </section>
