@@ -3,6 +3,8 @@
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DestinationController;
+use App\Http\Controllers\Admin\FaqController;
+use App\Http\Controllers\Admin\PageSectionController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\ProductFaqController;
 use App\Http\Controllers\Admin\ProductFeatureController;
@@ -25,6 +27,18 @@ Route::middleware(['auth'])
             DashboardController::class,
             'index'
         ])->name('dashboard');
+
+        Route::resource('page-sections', PageSectionController::class)
+            ->parameters(['page-sections' => 'pageSection'])
+            ->only(['index', 'edit', 'update']);
+
+        Route::delete('page-section-media/{media}', [
+            PageSectionController::class,
+            'destroyMedia'
+        ])->name('page-sections.media.destroy');
+
+        Route::resource('faqs', FaqController::class)
+            ->except(['show']);
 
         /*
         |--------------------------------------------------------------------------

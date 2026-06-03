@@ -4,29 +4,7 @@
 
 <div class="home-page">
 
-    <section
-        class="home-hero"
-        data-hero-background="{{ $heroBackgroundUrl }}"
-    >
-        <div class="home-container">
-            <div class="home-hero__stage">
-                <div class="home-hero__copy">
-                    <span class="home-eyebrow">
-                        Luxury Bintan Travel
-                    </span>
-
-                    <h1 class="home-hero__title title-hero">
-                        BINTAN PRESTIGE
-                    </h1>
-
-                    <p class="home-hero__text text-body">
-                        Private tours, island transfers, and curated experiences designed for a smoother premium escape.
-                    </p>
-                </div>
-
-            </div>
-        </div>
-    </section>
+    @include('frontend.home.hero')
 
     <section class="home-search" aria-label="Search and filter packages">
         <div class="home-container">
@@ -68,9 +46,9 @@
         </div>
     </section>
 
-    @include('frontend.sections.popular-tour')
+    @include('frontend.home.popular-tour')
 
-    @include('frontend.sections.popular-products')
+    @include('frontend.home.popular-products')
 
     {{-- Legacy package carousel replaced by the centered editorial popular-tour section.
     <section class="home-section home-section--legacy-featured" hidden>
@@ -123,13 +101,15 @@
     </section>
     --}}
 
-    @include('frontend.sections.about-journey')
+    @include('frontend.home.categories')
 
-    @include('frontend.sections.categories')
+    @include('frontend.partials.manual-ads')
 
-    @include('frontend.sections.explore-banner')
+    @include('frontend.home.about-journey')
 
-    @include('frontend.sections.testimonials')
+    @include('frontend.home.explore-banner')
+
+    @include('frontend.home.testimonials')
 
     <section class="home-section" id="why-choose-us">
         <div class="home-container">
@@ -170,37 +150,7 @@
         </div>
     </section>
 
-    <section class="home-faq-preview" id="faq-preview">
-        <div class="home-container home-faq-preview__grid">
-            <div>
-                <span class="home-section__kicker">Before your journey</span>
-                <h2 class="home-section__title title-section">
-                    All you should know before embarking on your Bintan journey
-                </h2>
-
-                <div class="home-image-placeholder home-faq-preview__image">
-                    Travel Guide Image
-                </div>
-            </div>
-
-            <div class="home-faq-list">
-                <details open>
-                    <summary>Can I arrange pickup from ferry terminal or resort?</summary>
-                    <p>Yes, pickup options can be arranged depending on package, meeting point, and route availability.</p>
-                </details>
-
-                <details>
-                    <summary>How do I confirm a booking?</summary>
-                    <p>Choose a package and contact us through WhatsApp to confirm date, guests, pickup, and availability.</p>
-                </details>
-
-                <details>
-                    <summary>Can packages be customized?</summary>
-                    <p>Many tours and transfers can be adjusted for timing, route, or pickup location.</p>
-                </details>
-            </div>
-        </div>
-    </section>
+    @include('frontend.home.faq')
 
 </div>
 

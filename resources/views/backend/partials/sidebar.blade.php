@@ -32,6 +32,18 @@
             Destinations
         </a>
 
+        <a href="{{ route('admin.page-sections.index') }}"
+           class="block px-4 py-3 rounded-lg hover:bg-gray-100
+           {{ request()->routeIs('admin.page-sections.*') ? 'bg-gray-200 font-semibold' : '' }}">
+            Page Sections
+        </a>
+
+        <a href="{{ route('admin.faqs.index') }}"
+           class="block px-4 py-3 rounded-lg hover:bg-gray-100
+           {{ request()->routeIs('admin.faqs.*') ? 'bg-gray-200 font-semibold' : '' }}">
+            FAQs
+        </a>
+
     </nav>
 
 </aside>

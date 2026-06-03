@@ -24,6 +24,81 @@
         background-size: cover;
     }
 
+    .home-hero__media {
+        @apply absolute inset-0;
+    }
+
+    .home-hero__slide {
+        @apply absolute inset-0 h-full w-full object-cover opacity-0;
+        max-width: none;
+        transition: opacity 1100ms ease;
+        transform: scale(1.02);
+    }
+
+    .home-hero__slide.is-active {
+        opacity: 1;
+    }
+
+    .home-hero[data-hero-animation="ken-burns"] .home-hero__slide.is-active {
+        animation: homeHeroKenBurns 6500ms ease both;
+    }
+
+    .home-hero[data-hero-animation="zoom-in"] .home-hero__slide.is-active {
+        animation: homeHeroZoomIn 6500ms ease both;
+    }
+
+    .home-hero[data-hero-animation="zoom-out"] .home-hero__slide.is-active {
+        animation: homeHeroZoomOut 6500ms ease both;
+    }
+
+    .home-hero[data-hero-animation="pan-left"] .home-hero__slide.is-active {
+        animation: homeHeroPanLeft 6500ms ease both;
+    }
+
+    .home-hero[data-hero-animation="pan-right"] .home-hero__slide.is-active {
+        animation: homeHeroPanRight 6500ms ease both;
+    }
+
+    .home-hero[data-hero-animation="none"] .home-hero__slide.is-active,
+    .home-hero[data-hero-animation="fade"] .home-hero__slide.is-active {
+        animation: none;
+        transform: scale(1.02);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .home-hero__slide,
+        .home-hero__slide.is-active {
+            animation: none !important;
+            transition: none;
+            transform: scale(1.02);
+        }
+    }
+
+    @keyframes homeHeroKenBurns {
+        from { transform: scale(1.03) translate3d(0, 0, 0); }
+        to { transform: scale(1.14) translate3d(-1.5%, -1%, 0); }
+    }
+
+    @keyframes homeHeroZoomIn {
+        from { transform: scale(1.02); }
+        to { transform: scale(1.14); }
+    }
+
+    @keyframes homeHeroZoomOut {
+        from { transform: scale(1.14); }
+        to { transform: scale(1.02); }
+    }
+
+    @keyframes homeHeroPanLeft {
+        from { transform: scale(1.08) translate3d(1.5%, 0, 0); }
+        to { transform: scale(1.08) translate3d(-1.5%, 0, 0); }
+    }
+
+    @keyframes homeHeroPanRight {
+        from { transform: scale(1.08) translate3d(-1.5%, 0, 0); }
+        to { transform: scale(1.08) translate3d(1.5%, 0, 0); }
+    }
+
     /* HOME EYEBROW: Adds a small premium label above section headlines. */
     .home-eyebrow {
         @apply inline-flex w-fit rounded-full border px-4 py-2 text-xs font-extrabold uppercase;
@@ -1630,10 +1705,15 @@
 
     /* HOME FAQ IMAGE: Adds a compact placeholder below the FAQ intro. */
     .home-faq-preview__image {
-        @apply mt-6 aspect-[16/10];
+        @apply relative mt-6 aspect-[16/10] overflow-hidden;
         color: #8a681a;
         background: var(--frontend-gold-pale);
         border-color: var(--frontend-border);
+    }
+
+    .home-faq-preview__image img {
+        @apply absolute inset-0 h-full w-full object-cover;
+        max-width: none;
     }
 
     /* HOME FAQ LIST: Adds spacing for homepage FAQ preview items. */
