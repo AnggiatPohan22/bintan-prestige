@@ -1,3 +1,7 @@
+@php
+    $footerWhatsappUrl = $contactWhatsappUrl ?? 'https://wa.me/?text=' . urlencode('Hello Bintan Prestige, I want to plan a Bintan trip.');
+@endphp
+
 <footer class="bp-footer" aria-labelledby="footer-title">
     <section class="bp-footer-cta" id="whatsapp-cta" aria-labelledby="footer-cta-title">
         <div class="bp-footer-cta__content">
@@ -14,7 +18,7 @@
             </p>
 
             <a
-                href="https://wa.me/?text={{ urlencode('Hello Bintan Prestige, I want to plan a Bintan trip.') }}"
+                href="{{ $footerWhatsappUrl }}"
                 target="_blank"
                 rel="noopener noreferrer"
                 class="btn btn-whatsapp bp-footer-cta__button"
@@ -42,7 +46,11 @@
                     $brandName = $businessIdentity['brand_name'] ?? 'Bintan Prestige';
                     $brandInitials = collect(explode(' ', $brandName))->filter()->map(fn ($part) => mb_substr($part, 0, 1))->take(2)->implode('');
                     $shortDescription = $businessIdentity['short_description'] ?? 'Luxury Bintan tours, private transfers, and curated island experiences arranged with comfort, quality, and simple WhatsApp booking.';
-                    $locationLabel = $businessIdentity['location_label'] ?? 'Bintan Island, Indonesia';
+                    $locationLabel = $contactInformation['address'] ?? ($businessIdentity['location_label'] ?? 'Bintan Island, Indonesia');
+                    $openingHours = $contactInformation['opening_hours'] ?? 'Open Daily';
+                    $email = $contactInformation['email'] ?? '';
+                    $phone = $contactInformation['phone'] ?? '';
+                    $mapsUrl = $contactInformation['google_maps_url'] ?? '';
                     $copyrightText = $businessIdentity['copyright_text'] ?? 'All rights reserved.';
                 @endphp
 
@@ -108,11 +116,21 @@
 
                 <div class="bp-footer__column">
                     <h3>Information</h3>
-                    <span>{{ $locationLabel }}</span>
-                    <a href="https://wa.me/?text={{ urlencode('Hello Bintan Prestige, I want to ask about Bintan packages.') }}" target="_blank" rel="noopener noreferrer">
+                    @if($mapsUrl)
+                        <a href="{{ $mapsUrl }}" target="_blank" rel="noopener noreferrer">{{ $locationLabel }}</a>
+                    @else
+                        <span>{{ $locationLabel }}</span>
+                    @endif
+                    @if($email)
+                        <a href="mailto:{{ $email }}">{{ $email }}</a>
+                    @endif
+                    @if($phone)
+                        <a href="tel:{{ preg_replace('/\s+/', '', $phone) }}">{{ $phone }}</a>
+                    @endif
+                    <a href="{{ $footerWhatsappUrl }}" target="_blank" rel="noopener noreferrer">
                         WhatsApp Contact
                     </a>
-                    <span>Open Daily</span>
+                    <span>{{ $openingHours }}</span>
                 </div>
 
                 <div class="bp-footer__column">

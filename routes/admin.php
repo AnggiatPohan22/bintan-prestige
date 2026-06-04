@@ -56,6 +56,9 @@ Route::middleware(['auth'])
         Route::put('settings/global-assets/business-identity', [SiteSettingController::class, 'updateBusinessIdentity'])
             ->name('settings.global-assets.business-identity.update');
 
+        Route::put('settings/global-assets/contact-information', [SiteSettingController::class, 'updateContactInformation'])
+            ->name('settings.global-assets.contact-information.update');
+
         Route::get('page-sections', [PageSectionController::class, 'index'])
             ->name('page-sections.index');
 

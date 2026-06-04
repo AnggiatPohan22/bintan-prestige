@@ -8,6 +8,7 @@ use App\Models\SiteSetting;
 use App\Services\PageSectionImageService;
 use App\Support\BrandColorSettings;
 use App\Support\BusinessIdentitySettings;
+use App\Support\ContactInformationSettings;
 use App\Support\HomepageSectionMedia;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
@@ -55,8 +56,16 @@ class SiteSettingController extends Controller
                 ->keyBy('key')
             : collect();
         $businessIdentity = BusinessIdentitySettings::valuesFromSettings($businessIdentitySettings);
+        $contactInformationFields = ContactInformationSettings::fields();
+        $contactInformationSettings = Schema::hasTable('site_settings')
+            ? SiteSetting::query()
+                ->whereIn('key', array_column($contactInformationFields, 'key'))
+                ->get()
+                ->keyBy('key')
+            : collect();
+        $contactInformation = ContactInformationSettings::valuesFromSettings($contactInformationSettings);
 
-        return view('backend.settings.global-assets', compact('activeTab', 'assetTabs', 'logoVariants', 'siteLogos', 'favicon', 'faviconConfig', 'socialShareImage', 'socialShareConfig', 'brandColorFields', 'brandColors', 'businessIdentityFields', 'businessIdentity'));
+        return view('backend.settings.global-assets', compact('activeTab', 'assetTabs', 'logoVariants', 'siteLogos', 'favicon', 'faviconConfig', 'socialShareImage', 'socialShareConfig', 'brandColorFields', 'brandColors', 'businessIdentityFields', 'businessIdentity', 'contactInformationFields', 'contactInformation'));
     }
 
     public function update(Request $request)
@@ -256,6 +265,52 @@ class SiteSettingController extends Controller
             ->with('success', 'Business identity updated successfully.');
     }
 
+    public function updateContactInformation(Request $request)
+    {
+        if (! Schema::hasTable('site_settings')) {
+            return redirect()
+                ->route('admin.settings.global-assets.edit', ['tab' => 'contact-information'])
+                ->withErrors(['contact_information' => 'Please run database migrations before updating contact information.']);
+        }
+
+        $rules = collect(ContactInformationSettings::fields())
+            ->mapWithKeys(function (array $field) {
+                $max = $field['type'] === 'textarea' ? 1000 : 500;
+                $rules = ['nullable', 'string', 'max:' . $max];
+
+                if ($field['type'] === 'email') {
+                    $rules[] = 'email';
+                }
+
+                if ($field['type'] === 'url') {
+                    $rules[] = 'url';
+                }
+
+                return ['contact_information.' . $field['slug'] => $rules];
+            })
+            ->all();
+
+        $validated = $request->validate($rules);
+        $contactInformation = $validated['contact_information'] ?? [];
+
+        foreach (ContactInformationSettings::fields() as $field) {
+            SiteSetting::updateOrCreate(
+                ['key' => $field['key']],
+                [
+                    'label' => $field['label'],
+                    'value' => $contactInformation[$field['slug']] ?? null,
+                    'type' => $field['type'],
+                    'group' => ContactInformationSettings::GROUP,
+                    'is_active' => true,
+                ]
+            );
+        }
+
+        return redirect()
+            ->route('admin.settings.global-assets.edit', ['tab' => 'contact-information'])
+            ->with('success', 'Contact information updated successfully.');
+    }
+
     private function assetTabs(): array
     {
         return [
@@ -283,6 +338,11 @@ class SiteSettingController extends Controller
                 'key' => 'business-identity',
                 'label' => 'Business Identity',
                 'description' => 'Global brand name, legal name, tagline, description, business type, and footer identity.',
+            ],
+            [
+                'key' => 'contact-information',
+                'label' => 'Contact Information',
+                'description' => 'Global email, phone, WhatsApp, address, maps URL, and opening hours.',
             ],
         ];
     }

@@ -6,6 +6,7 @@ use App\Models\SiteAsset;
 use App\Models\SiteSetting;
 use App\Support\BrandColorSettings;
 use App\Support\BusinessIdentitySettings;
+use App\Support\ContactInformationSettings;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
@@ -65,6 +66,21 @@ class AppServiceProvider extends ServiceProvider
                     : collect();
 
                 $view->with('businessIdentity', BusinessIdentitySettings::valuesFromSettings($identitySettings));
+            }
+
+            if (! array_key_exists('contactInformation', $view->getData())) {
+                $contactSettings = $siteSettingsTableExists
+                    ? SiteSetting::query()
+                        ->where('group', ContactInformationSettings::GROUP)
+                        ->where('is_active', true)
+                        ->get()
+                        ->keyBy('key')
+                    : collect();
+
+                $contactInformation = ContactInformationSettings::valuesFromSettings($contactSettings);
+
+                $view->with('contactInformation', $contactInformation);
+                $view->with('contactWhatsappUrl', ContactInformationSettings::whatsappUrl($contactInformation));
             }
         });
     }

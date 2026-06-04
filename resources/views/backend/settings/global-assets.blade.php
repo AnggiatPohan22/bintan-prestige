@@ -314,6 +314,42 @@
                 </div>
             </form>
         @endif
+
+        @if($activeTab === 'contact-information')
+            <form method="POST" action="{{ route('admin.settings.global-assets.contact-information.update') }}" class="rounded-xl border border-slate-200 bg-slate-50 p-5">
+                @csrf
+                @method('PUT')
+
+                <h2 class="text-lg font-bold text-slate-800">Contact Information</h2>
+                <p class="mt-1 text-sm text-slate-500">These values are reused by footer information, WhatsApp CTAs, and future contact sections.</p>
+
+                <div class="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-2">
+                    @foreach($contactInformationFields as $field)
+                        @php
+                            $value = old("contact_information.{$field['slug']}", $contactInformation[$field['slug']] ?? $field['default']);
+                        @endphp
+
+                        <div class="rounded-xl border border-slate-200 bg-white p-4 {{ $field['type'] === 'textarea' ? 'lg:col-span-2' : '' }}">
+                            <label class="form-label">{{ $field['label'] }}</label>
+
+                            @if($field['type'] === 'textarea')
+                                <textarea name="contact_information[{{ $field['slug'] }}]" rows="4" class="{{ $inputClass }}">{{ $value }}</textarea>
+                            @else
+                                <input type="{{ in_array($field['type'], ['email', 'url'], true) ? $field['type'] : 'text' }}" name="contact_information[{{ $field['slug'] }}]" value="{{ $value }}" class="{{ $inputClass }}">
+                            @endif
+
+                            <p class="mt-2 text-xs text-slate-500">{{ $field['hint'] }}</p>
+                            <p class="mt-2 text-[11px] font-semibold uppercase text-slate-400">{{ $field['key'] }}</p>
+                            @error("contact_information.{$field['slug']}") <p class="form-error">{{ $message }}</p> @enderror
+                        </div>
+                    @endforeach
+                </div>
+
+                <div class="mt-5 flex items-center gap-3 border-t border-slate-200 pt-5">
+                    <button type="submit" class="btn-primary">Save Contact Information</button>
+                </div>
+            </form>
+        @endif
     </div>
 </div>
 
