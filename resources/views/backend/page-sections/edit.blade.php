@@ -35,13 +35,9 @@
 
             @if($usesLogo)
                 <div class="md:col-span-2 rounded-xl border border-amber-200 bg-amber-50 p-4">
-                    <label class="form-label">Logo website global</label>
-                    <input type="file" name="site_logo" accept="image/jpeg,image/png,image/webp" class="{{ $inputClass }}">
-                    <p class="mt-2 text-xs text-amber-700">Logo ini dipakai otomatis di semua frame logo homepage yang menggunakan asset global.</p>
-                    @if($siteLogo?->url)
-                        <img src="{{ $siteLogo->url }}" alt="{{ $siteLogo->alt }}" class="mt-3 h-24 w-40 rounded-lg border bg-white object-contain p-3">
-                    @endif
-                    @error('site_logo') <p class="form-error">{{ $message }}</p> @enderror
+                    <h2 class="text-sm font-bold text-amber-900">Logo website global</h2>
+                    <p class="mt-2 text-sm text-amber-800">Section ini memakai site logo dari Global Assets. Upload dan delete logo dilakukan dari halaman settings agar semua section memakai sumber yang sama.</p>
+                    <a href="{{ route('admin.settings.global-assets.edit') }}" class="mt-3 inline-flex rounded-lg bg-amber-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-amber-600">Open Global Assets</a>
                 </div>
             @endif
 

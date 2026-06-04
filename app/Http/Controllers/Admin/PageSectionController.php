@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\PageSection;
 use App\Models\PageSectionMedia;
-use App\Models\SiteAsset;
 use App\Services\PageSectionImageService;
 use App\Support\HomepageSectionMedia;
 use Illuminate\Http\Request;
@@ -33,14 +32,12 @@ class PageSectionController extends Controller
         $mediaSlots = HomepageSectionMedia::slotsFor($pageSection->section_key);
         $allowsGallery = HomepageSectionMedia::allowsGallery($pageSection->section_key);
         $usesLogo = HomepageSectionMedia::usesLogo($pageSection->section_key);
-        $siteLogo = SiteAsset::where('key', HomepageSectionMedia::SITE_LOGO_KEY)->first();
 
         return view('backend.page-sections.edit', compact(
             'pageSection',
             'mediaSlots',
             'allowsGallery',
-            'usesLogo',
-            'siteLogo'
+            'usesLogo'
         ));
     }
 
@@ -60,7 +57,6 @@ class PageSectionController extends Controller
             'mobile_image_path' => ['nullable', 'string', 'max:500'],
             'image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
             'mobile_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
-            'site_logo' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
             'slot_uploads' => ['nullable', 'array'],
             'slot_uploads.*.*' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
             'media_uploads' => ['nullable', 'array', 'max:' . PageSection::MEDIA_LIMIT],
@@ -117,14 +113,6 @@ class PageSectionController extends Controller
         }
 
         $pageSection->update($data);
-
-        if ($request->hasFile('site_logo') && HomepageSectionMedia::usesLogo($pageSection->section_key)) {
-            $this->imageService->storeSiteAssetUpload(
-                $request->file('site_logo'),
-                HomepageSectionMedia::SITE_LOGO_KEY,
-                'Main website logo'
-            );
-        }
 
         foreach ($mediaSlots as $slot) {
             $role = $slot['role'];

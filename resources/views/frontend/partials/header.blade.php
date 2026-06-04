@@ -7,7 +7,7 @@
            class="frontend-brand"
            aria-label="Bintan Prestige home">
             @php
-                $headerLogo = isset($siteAssets) ? ($siteAssets['site.logo'] ?? null) : null;
+                $headerLogo = isset($siteAssets) ? (($siteAssets['site.logo.dark'] ?? null) ?: ($siteAssets['site.logo'] ?? null)) : null;
             @endphp
             <span class="frontend-brand__mark">
                 @if($headerLogo?->url)

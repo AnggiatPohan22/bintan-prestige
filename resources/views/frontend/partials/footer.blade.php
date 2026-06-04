@@ -38,7 +38,7 @@
         <div class="bp-footer__inner">
             <div class="bp-footer__brand">
                 @php
-                    $footerLogo = isset($siteAssets) ? ($siteAssets['site.logo'] ?? null) : null;
+                    $footerLogo = isset($siteAssets) ? (($siteAssets['site.logo.light'] ?? null) ?: ($siteAssets['site.logo'] ?? null)) : null;
                 @endphp
 
                 <a href="{{ route('home') }}" class="bp-footer__brand-link" aria-label="Bintan Prestige home">

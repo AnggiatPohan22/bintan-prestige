@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\ProductFeatureController;
 use App\Http\Controllers\Admin\ProductHighlightController;
 use App\Http\Controllers\Admin\ProductItineraryController;
 use App\Http\Controllers\Admin\ProductNoteController;
+use App\Http\Controllers\Admin\SiteSettingController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth'])
@@ -27,6 +28,15 @@ Route::middleware(['auth'])
             DashboardController::class,
             'index'
         ])->name('dashboard');
+
+        Route::get('settings/global-assets', [SiteSettingController::class, 'edit'])
+            ->name('settings.global-assets.edit');
+
+        Route::put('settings/global-assets/site-logo', [SiteSettingController::class, 'update'])
+            ->name('settings.global-assets.site-logo.update');
+
+        Route::delete('settings/global-assets/site-logo/{variant}', [SiteSettingController::class, 'destroyLogo'])
+            ->name('settings.global-assets.site-logo.destroy');
 
         Route::get('page-sections', [PageSectionController::class, 'index'])
             ->name('page-sections.index');

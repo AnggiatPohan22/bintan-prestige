@@ -26,6 +26,12 @@
             Page Sections
         </a>
 
+        <a href="{{ route('admin.settings.global-assets.edit') }}"
+           class="block px-4 py-3 rounded-lg hover:bg-gray-100
+           {{ request()->routeIs('admin.settings.*') ? 'bg-gray-200 font-semibold' : '' }}">
+            Global Assets
+        </a>
+
         <a href="{{ route('admin.faqs.index') }}"
            class="block px-4 py-3 rounded-lg hover:bg-gray-100
            {{ request()->routeIs('admin.faqs.*') ? 'bg-gray-200 font-semibold' : '' }}">

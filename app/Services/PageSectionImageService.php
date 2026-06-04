@@ -61,7 +61,7 @@ class PageSectionImageService
         ]);
     }
 
-    public function storeSiteAssetUpload(UploadedFile $file, string $key, string $label): SiteAsset
+    public function storeSiteAssetUpload(UploadedFile $file, string $key, string $label, ?string $alt = null): SiteAsset
     {
         $asset = SiteAsset::firstOrNew(['key' => $key]);
 
@@ -70,11 +70,21 @@ class PageSectionImageService
         $asset->fill([
             'label' => $label,
             'path' => $this->storeFile($file, 'site-assets/' . Str::slug($key)),
-            'alt' => $label,
+            'alt' => $alt ?: $label,
             'is_active' => true,
         ])->save();
 
         return $asset;
+    }
+
+    public function clearSiteAsset(SiteAsset $asset): void
+    {
+        $this->deleteIfLocalSiteAssetImage($asset->path);
+
+        $asset->update([
+            'path' => null,
+            'is_active' => false,
+        ]);
     }
 
     public function deleteMedia(PageSectionMedia $media): void

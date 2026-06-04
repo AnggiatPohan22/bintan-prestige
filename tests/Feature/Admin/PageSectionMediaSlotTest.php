@@ -3,6 +3,7 @@
 namespace Tests\Feature\Admin;
 
 use App\Models\PageSection;
+use App\Models\SiteAsset;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -35,7 +36,7 @@ class PageSectionMediaSlotTest extends TestCase
         $response->assertDontSee('Section gallery images');
     }
 
-    public function test_admin_can_upload_global_logo_and_section_frame_slot(): void
+    public function test_admin_can_upload_section_frame_slot_without_updating_global_logo(): void
     {
         Storage::fake('public');
 
@@ -61,7 +62,6 @@ class PageSectionMediaSlotTest extends TestCase
                 'button_url' => '/products',
                 'is_active' => '1',
                 'sort_order' => '10',
-                'site_logo' => UploadedFile::fake()->image('logo.jpg', 400, 220),
                 'slot_uploads' => [
                     'frame' => [
                         'left_wide' => UploadedFile::fake()->image('left-wide.jpg', 800, 550),
@@ -71,11 +71,7 @@ class PageSectionMediaSlotTest extends TestCase
 
         $response->assertRedirect(route('admin.page-sections.edit', $section));
 
-        $this->assertDatabaseHas('site_assets', [
-            'key' => 'site.logo',
-            'label' => 'Main website logo',
-            'is_active' => true,
-        ]);
+        $this->assertDatabaseEmpty('site_assets');
 
         $this->assertDatabaseHas('page_section_media', [
             'page_section_id' => $section->id,
@@ -88,5 +84,59 @@ class PageSectionMediaSlotTest extends TestCase
         Storage::disk('public')->assertExists(
             $section->fresh()->mediaSlot('frame', 'left_wide')->path
         );
+    }
+
+    public function test_admin_can_manage_global_site_logo_from_global_assets_settings(): void
+    {
+        Storage::fake('public');
+
+        $admin = User::factory()->create();
+
+        $response = $this->actingAs($admin)
+            ->put(route('admin.settings.global-assets.site-logo.update'), [
+                'logos' => [
+                    'main' => UploadedFile::fake()->image('logo.jpg', 400, 220),
+                    'light' => UploadedFile::fake()->image('logo-light.png', 400, 220),
+                ],
+                'logo_alts' => [
+                    'main' => 'Bintan Prestige logo',
+                    'light' => 'Bintan Prestige light logo',
+                ],
+            ]);
+
+        $response->assertRedirect(route('admin.settings.global-assets.edit'));
+
+        $this->assertDatabaseHas('site_assets', [
+            'key' => 'site.logo',
+            'label' => 'Main website logo',
+            'alt' => 'Bintan Prestige logo',
+            'is_active' => true,
+        ]);
+
+        $this->assertDatabaseHas('site_assets', [
+            'key' => 'site.logo.light',
+            'label' => 'Light logo',
+            'alt' => 'Bintan Prestige light logo',
+            'is_active' => true,
+        ]);
+
+        $siteLogo = SiteAsset::where('key', 'site.logo')->firstOrFail();
+        $lightLogo = SiteAsset::where('key', 'site.logo.light')->firstOrFail();
+        Storage::disk('public')->assertExists($siteLogo->path);
+        Storage::disk('public')->assertExists($lightLogo->path);
+
+        $deleteResponse = $this->actingAs($admin)
+            ->delete(route('admin.settings.global-assets.site-logo.destroy', 'light'));
+
+        $deleteResponse->assertRedirect(route('admin.settings.global-assets.edit'));
+
+        $this->assertDatabaseHas('site_assets', [
+            'key' => 'site.logo.light',
+            'path' => null,
+            'is_active' => false,
+        ]);
+
+        Storage::disk('public')->assertMissing($lightLogo->path);
+        Storage::disk('public')->assertExists($siteLogo->path);
     }
 }
