@@ -1,8 +1,10 @@
 @php
     $footerWhatsappUrl = $contactWhatsappUrl ?? 'https://wa.me/?text=' . urlencode('Hello Bintan Prestige, I want to plan a Bintan trip.');
+    $footerSettings = $footerSettings ?? \App\Support\FooterSettings::valuesFromSettings(collect());
 @endphp
 
 <footer class="bp-footer" aria-labelledby="footer-title">
+    @if($footerSettings['show_cta'] ?? true)
     <section class="bp-footer-cta" id="whatsapp-cta" aria-labelledby="footer-cta-title">
         <div class="bp-footer-cta__content">
             <span class="bp-footer-cta__label">
@@ -37,12 +39,14 @@
             </div>
         </div>
     </section>
+    @endif
 
     <div class="bp-footer__body">
         <div class="bp-footer__inner">
             <div class="bp-footer__brand">
                 @php
-                    $footerLogo = isset($siteAssets) ? (($siteAssets['site.logo.light'] ?? null) ?: ($siteAssets['site.logo'] ?? null)) : null;
+                    $footerLogoKey = \App\Support\FooterSettings::logoAssetKey($footerSettings['logo_source'] ?? 'light');
+                    $footerLogo = $footerLogoKey && isset($siteAssets) ? (($siteAssets[$footerLogoKey] ?? null) ?: ($siteAssets['site.logo'] ?? null)) : null;
                     $brandName = $businessIdentity['brand_name'] ?? 'Bintan Prestige';
                     $brandInitials = collect(explode(' ', $brandName))->filter()->map(fn ($part) => mb_substr($part, 0, 1))->take(2)->implode('');
                     $shortDescription = $businessIdentity['short_description'] ?? 'Luxury Bintan tours, private transfers, and curated island experiences arranged with comfort, quality, and simple WhatsApp booking.';
@@ -52,6 +56,8 @@
                     $phone = $contactInformation['phone'] ?? '';
                     $mapsUrl = $contactInformation['google_maps_url'] ?? '';
                     $copyrightText = $businessIdentity['copyright_text'] ?? 'All rights reserved.';
+                    $footerBottomNote = $footerSettings['bottom_note'] ?? 'Designed for premium island travel.';
+                    $layoutBlocks = collect($footerSettings['layout_blocks'] ?? [])->filter(fn ($block) => $block['is_active'] ?? false);
                 @endphp
 
                 <a href="{{ route('home') }}" class="bp-footer__brand-link" aria-label="Bintan Prestige home">
@@ -72,7 +78,8 @@
                     {{ $shortDescription }}
                 </p>
 
-                <form class="bp-footer__newsletter" action="#" method="GET">
+                @if($footerSettings['show_newsletter'] ?? true)
+                    <form class="bp-footer__newsletter" action="#" method="GET">
                     <label for="footer-newsletter" class="sr-only">
                         Email address
                     </label>
@@ -87,9 +94,10 @@
                     <button type="submit" class="btn btn-primary btn-sm">
                         Join
                     </button>
-                </form>
+                    </form>
+                @endif
 
-                @if(! empty($activeSocialMediaLinks))
+                @if(($footerSettings['show_social_links'] ?? true) && ! empty($activeSocialMediaLinks))
                     <div class="bp-footer__socials" aria-label="Social links">
                         @foreach($activeSocialMediaLinks as $socialLink)
                             <a href="{{ $socialLink['url'] }}" target="_blank" rel="noopener noreferrer" aria-label="{{ $socialLink['label'] }}">
@@ -101,48 +109,73 @@
             </div>
 
             <div class="bp-footer__columns">
-                <div class="bp-footer__column">
-                    <h3>Quick Links</h3>
-                    <a href="{{ route('home') }}">Home</a>
-                    <a href="{{ route('home') }}#why-choose-us">About Us</a>
-                    <a href="{{ route('products.index') }}">Packages</a>
-                    <a href="{{ route('products.index') }}">Destinations</a>
-                    <a href="{{ route('home') }}#whatsapp-cta">Contact Us</a>
-                </div>
+                @foreach($layoutBlocks as $block)
+                    @php
+                        $blockWidthClass = match ($block['width'] ?? '1') {
+                            '2' => 'bp-footer__column--span-2',
+                            'full' => 'bp-footer__column--full',
+                            default => '',
+                        };
+                        $blockType = $block['type'] ?? 'quick_links';
+                    @endphp
 
-                <div class="bp-footer__column">
-                    <h3>Information</h3>
-                    @if($mapsUrl)
-                        <a href="{{ $mapsUrl }}" target="_blank" rel="noopener noreferrer">{{ $locationLabel }}</a>
-                    @else
-                        <span>{{ $locationLabel }}</span>
-                    @endif
-                    @if($email)
-                        <a href="mailto:{{ $email }}">{{ $email }}</a>
-                    @endif
-                    @if($phone)
-                        <a href="tel:{{ preg_replace('/\s+/', '', $phone) }}">{{ $phone }}</a>
-                    @endif
-                    <a href="{{ $footerWhatsappUrl }}" target="_blank" rel="noopener noreferrer">
-                        WhatsApp Contact
-                    </a>
-                    <span>{{ $openingHours }}</span>
-                </div>
+                    @continue($blockType === 'contact_info' && ! ($footerSettings['show_contact_column'] ?? true))
 
-                <div class="bp-footer__column">
-                    <h3>Utility Pages</h3>
-                    <a href="{{ route('home') }}#faq-preview">FAQs</a>
-                    <a href="#">Blog</a>
-                    <a href="#">Privacy Policy</a>
-                    <a href="#">Terms &amp; Conditions</a>
-                    <a href="#">404 Page</a>
-                </div>
+                    <div class="bp-footer__column {{ $blockWidthClass }}">
+                        <h3>{{ $block['title'] }}</h3>
+
+                        @if($blockType === 'quick_links')
+                            @foreach($footerSettings['quick_links'] ?? [] as $link)
+                                @php
+                                    $linkUrl = \App\Support\FooterSettings::resolveUrl($link['url'] ?? '#');
+                                    $isExternal = (bool) ($link['is_external'] ?? false);
+                                @endphp
+                                <a href="{{ $linkUrl }}" @if($isExternal) target="_blank" rel="noopener noreferrer" @endif>{{ $link['label'] }}</a>
+                            @endforeach
+                        @elseif($blockType === 'contact_info')
+                            @if($mapsUrl)
+                                <a href="{{ $mapsUrl }}" target="_blank" rel="noopener noreferrer">{{ $locationLabel }}</a>
+                            @else
+                                <span>{{ $locationLabel }}</span>
+                            @endif
+                            @if($email)
+                                <a href="mailto:{{ $email }}">{{ $email }}</a>
+                            @endif
+                            @if($phone)
+                                <a href="tel:{{ preg_replace('/\s+/', '', $phone) }}">{{ $phone }}</a>
+                            @endif
+                            <a href="{{ $footerWhatsappUrl }}" target="_blank" rel="noopener noreferrer">
+                                WhatsApp Contact
+                            </a>
+                            <span>{{ $openingHours }}</span>
+                        @elseif($blockType === 'utility_links')
+                            @foreach($footerSettings['utility_links'] ?? [] as $link)
+                                @php
+                                    $linkUrl = \App\Support\FooterSettings::resolveUrl($link['url'] ?? '#');
+                                    $isExternal = (bool) ($link['is_external'] ?? false);
+                                @endphp
+                                <a href="{{ $linkUrl }}" @if($isExternal) target="_blank" rel="noopener noreferrer" @endif>{{ $link['label'] }}</a>
+                            @endforeach
+                        @elseif($blockType === 'maps')
+                            @php
+                                $embedUrl = $block['settings']['maps_embed_url'] ?: $mapsUrl;
+                            @endphp
+                            @if($embedUrl)
+                                <iframe class="bp-footer__map" src="{{ $embedUrl }}" loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="{{ $block['title'] }}"></iframe>
+                            @else
+                                <span>Maps embed URL is not configured.</span>
+                            @endif
+                        @elseif($blockType === 'custom_text')
+                            <p class="bp-footer__custom-text">{{ $block['settings']['custom_body'] ?: 'Custom footer text is not configured.' }}</p>
+                        @endif
+                    </div>
+                @endforeach
             </div>
         </div>
 
         <div class="bp-footer__bottom">
             <span>&copy; 2026 {{ $brandName }}. {{ $copyrightText }}</span>
-            <span>Designed for premium island travel.</span>
+            <span>{{ $footerBottomNote }}</span>
         </div>
     </div>
 </footer>

@@ -65,6 +65,9 @@ Route::middleware(['auth'])
         Route::put('settings/global-assets/navigation-settings', [SiteSettingController::class, 'updateNavigationSettings'])
             ->name('settings.global-assets.navigation-settings.update');
 
+        Route::put('settings/global-assets/footer-settings', [SiteSettingController::class, 'updateFooterSettings'])
+            ->name('settings.global-assets.footer-settings.update');
+
         Route::get('page-sections', [PageSectionController::class, 'index'])
             ->name('page-sections.index');
 

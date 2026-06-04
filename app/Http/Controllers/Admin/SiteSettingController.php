@@ -9,6 +9,7 @@ use App\Services\PageSectionImageService;
 use App\Support\BrandColorSettings;
 use App\Support\BusinessIdentitySettings;
 use App\Support\ContactInformationSettings;
+use App\Support\FooterSettings;
 use App\Support\HomepageSectionMedia;
 use App\Support\NavigationSettings;
 use App\Support\SocialMediaLinkSettings;
@@ -83,8 +84,17 @@ class SiteSettingController extends Controller
                 ->keyBy('key')
             : collect();
         $navigationSettings = NavigationSettings::valuesFromSettings($navigationSettingsRows);
+        $footerFields = FooterSettings::fields();
+        $footerSettingsRows = Schema::hasTable('site_settings')
+            ? SiteSetting::query()
+                ->where('group', FooterSettings::GROUP)
+                ->where('is_active', true)
+                ->get()
+                ->keyBy('key')
+            : collect();
+        $footerSettings = FooterSettings::valuesFromSettings($footerSettingsRows);
 
-        return view('backend.settings.global-assets', compact('activeTab', 'assetTabs', 'logoVariants', 'siteLogos', 'favicon', 'faviconConfig', 'socialShareImage', 'socialShareConfig', 'brandColorFields', 'brandColors', 'businessIdentityFields', 'businessIdentity', 'contactInformationFields', 'contactInformation', 'socialMediaLinkFields', 'socialMediaLinks', 'navigationFields', 'navigationSettings'));
+        return view('backend.settings.global-assets', compact('activeTab', 'assetTabs', 'logoVariants', 'siteLogos', 'favicon', 'faviconConfig', 'socialShareImage', 'socialShareConfig', 'brandColorFields', 'brandColors', 'businessIdentityFields', 'businessIdentity', 'contactInformationFields', 'contactInformation', 'socialMediaLinkFields', 'socialMediaLinks', 'navigationFields', 'navigationSettings', 'footerFields', 'footerSettings'));
     }
 
     public function update(Request $request)
@@ -459,6 +469,111 @@ class SiteSettingController extends Controller
             ->with('success', 'Header navigation settings updated successfully.');
     }
 
+    public function updateFooterSettings(Request $request)
+    {
+        if (! Schema::hasTable('site_settings')) {
+            return redirect()
+                ->route('admin.settings.global-assets.edit', ['tab' => 'footer-settings'])
+                ->withErrors(['footer_settings' => 'Please run database migrations before updating footer settings.']);
+        }
+
+        $footerSettingRules = collect(FooterSettings::fields())
+            ->mapWithKeys(function (array $field) {
+                $rules = match ($field['type']) {
+                    'boolean' => ['nullable', 'boolean'],
+                    'select' => ['required', 'in:' . implode(',', array_keys($field['options']))],
+                    default => ['nullable', 'string', 'max:255'],
+                };
+
+                return ['footer_settings.' . $field['slug'] => $rules];
+            })
+            ->all();
+
+        $validated = $request->validate([
+            ...$footerSettingRules,
+            'footer_quick_links' => ['nullable', 'array'],
+            'footer_quick_links.*.label' => ['nullable', 'string', 'max:80'],
+            'footer_quick_links.*.url' => ['nullable', 'string', 'max:500'],
+            'footer_quick_links.*.is_external' => ['nullable', 'boolean'],
+            'footer_utility_links' => ['nullable', 'array'],
+            'footer_utility_links.*.label' => ['nullable', 'string', 'max:80'],
+            'footer_utility_links.*.url' => ['nullable', 'string', 'max:500'],
+            'footer_utility_links.*.is_external' => ['nullable', 'boolean'],
+            'footer_layout_blocks' => ['nullable', 'array'],
+            'footer_layout_blocks.*.type' => ['nullable', 'string', 'in:' . implode(',', array_keys(FooterSettings::blockTypes()))],
+            'footer_layout_blocks.*.title' => ['nullable', 'string', 'max:80'],
+            'footer_layout_blocks.*.width' => ['nullable', 'string', 'in:' . implode(',', array_keys(FooterSettings::widthOptions()))],
+            'footer_layout_blocks.*.is_active' => ['nullable', 'boolean'],
+            'footer_layout_blocks.*.settings' => ['nullable', 'array'],
+            'footer_layout_blocks.*.settings.maps_embed_url' => ['nullable', 'string', 'max:1000'],
+            'footer_layout_blocks.*.settings.custom_body' => ['nullable', 'string', 'max:1500'],
+        ]);
+
+        $settings = $validated['footer_settings'] ?? [];
+        $quickLinks = FooterSettings::normalizeLinks($validated['footer_quick_links'] ?? []);
+        $utilityLinks = FooterSettings::normalizeLinks($validated['footer_utility_links'] ?? []);
+        $layoutBlocks = FooterSettings::normalizeLayoutBlocks($validated['footer_layout_blocks'] ?? []);
+
+        if (FooterSettings::layoutWidthTotal($layoutBlocks) > 3) {
+            return redirect()
+                ->route('admin.settings.global-assets.edit', ['tab' => 'footer-settings'])
+                ->withInput()
+                ->withErrors(['footer_layout_blocks' => 'Footer layout can only use up to 3 active columns. Disable another block or reduce a block width before saving.']);
+        }
+
+        foreach (FooterSettings::fields() as $field) {
+            SiteSetting::updateOrCreate(
+                ['key' => $field['key']],
+                [
+                    'label' => $field['label'],
+                    'value' => $field['type'] === 'boolean'
+                        ? (string) (int) (bool) ($settings[$field['slug']] ?? false)
+                        : ($settings[$field['slug']] ?? $field['default']),
+                    'type' => $field['type'],
+                    'group' => FooterSettings::GROUP,
+                    'is_active' => true,
+                ]
+            );
+        }
+
+        SiteSetting::updateOrCreate(
+            ['key' => FooterSettings::QUICK_LINKS_KEY],
+            [
+                'label' => 'Footer quick links',
+                'value' => json_encode($quickLinks !== [] ? $quickLinks : FooterSettings::defaultQuickLinks()),
+                'type' => 'json',
+                'group' => FooterSettings::GROUP,
+                'is_active' => true,
+            ]
+        );
+
+        SiteSetting::updateOrCreate(
+            ['key' => FooterSettings::UTILITY_LINKS_KEY],
+            [
+                'label' => 'Footer utility links',
+                'value' => json_encode($utilityLinks !== [] ? $utilityLinks : FooterSettings::defaultUtilityLinks()),
+                'type' => 'json',
+                'group' => FooterSettings::GROUP,
+                'is_active' => true,
+            ]
+        );
+
+        SiteSetting::updateOrCreate(
+            ['key' => FooterSettings::LAYOUT_BLOCKS_KEY],
+            [
+                'label' => 'Footer layout blocks',
+                'value' => json_encode($layoutBlocks !== [] ? $layoutBlocks : FooterSettings::defaultLayoutBlocks()),
+                'type' => 'json',
+                'group' => FooterSettings::GROUP,
+                'is_active' => true,
+            ]
+        );
+
+        return redirect()
+            ->route('admin.settings.global-assets.edit', ['tab' => 'footer-settings'])
+            ->with('success', 'Footer settings updated successfully.');
+    }
+
     private function assetTabs(): array
     {
         return [
@@ -501,6 +616,11 @@ class SiteSettingController extends Controller
                 'key' => 'navigation-settings',
                 'label' => 'Header Navigation',
                 'description' => 'Global header menu items, CTA link, and sticky behavior for the public frontend.',
+            ],
+            [
+                'key' => 'footer-settings',
+                'label' => 'Footer Settings',
+                'description' => 'Footer logo source, footer menus, display controls, and global contact/social rendering.',
             ],
         ];
     }

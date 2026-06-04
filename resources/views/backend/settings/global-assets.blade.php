@@ -813,6 +813,446 @@
                 })();
             </script>
         @endif
+
+        @if($activeTab === 'footer-settings')
+            <form method="POST" action="{{ route('admin.settings.global-assets.footer-settings.update') }}" class="rounded-xl border border-slate-200 bg-slate-50 p-5">
+                @csrf
+                @method('PUT')
+
+                <h2 class="text-lg font-bold text-slate-800">Footer Settings</h2>
+                <p class="mt-1 text-sm text-slate-500">Manage footer-specific display settings and menus while contact and social data stay global.</p>
+
+                <div class="mt-5 space-y-3" data-footer-accordion>
+                    <details class="rounded-xl border border-slate-200 bg-white" open>
+                        <summary class="cursor-pointer list-none rounded-xl px-4 py-4 text-base font-bold text-slate-800 transition hover:bg-slate-50">
+                            Footer Display
+                        </summary>
+
+                        <div class="grid grid-cols-1 gap-5 border-t border-slate-200 bg-slate-50 p-4 lg:grid-cols-2">
+                            @foreach($footerFields as $field)
+                                @php
+                                    $value = old("footer_settings.{$field['slug']}", $footerSettings[$field['slug']] ?? $field['default']);
+                                    $checkedValue = filter_var($value, FILTER_VALIDATE_BOOL);
+                                @endphp
+
+                                <div class="rounded-xl border border-slate-200 bg-white p-4 {{ $field['type'] === 'boolean' ? '' : 'lg:col-span-2' }}">
+                                    @if($field['type'] === 'boolean')
+                                        <input type="hidden" name="footer_settings[{{ $field['slug'] }}]" value="0">
+                                        <label class="flex items-start gap-3">
+                                            <input type="checkbox" name="footer_settings[{{ $field['slug'] }}]" value="1" @checked($checkedValue) class="mt-1 h-5 w-5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500">
+                                            <span>
+                                                <span class="block text-sm font-bold text-slate-800">{{ $field['label'] }}</span>
+                                                <span class="mt-1 block text-xs text-slate-500">{{ $field['hint'] }}</span>
+                                                <span class="mt-2 block text-[11px] font-semibold uppercase text-slate-400">{{ $field['key'] }}</span>
+                                            </span>
+                                        </label>
+                                    @elseif($field['type'] === 'select')
+                                        <label class="form-label">{{ $field['label'] }}</label>
+                                        <select name="footer_settings[{{ $field['slug'] }}]" class="{{ $inputClass }}">
+                                            @foreach($field['options'] as $optionValue => $optionLabel)
+                                                <option value="{{ $optionValue }}" @selected($value === $optionValue)>{{ $optionLabel }}</option>
+                                            @endforeach
+                                        </select>
+                                        <p class="mt-2 text-xs text-slate-500">{{ $field['hint'] }}</p>
+                                        <p class="mt-2 text-[11px] font-semibold uppercase text-slate-400">{{ $field['key'] }}</p>
+                                    @else
+                                        <label class="form-label">{{ $field['label'] }}</label>
+                                        <input type="text" name="footer_settings[{{ $field['slug'] }}]" value="{{ $value }}" class="{{ $inputClass }}" placeholder="{{ $field['default'] }}">
+                                        <p class="mt-2 text-xs text-slate-500">{{ $field['hint'] }}</p>
+                                        <p class="mt-2 text-[11px] font-semibold uppercase text-slate-400">{{ $field['key'] }}</p>
+                                    @endif
+
+                                    @error("footer_settings.{$field['slug']}") <p class="form-error">{{ $message }}</p> @enderror
+                                </div>
+                            @endforeach
+                        </div>
+                    </details>
+
+                    @php
+                        $footerQuickLinks = old('footer_quick_links', $footerSettings['quick_links'] ?? []);
+                        $footerUtilityLinks = old('footer_utility_links', $footerSettings['utility_links'] ?? []);
+                        $footerLayoutBlocks = old('footer_layout_blocks', $footerSettings['layout_blocks'] ?? []);
+                        $footerBlockTypes = \App\Support\FooterSettings::blockTypes();
+                        $footerWidthOptions = \App\Support\FooterSettings::widthOptions();
+                    @endphp
+
+                    <details class="rounded-xl border border-slate-200 bg-white">
+                        <summary class="cursor-pointer list-none rounded-xl px-4 py-4 text-base font-bold text-slate-800 transition hover:bg-slate-50">
+                            Layout Blocks
+                        </summary>
+
+                        <div class="border-t border-slate-200 bg-slate-50 p-4">
+                            <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                                <div>
+                                    <p class="text-sm text-slate-500">Arrange footer columns, choose block width, and enable maps or custom text blocks.</p>
+                                    <p class="mt-1 text-xs font-semibold text-slate-500" data-footer-layout-status>Active layout capacity: 0 / 3 columns.</p>
+                                    @error('footer_layout_blocks') <p class="form-error mt-2">{{ $message }}</p> @enderror
+                                </div>
+                                <button type="button" data-add-footer-block class="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700">Add Block</button>
+                            </div>
+
+                            <div class="mt-4 space-y-3" data-footer-blocks-list>
+                                @foreach($footerLayoutBlocks as $index => $block)
+                                    <div class="rounded-xl border border-slate-200 bg-white p-4" data-footer-block-row>
+                                        <div class="grid grid-cols-1 gap-3 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_150px_140px_220px]">
+                                            <div>
+                                                <label class="form-label">Type</label>
+                                                <select name="footer_layout_blocks[{{ $index }}][type]" data-field="type" class="{{ $inputClass }}">
+                                                    @foreach($footerBlockTypes as $typeValue => $typeLabel)
+                                                        <option value="{{ $typeValue }}" @selected(($block['type'] ?? '') === $typeValue)>{{ $typeLabel }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <label class="form-label">Title</label>
+                                                <input type="text" name="footer_layout_blocks[{{ $index }}][title]" data-field="title" value="{{ $block['title'] ?? '' }}" class="{{ $inputClass }}" placeholder="Quick Links">
+                                            </div>
+                                            <div>
+                                                <label class="form-label">Width</label>
+                                                <select name="footer_layout_blocks[{{ $index }}][width]" data-field="width" data-footer-layout-control class="{{ $inputClass }}">
+                                                    @foreach($footerWidthOptions as $widthValue => $widthLabel)
+                                                        <option value="{{ $widthValue }}" @selected(($block['width'] ?? '1') === $widthValue)>{{ $widthLabel }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                            <label class="flex items-center gap-2 pt-8 text-sm font-semibold text-slate-700">
+                                                <input type="checkbox" name="footer_layout_blocks[{{ $index }}][is_active]" data-field="is_active" data-footer-layout-control value="1" @checked((bool) ($block['is_active'] ?? false)) class="h-5 w-5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500">
+                                                Active
+                                            </label>
+                                            <div class="flex flex-wrap items-end gap-2">
+                                                <button type="button" data-move-footer-block="up" class="rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-600 transition hover:bg-slate-50">Move Up</button>
+                                                <button type="button" data-move-footer-block="down" class="rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-600 transition hover:bg-slate-50">Move Down</button>
+                                                <button type="button" data-remove-footer-block class="rounded-lg border border-red-200 px-3 py-2 text-xs font-semibold text-red-600 transition hover:bg-red-50">Remove</button>
+                                            </div>
+                                        </div>
+
+                                        <div class="mt-3 grid grid-cols-1 gap-3 lg:grid-cols-2">
+                                            <div>
+                                                <label class="form-label">Maps embed URL</label>
+                                                <input type="text" name="footer_layout_blocks[{{ $index }}][settings][maps_embed_url]" data-setting-field="maps_embed_url" value="{{ $block['settings']['maps_embed_url'] ?? '' }}" class="{{ $inputClass }}" placeholder="https://www.google.com/maps/embed?...">
+                                            </div>
+                                            <div>
+                                                <label class="form-label">Custom text / ads</label>
+                                                <textarea name="footer_layout_blocks[{{ $index }}][settings][custom_body]" data-setting-field="custom_body" rows="2" class="{{ $inputClass }}" placeholder="Short support text or ads copy">{{ $block['settings']['custom_body'] ?? '' }}</textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    </details>
+
+                    @foreach([
+                        ['key' => 'quick', 'title' => 'Quick Links', 'description' => 'Primary footer menu links.', 'list' => $footerQuickLinks, 'input' => 'footer_quick_links'],
+                        ['key' => 'utility', 'title' => 'Utility Links', 'description' => 'Secondary footer links such as policy, FAQ, and blog.', 'list' => $footerUtilityLinks, 'input' => 'footer_utility_links'],
+                    ] as $menuGroup)
+                        <details class="rounded-xl border border-slate-200 bg-white">
+                            <summary class="cursor-pointer list-none rounded-xl px-4 py-4 text-base font-bold text-slate-800 transition hover:bg-slate-50">
+                                {{ $menuGroup['title'] }}
+                            </summary>
+
+                            <div class="border-t border-slate-200 bg-slate-50 p-4">
+                                <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                                    <p class="text-sm text-slate-500">{{ $menuGroup['description'] }}</p>
+                                    <button type="button" data-add-footer-link="{{ $menuGroup['key'] }}" class="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700">Add Link</button>
+                                </div>
+
+                                <div class="mt-4 space-y-3" data-footer-links-list="{{ $menuGroup['key'] }}">
+                                    @foreach($menuGroup['list'] as $index => $link)
+                                        <div class="grid grid-cols-1 gap-3 rounded-xl border border-slate-200 bg-white p-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)_150px_220px]" data-footer-link-row>
+                                            <div>
+                                                <label class="form-label">Label</label>
+                                                <input type="text" name="{{ $menuGroup['input'] }}[{{ $index }}][label]" data-field="label" value="{{ $link['label'] ?? '' }}" class="{{ $inputClass }}" placeholder="Packages">
+                                            </div>
+                                            <div>
+                                                <label class="form-label">URL</label>
+                                                <input type="text" name="{{ $menuGroup['input'] }}[{{ $index }}][url]" data-field="url" value="{{ $link['url'] ?? '' }}" class="{{ $inputClass }}" placeholder="/products">
+                                            </div>
+                                            <label class="flex items-center gap-2 pt-8 text-sm font-semibold text-slate-700">
+                                                <input type="checkbox" name="{{ $menuGroup['input'] }}[{{ $index }}][is_external]" data-field="is_external" value="1" @checked((bool) ($link['is_external'] ?? false)) class="h-5 w-5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500">
+                                                Open in new tab
+                                            </label>
+                                            <div class="flex flex-wrap items-end gap-2">
+                                                <button type="button" data-move-footer-link="up" class="rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-600 transition hover:bg-slate-50">Move Up</button>
+                                                <button type="button" data-move-footer-link="down" class="rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-600 transition hover:bg-slate-50">Move Down</button>
+                                                <button type="button" data-remove-footer-link class="rounded-lg border border-red-200 px-3 py-2 text-xs font-semibold text-red-600 transition hover:bg-red-50">Remove</button>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        </details>
+                    @endforeach
+                </div>
+
+                <div class="mt-5 flex items-center gap-3 border-t border-slate-200 pt-5">
+                    <button type="submit" class="btn-primary">Save Footer Settings</button>
+                </div>
+            </form>
+
+            <template data-footer-link-template>
+                <div class="grid grid-cols-1 gap-3 rounded-xl border border-slate-200 bg-white p-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)_150px_220px]" data-footer-link-row>
+                    <div>
+                        <label class="form-label">Label</label>
+                        <input type="text" data-field="label" class="{{ $inputClass }}" placeholder="Packages">
+                    </div>
+                    <div>
+                        <label class="form-label">URL</label>
+                        <input type="text" data-field="url" class="{{ $inputClass }}" placeholder="/products">
+                    </div>
+                    <label class="flex items-center gap-2 pt-8 text-sm font-semibold text-slate-700">
+                        <input type="checkbox" data-field="is_external" value="1" class="h-5 w-5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500">
+                        Open in new tab
+                    </label>
+                    <div class="flex flex-wrap items-end gap-2">
+                        <button type="button" data-move-footer-link="up" class="rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-600 transition hover:bg-slate-50">Move Up</button>
+                        <button type="button" data-move-footer-link="down" class="rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-600 transition hover:bg-slate-50">Move Down</button>
+                        <button type="button" data-remove-footer-link class="rounded-lg border border-red-200 px-3 py-2 text-xs font-semibold text-red-600 transition hover:bg-red-50">Remove</button>
+                    </div>
+                </div>
+            </template>
+
+            <template data-footer-block-template>
+                <div class="rounded-xl border border-slate-200 bg-white p-4" data-footer-block-row>
+                    <div class="grid grid-cols-1 gap-3 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_150px_140px_220px]">
+                        <div>
+                            <label class="form-label">Type</label>
+                            <select data-field="type" class="{{ $inputClass }}">
+                                @foreach(\App\Support\FooterSettings::blockTypes() as $typeValue => $typeLabel)
+                                    <option value="{{ $typeValue }}">{{ $typeLabel }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div>
+                            <label class="form-label">Title</label>
+                            <input type="text" data-field="title" class="{{ $inputClass }}" placeholder="Quick Links">
+                        </div>
+                        <div>
+                            <label class="form-label">Width</label>
+                            <select data-field="width" data-footer-layout-control class="{{ $inputClass }}">
+                                @foreach(\App\Support\FooterSettings::widthOptions() as $widthValue => $widthLabel)
+                                    <option value="{{ $widthValue }}">{{ $widthLabel }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <label class="flex items-center gap-2 pt-8 text-sm font-semibold text-slate-700">
+                            <input type="checkbox" data-field="is_active" data-footer-layout-control value="1" checked class="h-5 w-5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500">
+                            Active
+                        </label>
+                        <div class="flex flex-wrap items-end gap-2">
+                            <button type="button" data-move-footer-block="up" class="rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-600 transition hover:bg-slate-50">Move Up</button>
+                            <button type="button" data-move-footer-block="down" class="rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-600 transition hover:bg-slate-50">Move Down</button>
+                            <button type="button" data-remove-footer-block class="rounded-lg border border-red-200 px-3 py-2 text-xs font-semibold text-red-600 transition hover:bg-red-50">Remove</button>
+                        </div>
+                    </div>
+
+                    <div class="mt-3 grid grid-cols-1 gap-3 lg:grid-cols-2">
+                        <div>
+                            <label class="form-label">Maps embed URL</label>
+                            <input type="text" data-setting-field="maps_embed_url" class="{{ $inputClass }}" placeholder="https://www.google.com/maps/embed?...">
+                        </div>
+                        <div>
+                            <label class="form-label">Custom text / ads</label>
+                            <textarea data-setting-field="custom_body" rows="2" class="{{ $inputClass }}" placeholder="Short support text or ads copy"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </template>
+
+            <script>
+                (function () {
+                    const inputNames = {
+                        quick: 'footer_quick_links',
+                        utility: 'footer_utility_links',
+                    };
+
+                    function reindexFooterBlocks() {
+                        const list = document.querySelector('[data-footer-blocks-list]');
+
+                        if (!list) {
+                            return;
+                        }
+
+                        list.querySelectorAll('[data-footer-block-row]').forEach(function (row, index) {
+                            row.querySelectorAll('[data-field]').forEach(function (input) {
+                                input.name = `footer_layout_blocks[${index}][${input.dataset.field}]`;
+                            });
+
+                            row.querySelectorAll('[data-setting-field]').forEach(function (input) {
+                                input.name = `footer_layout_blocks[${index}][settings][${input.dataset.settingField}]`;
+                            });
+                        });
+
+                        syncFooterLayoutCapacity();
+                    }
+
+                    function footerBlockWidthValue(row) {
+                        const width = row.querySelector('[data-field="width"]')?.value || '1';
+
+                        if (width === 'full') {
+                            return 3;
+                        }
+
+                        return Number.parseInt(width, 10) || 1;
+                    }
+
+                    function syncFooterLayoutCapacity() {
+                        const form = document.querySelector('form[action*="footer-settings"]');
+                        const status = document.querySelector('[data-footer-layout-status]');
+                        const submitButton = form?.querySelector('button[type="submit"]');
+                        const activeWidth = Array.from(document.querySelectorAll('[data-footer-block-row]'))
+                            .filter(function (row) {
+                                return row.querySelector('[data-field="is_active"]')?.checked;
+                            })
+                            .reduce(function (total, row) {
+                                return total + footerBlockWidthValue(row);
+                            }, 0);
+                        const isOverCapacity = activeWidth > 3;
+
+                        if (status) {
+                            status.textContent = `Active layout capacity: ${activeWidth} / 3 columns.`;
+                            status.classList.toggle('text-red-600', isOverCapacity);
+                            status.classList.toggle('text-slate-500', !isOverCapacity);
+                        }
+
+                        if (submitButton) {
+                            submitButton.disabled = isOverCapacity;
+                            submitButton.classList.toggle('opacity-50', isOverCapacity);
+                            submitButton.classList.toggle('cursor-not-allowed', isOverCapacity);
+                        }
+                    }
+
+                    document.querySelectorAll('[data-footer-accordion] details').forEach(function (accordion) {
+                        accordion.addEventListener('toggle', function () {
+                            if (!accordion.open) {
+                                return;
+                            }
+
+                            document.querySelectorAll('[data-footer-accordion] details').forEach(function (sibling) {
+                                if (sibling !== accordion) {
+                                    sibling.open = false;
+                                }
+                            });
+                        });
+                    });
+
+                    function reindexFooterLinks(group) {
+                        const list = document.querySelector(`[data-footer-links-list="${group}"]`);
+
+                        if (!list) {
+                            return;
+                        }
+
+                        list.querySelectorAll('[data-footer-link-row]').forEach(function (row, index) {
+                            row.querySelectorAll('[data-field]').forEach(function (input) {
+                                input.name = `${inputNames[group]}[${index}][${input.dataset.field}]`;
+                            });
+                        });
+                    }
+
+                    document.addEventListener('click', function (event) {
+                        if (event.target.matches('[data-add-footer-block]')) {
+                            const list = document.querySelector('[data-footer-blocks-list]');
+                            const template = document.querySelector('[data-footer-block-template]');
+                            const row = template.content.firstElementChild.cloneNode(true);
+
+                            list.appendChild(row);
+                            reindexFooterBlocks();
+                        }
+
+                        if (event.target.matches('[data-move-footer-block]')) {
+                            const row = event.target.closest('[data-footer-block-row]');
+                            const direction = event.target.dataset.moveFooterBlock;
+
+                            if (direction === 'up' && row.previousElementSibling) {
+                                row.parentNode.insertBefore(row, row.previousElementSibling);
+                            }
+
+                            if (direction === 'down' && row.nextElementSibling) {
+                                row.parentNode.insertBefore(row.nextElementSibling, row);
+                            }
+
+                            reindexFooterBlocks();
+                        }
+
+                        if (event.target.matches('[data-remove-footer-block]')) {
+                            const row = event.target.closest('[data-footer-block-row]');
+                            const list = document.querySelector('[data-footer-blocks-list]');
+
+                            if (list.querySelectorAll('[data-footer-block-row]').length > 1) {
+                                row.remove();
+                            } else {
+                                row.querySelectorAll('input, textarea').forEach(function (input) {
+                                    if (input.type === 'checkbox') {
+                                        input.checked = false;
+                                    } else {
+                                        input.value = '';
+                                    }
+                                });
+                            }
+
+                            reindexFooterBlocks();
+                        }
+
+                        if (event.target.matches('[data-add-footer-link]')) {
+                            const group = event.target.dataset.addFooterLink;
+                            const list = document.querySelector(`[data-footer-links-list="${group}"]`);
+                            const template = document.querySelector('[data-footer-link-template]');
+                            const row = template.content.firstElementChild.cloneNode(true);
+
+                            list.appendChild(row);
+                            reindexFooterLinks(group);
+                        }
+
+                        if (event.target.matches('[data-move-footer-link]')) {
+                            const row = event.target.closest('[data-footer-link-row]');
+                            const list = row.closest('[data-footer-links-list]');
+                            const group = list.dataset.footerLinksList;
+                            const direction = event.target.dataset.moveFooterLink;
+
+                            if (direction === 'up' && row.previousElementSibling) {
+                                row.parentNode.insertBefore(row, row.previousElementSibling);
+                            }
+
+                            if (direction === 'down' && row.nextElementSibling) {
+                                row.parentNode.insertBefore(row.nextElementSibling, row);
+                            }
+
+                            reindexFooterLinks(group);
+                        }
+
+                        if (event.target.matches('[data-remove-footer-link]')) {
+                            const row = event.target.closest('[data-footer-link-row]');
+                            const list = row.closest('[data-footer-links-list]');
+                            const group = list.dataset.footerLinksList;
+
+                            if (list.querySelectorAll('[data-footer-link-row]').length > 1) {
+                                row.remove();
+                            } else {
+                                row.querySelectorAll('input').forEach(function (input) {
+                                    if (input.type === 'checkbox') {
+                                        input.checked = false;
+                                    } else {
+                                        input.value = '';
+                                    }
+                                });
+                            }
+
+                            reindexFooterLinks(group);
+                        }
+                    });
+
+                    document.addEventListener('change', function (event) {
+                        if (event.target.matches('[data-footer-layout-control]')) {
+                            syncFooterLayoutCapacity();
+                        }
+                    });
+
+                    Object.keys(inputNames).forEach(reindexFooterLinks);
+                    reindexFooterBlocks();
+                })();
+            </script>
+        @endif
     </div>
 </div>
 

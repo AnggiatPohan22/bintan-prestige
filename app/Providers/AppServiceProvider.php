@@ -7,6 +7,7 @@ use App\Models\SiteSetting;
 use App\Support\BrandColorSettings;
 use App\Support\BusinessIdentitySettings;
 use App\Support\ContactInformationSettings;
+use App\Support\FooterSettings;
 use App\Support\NavigationSettings;
 use App\Support\SocialMediaLinkSettings;
 use Illuminate\Support\Facades\Schema;
@@ -110,6 +111,18 @@ class AppServiceProvider extends ServiceProvider
                     : collect();
 
                 $view->with('navigationSettings', NavigationSettings::valuesFromSettings($navigationRows));
+            }
+
+            if (! array_key_exists('footerSettings', $view->getData())) {
+                $footerRows = $siteSettingsTableExists
+                    ? SiteSetting::query()
+                        ->where('group', FooterSettings::GROUP)
+                        ->where('is_active', true)
+                        ->get()
+                        ->keyBy('key')
+                    : collect();
+
+                $view->with('footerSettings', FooterSettings::valuesFromSettings($footerRows));
             }
         });
     }

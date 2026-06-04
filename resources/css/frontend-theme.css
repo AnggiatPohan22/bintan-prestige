@@ -1084,6 +1084,14 @@
         @apply flex flex-col items-start gap-3;
     }
 
+    .bp-footer__column--span-2 {
+        @apply sm:col-span-2;
+    }
+
+    .bp-footer__column--full {
+        @apply sm:col-span-2 lg:col-span-3;
+    }
+
     /* BP FOOTER COLUMN TITLE: Styles footer column headings. */
     .bp-footer__column h3 {
         @apply mb-1 text-sm font-extrabold uppercase;
@@ -1100,6 +1108,16 @@
     /* BP FOOTER COLUMN HOVER: Adds a subtle gold hover state to footer links. */
     .bp-footer__column a:hover {
         color: var(--frontend-gold-soft);
+    }
+
+    .bp-footer__map {
+        @apply h-56 w-full rounded-2xl border;
+        border-color: rgba(200, 162, 74, 0.24);
+    }
+
+    .bp-footer__custom-text {
+        @apply text-sm leading-7;
+        color: rgba(255, 255, 255, 0.66);
     }
 
     /* BP FOOTER BOTTOM: Adds copyright and secondary footer copy. */
