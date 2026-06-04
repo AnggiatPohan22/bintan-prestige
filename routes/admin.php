@@ -47,6 +47,12 @@ Route::middleware(['auth'])
         Route::put('settings/global-assets/brand-colors', [SiteSettingController::class, 'updateBrandColors'])
             ->name('settings.global-assets.brand-colors.update');
 
+        Route::put('settings/global-assets/social-share-image', [SiteSettingController::class, 'updateSocialShareImage'])
+            ->name('settings.global-assets.social-share-image.update');
+
+        Route::delete('settings/global-assets/social-share-image', [SiteSettingController::class, 'destroySocialShareImage'])
+            ->name('settings.global-assets.social-share-image.destroy');
+
         Route::get('page-sections', [PageSectionController::class, 'index'])
             ->name('page-sections.index');
 

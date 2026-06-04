@@ -29,12 +29,15 @@ class SiteSettingController extends Controller
             ->whereIn('key', [
                 ...array_column($logoVariants, 'key'),
                 $this->faviconConfig()['key'],
+                $this->socialShareConfig()['key'],
             ])
             ->get()
             ->keyBy('key');
         $siteLogos = $siteAssets->only(array_column($logoVariants, 'key'));
         $favicon = $siteAssets[$this->faviconConfig()['key']] ?? null;
         $faviconConfig = $this->faviconConfig();
+        $socialShareImage = $siteAssets[$this->socialShareConfig()['key']] ?? null;
+        $socialShareConfig = $this->socialShareConfig();
         $brandColorFields = BrandColorSettings::fields();
         $brandColorSettings = Schema::hasTable('site_settings')
             ? SiteSetting::query()
@@ -44,7 +47,7 @@ class SiteSettingController extends Controller
             : collect();
         $brandColors = BrandColorSettings::valuesFromSettings($brandColorSettings);
 
-        return view('backend.settings.global-assets', compact('activeTab', 'assetTabs', 'logoVariants', 'siteLogos', 'favicon', 'faviconConfig', 'brandColorFields', 'brandColors'));
+        return view('backend.settings.global-assets', compact('activeTab', 'assetTabs', 'logoVariants', 'siteLogos', 'favicon', 'faviconConfig', 'socialShareImage', 'socialShareConfig', 'brandColorFields', 'brandColors'));
     }
 
     public function update(Request $request)
@@ -173,6 +176,42 @@ class SiteSettingController extends Controller
             ->with('success', 'Brand colors updated successfully.');
     }
 
+    public function updateSocialShareImage(Request $request)
+    {
+        $validated = $request->validate([
+            'social_share_image' => ['required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
+            'social_share_image_alt' => ['nullable', 'string', 'max:255'],
+        ]);
+
+        $asset = $this->socialShareConfig();
+
+        $this->imageService->storeSiteAssetUpload(
+            $request->file('social_share_image'),
+            $asset['key'],
+            $asset['label'],
+            $validated['social_share_image_alt'] ?? null
+        );
+
+        return redirect()
+            ->route('admin.settings.global-assets.edit', ['tab' => 'social-share-image'])
+            ->with('success', 'Default social share image updated successfully.');
+    }
+
+    public function destroySocialShareImage()
+    {
+        $asset = SiteAsset::query()
+            ->where('key', $this->socialShareConfig()['key'])
+            ->first();
+
+        if ($asset) {
+            $this->imageService->clearSiteAsset($asset);
+        }
+
+        return redirect()
+            ->route('admin.settings.global-assets.edit', ['tab' => 'social-share-image'])
+            ->with('success', 'Default social share image deleted successfully.');
+    }
+
     private function assetTabs(): array
     {
         return [
@@ -190,6 +229,11 @@ class SiteSettingController extends Controller
                 'key' => 'brand-colors',
                 'label' => 'Brand Colors',
                 'description' => 'Global frontend palette for brand surfaces, text, and CTAs.',
+            ],
+            [
+                'key' => 'social-share-image',
+                'label' => 'Social Share Image',
+                'description' => 'Default image for WhatsApp, Facebook, X, LinkedIn, and other link previews.',
             ],
         ];
     }
@@ -230,6 +274,15 @@ class SiteSettingController extends Controller
             'key' => 'site.favicon',
             'label' => 'Browser favicon',
             'hint' => 'Icon shown in browser tabs, bookmarks, and shortcut previews.',
+        ];
+    }
+
+    private function socialShareConfig(): array
+    {
+        return [
+            'key' => 'site.social_share.default_image',
+            'label' => 'Default social share image',
+            'hint' => 'Fallback image used by social link previews when a page or post does not provide its own share image.',
         ];
     }
 }

@@ -222,6 +222,62 @@
                 </div>
             </form>
         @endif
+
+        @if($activeTab === 'social-share-image')
+            <div class="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
+                <form method="POST" action="{{ route('admin.settings.global-assets.social-share-image.update') }}" enctype="multipart/form-data" class="rounded-xl border border-slate-200 bg-slate-50 p-5">
+                    @csrf
+                    @method('PUT')
+
+                    <h2 class="text-lg font-bold text-slate-800">Default Social Share Image</h2>
+                    <p class="mt-1 text-sm text-slate-500">{{ $socialShareConfig['hint'] }}</p>
+                    <p class="mt-2 text-[11px] font-semibold uppercase text-slate-400">{{ $socialShareConfig['key'] }}</p>
+
+                    <div class="mt-5 space-y-4">
+                        <div>
+                            <label class="form-label">Upload image</label>
+                            <input type="file" name="social_share_image" accept="image/jpeg,image/png,image/webp" class="{{ $inputClass }}">
+                            <p class="mt-2 text-xs text-slate-400">Recommended size: 1200 x 630 px. Accepted formats: JPG, PNG, WEBP. Maximum size: 4 MB.</p>
+                            @error('social_share_image') <p class="form-error">{{ $message }}</p> @enderror
+                        </div>
+
+                        <div>
+                            <label class="form-label">Alt / internal description</label>
+                            <input type="text" name="social_share_image_alt" value="{{ old('social_share_image_alt', $socialShareImage?->alt) }}" class="{{ $inputClass }}" placeholder="Bintan Prestige default social share image">
+                            @error('social_share_image_alt') <p class="form-error">{{ $message }}</p> @enderror
+                        </div>
+                    </div>
+
+                    <div class="mt-5 flex items-center gap-3 border-t border-slate-200 pt-5">
+                        <button type="submit" class="btn-primary">Save Social Share Image</button>
+                    </div>
+                </form>
+
+                <div class="rounded-xl border border-slate-200 bg-white p-5">
+                    <h2 class="text-lg font-bold text-slate-800">Current Image</h2>
+
+                    @if($socialShareImage?->url)
+                        <div class="mt-4 rounded-xl border bg-slate-50 p-4">
+                            <img src="{{ $socialShareImage->url }}" alt="{{ $socialShareImage->alt }}" class="aspect-[1200/630] w-full rounded-lg border bg-white object-cover">
+                            <div class="mt-3 text-xs text-slate-500">
+                                <div><span class="font-semibold">Key:</span> {{ $socialShareImage->key }}</div>
+                                <div><span class="font-semibold">Alt:</span> {{ $socialShareImage->alt ?: '-' }}</div>
+                            </div>
+                        </div>
+
+                        <form method="POST" action="{{ route('admin.settings.global-assets.social-share-image.destroy') }}" class="mt-4">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" onclick="return confirm('Delete the default social share image?')" class="w-full rounded-lg border border-red-200 px-4 py-3 text-sm font-semibold text-red-600 transition hover:bg-red-50">Delete Image</button>
+                        </form>
+                    @else
+                        <div class="mt-4 flex aspect-[1200/630] items-center justify-center rounded-xl border border-dashed bg-slate-50 text-sm font-semibold text-slate-400">
+                            No social share image uploaded
+                        </div>
+                    @endif
+                </div>
+            </div>
+        @endif
     </div>
 </div>
 
