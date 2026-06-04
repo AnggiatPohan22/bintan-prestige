@@ -19,6 +19,8 @@
         'resources/css/frontend.css',
         'resources/js/app.js'
     ])
+
+    @include('partials.site-brand-colors')
 </head>
 
 <body class="frontend-body">

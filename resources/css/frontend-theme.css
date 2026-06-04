@@ -128,12 +128,12 @@
 
     /* BUTTON PRIMARY: Uses the main black and soft-gold luxury treatment. */
     .btn-primary {
-        --btn-bg: var(--frontend-black);
-        --btn-border: var(--frontend-black);
-        --btn-color: var(--frontend-gold-soft);
-        --btn-hover-bg: var(--frontend-gold);
-        --btn-hover-border: var(--frontend-gold);
-        --btn-hover-color: var(--frontend-black);
+        --btn-bg: var(--frontend-button-primary-bg, var(--frontend-black));
+        --btn-border: var(--frontend-button-primary-bg, var(--frontend-black));
+        --btn-color: var(--frontend-button-primary-text, var(--frontend-gold-soft));
+        --btn-hover-bg: var(--frontend-button-primary-hover-bg, var(--frontend-gold));
+        --btn-hover-border: var(--frontend-button-primary-hover-bg, var(--frontend-gold));
+        --btn-hover-color: var(--frontend-button-primary-hover-text, var(--frontend-black));
     }
 
     /* BUTTON SECONDARY: Uses gold as a stronger conversion action. */
@@ -183,9 +183,9 @@
 
     /* BUTTON SUBMIT: Standardizes form submit buttons in filters, booking, and contact flows. */
     .btn-submit {
-        --btn-bg: var(--frontend-black);
-        --btn-border: var(--frontend-black);
-        --btn-color: var(--frontend-gold-soft);
+        --btn-bg: var(--frontend-button-submit-bg, var(--frontend-black));
+        --btn-border: var(--frontend-button-submit-bg, var(--frontend-black));
+        --btn-color: var(--frontend-button-submit-text, var(--frontend-gold-soft));
         --btn-hover-bg: var(--frontend-gold);
         --btn-hover-border: var(--frontend-gold);
         --btn-hover-color: var(--frontend-black);

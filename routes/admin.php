@@ -44,6 +44,9 @@ Route::middleware(['auth'])
         Route::delete('settings/global-assets/favicon', [SiteSettingController::class, 'destroyFavicon'])
             ->name('settings.global-assets.favicon.destroy');
 
+        Route::put('settings/global-assets/brand-colors', [SiteSettingController::class, 'updateBrandColors'])
+            ->name('settings.global-assets.brand-colors.update');
+
         Route::get('page-sections', [PageSectionController::class, 'index'])
             ->name('page-sections.index');
 

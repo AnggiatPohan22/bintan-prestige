@@ -173,6 +173,55 @@
             </div>
             </div>
         @endif
+
+        @if($activeTab === 'brand-colors')
+            <form method="POST" action="{{ route('admin.settings.global-assets.brand-colors.update') }}" class="rounded-xl border border-slate-200 bg-slate-50 p-5">
+                @csrf
+                @method('PUT')
+
+                <h2 class="text-lg font-bold text-slate-800">Brand Colors</h2>
+                <p class="mt-1 text-sm text-slate-500">These colors feed frontend CSS variables used by shared theme, buttons, and brand surfaces.</p>
+
+                <div class="mt-5 space-y-5">
+                    @foreach(collect($brandColorFields)->groupBy('group_label') as $groupLabel => $fields)
+                        <div class="rounded-xl border border-slate-200 bg-white p-4">
+                            <h3 class="text-base font-bold text-slate-800">{{ $groupLabel }}</h3>
+
+                            <div class="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-2">
+                                @foreach($fields as $field)
+                                    @php
+                                        $value = old("brand_colors.{$field['slug']}", $brandColors[$field['slug']] ?? $field['default']);
+                                    @endphp
+
+                                    <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                                        <div class="flex items-start justify-between gap-4">
+                                            <div>
+                                                <h4 class="text-sm font-bold text-slate-800">{{ $field['label'] }}</h4>
+                                                <p class="mt-1 text-xs text-slate-500">{{ $field['hint'] }}</p>
+                                                <p class="mt-2 text-[11px] font-semibold uppercase text-slate-400">{{ $field['key'] }}</p>
+                                            </div>
+
+                                            <span class="h-12 w-12 shrink-0 rounded-lg border border-slate-200" style="background: {{ $value }}"></span>
+                                        </div>
+
+                                        <div class="mt-4 grid grid-cols-[72px_minmax(0,1fr)] gap-3">
+                                            <input type="color" name="brand_colors[{{ $field['slug'] }}]" value="{{ $value }}" class="h-12 w-full cursor-pointer rounded-lg border border-slate-300 bg-white p-1">
+                                            <input type="text" value="{{ $value }}" disabled class="{{ $inputClass }} bg-slate-100 font-mono uppercase">
+                                        </div>
+
+                                        @error("brand_colors.{$field['slug']}") <p class="form-error">{{ $message }}</p> @enderror
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+
+                <div class="mt-5 flex items-center gap-3 border-t border-slate-200 pt-5">
+                    <button type="submit" class="btn-primary">Save Brand Colors</button>
+                </div>
+            </form>
+        @endif
     </div>
 </div>
 

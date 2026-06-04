@@ -3,6 +3,9 @@
 namespace App\Providers;
 
 use App\Models\SiteAsset;
+use App\Models\SiteSetting;
+use App\Support\BrandColorSettings;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
@@ -30,14 +33,26 @@ class AppServiceProvider extends ServiceProvider
             'layouts.app',
             'layouts.guest',
         ], function ($view) {
-            if (array_key_exists('siteAssets', $view->getData())) {
+            if (! array_key_exists('siteAssets', $view->getData())) {
+                $view->with('siteAssets', SiteAsset::query()
+                    ->where('is_active', true)
+                    ->get()
+                    ->keyBy('key'));
+            }
+
+            if (array_key_exists('brandColors', $view->getData())) {
                 return;
             }
 
-            $view->with('siteAssets', SiteAsset::query()
-                ->where('is_active', true)
-                ->get()
-                ->keyBy('key'));
+            $brandColorSettings = Schema::hasTable('site_settings')
+                ? SiteSetting::query()
+                    ->where('group', BrandColorSettings::GROUP)
+                    ->where('is_active', true)
+                    ->get()
+                    ->keyBy('key')
+                : collect();
+
+            $view->with('brandColors', BrandColorSettings::valuesFromSettings($brandColorSettings));
         });
     }
 }

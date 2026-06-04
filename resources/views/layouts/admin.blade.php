@@ -14,6 +14,8 @@
     @include('partials.site-favicon')
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+    @include('partials.site-brand-colors')
 </head>
 <body class="bg-gray-100">
 

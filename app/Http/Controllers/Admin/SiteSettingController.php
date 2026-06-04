@@ -4,9 +4,12 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\SiteAsset;
+use App\Models\SiteSetting;
 use App\Services\PageSectionImageService;
+use App\Support\BrandColorSettings;
 use App\Support\HomepageSectionMedia;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Schema;
 
 class SiteSettingController extends Controller
 {
@@ -16,7 +19,7 @@ class SiteSettingController extends Controller
     {
         $activeTab = request('tab', 'site-logo');
 
-        if (! in_array($activeTab, ['site-logo', 'favicon'], true)) {
+        if (! in_array($activeTab, array_column($this->assetTabs(), 'key'), true)) {
             $activeTab = 'site-logo';
         }
 
@@ -32,8 +35,16 @@ class SiteSettingController extends Controller
         $siteLogos = $siteAssets->only(array_column($logoVariants, 'key'));
         $favicon = $siteAssets[$this->faviconConfig()['key']] ?? null;
         $faviconConfig = $this->faviconConfig();
+        $brandColorFields = BrandColorSettings::fields();
+        $brandColorSettings = Schema::hasTable('site_settings')
+            ? SiteSetting::query()
+                ->whereIn('key', array_column($brandColorFields, 'key'))
+                ->get()
+                ->keyBy('key')
+            : collect();
+        $brandColors = BrandColorSettings::valuesFromSettings($brandColorSettings);
 
-        return view('backend.settings.global-assets', compact('activeTab', 'assetTabs', 'logoVariants', 'siteLogos', 'favicon', 'faviconConfig'));
+        return view('backend.settings.global-assets', compact('activeTab', 'assetTabs', 'logoVariants', 'siteLogos', 'favicon', 'faviconConfig', 'brandColorFields', 'brandColors'));
     }
 
     public function update(Request $request)
@@ -127,6 +138,41 @@ class SiteSettingController extends Controller
             ->with('success', 'Browser favicon deleted successfully.');
     }
 
+    public function updateBrandColors(Request $request)
+    {
+        if (! Schema::hasTable('site_settings')) {
+            return redirect()
+                ->route('admin.settings.global-assets.edit', ['tab' => 'brand-colors'])
+                ->withErrors(['brand_colors' => 'Please run database migrations before updating brand colors.']);
+        }
+
+        $rules = collect(BrandColorSettings::fields())
+            ->mapWithKeys(fn (array $field) => [
+                'brand_colors.' . $field['slug'] => ['required', 'regex:/^#[0-9A-Fa-f]{6}$/'],
+            ])
+            ->all();
+
+        $validated = $request->validate($rules);
+        $colors = $validated['brand_colors'] ?? [];
+
+        foreach (BrandColorSettings::fields() as $field) {
+            SiteSetting::updateOrCreate(
+                ['key' => $field['key']],
+                [
+                    'label' => $field['label'],
+                    'value' => $colors[$field['slug']],
+                    'type' => 'color',
+                    'group' => BrandColorSettings::GROUP,
+                    'is_active' => true,
+                ]
+            );
+        }
+
+        return redirect()
+            ->route('admin.settings.global-assets.edit', ['tab' => 'brand-colors'])
+            ->with('success', 'Brand colors updated successfully.');
+    }
+
     private function assetTabs(): array
     {
         return [
@@ -139,6 +185,11 @@ class SiteSettingController extends Controller
                 'key' => 'favicon',
                 'label' => 'Browser Favicon',
                 'description' => 'Browser tab, bookmark, and shortcut icon.',
+            ],
+            [
+                'key' => 'brand-colors',
+                'label' => 'Brand Colors',
+                'description' => 'Global frontend palette for brand surfaces, text, and CTAs.',
             ],
         ];
     }
