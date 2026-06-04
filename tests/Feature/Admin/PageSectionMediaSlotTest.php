@@ -104,7 +104,7 @@ class PageSectionMediaSlotTest extends TestCase
                 ],
             ]);
 
-        $response->assertRedirect(route('admin.settings.global-assets.edit'));
+        $response->assertRedirect(route('admin.settings.global-assets.edit', ['tab' => 'site-logo']));
 
         $this->assertDatabaseHas('site_assets', [
             'key' => 'site.logo',
@@ -128,7 +128,7 @@ class PageSectionMediaSlotTest extends TestCase
         $deleteResponse = $this->actingAs($admin)
             ->delete(route('admin.settings.global-assets.site-logo.destroy', 'light'));
 
-        $deleteResponse->assertRedirect(route('admin.settings.global-assets.edit'));
+        $deleteResponse->assertRedirect(route('admin.settings.global-assets.edit', ['tab' => 'site-logo']));
 
         $this->assertDatabaseHas('site_assets', [
             'key' => 'site.logo.light',

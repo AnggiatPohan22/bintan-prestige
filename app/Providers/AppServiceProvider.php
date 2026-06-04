@@ -21,7 +21,15 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        View::composer(['frontend.partials.header', 'frontend.partials.footer'], function ($view) {
+        View::composer([
+            'frontend.partials.header',
+            'frontend.partials.footer',
+            'frontend.frontend',
+            'layouts.frontend',
+            'layouts.admin',
+            'layouts.app',
+            'layouts.guest',
+        ], function ($view) {
             if (array_key_exists('siteAssets', $view->getData())) {
                 return;
             }

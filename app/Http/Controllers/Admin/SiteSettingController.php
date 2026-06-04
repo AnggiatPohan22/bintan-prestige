@@ -14,13 +14,26 @@ class SiteSettingController extends Controller
 
     public function edit()
     {
+        $activeTab = request('tab', 'site-logo');
+
+        if (! in_array($activeTab, ['site-logo', 'favicon'], true)) {
+            $activeTab = 'site-logo';
+        }
+
+        $assetTabs = $this->assetTabs();
         $logoVariants = $this->logoVariants();
-        $siteLogos = SiteAsset::query()
-            ->whereIn('key', array_column($logoVariants, 'key'))
+        $siteAssets = SiteAsset::query()
+            ->whereIn('key', [
+                ...array_column($logoVariants, 'key'),
+                $this->faviconConfig()['key'],
+            ])
             ->get()
             ->keyBy('key');
+        $siteLogos = $siteAssets->only(array_column($logoVariants, 'key'));
+        $favicon = $siteAssets[$this->faviconConfig()['key']] ?? null;
+        $faviconConfig = $this->faviconConfig();
 
-        return view('backend.settings.global-assets', compact('logoVariants', 'siteLogos'));
+        return view('backend.settings.global-assets', compact('activeTab', 'assetTabs', 'logoVariants', 'siteLogos', 'favicon', 'faviconConfig'));
     }
 
     public function update(Request $request)
@@ -55,7 +68,7 @@ class SiteSettingController extends Controller
         }
 
         return redirect()
-            ->route('admin.settings.global-assets.edit')
+            ->route('admin.settings.global-assets.edit', ['tab' => 'site-logo'])
             ->with('success', 'Logo variants updated successfully.');
     }
 
@@ -74,8 +87,60 @@ class SiteSettingController extends Controller
         }
 
         return redirect()
-            ->route('admin.settings.global-assets.edit')
+            ->route('admin.settings.global-assets.edit', ['tab' => 'site-logo'])
             ->with('success', $variantConfig['label'] . ' deleted successfully.');
+    }
+
+    public function updateFavicon(Request $request)
+    {
+        $validated = $request->validate([
+            'favicon' => ['required', 'file', 'mimes:ico,png,svg,webp,jpg,jpeg', 'max:1024'],
+            'favicon_alt' => ['nullable', 'string', 'max:255'],
+        ]);
+
+        $favicon = $this->faviconConfig();
+
+        $this->imageService->storeSiteAssetUpload(
+            $request->file('favicon'),
+            $favicon['key'],
+            $favicon['label'],
+            $validated['favicon_alt'] ?? null
+        );
+
+        return redirect()
+            ->route('admin.settings.global-assets.edit', ['tab' => 'favicon'])
+            ->with('success', 'Browser favicon updated successfully.');
+    }
+
+    public function destroyFavicon()
+    {
+        $asset = SiteAsset::query()
+            ->where('key', $this->faviconConfig()['key'])
+            ->first();
+
+        if ($asset) {
+            $this->imageService->clearSiteAsset($asset);
+        }
+
+        return redirect()
+            ->route('admin.settings.global-assets.edit', ['tab' => 'favicon'])
+            ->with('success', 'Browser favicon deleted successfully.');
+    }
+
+    private function assetTabs(): array
+    {
+        return [
+            [
+                'key' => 'site-logo',
+                'label' => 'Site Logo',
+                'description' => 'Logo variants for header, footer, sections, and compact placements.',
+            ],
+            [
+                'key' => 'favicon',
+                'label' => 'Browser Favicon',
+                'description' => 'Browser tab, bookmark, and shortcut icon.',
+            ],
+        ];
     }
 
     private function logoVariants(): array
@@ -105,6 +170,15 @@ class SiteSettingController extends Controller
                 'label' => 'Icon logo',
                 'hint' => 'Compact mark for small spaces, favicon, or future mobile UI.',
             ],
+        ];
+    }
+
+    private function faviconConfig(): array
+    {
+        return [
+            'key' => 'site.favicon',
+            'label' => 'Browser favicon',
+            'hint' => 'Icon shown in browser tabs, bookmarks, and shortcut previews.',
         ];
     }
 }

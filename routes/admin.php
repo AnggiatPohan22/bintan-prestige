@@ -38,6 +38,12 @@ Route::middleware(['auth'])
         Route::delete('settings/global-assets/site-logo/{variant}', [SiteSettingController::class, 'destroyLogo'])
             ->name('settings.global-assets.site-logo.destroy');
 
+        Route::put('settings/global-assets/favicon', [SiteSettingController::class, 'updateFavicon'])
+            ->name('settings.global-assets.favicon.update');
+
+        Route::delete('settings/global-assets/favicon', [SiteSettingController::class, 'destroyFavicon'])
+            ->name('settings.global-assets.favicon.destroy');
+
         Route::get('page-sections', [PageSectionController::class, 'index'])
             ->name('page-sections.index');
 
