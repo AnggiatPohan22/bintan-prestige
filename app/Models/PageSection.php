@@ -52,6 +52,24 @@ class PageSection extends Model
         return $this->media()->where('is_active', true);
     }
 
+    public function mediaSlot(string $role, string $slotKey): ?PageSectionMedia
+    {
+        return $this->media
+            ->first(fn (PageSectionMedia $media) => $media->role === $role && $media->slot_key === $slotKey);
+    }
+
+    public function mediaUrl(string $role, string $slotKey): ?string
+    {
+        return $this->mediaSlot($role, $slotKey)?->url;
+    }
+
+    public function galleryMedia()
+    {
+        return $this->media
+            ->filter(fn (PageSectionMedia $media) => $media->role === 'gallery' && $media->is_active)
+            ->values();
+    }
+
     public function getImageUrlAttribute(): ?string
     {
         return $this->resolveImageUrl($this->image);

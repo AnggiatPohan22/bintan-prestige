@@ -1,12 +1,13 @@
 @php
     $section = $sections['home.explore_banner'] ?? null;
     $extraData = $section?->extra_data ?? [];
+    $background = $section?->mediaSlot('background', 'desktop_background');
 @endphp
 
 <section class="bp-explore-banner" id="home-explore-banner" data-section-key="home.explore_banner" aria-labelledby="explore-banner-title">
     <div class="bp-explore-banner__bg" aria-hidden="true">
-        @if($section?->image_url)
-            <img src="{{ $section->image_url }}" alt="{{ $section->title ?? 'Explore banner image' }}" loading="lazy" decoding="async">
+        @if($background?->url || $section?->image_url)
+            <img src="{{ $background?->url ?? $section->image_url }}" alt="{{ $background?->alt ?: ($section->title ?? 'Explore banner image') }}" loading="lazy" decoding="async">
         @else
             <div class="bp-explore-banner__placeholder">
                 NO IMAGE

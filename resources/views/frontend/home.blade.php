@@ -4,8 +4,9 @@
 
 @php
     $heroSection = $sections['home.hero'] ?? null;
-    $heroSlides = $heroSection?->activeMedia ?? collect();
-    $heroBackground = $heroSection?->image_url ?? $heroBackgroundUrl;
+    $heroSlides = $heroSection?->galleryMedia() ?? collect();
+    $heroBackground = $heroSection?->mediaUrl('background', 'desktop_background') ?? $heroSection?->image_url ?? $heroBackgroundUrl;
+    $heroMobileBackground = $heroSection?->mediaUrl('background', 'mobile_background') ?? $heroSection?->mobile_image_url;
     $heroAnimation = $heroSection?->animation ?? 'ken-burns';
     $fallbackFaqs = collect([
         [
@@ -31,6 +32,7 @@
         class="home-hero"
         data-section-key="home.hero"
         data-hero-background="{{ $heroBackground }}"
+        data-hero-mobile-background="{{ $heroMobileBackground }}"
         data-section-animation="{{ $heroAnimation }}"
         @if($heroSlides->count())
             data-section-slider

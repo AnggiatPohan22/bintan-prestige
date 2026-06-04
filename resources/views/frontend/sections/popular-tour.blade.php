@@ -1,22 +1,41 @@
 @php
     $section = $sections['home.popular_tour'] ?? null;
+    $siteLogo = $siteAssets['site.logo'] ?? null;
+    $popularTourMedia = [
+        'left_wide' => $section?->mediaSlot('frame', 'left_wide'),
+        'left_small' => $section?->mediaSlot('frame', 'left_small'),
+        'right_wide' => $section?->mediaSlot('frame', 'right_wide'),
+        'right_small' => $section?->mediaSlot('frame', 'right_small'),
+    ];
 @endphp
 
 <section class="bp-popular-tour" id="home-popular-tour" data-section-key="home.popular_tour" aria-labelledby="popular-tour-title">
     <div class="bp-popular-tour__inner">
         <div class="bp-popular-tour__media bp-popular-tour__media--left" aria-hidden="true">
             <div class="bp-popular-tour__media-frame bp-popular-tour__media-frame--wide">
-                <div class="bp-popular-tour__placeholder">No Image</div>
+                @if($popularTourMedia['left_wide']?->url)
+                    <img src="{{ $popularTourMedia['left_wide']->url }}" alt="{{ $popularTourMedia['left_wide']->alt ?: 'Frame kiri atas' }}" loading="lazy" decoding="async">
+                @else
+                    <div class="bp-popular-tour__placeholder">No Image</div>
+                @endif
             </div>
 
             <div class="bp-popular-tour__media-frame bp-popular-tour__media-frame--small">
-                <div class="bp-popular-tour__placeholder">No Image</div>
+                @if($popularTourMedia['left_small']?->url)
+                    <img src="{{ $popularTourMedia['left_small']->url }}" alt="{{ $popularTourMedia['left_small']->alt ?: 'Frame kiri bawah' }}" loading="lazy" decoding="async">
+                @else
+                    <div class="bp-popular-tour__placeholder">No Image</div>
+                @endif
             </div>
         </div>
 
         <div class="bp-popular-tour__content">
             <div class="bp-popular-tour__logo-frame">
-                LOGO HERE
+                @if($siteLogo?->url)
+                    <img src="{{ $siteLogo->url }}" alt="{{ $siteLogo->alt ?: 'Bintan Prestige logo' }}" loading="lazy" decoding="async">
+                @else
+                    LOGO HERE
+                @endif
             </div>
 
             <span class="bp-popular-tour__label">
@@ -42,11 +61,19 @@
 
         <div class="bp-popular-tour__media bp-popular-tour__media--right" aria-hidden="true">
             <div class="bp-popular-tour__media-frame bp-popular-tour__media-frame--wide">
-                <div class="bp-popular-tour__placeholder">No Image</div>
+                @if($popularTourMedia['right_wide']?->url)
+                    <img src="{{ $popularTourMedia['right_wide']->url }}" alt="{{ $popularTourMedia['right_wide']->alt ?: 'Frame kanan atas' }}" loading="lazy" decoding="async">
+                @else
+                    <div class="bp-popular-tour__placeholder">No Image</div>
+                @endif
             </div>
 
             <div class="bp-popular-tour__media-frame bp-popular-tour__media-frame--small">
-                <div class="bp-popular-tour__placeholder">No Image</div>
+                @if($popularTourMedia['right_small']?->url)
+                    <img src="{{ $popularTourMedia['right_small']->url }}" alt="{{ $popularTourMedia['right_small']->alt ?: 'Frame kanan bawah' }}" loading="lazy" decoding="async">
+                @else
+                    <div class="bp-popular-tour__placeholder">No Image</div>
+                @endif
             </div>
         </div>
     </div>

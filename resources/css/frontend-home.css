@@ -286,6 +286,10 @@
         box-shadow: var(--frontend-shadow);
     }
 
+    .bp-popular-tour__logo-frame img {
+        @apply h-full w-full rounded-full object-contain p-2;
+    }
+
     /* BP POPULAR TOUR LABEL: Styles the small centered editorial label. */
     .bp-popular-tour__label {
         @apply mt-6 inline-flex text-xs font-extrabold uppercase;

@@ -638,6 +638,10 @@
         color: var(--frontend-gold-soft);
     }
 
+    .frontend-brand__mark img {
+        @apply h-full w-full rounded-full object-contain p-1;
+    }
+
     /* FRONTEND BRAND MARK SCROLLED: Recolors the brand mark for the soft gold state. */
     .frontend-header--scrolled .frontend-brand__mark {
         background: var(--frontend-black);
@@ -843,7 +847,21 @@
 
     /* BP FOOTER CTA BUTTON: Adds spacing for the WhatsApp conversion action. */
     .bp-footer-cta__button {
-        @apply mt-6;
+        @apply mt-6 gap-3;
+    }
+
+    .bp-footer-cta__button-icon {
+        @apply h-5 w-5;
+        fill: none;
+        stroke: currentColor;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        stroke-width: 2.1;
+        transition: transform var(--frontend-transition-fast) var(--frontend-ease-press);
+    }
+
+    .bp-footer-cta__button:hover .bp-footer-cta__button-icon {
+        transform: translate(1px, -1px);
     }
 
     /* BP FOOTER CTA VISUAL: Locks a fixed responsive frame for future CTA imagery. */
@@ -888,12 +906,14 @@
         color: var(--frontend-white);
     }
 
-    /* BP FOOTER BRAND MARK: Creates the fixed BP logo placeholder circle. */
+    /* BP FOOTER BRAND MARK: Creates a frameless logo area for uploaded brand assets. */
     .bp-footer__brand-mark {
-        @apply flex h-11 w-11 items-center justify-center rounded-full border text-sm font-extrabold;
-        background: rgba(200, 162, 74, 0.12);
-        border-color: rgba(200, 162, 74, 0.42);
+        @apply flex h-11 w-11 items-center justify-center text-sm font-extrabold;
         color: var(--frontend-gold-soft);
+    }
+
+    .bp-footer__brand-mark img {
+        @apply h-full w-full object-contain;
     }
 
     /* BP FOOTER TEXT: Styles the brand description in the dark footer. */

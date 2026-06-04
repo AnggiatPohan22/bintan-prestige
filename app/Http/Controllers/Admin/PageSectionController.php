@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\PageSection;
 use App\Models\PageSectionMedia;
+use App\Models\SiteAsset;
 use App\Services\PageSectionImageService;
+use App\Support\HomepageSectionMedia;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 
@@ -28,12 +30,25 @@ class PageSectionController extends Controller
     public function edit(PageSection $pageSection)
     {
         $pageSection->load('media');
+        $mediaSlots = HomepageSectionMedia::slotsFor($pageSection->section_key);
+        $allowsGallery = HomepageSectionMedia::allowsGallery($pageSection->section_key);
+        $usesLogo = HomepageSectionMedia::usesLogo($pageSection->section_key);
+        $siteLogo = SiteAsset::where('key', HomepageSectionMedia::SITE_LOGO_KEY)->first();
 
-        return view('backend.page-sections.edit', compact('pageSection'));
+        return view('backend.page-sections.edit', compact(
+            'pageSection',
+            'mediaSlots',
+            'allowsGallery',
+            'usesLogo',
+            'siteLogo'
+        ));
     }
 
     public function update(Request $request, PageSection $pageSection)
     {
+        $mediaSlots = HomepageSectionMedia::slotsFor($pageSection->section_key);
+        $allowsGallery = HomepageSectionMedia::allowsGallery($pageSection->section_key);
+
         $validated = $request->validate([
             'label' => ['nullable', 'string', 'max:255'],
             'title' => ['nullable', 'string', 'max:255'],
@@ -45,6 +60,9 @@ class PageSectionController extends Controller
             'mobile_image_path' => ['nullable', 'string', 'max:500'],
             'image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
             'mobile_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+            'site_logo' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+            'slot_uploads' => ['nullable', 'array'],
+            'slot_uploads.*.*' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
             'media_uploads' => ['nullable', 'array', 'max:' . PageSection::MEDIA_LIMIT],
             'media_uploads.*' => ['image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
             'extra_data' => ['nullable', 'json'],
@@ -54,9 +72,17 @@ class PageSectionController extends Controller
         ]);
 
         $uploadedMedia = Arr::wrap($request->file('media_uploads', []));
-        $mediaCount = $pageSection->media()->count();
+        $mediaCount = $pageSection->media()
+            ->where('role', 'gallery')
+            ->count();
 
-        if ($mediaCount + count($uploadedMedia) > PageSection::MEDIA_LIMIT) {
+        if (! $allowsGallery && count($uploadedMedia)) {
+            return back()
+                ->withErrors(['media_uploads' => 'Gallery upload is not enabled for this section.'])
+                ->withInput();
+        }
+
+        if ($allowsGallery && $mediaCount + count($uploadedMedia) > PageSection::MEDIA_LIMIT) {
             return back()
                 ->withErrors(['media_uploads' => 'Maximum ' . PageSection::MEDIA_LIMIT . ' gallery images are allowed for each section.'])
                 ->withInput();
@@ -92,8 +118,35 @@ class PageSectionController extends Controller
 
         $pageSection->update($data);
 
-        foreach ($uploadedMedia as $mediaFile) {
-            $this->imageService->storeMediaUpload($mediaFile, $pageSection, $mediaCount++);
+        if ($request->hasFile('site_logo') && HomepageSectionMedia::usesLogo($pageSection->section_key)) {
+            $this->imageService->storeSiteAssetUpload(
+                $request->file('site_logo'),
+                HomepageSectionMedia::SITE_LOGO_KEY,
+                'Main website logo'
+            );
+        }
+
+        foreach ($mediaSlots as $slot) {
+            $role = $slot['role'];
+            $slotKey = $slot['slot_key'];
+
+            if (! $request->hasFile("slot_uploads.$role.$slotKey")) {
+                continue;
+            }
+
+            $this->imageService->storeSlotUpload(
+                $request->file("slot_uploads.$role.$slotKey"),
+                $pageSection,
+                $role,
+                $slotKey,
+                $slot['label']
+            );
+        }
+
+        if ($allowsGallery) {
+            foreach ($uploadedMedia as $mediaFile) {
+                $this->imageService->storeMediaUpload($mediaFile, $pageSection, $mediaCount++);
+            }
         }
 
         return redirect()->route('admin.page-sections.edit', $pageSection)->with('success', 'Page section updated successfully.');

@@ -19,7 +19,11 @@
                 rel="noopener noreferrer"
                 class="btn btn-whatsapp bp-footer-cta__button"
             >
-                Chat via WhatsApp
+                <span>Chat via WhatsApp</span>
+                <svg class="bp-footer-cta__button-icon" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M7 17L17 7"></path>
+                    <path d="M9 7h8v8"></path>
+                </svg>
             </a>
         </div>
 
@@ -33,9 +37,17 @@
     <div class="bp-footer__body">
         <div class="bp-footer__inner">
             <div class="bp-footer__brand">
+                @php
+                    $footerLogo = isset($siteAssets) ? ($siteAssets['site.logo'] ?? null) : null;
+                @endphp
+
                 <a href="{{ route('home') }}" class="bp-footer__brand-link" aria-label="Bintan Prestige home">
                     <span class="bp-footer__brand-mark">
-                        BP
+                        @if($footerLogo?->url)
+                            <img src="{{ $footerLogo->url }}" alt="{{ $footerLogo->alt ?: 'Bintan Prestige logo' }}">
+                        @else
+                            BP
+                        @endif
                     </span>
 
                     <span id="footer-title">

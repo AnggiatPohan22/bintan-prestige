@@ -57,15 +57,28 @@ export function initFrontendHeader() {
  */
 export function initDynamicHeroBackground() {
     const heroSections = document.querySelectorAll(heroBackgroundSelector);
+    const mobileQuery = window.matchMedia('(max-width: 767px)');
 
-    heroSections.forEach((section) => {
+    const applyBackground = (section) => {
         const backgroundUrl = section.dataset.heroBackground;
+        const mobileBackgroundUrl = section.dataset.heroMobileBackground;
+        const selectedBackground = mobileQuery.matches && mobileBackgroundUrl
+            ? mobileBackgroundUrl
+            : backgroundUrl;
 
-        if (!backgroundUrl) {
+        if (!selectedBackground) {
             return;
         }
 
-        section.style.setProperty('--home-hero-image', `url("${backgroundUrl}")`);
+        section.style.setProperty('--home-hero-image', `url("${selectedBackground}")`);
+    };
+
+    heroSections.forEach((section) => {
+        applyBackground(section);
+    });
+
+    mobileQuery.addEventListener?.('change', () => {
+        heroSections.forEach(applyBackground);
     });
 }
 

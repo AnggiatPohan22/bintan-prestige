@@ -6,7 +6,16 @@
         <a href="{{ route('home') }}"
            class="frontend-brand"
            aria-label="Bintan Prestige home">
-            <span class="frontend-brand__mark">BP</span>
+            @php
+                $headerLogo = isset($siteAssets) ? ($siteAssets['site.logo'] ?? null) : null;
+            @endphp
+            <span class="frontend-brand__mark">
+                @if($headerLogo?->url)
+                    <img src="{{ $headerLogo->url }}" alt="{{ $headerLogo->alt ?: 'Bintan Prestige logo' }}">
+                @else
+                    BP
+                @endif
+            </span>
             <span>Bintan Prestige</span>
         </a>
 

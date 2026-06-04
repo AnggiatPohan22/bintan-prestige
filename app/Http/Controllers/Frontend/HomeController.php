@@ -8,6 +8,7 @@ use App\Models\Destination;
 use App\Models\Faq;
 use App\Models\PageSection;
 use App\Models\Product;
+use App\Models\SiteAsset;
 
 class HomeController extends Controller
 {
@@ -18,10 +19,15 @@ class HomeController extends Controller
         $sections = PageSection::query()
             ->where('page_key', 'home')
             ->where('is_active', true)
-            ->with('activeMedia')
+            ->with('media')
             ->orderBy('sort_order')
             ->get()
             ->keyBy('section_key');
+
+        $siteAssets = SiteAsset::query()
+            ->where('is_active', true)
+            ->get()
+            ->keyBy('key');
 
         $faqs = Faq::query()
             ->active()
@@ -79,6 +85,7 @@ class HomeController extends Controller
                 'destinations',
                 'heroBackgroundUrl',
                 'sections',
+                'siteAssets',
                 'faqs'
             )
         );
