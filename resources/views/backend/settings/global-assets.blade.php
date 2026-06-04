@@ -12,7 +12,7 @@
         <p class="mt-1 text-sm text-slate-500">Manage assets that are shared by frontend header, footer, and homepage sections.</p>
     </div>
 
-    <div class="mb-6 flex flex-wrap gap-2 border-b border-slate-200 pb-4">
+    <div class="mb-6 flex gap-2 overflow-x-auto whitespace-nowrap border-b border-slate-200 pb-4">
         @foreach($assetTabs as $tab)
             <a
                 href="{{ route('admin.settings.global-assets.edit', ['tab' => $tab['key']]) }}"
@@ -349,6 +349,129 @@
                     <button type="submit" class="btn-primary">Save Contact Information</button>
                 </div>
             </form>
+        @endif
+
+        @if($activeTab === 'social-media-links')
+            <form method="POST" action="{{ route('admin.settings.global-assets.social-media-links.update') }}" class="rounded-xl border border-slate-200 bg-slate-50 p-5">
+                @csrf
+                @method('PUT')
+
+                <h2 class="text-lg font-bold text-slate-800">Social Media Links</h2>
+                <p class="mt-1 text-sm text-slate-500">Only links with a URL will be rendered in the frontend footer and future menus.</p>
+
+                <div class="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-2">
+                    @foreach($socialMediaLinkFields as $field)
+                        @php
+                            $value = old("social_media_links.{$field['slug']}", $socialMediaLinks[$field['slug']] ?? $field['default']);
+                        @endphp
+
+                        <div class="rounded-xl border border-slate-200 bg-white p-4">
+                            <label class="form-label">{{ $field['label'] }} URL</label>
+                            <input type="url" name="social_media_links[{{ $field['slug'] }}]" value="{{ $value }}" class="{{ $inputClass }}" placeholder="https://...">
+                            <p class="mt-2 text-xs text-slate-500">Frontend icon label: {{ $field['abbr'] }}</p>
+                            <p class="mt-2 text-[11px] font-semibold uppercase text-slate-400">{{ $field['key'] }}</p>
+                            @error("social_media_links.{$field['slug']}") <p class="form-error">{{ $message }}</p> @enderror
+                        </div>
+                    @endforeach
+                </div>
+
+                @php
+                    $customSocialLinks = old('custom_social_links', $socialMediaLinks['custom_links'] ?? []);
+                    if (empty($customSocialLinks)) {
+                        $customSocialLinks = [['label' => '', 'abbr' => '', 'url' => '']];
+                    }
+                @endphp
+
+                <div class="mt-6 rounded-xl border border-slate-200 bg-white p-4">
+                    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                        <div>
+                            <h3 class="text-base font-bold text-slate-800">Custom Social Links</h3>
+                            <p class="mt-1 text-sm text-slate-500">Add extra platforms that are not listed above.</p>
+                        </div>
+                        <button type="button" data-add-social-link class="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700">Add Link</button>
+                    </div>
+
+                    <div class="mt-4 space-y-3" data-social-links-list>
+                        @foreach($customSocialLinks as $index => $customLink)
+                            <div class="grid grid-cols-1 gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4 lg:grid-cols-[minmax(0,1fr)_120px_minmax(0,1.4fr)_auto]" data-social-link-row>
+                                <div>
+                                    <label class="form-label">Label</label>
+                                    <input type="text" name="custom_social_links[{{ $index }}][label]" value="{{ $customLink['label'] ?? '' }}" class="{{ $inputClass }}" placeholder="Pinterest">
+                                    @error("custom_social_links.$index.label") <p class="form-error">{{ $message }}</p> @enderror
+                                </div>
+                                <div>
+                                    <label class="form-label">Icon Label</label>
+                                    <input type="text" name="custom_social_links[{{ $index }}][abbr]" value="{{ $customLink['abbr'] ?? '' }}" class="{{ $inputClass }}" placeholder="PT">
+                                    @error("custom_social_links.$index.abbr") <p class="form-error">{{ $message }}</p> @enderror
+                                </div>
+                                <div>
+                                    <label class="form-label">URL</label>
+                                    <input type="url" name="custom_social_links[{{ $index }}][url]" value="{{ $customLink['url'] ?? '' }}" class="{{ $inputClass }}" placeholder="https://...">
+                                    @error("custom_social_links.$index.url") <p class="form-error">{{ $message }}</p> @enderror
+                                </div>
+                                <div class="flex items-end">
+                                    <button type="button" data-remove-social-link class="w-full rounded-lg border border-red-200 px-4 py-3 text-sm font-semibold text-red-600 transition hover:bg-red-50">Remove</button>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+
+                <div class="mt-5 flex items-center gap-3 border-t border-slate-200 pt-5">
+                    <button type="submit" class="btn-primary">Save Social Media Links</button>
+                </div>
+            </form>
+
+            <template data-social-link-template>
+                <div class="grid grid-cols-1 gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4 lg:grid-cols-[minmax(0,1fr)_120px_minmax(0,1.4fr)_auto]" data-social-link-row>
+                    <div>
+                        <label class="form-label">Label</label>
+                        <input type="text" data-name="label" class="{{ $inputClass }}" placeholder="Pinterest">
+                    </div>
+                    <div>
+                        <label class="form-label">Icon Label</label>
+                        <input type="text" data-name="abbr" class="{{ $inputClass }}" placeholder="PT">
+                    </div>
+                    <div>
+                        <label class="form-label">URL</label>
+                        <input type="url" data-name="url" class="{{ $inputClass }}" placeholder="https://...">
+                    </div>
+                    <div class="flex items-end">
+                        <button type="button" data-remove-social-link class="w-full rounded-lg border border-red-200 px-4 py-3 text-sm font-semibold text-red-600 transition hover:bg-red-50">Remove</button>
+                    </div>
+                </div>
+            </template>
+
+            <script>
+                document.addEventListener('click', function (event) {
+                    if (event.target.matches('[data-add-social-link]')) {
+                        const list = document.querySelector('[data-social-links-list]');
+                        const template = document.querySelector('[data-social-link-template]');
+                        const index = list.querySelectorAll('[data-social-link-row]').length;
+                        const row = template.content.firstElementChild.cloneNode(true);
+
+                        row.querySelectorAll('[data-name]').forEach(function (input) {
+                            input.name = `custom_social_links[${index}][${input.dataset.name}]`;
+                            input.removeAttribute('data-name');
+                        });
+
+                        list.appendChild(row);
+                    }
+
+                    if (event.target.matches('[data-remove-social-link]')) {
+                        const row = event.target.closest('[data-social-link-row]');
+                        const list = document.querySelector('[data-social-links-list]');
+
+                        if (list.querySelectorAll('[data-social-link-row]').length > 1) {
+                            row.remove();
+                        } else {
+                            row.querySelectorAll('input').forEach(function (input) {
+                                input.value = '';
+                            });
+                        }
+                    }
+                });
+            </script>
         @endif
     </div>
 </div>

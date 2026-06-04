@@ -10,6 +10,7 @@ use App\Support\BrandColorSettings;
 use App\Support\BusinessIdentitySettings;
 use App\Support\ContactInformationSettings;
 use App\Support\HomepageSectionMedia;
+use App\Support\SocialMediaLinkSettings;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
 
@@ -64,8 +65,16 @@ class SiteSettingController extends Controller
                 ->keyBy('key')
             : collect();
         $contactInformation = ContactInformationSettings::valuesFromSettings($contactInformationSettings);
+        $socialMediaLinkFields = SocialMediaLinkSettings::fields();
+        $socialMediaLinkSettings = Schema::hasTable('site_settings')
+            ? SiteSetting::query()
+                ->whereIn('key', array_column($socialMediaLinkFields, 'key'))
+                ->get()
+                ->keyBy('key')
+            : collect();
+        $socialMediaLinks = SocialMediaLinkSettings::valuesFromSettings($socialMediaLinkSettings);
 
-        return view('backend.settings.global-assets', compact('activeTab', 'assetTabs', 'logoVariants', 'siteLogos', 'favicon', 'faviconConfig', 'socialShareImage', 'socialShareConfig', 'brandColorFields', 'brandColors', 'businessIdentityFields', 'businessIdentity', 'contactInformationFields', 'contactInformation'));
+        return view('backend.settings.global-assets', compact('activeTab', 'assetTabs', 'logoVariants', 'siteLogos', 'favicon', 'faviconConfig', 'socialShareImage', 'socialShareConfig', 'brandColorFields', 'brandColors', 'businessIdentityFields', 'businessIdentity', 'contactInformationFields', 'contactInformation', 'socialMediaLinkFields', 'socialMediaLinks'));
     }
 
     public function update(Request $request)
@@ -311,6 +320,65 @@ class SiteSettingController extends Controller
             ->with('success', 'Contact information updated successfully.');
     }
 
+    public function updateSocialMediaLinks(Request $request)
+    {
+        if (! Schema::hasTable('site_settings')) {
+            return redirect()
+                ->route('admin.settings.global-assets.edit', ['tab' => 'social-media-links'])
+                ->withErrors(['social_media_links' => 'Please run database migrations before updating social media links.']);
+        }
+
+        $rules = collect(SocialMediaLinkSettings::fields())
+            ->mapWithKeys(fn (array $field) => [
+                'social_media_links.' . $field['slug'] => ['nullable', 'url', 'max:500'],
+            ])
+            ->all();
+        $rules['custom_social_links'] = ['nullable', 'array'];
+        $rules['custom_social_links.*.label'] = ['nullable', 'string', 'max:100'];
+        $rules['custom_social_links.*.abbr'] = ['nullable', 'string', 'max:8'];
+        $rules['custom_social_links.*.url'] = ['nullable', 'url', 'max:500'];
+
+        $validated = $request->validate($rules);
+        $links = $validated['social_media_links'] ?? [];
+        $customLinks = collect($validated['custom_social_links'] ?? [])
+            ->map(fn (array $link) => [
+                'label' => trim($link['label'] ?? ''),
+                'abbr' => trim($link['abbr'] ?? ''),
+                'url' => trim($link['url'] ?? ''),
+            ])
+            ->filter(fn (array $link) => $link['label'] !== '' && $link['url'] !== '')
+            ->values()
+            ->all();
+
+        foreach (SocialMediaLinkSettings::fields() as $field) {
+            SiteSetting::updateOrCreate(
+                ['key' => $field['key']],
+                [
+                    'label' => $field['label'] . ' URL',
+                    'value' => $links[$field['slug']] ?? null,
+                    'type' => 'url',
+                    'group' => SocialMediaLinkSettings::GROUP,
+                    'is_active' => true,
+                ]
+            );
+        }
+
+        SiteSetting::updateOrCreate(
+            ['key' => SocialMediaLinkSettings::CUSTOM_LINKS_KEY],
+            [
+                'label' => 'Custom social media links',
+                'value' => json_encode($customLinks),
+                'type' => 'json',
+                'group' => SocialMediaLinkSettings::GROUP,
+                'is_active' => true,
+            ]
+        );
+
+        return redirect()
+            ->route('admin.settings.global-assets.edit', ['tab' => 'social-media-links'])
+            ->with('success', 'Social media links updated successfully.');
+    }
+
     private function assetTabs(): array
     {
         return [
@@ -343,6 +411,11 @@ class SiteSettingController extends Controller
                 'key' => 'contact-information',
                 'label' => 'Contact Information',
                 'description' => 'Global email, phone, WhatsApp, address, maps URL, and opening hours.',
+            ],
+            [
+                'key' => 'social-media-links',
+                'label' => 'Social Media Links',
+                'description' => 'Global social profile URLs rendered in footer and future menus.',
             ],
         ];
     }

@@ -59,6 +59,9 @@ Route::middleware(['auth'])
         Route::put('settings/global-assets/contact-information', [SiteSettingController::class, 'updateContactInformation'])
             ->name('settings.global-assets.contact-information.update');
 
+        Route::put('settings/global-assets/social-media-links', [SiteSettingController::class, 'updateSocialMediaLinks'])
+            ->name('settings.global-assets.social-media-links.update');
+
         Route::get('page-sections', [PageSectionController::class, 'index'])
             ->name('page-sections.index');
 

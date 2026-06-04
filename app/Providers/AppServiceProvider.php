@@ -7,6 +7,7 @@ use App\Models\SiteSetting;
 use App\Support\BrandColorSettings;
 use App\Support\BusinessIdentitySettings;
 use App\Support\ContactInformationSettings;
+use App\Support\SocialMediaLinkSettings;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
@@ -81,6 +82,21 @@ class AppServiceProvider extends ServiceProvider
 
                 $view->with('contactInformation', $contactInformation);
                 $view->with('contactWhatsappUrl', ContactInformationSettings::whatsappUrl($contactInformation));
+            }
+
+            if (! array_key_exists('socialMediaLinks', $view->getData())) {
+                $socialSettings = $siteSettingsTableExists
+                    ? SiteSetting::query()
+                        ->where('group', SocialMediaLinkSettings::GROUP)
+                        ->where('is_active', true)
+                        ->get()
+                        ->keyBy('key')
+                    : collect();
+
+                $socialMediaLinks = SocialMediaLinkSettings::valuesFromSettings($socialSettings);
+
+                $view->with('socialMediaLinks', $socialMediaLinks);
+                $view->with('activeSocialMediaLinks', SocialMediaLinkSettings::activeLinks($socialMediaLinks));
             }
         });
     }

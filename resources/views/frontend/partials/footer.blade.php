@@ -89,19 +89,15 @@
                     </button>
                 </form>
 
-                <div class="bp-footer__socials" aria-label="Social links">
-                    <a href="#" aria-label="Instagram">
-                        <span>IG</span>
-                    </a>
-
-                    <a href="#" aria-label="Facebook">
-                        <span>FB</span>
-                    </a>
-
-                    <a href="#" aria-label="TikTok">
-                        <span>TT</span>
-                    </a>
-                </div>
+                @if(! empty($activeSocialMediaLinks))
+                    <div class="bp-footer__socials" aria-label="Social links">
+                        @foreach($activeSocialMediaLinks as $socialLink)
+                            <a href="{{ $socialLink['url'] }}" target="_blank" rel="noopener noreferrer" aria-label="{{ $socialLink['label'] }}">
+                                <span>{{ $socialLink['abbr'] }}</span>
+                            </a>
+                        @endforeach
+                    </div>
+                @endif
             </div>
 
             <div class="bp-footer__columns">
