@@ -17,19 +17,19 @@
 
     @include('partials.site-brand-colors')
 </head>
-<body class="bg-gray-100">
+<body class="overflow-x-hidden bg-gray-100">
 
-<div class="flex min-h-screen">
+<div class="flex min-h-screen w-full overflow-x-hidden">
 
     {{-- Sidebar --}}
     @include('backend.partials.sidebar')
 
-    <div class="flex-1">
+    <div class="min-w-0 flex-1">
 
         {{-- Navbar --}}
         @include('backend.partials.navbar')
 
-        <main class="p-6">
+        <main class="min-w-0 overflow-x-hidden p-6">
             
             {{-- Flash Alert --}}
             <x-flash-alert />

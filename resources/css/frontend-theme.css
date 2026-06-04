@@ -586,6 +586,14 @@
         color: var(--frontend-charcoal);
     }
 
+    /* FRONTEND HEADER INLINE: Lets admin disable the floating sticky behavior. */
+    .frontend-header--inline {
+        position: relative;
+        top: auto;
+        color: var(--frontend-charcoal);
+        pointer-events: auto;
+    }
+
     /* FRONTEND MAIN: Offsets fixed header for pages that do not start with a hero. */
     .frontend-main {
         @apply pt-28;
@@ -619,6 +627,14 @@
         transform: translateY(0);
     }
 
+    /* FRONTEND HEADER INNER INLINE: Keeps non-sticky header readable above page content. */
+    .frontend-header--inline .frontend-header__inner {
+        background: rgba(251, 247, 237, 0.94);
+        border: 1px solid rgba(200, 162, 74, 0.32);
+        box-shadow: 0 18px 50px rgba(23, 19, 12, 0.1);
+        backdrop-filter: none;
+    }
+
     /* FRONTEND BRAND: Styles the brand text to work beside a future gold logo. */
     .frontend-brand {
         color: var(--frontend-white);
@@ -627,6 +643,10 @@
 
     /* FRONTEND BRAND SCROLLED: Makes brand readable on soft gold header background. */
     .frontend-header--scrolled .frontend-brand {
+        color: var(--frontend-black);
+    }
+
+    .frontend-header--inline .frontend-brand {
         color: var(--frontend-black);
     }
 
@@ -649,40 +669,116 @@
         color: var(--frontend-gold);
     }
 
+    .frontend-header--inline .frontend-brand__mark {
+        background: var(--frontend-black);
+        border-color: var(--frontend-black);
+        color: var(--frontend-gold);
+    }
+
     /* FRONTEND NAV: Controls spacing and typography for public navigation links. */
     .frontend-nav {
         @apply hidden gap-6 text-sm font-bold md:flex;
     }
 
+    .frontend-nav__item {
+        @apply relative;
+    }
+
+    .frontend-nav__item::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 100%;
+        height: 1.25rem;
+    }
+
     /* FRONTEND NAV LINK: Makes frontend links follow the gold hover state. */
     .frontend-nav__link {
-        color: rgba(255, 255, 255, 0.82);
+        color: var(--header-nav-color, rgba(255, 255, 255, 0.82));
         @apply transition;
+    }
+
+    .frontend-nav__link--dropdown {
+        @apply inline-flex items-center gap-1.5;
+    }
+
+    .frontend-nav__chevron {
+        @apply h-3.5 w-3.5;
+        fill: none;
+        stroke: currentColor;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        stroke-width: 2;
+        transition: transform 180ms ease;
+    }
+
+    .frontend-nav__item:hover .frontend-nav__chevron,
+    .frontend-nav__item:focus-within .frontend-nav__chevron {
+        transform: rotate(180deg);
+    }
+
+    .frontend-nav__dropdown {
+        @apply invisible absolute left-1/2 top-full mt-4 min-w-52 -translate-x-1/2 rounded-2xl border px-2 py-2 opacity-0 shadow-xl transition;
+        background: rgba(251, 247, 237, 0.96);
+        border-color: rgba(200, 162, 74, 0.32);
+        box-shadow: 0 24px 70px rgba(23, 19, 12, 0.18);
+        transform: translate(-50%, 8px);
+        z-index: 60;
+    }
+
+    .frontend-nav__item:hover .frontend-nav__dropdown,
+    .frontend-nav__item:focus-within .frontend-nav__dropdown {
+        @apply visible opacity-100;
+        transform: translate(-50%, 0);
+    }
+
+    .frontend-nav__dropdown-link {
+        @apply block rounded-xl px-4 py-3 text-sm font-bold transition;
+        color: var(--header-dropdown-text-color, rgba(23, 19, 12, 0.72));
+    }
+
+    .frontend-nav__dropdown-link:hover,
+    .frontend-nav__dropdown-link--active {
+        background: var(--header-dropdown-hover-background, rgba(200, 162, 74, 0.16));
+        color: var(--header-nav-scrolled-hover-color, var(--frontend-black));
     }
 
     /* FRONTEND NAV LINK SCROLLED: Keeps navigation visible on soft gold background. */
     .frontend-header--scrolled .frontend-nav__link {
-        color: rgba(23, 19, 12, 0.72);
+        color: var(--header-nav-scrolled-color, rgba(23, 19, 12, 0.72));
+    }
+
+    .frontend-header--inline .frontend-nav__link {
+        color: var(--header-nav-scrolled-color, rgba(23, 19, 12, 0.72));
     }
 
     /* FRONTEND NAV LINK HOVER: Uses gold as the primary interactive color. */
     .frontend-nav__link:hover {
-        color: var(--frontend-gold);
+        color: var(--header-nav-hover-color, var(--frontend-gold));
     }
 
     /* FRONTEND NAV LINK HOVER SCROLLED: Uses black-gold contrast on the scrolled header. */
     .frontend-header--scrolled .frontend-nav__link:hover {
-        color: var(--frontend-black);
+        color: var(--header-nav-scrolled-hover-color, var(--frontend-black));
+    }
+
+    .frontend-header--inline .frontend-nav__link:hover {
+        color: var(--header-nav-scrolled-hover-color, var(--frontend-black));
     }
 
     /* FRONTEND NAV LINK ACTIVE: Shows the active frontend navigation item. */
     .frontend-nav__link--active {
-        color: var(--frontend-gold);
+        color: var(--header-nav-hover-color, var(--frontend-gold));
     }
 
     /* FRONTEND NAV LINK ACTIVE SCROLLED: Keeps active links strong after scroll. */
     .frontend-header--scrolled .frontend-nav__link--active {
-        color: var(--frontend-black);
+        color: var(--header-nav-scrolled-hover-color, var(--frontend-black));
+    }
+
+    .frontend-header--inline .frontend-nav__link--active {
+        color: var(--header-nav-scrolled-hover-color, var(--frontend-black));
     }
 
     /* FRONTEND HEADER ACTIONS: Groups the plan trip button and circular arrow link. */
@@ -700,6 +796,12 @@
 
     /* FRONTEND HEADER CTA SCROLLED: Recolors the plan trip button after scroll. */
     .frontend-header--scrolled .frontend-header__cta {
+        --btn-bg: var(--frontend-black);
+        --btn-border: var(--frontend-black);
+        --btn-color: var(--frontend-gold-soft);
+    }
+
+    .frontend-header--inline .frontend-header__cta {
         --btn-bg: var(--frontend-black);
         --btn-border: var(--frontend-black);
         --btn-color: var(--frontend-gold-soft);
@@ -725,6 +827,12 @@
 
     /* FRONTEND HEADER ICON SCROLLED: Makes the arrow circle visible on soft gold background. */
     .frontend-header--scrolled .frontend-header__icon {
+        --btn-bg: var(--frontend-black);
+        --btn-border: var(--frontend-black);
+        --btn-color: var(--frontend-gold-soft);
+    }
+
+    .frontend-header--inline .frontend-header__icon {
         --btn-bg: var(--frontend-black);
         --btn-border: var(--frontend-black);
         --btn-color: var(--frontend-gold-soft);

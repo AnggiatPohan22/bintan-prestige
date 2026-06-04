@@ -1,4 +1,4 @@
-<aside class="w-64 bg-white shadow-lg">
+<aside class="sticky top-0 h-screen w-64 shrink-0 overflow-y-auto bg-white shadow-lg">
 
     <div class="p-6 border-b">
         <h1 class="text-2xl font-bold">

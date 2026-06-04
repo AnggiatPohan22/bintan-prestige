@@ -7,6 +7,7 @@ use App\Models\SiteSetting;
 use App\Support\BrandColorSettings;
 use App\Support\BusinessIdentitySettings;
 use App\Support\ContactInformationSettings;
+use App\Support\NavigationSettings;
 use App\Support\SocialMediaLinkSettings;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\View;
@@ -97,6 +98,18 @@ class AppServiceProvider extends ServiceProvider
 
                 $view->with('socialMediaLinks', $socialMediaLinks);
                 $view->with('activeSocialMediaLinks', SocialMediaLinkSettings::activeLinks($socialMediaLinks));
+            }
+
+            if (! array_key_exists('navigationSettings', $view->getData())) {
+                $navigationRows = $siteSettingsTableExists
+                    ? SiteSetting::query()
+                        ->where('group', NavigationSettings::GROUP)
+                        ->where('is_active', true)
+                        ->get()
+                        ->keyBy('key')
+                    : collect();
+
+                $view->with('navigationSettings', NavigationSettings::valuesFromSettings($navigationRows));
             }
         });
     }

@@ -6,21 +6,23 @@
     $inputClass = 'w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm shadow-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100';
 @endphp
 
-<div class="rounded-xl bg-white p-6 shadow">
+<div class="min-w-0 rounded-xl bg-white p-6 shadow">
     <div class="mb-6">
         <h1 class="text-2xl font-bold text-slate-800">Global Assets</h1>
         <p class="mt-1 text-sm text-slate-500">Manage assets that are shared by frontend header, footer, and homepage sections.</p>
     </div>
 
-    <div class="mb-6 flex gap-2 overflow-x-auto whitespace-nowrap border-b border-slate-200 pb-4">
+    <div class="mb-6 max-w-full overflow-x-auto border-b border-slate-200 pb-4">
+        <div class="flex min-w-max gap-2 whitespace-nowrap">
         @foreach($assetTabs as $tab)
             <a
                 href="{{ route('admin.settings.global-assets.edit', ['tab' => $tab['key']]) }}"
-                class="rounded-lg border px-4 py-3 text-sm font-semibold transition {{ $activeTab === $tab['key'] ? 'border-emerald-500 bg-emerald-50 text-emerald-700' : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50' }}"
+                class="shrink-0 rounded-lg border px-4 py-3 text-sm font-semibold transition {{ $activeTab === $tab['key'] ? 'border-emerald-500 bg-emerald-50 text-emerald-700' : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50' }}"
             >
                 {{ $tab['label'] }}
             </a>
         @endforeach
+        </div>
     </div>
 
     @foreach($assetTabs as $tab)
@@ -32,7 +34,7 @@
         @endif
     @endforeach
 
-    <div class="grid grid-cols-1 gap-6">
+    <div class="grid min-w-0 grid-cols-1 gap-6">
         @if($activeTab === 'site-logo')
             <form method="POST" action="{{ route('admin.settings.global-assets.site-logo.update') }}" enctype="multipart/form-data" class="rounded-xl border border-slate-200 bg-slate-50 p-5">
                 @csrf
@@ -471,6 +473,344 @@
                         }
                     }
                 });
+            </script>
+        @endif
+
+        @if($activeTab === 'navigation-settings')
+            <form method="POST" action="{{ route('admin.settings.global-assets.navigation-settings.update') }}" class="rounded-xl border border-slate-200 bg-slate-50 p-5">
+                @csrf
+                @method('PUT')
+
+                <h2 class="text-lg font-bold text-slate-800">Header Navigation</h2>
+                <p class="mt-1 text-sm text-slate-500">Manage public header menu items and the main header action without editing frontend Blade.</p>
+
+                @php
+                    $navigationBasicFields = collect($navigationFields)->reject(fn ($field) => $field['type'] === 'color');
+                    $navigationColorFields = collect($navigationFields)->filter(fn ($field) => $field['type'] === 'color');
+                @endphp
+
+                <div class="mt-5 space-y-3" data-navigation-accordion>
+                    <details class="rounded-xl border border-slate-200 bg-white" open>
+                        <summary class="cursor-pointer list-none rounded-xl px-4 py-4 text-base font-bold text-slate-800 transition hover:bg-slate-50">
+                            Header Settings
+                        </summary>
+
+                        <div class="grid grid-cols-1 gap-5 border-t border-slate-200 bg-slate-50 p-4 lg:grid-cols-2">
+                    @foreach($navigationBasicFields as $field)
+                        @php
+                            $value = old("navigation_settings.{$field['slug']}", $navigationSettings[$field['slug']] ?? $field['default']);
+                            $checkedValue = filter_var($value, FILTER_VALIDATE_BOOL);
+                        @endphp
+
+                        <div class="rounded-xl border border-slate-200 bg-white p-4 {{ $field['type'] === 'boolean' ? 'lg:col-span-2' : '' }}">
+                            @if($field['type'] === 'boolean')
+                                <input type="hidden" name="navigation_settings[{{ $field['slug'] }}]" value="0">
+                                <label class="flex items-start gap-3">
+                                    <input type="checkbox" name="navigation_settings[{{ $field['slug'] }}]" value="1" @checked($checkedValue) class="mt-1 h-5 w-5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500">
+                                    <span>
+                                        <span class="block text-sm font-bold text-slate-800">{{ $field['label'] }}</span>
+                                        <span class="mt-1 block text-xs text-slate-500">{{ $field['hint'] }}</span>
+                                        <span class="mt-2 block text-[11px] font-semibold uppercase text-slate-400">{{ $field['key'] }}</span>
+                                    </span>
+                                </label>
+                            @else
+                                <label class="form-label">{{ $field['label'] }}</label>
+                                <input type="text" name="navigation_settings[{{ $field['slug'] }}]" value="{{ $value }}" class="{{ $inputClass }}" placeholder="{{ $field['default'] }}">
+                                <p class="mt-2 text-xs text-slate-500">{{ $field['hint'] }}</p>
+                                <p class="mt-2 text-[11px] font-semibold uppercase text-slate-400">{{ $field['key'] }}</p>
+                            @endif
+
+                            @error("navigation_settings.{$field['slug']}") <p class="form-error">{{ $message }}</p> @enderror
+                        </div>
+                    @endforeach
+                        </div>
+                    </details>
+
+                    <details class="rounded-xl border border-slate-200 bg-white">
+                        <summary class="cursor-pointer list-none rounded-xl px-4 py-4 text-base font-bold text-slate-800 transition hover:bg-slate-50">
+                            Menu Colors
+                        </summary>
+
+                        <div class="border-t border-slate-200 bg-slate-50 p-4">
+                            <p class="text-sm text-slate-500">Compact color controls for header menu text, hover, active, and dropdown states.</p>
+
+                    <div class="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
+                        @foreach($navigationColorFields as $field)
+                            @php
+                                $value = old("navigation_settings.{$field['slug']}", $navigationSettings[$field['slug']] ?? $field['default']);
+                            @endphp
+
+                            <div class="rounded-xl border border-slate-200 bg-slate-50 p-3">
+                                <div class="flex items-start justify-between gap-3">
+                                    <div>
+                                        <label class="text-sm font-bold text-slate-800">{{ $field['label'] }}</label>
+                                        <p class="mt-1 text-xs text-slate-500">{{ $field['hint'] }}</p>
+                                    </div>
+                                    <span class="h-10 w-10 shrink-0 rounded-lg border border-slate-200" style="background: {{ $value }}"></span>
+                                </div>
+
+                                <div class="mt-3 grid grid-cols-[56px_minmax(0,1fr)] gap-2">
+                                    <input type="color" name="navigation_settings[{{ $field['slug'] }}]" value="{{ $value }}" class="h-11 w-full cursor-pointer rounded-lg border border-slate-300 bg-white p-1">
+                                    <input type="text" value="{{ $value }}" disabled class="{{ $inputClass }} bg-slate-100 py-2 font-mono uppercase">
+                                </div>
+
+                                <p class="mt-2 text-[11px] font-semibold uppercase text-slate-400">{{ $field['key'] }}</p>
+                                @error("navigation_settings.{$field['slug']}") <p class="form-error">{{ $message }}</p> @enderror
+                            </div>
+                        @endforeach
+                    </div>
+                        </div>
+                    </details>
+
+                @php
+                    $navigationItems = old('navigation_items', $navigationSettings['items'] ?? []);
+                    if (empty($navigationItems)) {
+                        $navigationItems = [['label' => '', 'url' => '', 'is_external' => false, 'children' => []]];
+                    }
+                @endphp
+
+                    <details class="rounded-xl border border-slate-200 bg-white">
+                        <summary class="cursor-pointer list-none rounded-xl px-4 py-4 text-base font-bold text-slate-800 transition hover:bg-slate-50">
+                            Menu Items
+                        </summary>
+
+                        <div class="border-t border-slate-200 bg-slate-50 p-4">
+                    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                        <div>
+                            <h3 class="text-base font-bold text-slate-800">Menu Items</h3>
+                            <p class="mt-1 text-sm text-slate-500">Only rows with label and URL will render. Use Move Up or Move Down to reorder menus.</p>
+                        </div>
+                        <button type="button" data-add-navigation-item class="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700">Add Menu</button>
+                    </div>
+
+                    <div class="mt-4 space-y-3" data-navigation-items-list>
+                        @foreach($navigationItems as $index => $item)
+                            @php
+                                $children = $item['children'] ?? [];
+                            @endphp
+
+                            <div class="rounded-xl border border-slate-200 bg-slate-50 p-4" data-navigation-item-row>
+                                <div class="grid grid-cols-1 gap-3 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)_150px_220px]">
+                                    <div>
+                                        <label class="form-label">Label</label>
+                                        <input type="text" name="navigation_items[{{ $index }}][label]" data-field="label" value="{{ $item['label'] ?? '' }}" class="{{ $inputClass }}" placeholder="Packages">
+                                        @error("navigation_items.$index.label") <p class="form-error">{{ $message }}</p> @enderror
+                                    </div>
+                                    <div>
+                                        <label class="form-label">URL</label>
+                                        <input type="text" name="navigation_items[{{ $index }}][url]" data-field="url" value="{{ $item['url'] ?? '' }}" class="{{ $inputClass }}" placeholder="/products">
+                                        @error("navigation_items.$index.url") <p class="form-error">{{ $message }}</p> @enderror
+                                    </div>
+                                    <label class="flex items-center gap-2 pt-8 text-sm font-semibold text-slate-700">
+                                        <input type="checkbox" name="navigation_items[{{ $index }}][is_external]" data-field="is_external" value="1" @checked((bool) ($item['is_external'] ?? false)) class="h-5 w-5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500">
+                                        Open in new tab
+                                    </label>
+                                    <div class="flex flex-wrap items-end gap-2">
+                                        <button type="button" data-move-navigation-item="up" class="rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-600 transition hover:bg-white">Move Up</button>
+                                        <button type="button" data-move-navigation-item="down" class="rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-600 transition hover:bg-white">Move Down</button>
+                                        <button type="button" data-remove-navigation-item class="rounded-lg border border-red-200 px-3 py-2 text-xs font-semibold text-red-600 transition hover:bg-red-50">Remove</button>
+                                    </div>
+                                </div>
+
+                                <div class="mt-4 rounded-xl border border-slate-200 bg-white p-4">
+                                    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                                        <div>
+                                            <h4 class="text-sm font-bold text-slate-800">Dropdown Items</h4>
+                                            <p class="mt-1 text-xs text-slate-500">Optional submenu shown under this menu item.</p>
+                                        </div>
+                                        <button type="button" data-add-navigation-child class="rounded-lg border border-emerald-200 px-3 py-2 text-xs font-semibold text-emerald-700 transition hover:bg-emerald-50">Add Dropdown</button>
+                                    </div>
+
+                                    <div class="mt-3 space-y-3" data-navigation-children-list>
+                                        @foreach($children as $childIndex => $child)
+                                            <div class="grid grid-cols-1 gap-3 rounded-lg border border-slate-200 bg-slate-50 p-3 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)_150px_auto]" data-navigation-child-row>
+                                                <div>
+                                                    <label class="form-label">Dropdown label</label>
+                                                    <input type="text" name="navigation_items[{{ $index }}][children][{{ $childIndex }}][label]" data-child-field="label" value="{{ $child['label'] ?? '' }}" class="{{ $inputClass }}" placeholder="Private Trip">
+                                                </div>
+                                                <div>
+                                                    <label class="form-label">Dropdown URL</label>
+                                                    <input type="text" name="navigation_items[{{ $index }}][children][{{ $childIndex }}][url]" data-child-field="url" value="{{ $child['url'] ?? '' }}" class="{{ $inputClass }}" placeholder="/products/private-trip">
+                                                </div>
+                                                <label class="flex items-center gap-2 pt-8 text-sm font-semibold text-slate-700">
+                                                    <input type="checkbox" name="navigation_items[{{ $index }}][children][{{ $childIndex }}][is_external]" data-child-field="is_external" value="1" @checked((bool) ($child['is_external'] ?? false)) class="h-5 w-5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500">
+                                                    New tab
+                                                </label>
+                                                <div class="flex items-end">
+                                                    <button type="button" data-remove-navigation-child class="w-full rounded-lg border border-red-200 px-3 py-2 text-xs font-semibold text-red-600 transition hover:bg-red-50">Remove</button>
+                                                </div>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                        </div>
+                    </details>
+                </div>
+
+                <div class="mt-5 flex items-center gap-3 border-t border-slate-200 pt-5">
+                    <button type="submit" class="btn-primary">Save Header Navigation</button>
+                </div>
+            </form>
+
+            <template data-navigation-item-template>
+                <div class="rounded-xl border border-slate-200 bg-slate-50 p-4" data-navigation-item-row>
+                    <div class="grid grid-cols-1 gap-3 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)_150px_220px]">
+                        <div>
+                            <label class="form-label">Label</label>
+                            <input type="text" data-field="label" class="{{ $inputClass }}" placeholder="Packages">
+                        </div>
+                        <div>
+                            <label class="form-label">URL</label>
+                            <input type="text" data-field="url" class="{{ $inputClass }}" placeholder="/products">
+                        </div>
+                        <label class="flex items-center gap-2 pt-8 text-sm font-semibold text-slate-700">
+                            <input type="checkbox" data-field="is_external" value="1" class="h-5 w-5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500">
+                            Open in new tab
+                        </label>
+                        <div class="flex flex-wrap items-end gap-2">
+                            <button type="button" data-move-navigation-item="up" class="rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-600 transition hover:bg-white">Move Up</button>
+                            <button type="button" data-move-navigation-item="down" class="rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-600 transition hover:bg-white">Move Down</button>
+                            <button type="button" data-remove-navigation-item class="rounded-lg border border-red-200 px-3 py-2 text-xs font-semibold text-red-600 transition hover:bg-red-50">Remove</button>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 rounded-xl border border-slate-200 bg-white p-4">
+                        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                            <div>
+                                <h4 class="text-sm font-bold text-slate-800">Dropdown Items</h4>
+                                <p class="mt-1 text-xs text-slate-500">Optional submenu shown under this menu item.</p>
+                            </div>
+                            <button type="button" data-add-navigation-child class="rounded-lg border border-emerald-200 px-3 py-2 text-xs font-semibold text-emerald-700 transition hover:bg-emerald-50">Add Dropdown</button>
+                        </div>
+                        <div class="mt-3 space-y-3" data-navigation-children-list></div>
+                    </div>
+                </div>
+            </template>
+
+            <template data-navigation-child-template>
+                <div class="grid grid-cols-1 gap-3 rounded-lg border border-slate-200 bg-slate-50 p-3 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)_150px_auto]" data-navigation-child-row>
+                    <div>
+                        <label class="form-label">Dropdown label</label>
+                        <input type="text" data-child-field="label" class="{{ $inputClass }}" placeholder="Private Trip">
+                    </div>
+                    <div>
+                        <label class="form-label">Dropdown URL</label>
+                        <input type="text" data-child-field="url" class="{{ $inputClass }}" placeholder="/products/private-trip">
+                    </div>
+                    <label class="flex items-center gap-2 pt-8 text-sm font-semibold text-slate-700">
+                        <input type="checkbox" data-child-field="is_external" value="1" class="h-5 w-5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500">
+                        New tab
+                    </label>
+                    <div class="flex items-end">
+                        <button type="button" data-remove-navigation-child class="w-full rounded-lg border border-red-200 px-3 py-2 text-xs font-semibold text-red-600 transition hover:bg-red-50">Remove</button>
+                    </div>
+                </div>
+            </template>
+
+            <script>
+                (function () {
+                    const listSelector = '[data-navigation-items-list]';
+                    const accordionSelector = '[data-navigation-accordion] details';
+
+                    document.querySelectorAll(accordionSelector).forEach(function (accordion) {
+                        accordion.addEventListener('toggle', function () {
+                            if (!accordion.open) {
+                                return;
+                            }
+
+                            document.querySelectorAll(accordionSelector).forEach(function (sibling) {
+                                if (sibling !== accordion) {
+                                    sibling.open = false;
+                                }
+                            });
+                        });
+                    });
+
+                    function reindexNavigationItems() {
+                        const list = document.querySelector('[data-navigation-items-list]');
+                        if (!list) {
+                            return;
+                        }
+
+                        list.querySelectorAll('[data-navigation-item-row]').forEach(function (row, index) {
+                            row.querySelectorAll('[data-field]').forEach(function (input) {
+                                input.name = `navigation_items[${index}][${input.dataset.field}]`;
+                            });
+
+                            row.querySelectorAll('[data-navigation-child-row]').forEach(function (childRow, childIndex) {
+                                childRow.querySelectorAll('[data-child-field]').forEach(function (input) {
+                                    input.name = `navigation_items[${index}][children][${childIndex}][${input.dataset.childField}]`;
+                                });
+                            });
+                        });
+                    }
+
+                    document.addEventListener('click', function (event) {
+                        if (event.target.matches('[data-add-navigation-item]')) {
+                            const list = document.querySelector(listSelector);
+                            const template = document.querySelector('[data-navigation-item-template]');
+                            const row = template.content.firstElementChild.cloneNode(true);
+
+                            list.appendChild(row);
+                            reindexNavigationItems();
+                        }
+
+                        if (event.target.matches('[data-add-navigation-child]')) {
+                            const row = event.target.closest('[data-navigation-item-row]');
+                            const childrenList = row.querySelector('[data-navigation-children-list]');
+                            const template = document.querySelector('[data-navigation-child-template]');
+                            const child = template.content.firstElementChild.cloneNode(true);
+
+                            childrenList.appendChild(child);
+                            reindexNavigationItems();
+                        }
+
+                        if (event.target.matches('[data-move-navigation-item]')) {
+                            const row = event.target.closest('[data-navigation-item-row]');
+                            const direction = event.target.dataset.moveNavigationItem;
+
+                            if (direction === 'up' && row.previousElementSibling) {
+                                row.parentNode.insertBefore(row, row.previousElementSibling);
+                            }
+
+                            if (direction === 'down' && row.nextElementSibling) {
+                                row.parentNode.insertBefore(row.nextElementSibling, row);
+                            }
+
+                            reindexNavigationItems();
+                        }
+
+                        if (event.target.matches('[data-remove-navigation-child]')) {
+                            event.target.closest('[data-navigation-child-row]').remove();
+                            reindexNavigationItems();
+                        }
+
+                        if (event.target.matches('[data-remove-navigation-item]')) {
+                            const row = event.target.closest('[data-navigation-item-row]');
+                            const list = document.querySelector(listSelector);
+
+                            if (list.querySelectorAll('[data-navigation-item-row]').length > 1) {
+                                row.remove();
+                            } else {
+                                row.querySelectorAll('input').forEach(function (input) {
+                                    if (input.type === 'checkbox') {
+                                        input.checked = false;
+                                    } else {
+                                        input.value = '';
+                                    }
+                                });
+                                row.querySelector('[data-navigation-children-list]').innerHTML = '';
+                            }
+
+                            reindexNavigationItems();
+                        }
+                    });
+
+                    reindexNavigationItems();
+                })();
             </script>
         @endif
     </div>

@@ -10,6 +10,7 @@ use App\Support\BrandColorSettings;
 use App\Support\BusinessIdentitySettings;
 use App\Support\ContactInformationSettings;
 use App\Support\HomepageSectionMedia;
+use App\Support\NavigationSettings;
 use App\Support\SocialMediaLinkSettings;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
@@ -73,8 +74,17 @@ class SiteSettingController extends Controller
                 ->keyBy('key')
             : collect();
         $socialMediaLinks = SocialMediaLinkSettings::valuesFromSettings($socialMediaLinkSettings);
+        $navigationFields = NavigationSettings::fields();
+        $navigationSettingsRows = Schema::hasTable('site_settings')
+            ? SiteSetting::query()
+                ->where('group', NavigationSettings::GROUP)
+                ->where('is_active', true)
+                ->get()
+                ->keyBy('key')
+            : collect();
+        $navigationSettings = NavigationSettings::valuesFromSettings($navigationSettingsRows);
 
-        return view('backend.settings.global-assets', compact('activeTab', 'assetTabs', 'logoVariants', 'siteLogos', 'favicon', 'faviconConfig', 'socialShareImage', 'socialShareConfig', 'brandColorFields', 'brandColors', 'businessIdentityFields', 'businessIdentity', 'contactInformationFields', 'contactInformation', 'socialMediaLinkFields', 'socialMediaLinks'));
+        return view('backend.settings.global-assets', compact('activeTab', 'assetTabs', 'logoVariants', 'siteLogos', 'favicon', 'faviconConfig', 'socialShareImage', 'socialShareConfig', 'brandColorFields', 'brandColors', 'businessIdentityFields', 'businessIdentity', 'contactInformationFields', 'contactInformation', 'socialMediaLinkFields', 'socialMediaLinks', 'navigationFields', 'navigationSettings'));
     }
 
     public function update(Request $request)
@@ -379,6 +389,76 @@ class SiteSettingController extends Controller
             ->with('success', 'Social media links updated successfully.');
     }
 
+    public function updateNavigationSettings(Request $request)
+    {
+        if (! Schema::hasTable('site_settings')) {
+            return redirect()
+                ->route('admin.settings.global-assets.edit', ['tab' => 'navigation-settings'])
+                ->withErrors(['navigation_settings' => 'Please run database migrations before updating navigation settings.']);
+        }
+
+        $navigationSettingRules = collect(NavigationSettings::fields())
+            ->mapWithKeys(function (array $field) {
+                $rules = match ($field['type']) {
+                    'boolean' => ['nullable', 'boolean'],
+                    'color' => ['nullable', 'regex:/^#[0-9A-Fa-f]{6}$/'],
+                    default => ['nullable', 'string', 'max:500'],
+                };
+
+                if ($field['slug'] === 'cta_label') {
+                    $rules = ['nullable', 'string', 'max:100'];
+                }
+
+                return ['navigation_settings.' . $field['slug'] => $rules];
+            })
+            ->all();
+
+        $validated = $request->validate([
+            ...$navigationSettingRules,
+            'navigation_items' => ['nullable', 'array'],
+            'navigation_items.*.label' => ['nullable', 'string', 'max:80'],
+            'navigation_items.*.url' => ['nullable', 'string', 'max:500'],
+            'navigation_items.*.is_external' => ['nullable', 'boolean'],
+            'navigation_items.*.children' => ['nullable', 'array'],
+            'navigation_items.*.children.*.label' => ['nullable', 'string', 'max:80'],
+            'navigation_items.*.children.*.url' => ['nullable', 'string', 'max:500'],
+            'navigation_items.*.children.*.is_external' => ['nullable', 'boolean'],
+        ]);
+
+        $settings = $validated['navigation_settings'] ?? [];
+        $items = NavigationSettings::normalizeItems($validated['navigation_items'] ?? []);
+
+        foreach (NavigationSettings::fields() as $field) {
+            SiteSetting::updateOrCreate(
+                ['key' => $field['key']],
+                [
+                    'label' => $field['label'],
+                    'value' => $field['slug'] === 'is_sticky'
+                        ? (string) (int) (bool) ($settings[$field['slug']] ?? false)
+                        : ($settings[$field['slug']] ?? $field['default']),
+                    'type' => $field['type'],
+                    'group' => NavigationSettings::GROUP,
+                    'is_active' => true,
+                ]
+            );
+        }
+
+        SiteSetting::updateOrCreate(
+            ['key' => NavigationSettings::ITEMS_KEY],
+            [
+                'label' => 'Header navigation items',
+                'value' => json_encode($items !== [] ? $items : NavigationSettings::defaultItems()),
+                'type' => 'json',
+                'group' => NavigationSettings::GROUP,
+                'is_active' => true,
+            ]
+        );
+
+        return redirect()
+            ->route('admin.settings.global-assets.edit', ['tab' => 'navigation-settings'])
+            ->with('success', 'Header navigation settings updated successfully.');
+    }
+
     private function assetTabs(): array
     {
         return [
@@ -416,6 +496,11 @@ class SiteSettingController extends Controller
                 'key' => 'social-media-links',
                 'label' => 'Social Media Links',
                 'description' => 'Global social profile URLs rendered in footer and future menus.',
+            ],
+            [
+                'key' => 'navigation-settings',
+                'label' => 'Header Navigation',
+                'description' => 'Global header menu items, CTA link, and sticky behavior for the public frontend.',
             ],
         ];
     }
