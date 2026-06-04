@@ -6,7 +6,7 @@
           content="width=device-width, initial-scale=1.0">
 
     <title>
-        {{ $title ?? config('app.name') }}
+        {{ $title ?? ($businessIdentity['brand_name'] ?? config('app.name')) }}
     </title>
 
     @include('partials.site-favicon')

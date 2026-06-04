@@ -8,15 +8,17 @@
            aria-label="Bintan Prestige home">
             @php
                 $headerLogo = isset($siteAssets) ? (($siteAssets['site.logo.dark'] ?? null) ?: ($siteAssets['site.logo'] ?? null)) : null;
+                $brandName = $businessIdentity['brand_name'] ?? 'Bintan Prestige';
+                $brandInitials = collect(explode(' ', $brandName))->filter()->map(fn ($part) => mb_substr($part, 0, 1))->take(2)->implode('');
             @endphp
             <span class="frontend-brand__mark">
                 @if($headerLogo?->url)
-                    <img src="{{ $headerLogo->url }}" alt="{{ $headerLogo->alt ?: 'Bintan Prestige logo' }}">
+                    <img src="{{ $headerLogo->url }}" alt="{{ $headerLogo->alt ?: $brandName . ' logo' }}">
                 @else
-                    BP
+                    {{ $brandInitials ?: 'BP' }}
                 @endif
             </span>
-            <span>Bintan Prestige</span>
+            <span>{{ $brandName }}</span>
         </a>
 
         <nav class="frontend-nav" aria-label="Main navigation">

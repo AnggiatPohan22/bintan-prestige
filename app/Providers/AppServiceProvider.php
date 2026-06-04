@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Models\SiteAsset;
 use App\Models\SiteSetting;
 use App\Support\BrandColorSettings;
+use App\Support\BusinessIdentitySettings;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
@@ -40,19 +41,31 @@ class AppServiceProvider extends ServiceProvider
                     ->keyBy('key'));
             }
 
-            if (array_key_exists('brandColors', $view->getData())) {
-                return;
+            $siteSettingsTableExists = Schema::hasTable('site_settings');
+
+            if (! array_key_exists('brandColors', $view->getData())) {
+                $brandColorSettings = $siteSettingsTableExists
+                    ? SiteSetting::query()
+                        ->where('group', BrandColorSettings::GROUP)
+                        ->where('is_active', true)
+                        ->get()
+                        ->keyBy('key')
+                    : collect();
+
+                $view->with('brandColors', BrandColorSettings::valuesFromSettings($brandColorSettings));
             }
 
-            $brandColorSettings = Schema::hasTable('site_settings')
-                ? SiteSetting::query()
-                    ->where('group', BrandColorSettings::GROUP)
-                    ->where('is_active', true)
-                    ->get()
-                    ->keyBy('key')
-                : collect();
+            if (! array_key_exists('businessIdentity', $view->getData())) {
+                $identitySettings = $siteSettingsTableExists
+                    ? SiteSetting::query()
+                        ->where('group', BusinessIdentitySettings::GROUP)
+                        ->where('is_active', true)
+                        ->get()
+                        ->keyBy('key')
+                    : collect();
 
-            $view->with('brandColors', BrandColorSettings::valuesFromSettings($brandColorSettings));
+                $view->with('businessIdentity', BusinessIdentitySettings::valuesFromSettings($identitySettings));
+            }
         });
     }
 }

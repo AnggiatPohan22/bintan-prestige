@@ -7,6 +7,7 @@ use App\Models\SiteAsset;
 use App\Models\SiteSetting;
 use App\Services\PageSectionImageService;
 use App\Support\BrandColorSettings;
+use App\Support\BusinessIdentitySettings;
 use App\Support\HomepageSectionMedia;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
@@ -46,8 +47,16 @@ class SiteSettingController extends Controller
                 ->keyBy('key')
             : collect();
         $brandColors = BrandColorSettings::valuesFromSettings($brandColorSettings);
+        $businessIdentityFields = BusinessIdentitySettings::fields();
+        $businessIdentitySettings = Schema::hasTable('site_settings')
+            ? SiteSetting::query()
+                ->whereIn('key', array_column($businessIdentityFields, 'key'))
+                ->get()
+                ->keyBy('key')
+            : collect();
+        $businessIdentity = BusinessIdentitySettings::valuesFromSettings($businessIdentitySettings);
 
-        return view('backend.settings.global-assets', compact('activeTab', 'assetTabs', 'logoVariants', 'siteLogos', 'favicon', 'faviconConfig', 'socialShareImage', 'socialShareConfig', 'brandColorFields', 'brandColors'));
+        return view('backend.settings.global-assets', compact('activeTab', 'assetTabs', 'logoVariants', 'siteLogos', 'favicon', 'faviconConfig', 'socialShareImage', 'socialShareConfig', 'brandColorFields', 'brandColors', 'businessIdentityFields', 'businessIdentity'));
     }
 
     public function update(Request $request)
@@ -212,6 +221,41 @@ class SiteSettingController extends Controller
             ->with('success', 'Default social share image deleted successfully.');
     }
 
+    public function updateBusinessIdentity(Request $request)
+    {
+        if (! Schema::hasTable('site_settings')) {
+            return redirect()
+                ->route('admin.settings.global-assets.edit', ['tab' => 'business-identity'])
+                ->withErrors(['business_identity' => 'Please run database migrations before updating business identity.']);
+        }
+
+        $rules = collect(BusinessIdentitySettings::fields())
+            ->mapWithKeys(fn (array $field) => [
+                'business_identity.' . $field['slug'] => ['nullable', 'string', 'max:' . ($field['type'] === 'textarea' ? 1000 : 255)],
+            ])
+            ->all();
+
+        $validated = $request->validate($rules);
+        $identity = $validated['business_identity'] ?? [];
+
+        foreach (BusinessIdentitySettings::fields() as $field) {
+            SiteSetting::updateOrCreate(
+                ['key' => $field['key']],
+                [
+                    'label' => $field['label'],
+                    'value' => $identity[$field['slug']] ?? null,
+                    'type' => $field['type'],
+                    'group' => BusinessIdentitySettings::GROUP,
+                    'is_active' => true,
+                ]
+            );
+        }
+
+        return redirect()
+            ->route('admin.settings.global-assets.edit', ['tab' => 'business-identity'])
+            ->with('success', 'Business identity updated successfully.');
+    }
+
     private function assetTabs(): array
     {
         return [
@@ -234,6 +278,11 @@ class SiteSettingController extends Controller
                 'key' => 'social-share-image',
                 'label' => 'Social Share Image',
                 'description' => 'Default image for WhatsApp, Facebook, X, LinkedIn, and other link previews.',
+            ],
+            [
+                'key' => 'business-identity',
+                'label' => 'Business Identity',
+                'description' => 'Global brand name, legal name, tagline, description, business type, and footer identity.',
             ],
         ];
     }

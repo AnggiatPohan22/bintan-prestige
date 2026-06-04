@@ -278,6 +278,42 @@
                 </div>
             </div>
         @endif
+
+        @if($activeTab === 'business-identity')
+            <form method="POST" action="{{ route('admin.settings.global-assets.business-identity.update') }}" class="rounded-xl border border-slate-200 bg-slate-50 p-5">
+                @csrf
+                @method('PUT')
+
+                <h2 class="text-lg font-bold text-slate-800">Business Identity</h2>
+                <p class="mt-1 text-sm text-slate-500">These values are reused by the frontend header, footer, default metadata, and future structured data.</p>
+
+                <div class="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-2">
+                    @foreach($businessIdentityFields as $field)
+                        @php
+                            $value = old("business_identity.{$field['slug']}", $businessIdentity[$field['slug']] ?? $field['default']);
+                        @endphp
+
+                        <div class="rounded-xl border border-slate-200 bg-white p-4 {{ $field['type'] === 'textarea' ? 'lg:col-span-2' : '' }}">
+                            <label class="form-label">{{ $field['label'] }}</label>
+
+                            @if($field['type'] === 'textarea')
+                                <textarea name="business_identity[{{ $field['slug'] }}]" rows="4" class="{{ $inputClass }}">{{ $value }}</textarea>
+                            @else
+                                <input type="text" name="business_identity[{{ $field['slug'] }}]" value="{{ $value }}" class="{{ $inputClass }}">
+                            @endif
+
+                            <p class="mt-2 text-xs text-slate-500">{{ $field['hint'] }}</p>
+                            <p class="mt-2 text-[11px] font-semibold uppercase text-slate-400">{{ $field['key'] }}</p>
+                            @error("business_identity.{$field['slug']}") <p class="form-error">{{ $message }}</p> @enderror
+                        </div>
+                    @endforeach
+                </div>
+
+                <div class="mt-5 flex items-center gap-3 border-t border-slate-200 pt-5">
+                    <button type="submit" class="btn-primary">Save Business Identity</button>
+                </div>
+            </form>
+        @endif
     </div>
 </div>
 

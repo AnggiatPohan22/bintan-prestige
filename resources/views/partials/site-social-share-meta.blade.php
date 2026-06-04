@@ -1,7 +1,8 @@
 @php
     $shareImage = isset($siteAssets) ? ($siteAssets['site.social_share.default_image'] ?? null) : null;
-    $shareTitle = $socialShareTitle ?? $title ?? config('app.name');
-    $shareDescription = $socialShareDescription ?? config('app.name');
+    $identity = $businessIdentity ?? [];
+    $shareTitle = $socialShareTitle ?? $title ?? ($identity['brand_name'] ?? config('app.name'));
+    $shareDescription = $socialShareDescription ?? ($identity['short_description'] ?? config('app.name'));
 @endphp
 
 <meta property="og:type" content="{{ $socialShareType ?? 'website' }}">

@@ -39,24 +39,29 @@
             <div class="bp-footer__brand">
                 @php
                     $footerLogo = isset($siteAssets) ? (($siteAssets['site.logo.light'] ?? null) ?: ($siteAssets['site.logo'] ?? null)) : null;
+                    $brandName = $businessIdentity['brand_name'] ?? 'Bintan Prestige';
+                    $brandInitials = collect(explode(' ', $brandName))->filter()->map(fn ($part) => mb_substr($part, 0, 1))->take(2)->implode('');
+                    $shortDescription = $businessIdentity['short_description'] ?? 'Luxury Bintan tours, private transfers, and curated island experiences arranged with comfort, quality, and simple WhatsApp booking.';
+                    $locationLabel = $businessIdentity['location_label'] ?? 'Bintan Island, Indonesia';
+                    $copyrightText = $businessIdentity['copyright_text'] ?? 'All rights reserved.';
                 @endphp
 
                 <a href="{{ route('home') }}" class="bp-footer__brand-link" aria-label="Bintan Prestige home">
                     <span class="bp-footer__brand-mark">
                         @if($footerLogo?->url)
-                            <img src="{{ $footerLogo->url }}" alt="{{ $footerLogo->alt ?: 'Bintan Prestige logo' }}">
+                            <img src="{{ $footerLogo->url }}" alt="{{ $footerLogo->alt ?: $brandName . ' logo' }}">
                         @else
-                            BP
+                            {{ $brandInitials ?: 'BP' }}
                         @endif
                     </span>
 
                     <span id="footer-title">
-                        Bintan Prestige
+                        {{ $brandName }}
                     </span>
                 </a>
 
                 <p class="bp-footer__text">
-                    Luxury Bintan tours, private transfers, and curated island experiences arranged with comfort, quality, and simple WhatsApp booking.
+                    {{ $shortDescription }}
                 </p>
 
                 <form class="bp-footer__newsletter" action="#" method="GET">
@@ -103,7 +108,7 @@
 
                 <div class="bp-footer__column">
                     <h3>Information</h3>
-                    <span>Bintan Island, Indonesia</span>
+                    <span>{{ $locationLabel }}</span>
                     <a href="https://wa.me/?text={{ urlencode('Hello Bintan Prestige, I want to ask about Bintan packages.') }}" target="_blank" rel="noopener noreferrer">
                         WhatsApp Contact
                     </a>
@@ -122,7 +127,7 @@
         </div>
 
         <div class="bp-footer__bottom">
-            <span>&copy; 2026 Bintan Prestige. All rights reserved.</span>
+            <span>&copy; 2026 {{ $brandName }}. {{ $copyrightText }}</span>
             <span>Designed for premium island travel.</span>
         </div>
     </div>

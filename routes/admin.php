@@ -53,6 +53,9 @@ Route::middleware(['auth'])
         Route::delete('settings/global-assets/social-share-image', [SiteSettingController::class, 'destroySocialShareImage'])
             ->name('settings.global-assets.social-share-image.destroy');
 
+        Route::put('settings/global-assets/business-identity', [SiteSettingController::class, 'updateBusinessIdentity'])
+            ->name('settings.global-assets.business-identity.update');
+
         Route::get('page-sections', [PageSectionController::class, 'index'])
             ->name('page-sections.index');
 
