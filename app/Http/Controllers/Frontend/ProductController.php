@@ -188,6 +188,8 @@ class ProductController extends Controller
                 'seoImage' =>
                     $product->og_image_url
                     ?: $product->thumbnail_url,
+
+                'socialShareType' => 'product',
             ]
         );
     }

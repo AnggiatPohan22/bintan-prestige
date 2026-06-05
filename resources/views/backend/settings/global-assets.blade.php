@@ -1253,6 +1253,91 @@
                 })();
             </script>
         @endif
+
+        @if($activeTab === 'seo-default')
+            <form method="POST" action="{{ route('admin.settings.global-assets.seo-default.update') }}" enctype="multipart/form-data" class="rounded-xl border border-slate-200 bg-slate-50 p-5">
+                @csrf
+                @method('PUT')
+
+                <h2 class="text-lg font-bold text-slate-800">SEO Default</h2>
+                <p class="mt-1 text-sm text-slate-500">Global fallback SEO for pages and products that do not provide their own metadata.</p>
+
+                <div class="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-2">
+                    @foreach($seoDefaultFields as $field)
+                        @php
+                            $value = old("seo_default.{$field['slug']}", $seoDefaultSettings[$field['slug']] ?? $field['default']);
+                            $checkedValue = filter_var($value, FILTER_VALIDATE_BOOL);
+                        @endphp
+
+                        <div class="rounded-xl border border-slate-200 bg-white p-4 {{ in_array($field['type'], ['textarea', 'boolean'], true) ? 'lg:col-span-2' : '' }}">
+                            @if($field['type'] === 'boolean')
+                                <input type="hidden" name="seo_default[{{ $field['slug'] }}]" value="0">
+                                <label class="flex items-start gap-3">
+                                    <input type="checkbox" name="seo_default[{{ $field['slug'] }}]" value="1" @checked($checkedValue) class="mt-1 h-5 w-5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500">
+                                    <span>
+                                        <span class="block text-sm font-bold text-slate-800">{{ $field['label'] }}</span>
+                                        <span class="mt-1 block text-xs text-slate-500">{{ $field['hint'] }}</span>
+                                        <span class="mt-2 block text-[11px] font-semibold uppercase text-slate-400">{{ $field['key'] }}</span>
+                                    </span>
+                                </label>
+                            @elseif($field['type'] === 'select')
+                                <label class="form-label">{{ $field['label'] }}</label>
+                                <select name="seo_default[{{ $field['slug'] }}]" class="{{ $inputClass }}">
+                                    @foreach($field['options'] as $optionValue => $optionLabel)
+                                        <option value="{{ $optionValue }}" @selected($value === $optionValue)>{{ $optionLabel }}</option>
+                                    @endforeach
+                                </select>
+                                <p class="mt-2 text-xs text-slate-500">{{ $field['hint'] }}</p>
+                                <p class="mt-2 text-[11px] font-semibold uppercase text-slate-400">{{ $field['key'] }}</p>
+                            @elseif($field['type'] === 'textarea')
+                                <label class="form-label">{{ $field['label'] }}</label>
+                                <textarea name="seo_default[{{ $field['slug'] }}]" rows="3" class="{{ $inputClass }}">{{ $value }}</textarea>
+                                <p class="mt-2 text-xs text-slate-500">{{ $field['hint'] }}</p>
+                                <p class="mt-2 text-[11px] font-semibold uppercase text-slate-400">{{ $field['key'] }}</p>
+                            @else
+                                <label class="form-label">{{ $field['label'] }}</label>
+                                <input type="{{ $field['type'] === 'url' ? 'url' : 'text' }}" name="seo_default[{{ $field['slug'] }}]" value="{{ $value }}" class="{{ $inputClass }}" placeholder="{{ $field['default'] }}">
+                                <p class="mt-2 text-xs text-slate-500">{{ $field['hint'] }}</p>
+                                <p class="mt-2 text-[11px] font-semibold uppercase text-slate-400">{{ $field['key'] }}</p>
+                            @endif
+
+                            @error("seo_default.{$field['slug']}") <p class="form-error">{{ $message }}</p> @enderror
+                        </div>
+                    @endforeach
+                </div>
+
+                <div class="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
+                    <div class="rounded-xl border border-slate-200 bg-white p-4">
+                        <label class="form-label">Default OG image</label>
+                        <input type="file" name="seo_default_og_image" accept="image/jpeg,image/png,image/webp" class="{{ $inputClass }}">
+                        <p class="mt-2 text-xs text-slate-500">Fallback social preview image when a product or page does not provide one. Recommended size: 1200 x 630 px.</p>
+                        <p class="mt-2 text-[11px] font-semibold uppercase text-slate-400">{{ \App\Support\SeoDefaultSettings::OG_IMAGE_KEY }}</p>
+                        @error('seo_default_og_image') <p class="form-error">{{ $message }}</p> @enderror
+                    </div>
+
+                    <div class="rounded-xl border border-slate-200 bg-white p-4">
+                        <h3 class="text-base font-bold text-slate-800">Current OG Image</h3>
+
+                        @if($seoDefaultOgImage?->url)
+                            <img src="{{ $seoDefaultOgImage->url }}" alt="{{ $seoDefaultOgImage->alt }}" class="mt-4 aspect-[1200/630] w-full rounded-lg border bg-white object-cover">
+                            <form method="POST" action="{{ route('admin.settings.global-assets.seo-default.og-image.destroy') }}" class="mt-4">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" onclick="return confirm('Delete the default SEO OG image?')" class="w-full rounded-lg border border-red-200 px-4 py-3 text-sm font-semibold text-red-600 transition hover:bg-red-50">Delete OG Image</button>
+                            </form>
+                        @else
+                            <div class="mt-4 flex aspect-[1200/630] items-center justify-center rounded-xl border border-dashed bg-slate-50 text-sm font-semibold text-slate-400">
+                                No SEO OG image uploaded
+                            </div>
+                        @endif
+                    </div>
+                </div>
+
+                <div class="mt-5 flex items-center gap-3 border-t border-slate-200 pt-5">
+                    <button type="submit" class="btn-primary">Save SEO Default</button>
+                </div>
+            </form>
+        @endif
     </div>
 </div>
 

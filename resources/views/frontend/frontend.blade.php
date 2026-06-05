@@ -1,12 +1,18 @@
+@php
+    $seoDefaults = $seoDefaultSettings ?? [];
+    $baseTitle = $seoTitle ?? $title ?? $seoDefaults['meta_title'] ?? ($businessIdentity['brand_name'] ?? config('app.name'));
+    $documentTitle = \App\Support\SeoDefaultSettings::titleWithSuffix($baseTitle, $seoDefaults);
+@endphp
+
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ $seoDefaults['language'] ?? 'en' }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0">
 
     <title>
-        {{ $title ?? ($businessIdentity['brand_name'] ?? config('app.name')) }}
+        {{ $documentTitle }}
     </title>
 
     @include('partials.site-favicon')

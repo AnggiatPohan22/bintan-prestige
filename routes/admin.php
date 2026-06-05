@@ -68,6 +68,12 @@ Route::middleware(['auth'])
         Route::put('settings/global-assets/footer-settings', [SiteSettingController::class, 'updateFooterSettings'])
             ->name('settings.global-assets.footer-settings.update');
 
+        Route::put('settings/global-assets/seo-default', [SiteSettingController::class, 'updateSeoDefaultSettings'])
+            ->name('settings.global-assets.seo-default.update');
+
+        Route::delete('settings/global-assets/seo-default/og-image', [SiteSettingController::class, 'destroySeoDefaultOgImage'])
+            ->name('settings.global-assets.seo-default.og-image.destroy');
+
         Route::get('page-sections', [PageSectionController::class, 'index'])
             ->name('page-sections.index');
 

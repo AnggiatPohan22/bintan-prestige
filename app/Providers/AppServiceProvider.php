@@ -9,6 +9,7 @@ use App\Support\BusinessIdentitySettings;
 use App\Support\ContactInformationSettings;
 use App\Support\FooterSettings;
 use App\Support\NavigationSettings;
+use App\Support\SeoDefaultSettings;
 use App\Support\SocialMediaLinkSettings;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\View;
@@ -123,6 +124,18 @@ class AppServiceProvider extends ServiceProvider
                     : collect();
 
                 $view->with('footerSettings', FooterSettings::valuesFromSettings($footerRows));
+            }
+
+            if (! array_key_exists('seoDefaultSettings', $view->getData())) {
+                $seoRows = $siteSettingsTableExists
+                    ? SiteSetting::query()
+                        ->where('group', SeoDefaultSettings::GROUP)
+                        ->where('is_active', true)
+                        ->get()
+                        ->keyBy('key')
+                    : collect();
+
+                $view->with('seoDefaultSettings', SeoDefaultSettings::valuesFromSettings($seoRows));
             }
         });
     }

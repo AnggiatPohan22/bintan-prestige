@@ -12,9 +12,11 @@ use App\Support\ContactInformationSettings;
 use App\Support\FooterSettings;
 use App\Support\HomepageSectionMedia;
 use App\Support\NavigationSettings;
+use App\Support\SeoDefaultSettings;
 use App\Support\SocialMediaLinkSettings;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Validation\Rule;
 
 class SiteSettingController extends Controller
 {
@@ -35,6 +37,7 @@ class SiteSettingController extends Controller
                 ...array_column($logoVariants, 'key'),
                 $this->faviconConfig()['key'],
                 $this->socialShareConfig()['key'],
+                SeoDefaultSettings::OG_IMAGE_KEY,
             ])
             ->get()
             ->keyBy('key');
@@ -43,6 +46,7 @@ class SiteSettingController extends Controller
         $faviconConfig = $this->faviconConfig();
         $socialShareImage = $siteAssets[$this->socialShareConfig()['key']] ?? null;
         $socialShareConfig = $this->socialShareConfig();
+        $seoDefaultOgImage = $siteAssets[SeoDefaultSettings::OG_IMAGE_KEY] ?? null;
         $brandColorFields = BrandColorSettings::fields();
         $brandColorSettings = Schema::hasTable('site_settings')
             ? SiteSetting::query()
@@ -93,8 +97,17 @@ class SiteSettingController extends Controller
                 ->keyBy('key')
             : collect();
         $footerSettings = FooterSettings::valuesFromSettings($footerSettingsRows);
+        $seoDefaultFields = SeoDefaultSettings::fields();
+        $seoDefaultSettingsRows = Schema::hasTable('site_settings')
+            ? SiteSetting::query()
+                ->where('group', SeoDefaultSettings::GROUP)
+                ->where('is_active', true)
+                ->get()
+                ->keyBy('key')
+            : collect();
+        $seoDefaultSettings = SeoDefaultSettings::valuesFromSettings($seoDefaultSettingsRows);
 
-        return view('backend.settings.global-assets', compact('activeTab', 'assetTabs', 'logoVariants', 'siteLogos', 'favicon', 'faviconConfig', 'socialShareImage', 'socialShareConfig', 'brandColorFields', 'brandColors', 'businessIdentityFields', 'businessIdentity', 'contactInformationFields', 'contactInformation', 'socialMediaLinkFields', 'socialMediaLinks', 'navigationFields', 'navigationSettings', 'footerFields', 'footerSettings'));
+        return view('backend.settings.global-assets', compact('activeTab', 'assetTabs', 'logoVariants', 'siteLogos', 'favicon', 'faviconConfig', 'socialShareImage', 'socialShareConfig', 'seoDefaultOgImage', 'brandColorFields', 'brandColors', 'businessIdentityFields', 'businessIdentity', 'contactInformationFields', 'contactInformation', 'socialMediaLinkFields', 'socialMediaLinks', 'navigationFields', 'navigationSettings', 'footerFields', 'footerSettings', 'seoDefaultFields', 'seoDefaultSettings'));
     }
 
     public function update(Request $request)
@@ -574,6 +587,79 @@ class SiteSettingController extends Controller
             ->with('success', 'Footer settings updated successfully.');
     }
 
+    public function updateSeoDefaultSettings(Request $request)
+    {
+        if (! Schema::hasTable('site_settings')) {
+            return redirect()
+                ->route('admin.settings.global-assets.edit', ['tab' => 'seo-default'])
+                ->withErrors(['seo_default' => 'Please run database migrations before updating SEO defaults.']);
+        }
+
+        $rules = [];
+
+        foreach (SeoDefaultSettings::fields() as $field) {
+            $rules['seo_default.' . $field['slug']] = match ($field['type']) {
+                'boolean' => ['nullable', 'boolean'],
+                'select' => ['required', Rule::in(array_keys($field['options']))],
+                'url' => ['nullable', 'url', 'max:500'],
+                'textarea' => ['nullable', 'string', 'max:1000'],
+                default => ['nullable', 'string', 'max:255'],
+            };
+        }
+
+        $rules['seo_default_og_image'] = ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'];
+
+        $validated = $request->validate($rules);
+        $settings = $validated['seo_default'] ?? [];
+
+        foreach (SeoDefaultSettings::fields() as $field) {
+            SiteSetting::updateOrCreate(
+                ['key' => $field['key']],
+                [
+                    'label' => $field['label'],
+                    'value' => $field['type'] === 'boolean'
+                        ? (string) (int) (bool) ($settings[$field['slug']] ?? false)
+                        : ($settings[$field['slug']] ?? $field['default']),
+                    'type' => $field['type'],
+                    'group' => SeoDefaultSettings::GROUP,
+                    'is_active' => true,
+                ]
+            );
+        }
+
+        if ($request->hasFile('seo_default_og_image')) {
+            $this->imageService->storeSiteAssetUpload(
+                $request->file('seo_default_og_image'),
+                SeoDefaultSettings::OG_IMAGE_KEY,
+                'Default SEO OG image',
+                $settings['og_image_alt'] ?? null
+            );
+        } elseif (array_key_exists('og_image_alt', $settings)) {
+            SiteAsset::query()
+                ->where('key', SeoDefaultSettings::OG_IMAGE_KEY)
+                ->update(['alt' => $settings['og_image_alt']]);
+        }
+
+        return redirect()
+            ->route('admin.settings.global-assets.edit', ['tab' => 'seo-default'])
+            ->with('success', 'SEO defaults updated successfully.');
+    }
+
+    public function destroySeoDefaultOgImage()
+    {
+        $asset = SiteAsset::query()
+            ->where('key', SeoDefaultSettings::OG_IMAGE_KEY)
+            ->first();
+
+        if ($asset) {
+            $this->imageService->clearSiteAsset($asset);
+        }
+
+        return redirect()
+            ->route('admin.settings.global-assets.edit', ['tab' => 'seo-default'])
+            ->with('success', 'Default SEO OG image deleted successfully.');
+    }
+
     private function assetTabs(): array
     {
         return [
@@ -621,6 +707,11 @@ class SiteSettingController extends Controller
                 'key' => 'footer-settings',
                 'label' => 'Footer Settings',
                 'description' => 'Footer logo source, footer menus, display controls, and global contact/social rendering.',
+            ],
+            [
+                'key' => 'seo-default',
+                'label' => 'SEO Default',
+                'description' => 'Global fallback metadata, canonical base URL, social preview, and schema controls.',
             ],
         ];
     }

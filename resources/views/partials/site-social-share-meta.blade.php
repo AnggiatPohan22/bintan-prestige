@@ -1,18 +1,62 @@
 @php
-    $shareImage = isset($siteAssets) ? ($siteAssets['site.social_share.default_image'] ?? null) : null;
+    $seoDefaults = $seoDefaultSettings ?? [];
+    $seoDefaultImage = isset($siteAssets) ? ($siteAssets[\App\Support\SeoDefaultSettings::OG_IMAGE_KEY] ?? null) : null;
+    $shareImage = $seoImage ?? $seoDefaultImage ?? (isset($siteAssets) ? ($siteAssets['site.social_share.default_image'] ?? null) : null);
     $identity = $businessIdentity ?? [];
-    $shareTitle = $socialShareTitle ?? $title ?? ($identity['brand_name'] ?? config('app.name'));
-    $shareDescription = $socialShareDescription ?? ($identity['short_description'] ?? config('app.name'));
+    $siteName = $seoDefaults['site_name'] ?: ($identity['brand_name'] ?? config('app.name'));
+    $baseTitle = $seoTitle ?? $title ?? $seoDefaults['meta_title'] ?? $siteName;
+    $pageTitle = \App\Support\SeoDefaultSettings::titleWithSuffix($baseTitle, $seoDefaults);
+    $pageDescription = $seoDescription ?? $seoDefaults['meta_description'] ?? ($identity['short_description'] ?? config('app.name'));
+    $pageKeywords = $seoKeywords ?? $seoDefaults['keywords'] ?? null;
+    $canonical = \App\Support\SeoDefaultSettings::canonicalUrl($canonicalUrl ?? null, $seoDefaults);
+    $shareTitle = $socialShareTitle ?? $seoDefaults['og_title'] ?? $pageTitle;
+    $shareTitle = $shareTitle ?: $pageTitle;
+    $shareDescription = $socialShareDescription ?? $seoDefaults['og_description'] ?? $pageDescription;
+    $shareDescription = $shareDescription ?: $pageDescription;
+    $shareImageUrl = is_string($shareImage) ? $shareImage : $shareImage?->url;
+    $shareImageAlt = $seoImageAlt ?? $seoDefaults['og_image_alt'] ?? (is_string($shareImage) ? $pageTitle : $shareImage?->alt);
 @endphp
 
+<meta name="description" content="{{ $pageDescription }}">
+@if($pageKeywords)
+    <meta name="keywords" content="{{ $pageKeywords }}">
+@endif
+<meta name="robots" content="{{ $seoRobots ?? ($seoDefaults['robots'] ?? 'index, follow') }}">
+<link rel="canonical" href="{{ $canonical }}">
+
 <meta property="og:type" content="{{ $socialShareType ?? 'website' }}">
+<meta property="og:site_name" content="{{ $siteName }}">
+<meta property="og:locale" content="{{ $seoDefaults['locale'] ?? 'en_US' }}">
+<meta property="og:url" content="{{ $canonical }}">
 <meta property="og:title" content="{{ $shareTitle }}">
 <meta property="og:description" content="{{ $shareDescription }}">
-<meta name="twitter:card" content="{{ $shareImage?->url ? 'summary_large_image' : 'summary' }}">
+<meta name="twitter:card" content="{{ $seoDefaults['twitter_card_type'] ?? ($shareImageUrl ? 'summary_large_image' : 'summary') }}">
 <meta name="twitter:title" content="{{ $shareTitle }}">
 <meta name="twitter:description" content="{{ $shareDescription }}">
 
-@if($shareImage?->url)
-    <meta property="og:image" content="{{ $shareImage->url }}">
-    <meta name="twitter:image" content="{{ $shareImage->url }}">
+@if($shareImageUrl)
+    <meta property="og:image" content="{{ $shareImageUrl }}">
+    <meta name="twitter:image" content="{{ $shareImageUrl }}">
+    @if($shareImageAlt)
+        <meta property="og:image:alt" content="{{ $shareImageAlt }}">
+    @endif
+@endif
+
+@if($seoDefaults['enable_organization_schema'] ?? true)
+    @php
+        $schemaLogo = isset($siteAssets) ? (($siteAssets['site.logo'] ?? null)?->url ?: ($siteAssets['site.logo.dark'] ?? null)?->url) : null;
+        $schema = array_filter([
+            '@context' => 'https://schema.org',
+            '@type' => 'Organization',
+            'name' => $siteName,
+            'url' => $seoDefaults['canonical_base_url'] ?? url('/'),
+            'logo' => $schemaLogo,
+            'description' => $identity['short_description'] ?? null,
+            'email' => $contactInformation['email'] ?? null,
+            'telephone' => $contactInformation['phone'] ?? null,
+            'sameAs' => collect($activeSocialMediaLinks ?? [])->pluck('url')->filter()->values()->all() ?: null,
+        ]);
+    @endphp
+
+    <script type="application/ld+json">{!! json_encode($schema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}</script>
 @endif
