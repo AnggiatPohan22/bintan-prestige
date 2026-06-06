@@ -16,6 +16,7 @@ use App\Support\HomepageSectionMedia;
 use App\Support\NavigationSettings;
 use App\Support\SeoDefaultSettings;
 use App\Support\SocialMediaLinkSettings;
+use App\Support\StructuredDataSettings;
 use App\Support\TrackingIntegrationSettings;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
@@ -138,8 +139,17 @@ class SiteSettingController extends Controller
                 ->keyBy('key')
             : collect();
         $bookingCtaSettings = BookingCtaSettings::valuesFromSettings($bookingCtaRows);
+        $structuredDataFields = StructuredDataSettings::fields();
+        $structuredDataRows = Schema::hasTable('site_settings')
+            ? SiteSetting::query()
+                ->where('group', StructuredDataSettings::GROUP)
+                ->where('is_active', true)
+                ->get()
+                ->keyBy('key')
+            : collect();
+        $structuredDataSettings = StructuredDataSettings::valuesFromSettings($structuredDataRows);
 
-        return view('backend.settings.global-assets', compact('activeTab', 'assetTabs', 'logoVariants', 'siteLogos', 'favicon', 'faviconConfig', 'socialShareImage', 'socialShareConfig', 'seoDefaultOgImage', 'defaultMediaVariants', 'defaultMediaAssets', 'defaultMediaSettings', 'brandColorFields', 'brandColors', 'businessIdentityFields', 'businessIdentity', 'contactInformationFields', 'contactInformation', 'socialMediaLinkFields', 'socialMediaLinks', 'navigationFields', 'navigationSettings', 'footerFields', 'footerSettings', 'seoDefaultFields', 'seoDefaultSettings', 'trackingIntegrationFields', 'trackingIntegrationSettings', 'bookingCtaFields', 'bookingCtaSettings'));
+        return view('backend.settings.global-assets', compact('activeTab', 'assetTabs', 'logoVariants', 'siteLogos', 'favicon', 'faviconConfig', 'socialShareImage', 'socialShareConfig', 'seoDefaultOgImage', 'defaultMediaVariants', 'defaultMediaAssets', 'defaultMediaSettings', 'brandColorFields', 'brandColors', 'businessIdentityFields', 'businessIdentity', 'contactInformationFields', 'contactInformation', 'socialMediaLinkFields', 'socialMediaLinks', 'navigationFields', 'navigationSettings', 'footerFields', 'footerSettings', 'seoDefaultFields', 'seoDefaultSettings', 'trackingIntegrationFields', 'trackingIntegrationSettings', 'bookingCtaFields', 'bookingCtaSettings', 'structuredDataFields', 'structuredDataSettings'));
     }
 
     public function update(Request $request)
@@ -847,6 +857,48 @@ class SiteSettingController extends Controller
             ->with('success', $variantConfig['label'] . ' deleted successfully.');
     }
 
+    public function updateStructuredDataSettings(Request $request)
+    {
+        if (! Schema::hasTable('site_settings')) {
+            return redirect()
+                ->route('admin.settings.global-assets.edit', ['tab' => 'structured-data'])
+                ->withErrors(['structured_data' => 'Please run database migrations before updating structured data settings.']);
+        }
+
+        $rules = [];
+
+        foreach (StructuredDataSettings::fields() as $field) {
+            $rules['structured_data.' . $field['slug']] = match ($field['type']) {
+                'boolean' => ['nullable', 'boolean'],
+                'select' => ['required', Rule::in(array_keys($field['options']))],
+                'textarea' => ['nullable', 'string', 'max:1500'],
+                default => ['nullable', 'string', 'max:255'],
+            };
+        }
+
+        $validated = $request->validate($rules);
+        $settings = $validated['structured_data'] ?? [];
+
+        foreach (StructuredDataSettings::fields() as $field) {
+            SiteSetting::updateOrCreate(
+                ['key' => $field['key']],
+                [
+                    'label' => $field['label'],
+                    'value' => $field['type'] === 'boolean'
+                        ? (string) (int) (bool) ($settings[$field['slug']] ?? false)
+                        : ($settings[$field['slug']] ?? $field['default']),
+                    'type' => $field['type'],
+                    'group' => StructuredDataSettings::GROUP,
+                    'is_active' => true,
+                ]
+            );
+        }
+
+        return redirect()
+            ->route('admin.settings.global-assets.edit', ['tab' => 'structured-data'])
+            ->with('success', 'Structured data settings updated successfully.');
+    }
+
     private function assetTabs(): array
     {
         return [
@@ -914,6 +966,11 @@ class SiteSettingController extends Controller
                 'key' => 'default-media',
                 'label' => 'Default Media',
                 'description' => 'Global placeholder images for products, destinations, sections, heroes, and avatars.',
+            ],
+            [
+                'key' => 'structured-data',
+                'label' => 'Structured Data',
+                'description' => 'Business schema, website schema, breadcrumbs, and product/tour JSON-LD controls.',
             ],
         ];
     }

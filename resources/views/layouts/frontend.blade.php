@@ -17,6 +17,7 @@
 
     @include('partials.site-favicon')
     @include('partials.site-social-share-meta')
+    @include('partials.site-structured-data')
     @include('partials.tracking-head')
 
     <link rel="preconnect" href="https://fonts.googleapis.com">

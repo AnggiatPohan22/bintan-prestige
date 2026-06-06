@@ -13,6 +13,7 @@ use App\Support\FooterSettings;
 use App\Support\NavigationSettings;
 use App\Support\SeoDefaultSettings;
 use App\Support\SocialMediaLinkSettings;
+use App\Support\StructuredDataSettings;
 use App\Support\TrackingIntegrationSettings;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\View;
@@ -175,6 +176,18 @@ class AppServiceProvider extends ServiceProvider
                     : collect();
 
                 $view->with('defaultMediaSettings', DefaultMediaAssets::valuesFromSettings($defaultMediaRows));
+            }
+
+            if (! array_key_exists('structuredDataSettings', $view->getData())) {
+                $structuredDataRows = $siteSettingsTableExists
+                    ? SiteSetting::query()
+                        ->where('group', StructuredDataSettings::GROUP)
+                        ->where('is_active', true)
+                        ->get()
+                        ->keyBy('key')
+                    : collect();
+
+                $view->with('structuredDataSettings', StructuredDataSettings::valuesFromSettings($structuredDataRows));
             }
         });
     }

@@ -1723,6 +1723,113 @@
                 })();
             </script>
         @endif
+
+        @if($activeTab === 'structured-data')
+            @php
+                $structuredDataSections = collect($structuredDataFields)->groupBy('section');
+            @endphp
+
+            <form method="POST" action="{{ route('admin.settings.global-assets.structured-data.update') }}" class="rounded-xl border border-slate-200 bg-slate-50 p-5">
+                @csrf
+                @method('PUT')
+
+                <h2 class="text-lg font-bold text-slate-800">Structured Data / Business Schema</h2>
+                <p class="mt-1 text-sm text-slate-500">Help search engines understand your business identity, website, breadcrumbs, and product/tour pages.</p>
+
+                <div class="mt-5 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+                    <p class="font-bold">Simple rule</p>
+                    <p class="mt-1">Leave override fields empty if you want schema to follow Business Identity, Contact Information, Social Media Links, Site Logo, and SEO Default automatically.</p>
+                    <p class="mt-2">Business schema also respects the SEO Default organization schema switch, so older SEO settings stay compatible while this screen becomes the main place to manage structured data.</p>
+                </div>
+
+                <div class="mt-5 space-y-3" data-structured-data-accordion>
+                    @foreach($structuredDataSections as $sectionName => $fields)
+                        <details class="rounded-xl border border-slate-200 bg-white" @if($loop->first) open @endif>
+                            <summary class="cursor-pointer px-4 py-3 text-sm font-bold text-slate-800">
+                                {{ $sectionName }}
+                            </summary>
+
+                            <div class="grid grid-cols-1 gap-4 border-t border-slate-100 p-4 lg:grid-cols-2">
+                                @foreach($fields as $field)
+                                    @php
+                                        $value = old("structured_data.{$field['slug']}", $structuredDataSettings[$field['slug']] ?? $field['default']);
+                                        $checkedValue = filter_var($value, FILTER_VALIDATE_BOOL);
+                                    @endphp
+
+                                    <div class="rounded-xl border border-slate-200 bg-slate-50 p-4 {{ $field['type'] === 'textarea' ? 'lg:col-span-2' : '' }}">
+                                        @if($field['type'] === 'boolean')
+                                            <input type="hidden" name="structured_data[{{ $field['slug'] }}]" value="0">
+                                            <label class="flex items-start gap-3">
+                                                <input type="checkbox" name="structured_data[{{ $field['slug'] }}]" value="1" @checked($checkedValue) class="mt-1 h-5 w-5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500">
+                                                <span>
+                                                    <span class="block text-sm font-bold text-slate-800">{{ $field['label'] }}</span>
+                                                    <span class="mt-1 block text-xs text-slate-500">{{ $field['hint'] }}</span>
+                                                    <span class="mt-2 block text-[11px] font-semibold uppercase text-slate-400">{{ $field['key'] }}</span>
+                                                </span>
+                                            </label>
+                                        @elseif($field['type'] === 'select')
+                                            <label class="form-label">{{ $field['label'] }}</label>
+                                            <select name="structured_data[{{ $field['slug'] }}]" class="{{ $inputClass }}">
+                                                @foreach($field['options'] as $optionValue => $optionLabel)
+                                                    <option value="{{ $optionValue }}" @selected($value === $optionValue)>{{ $optionLabel }}</option>
+                                                @endforeach
+                                            </select>
+                                            <p class="mt-2 text-xs text-slate-500">{{ $field['hint'] }}</p>
+                                            <p class="mt-2 text-[11px] font-semibold uppercase text-slate-400">{{ $field['key'] }}</p>
+                                        @elseif($field['type'] === 'textarea')
+                                            <label class="form-label">{{ $field['label'] }}</label>
+                                            <textarea name="structured_data[{{ $field['slug'] }}]" rows="4" class="{{ $inputClass }}" placeholder="{{ $field['hint'] }}">{{ $value }}</textarea>
+                                            <p class="mt-2 text-xs text-slate-500">{{ $field['hint'] }}</p>
+                                            <p class="mt-2 text-[11px] font-semibold uppercase text-slate-400">{{ $field['key'] }}</p>
+                                        @else
+                                            <label class="form-label">{{ $field['label'] }}</label>
+                                            <input type="text" name="structured_data[{{ $field['slug'] }}]" value="{{ $value }}" class="{{ $inputClass }}" placeholder="{{ $field['default'] }}">
+                                            <p class="mt-2 text-xs text-slate-500">{{ $field['hint'] }}</p>
+                                            <p class="mt-2 text-[11px] font-semibold uppercase text-slate-400">{{ $field['key'] }}</p>
+                                        @endif
+
+                                        @error("structured_data.{$field['slug']}") <p class="form-error">{{ $message }}</p> @enderror
+                                    </div>
+                                @endforeach
+                            </div>
+                        </details>
+                    @endforeach
+                </div>
+
+                <div class="mt-5 rounded-xl border border-slate-200 bg-white p-4 text-sm text-slate-600">
+                    <p class="font-bold text-slate-800">What this renders</p>
+                    <p class="mt-1">One JSON-LD graph containing business schema, website schema, breadcrumbs, and product schema when enabled. It replaces the old standalone SEO Default organization script to avoid duplicate schema.</p>
+                </div>
+
+                <div class="mt-5 flex items-center gap-3 border-t border-slate-200 pt-5">
+                    <button type="submit" class="btn-primary">Save Structured Data</button>
+                </div>
+            </form>
+
+            <script>
+                (() => {
+                    const accordion = document.querySelector('[data-structured-data-accordion]');
+
+                    if (!accordion) {
+                        return;
+                    }
+
+                    accordion.querySelectorAll('details').forEach((details) => {
+                        details.addEventListener('toggle', () => {
+                            if (!details.open) {
+                                return;
+                            }
+
+                            accordion.querySelectorAll('details[open]').forEach((openDetails) => {
+                                if (openDetails !== details) {
+                                    openDetails.open = false;
+                                }
+                            });
+                        });
+                    });
+                })();
+            </script>
+        @endif
     </div>
 </div>
 

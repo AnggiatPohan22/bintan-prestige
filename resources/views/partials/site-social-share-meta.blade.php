@@ -41,22 +41,3 @@
         <meta property="og:image:alt" content="{{ $shareImageAlt }}">
     @endif
 @endif
-
-@if($seoDefaults['enable_organization_schema'] ?? true)
-    @php
-        $schemaLogo = isset($siteAssets) ? (($siteAssets['site.logo'] ?? null)?->url ?: ($siteAssets['site.logo.dark'] ?? null)?->url) : null;
-        $schema = array_filter([
-            '@context' => 'https://schema.org',
-            '@type' => 'Organization',
-            'name' => $siteName,
-            'url' => $seoDefaults['canonical_base_url'] ?? url('/'),
-            'logo' => $schemaLogo,
-            'description' => $identity['short_description'] ?? null,
-            'email' => $contactInformation['email'] ?? null,
-            'telephone' => $contactInformation['phone'] ?? null,
-            'sameAs' => collect($activeSocialMediaLinks ?? [])->pluck('url')->filter()->values()->all() ?: null,
-        ]);
-    @endphp
-
-    <script type="application/ld+json">{!! json_encode($schema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}</script>
-@endif

@@ -86,6 +86,9 @@ Route::middleware(['auth'])
         Route::delete('settings/global-assets/default-media/{variant}', [SiteSettingController::class, 'destroyDefaultMediaAsset'])
             ->name('settings.global-assets.default-media.destroy');
 
+        Route::put('settings/global-assets/structured-data', [SiteSettingController::class, 'updateStructuredDataSettings'])
+            ->name('settings.global-assets.structured-data.update');
+
         Route::get('page-sections', [PageSectionController::class, 'index'])
             ->name('page-sections.index');
 
