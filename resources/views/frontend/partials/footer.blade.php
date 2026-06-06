@@ -9,6 +9,8 @@
         ], $contactInformation ?? [])
         : ($contactWhatsappUrl ?? 'https://wa.me/?text=' . urlencode('Hello Bintan Prestige, I want to plan a Bintan trip.'));
     $footerCtaLabel = $usesGlobalFooterCta ? ($bookingCtaSettings['footer_label'] ?? 'Chat via WhatsApp') : 'Chat via WhatsApp';
+    $footerCtaPlaceholder = \App\Support\DefaultMediaAssets::asset($siteAssets ?? collect(), 'section');
+    $footerCtaPlaceholderFit = \App\Support\DefaultMediaAssets::fit($defaultMediaSettings ?? [], 'section');
 @endphp
 
 <footer class="bp-footer" aria-labelledby="footer-title">
@@ -44,9 +46,13 @@
         </div>
 
         <div class="bp-footer-cta__visual" aria-hidden="true">
-            <div class="bp-footer-cta__placeholder">
-                NO IMAGE
-            </div>
+            @if($footerCtaPlaceholder?->url)
+                <img src="{{ $footerCtaPlaceholder->url }}" alt="{{ $footerCtaPlaceholder->alt ?: 'Section placeholder image' }}" style="object-fit: {{ $footerCtaPlaceholderFit }}" loading="lazy" decoding="async">
+            @else
+                <div class="bp-footer-cta__placeholder">
+                    NO IMAGE
+                </div>
+            @endif
         </div>
     </section>
     @endif

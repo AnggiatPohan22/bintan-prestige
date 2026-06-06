@@ -1,11 +1,17 @@
+@php
+    $productPlaceholder = \App\Support\DefaultMediaAssets::asset($siteAssets ?? collect(), 'product');
+    $productPlaceholderFit = \App\Support\DefaultMediaAssets::fit($defaultMediaSettings ?? [], 'product');
+@endphp
+
 <article class="product-card">
 
     <div class="product-card__media">
-        @if($product->thumbnail_url)
+        @if($product->thumbnail_url || $productPlaceholder?->url)
             <img
-                src="{{ $product->thumbnail_url }}"
-                alt="{{ $product->name }}"
+                src="{{ $product->thumbnail_url ?: $productPlaceholder->url }}"
+                alt="{{ $product->thumbnail_url ? $product->name : ($productPlaceholder->alt ?: 'Product placeholder image') }}"
                 class="product-card__image"
+                @if(! $product->thumbnail_url) style="object-fit: {{ $productPlaceholderFit }}" @endif
                 loading="lazy"
                 decoding="async"
             >

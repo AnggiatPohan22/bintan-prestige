@@ -10,6 +10,7 @@ use App\Support\BrandColorSettings;
 use App\Support\BookingCtaSettings;
 use App\Support\BusinessIdentitySettings;
 use App\Support\ContactInformationSettings;
+use App\Support\DefaultMediaAssets;
 use App\Support\FooterSettings;
 use App\Support\HomepageSectionMedia;
 use App\Support\NavigationSettings;
@@ -40,15 +41,26 @@ class SiteSettingController extends Controller
                 $this->faviconConfig()['key'],
                 $this->socialShareConfig()['key'],
                 SeoDefaultSettings::OG_IMAGE_KEY,
+                ...DefaultMediaAssets::keys(),
             ])
             ->get()
             ->keyBy('key');
-        $siteLogos = $siteAssets->only(array_column($logoVariants, 'key'));
+        $siteLogos = $siteAssets->filter(fn ($asset, string $key) => in_array($key, array_column($logoVariants, 'key'), true));
         $favicon = $siteAssets[$this->faviconConfig()['key']] ?? null;
         $faviconConfig = $this->faviconConfig();
         $socialShareImage = $siteAssets[$this->socialShareConfig()['key']] ?? null;
         $socialShareConfig = $this->socialShareConfig();
         $seoDefaultOgImage = $siteAssets[SeoDefaultSettings::OG_IMAGE_KEY] ?? null;
+        $defaultMediaVariants = DefaultMediaAssets::variants();
+        $defaultMediaAssets = $siteAssets->filter(fn ($asset, string $key) => in_array($key, DefaultMediaAssets::keys(), true));
+        $defaultMediaSettingsRows = Schema::hasTable('site_settings')
+            ? SiteSetting::query()
+                ->where('group', DefaultMediaAssets::SETTINGS_GROUP)
+                ->where('is_active', true)
+                ->get()
+                ->keyBy('key')
+            : collect();
+        $defaultMediaSettings = DefaultMediaAssets::valuesFromSettings($defaultMediaSettingsRows);
         $brandColorFields = BrandColorSettings::fields();
         $brandColorSettings = Schema::hasTable('site_settings')
             ? SiteSetting::query()
@@ -127,7 +139,7 @@ class SiteSettingController extends Controller
             : collect();
         $bookingCtaSettings = BookingCtaSettings::valuesFromSettings($bookingCtaRows);
 
-        return view('backend.settings.global-assets', compact('activeTab', 'assetTabs', 'logoVariants', 'siteLogos', 'favicon', 'faviconConfig', 'socialShareImage', 'socialShareConfig', 'seoDefaultOgImage', 'brandColorFields', 'brandColors', 'businessIdentityFields', 'businessIdentity', 'contactInformationFields', 'contactInformation', 'socialMediaLinkFields', 'socialMediaLinks', 'navigationFields', 'navigationSettings', 'footerFields', 'footerSettings', 'seoDefaultFields', 'seoDefaultSettings', 'trackingIntegrationFields', 'trackingIntegrationSettings', 'bookingCtaFields', 'bookingCtaSettings'));
+        return view('backend.settings.global-assets', compact('activeTab', 'assetTabs', 'logoVariants', 'siteLogos', 'favicon', 'faviconConfig', 'socialShareImage', 'socialShareConfig', 'seoDefaultOgImage', 'defaultMediaVariants', 'defaultMediaAssets', 'defaultMediaSettings', 'brandColorFields', 'brandColors', 'businessIdentityFields', 'businessIdentity', 'contactInformationFields', 'contactInformation', 'socialMediaLinkFields', 'socialMediaLinks', 'navigationFields', 'navigationSettings', 'footerFields', 'footerSettings', 'seoDefaultFields', 'seoDefaultSettings', 'trackingIntegrationFields', 'trackingIntegrationSettings', 'bookingCtaFields', 'bookingCtaSettings'));
     }
 
     public function update(Request $request)
@@ -764,6 +776,77 @@ class SiteSettingController extends Controller
             ->with('success', 'Booking CTA settings updated successfully.');
     }
 
+    public function updateDefaultMediaAssets(Request $request)
+    {
+        $validated = $request->validate([
+            'default_media' => ['nullable', 'array'],
+            'default_media.*' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
+            'default_media_alts' => ['nullable', 'array'],
+            'default_media_alts.*' => ['nullable', 'string', 'max:255'],
+            'default_media_fits' => ['nullable', 'array'],
+            'default_media_fits.*' => ['nullable', Rule::in(array_keys(DefaultMediaAssets::fitOptions()))],
+        ]);
+
+        foreach (DefaultMediaAssets::variants() as $variant) {
+            $slug = $variant['slug'];
+            $alt = $validated['default_media_alts'][$slug] ?? null;
+            $fit = $validated['default_media_fits'][$slug] ?? DefaultMediaAssets::defaultFit($slug);
+
+            if (Schema::hasTable('site_settings')) {
+                SiteSetting::updateOrCreate(
+                    ['key' => DefaultMediaAssets::fitKey($slug)],
+                    [
+                        'label' => $variant['label'] . ' fit',
+                        'value' => $fit,
+                        'type' => 'select',
+                        'group' => DefaultMediaAssets::SETTINGS_GROUP,
+                        'is_active' => true,
+                    ]
+                );
+            }
+
+            if ($request->hasFile("default_media.$slug")) {
+                $this->imageService->storeSiteAssetUpload(
+                    $request->file("default_media.$slug"),
+                    $variant['key'],
+                    $variant['label'],
+                    $alt
+                );
+
+                continue;
+            }
+
+            if ($alt !== null) {
+                SiteAsset::query()
+                    ->where('key', $variant['key'])
+                    ->update(['alt' => $alt]);
+            }
+        }
+
+        return redirect()
+            ->route('admin.settings.global-assets.edit', ['tab' => 'default-media'])
+            ->with('success', 'Default media placeholder assets updated successfully.');
+    }
+
+    public function destroyDefaultMediaAsset(string $variant)
+    {
+        $variantConfig = DefaultMediaAssets::variantForSlug($variant);
+
+        abort_unless($variantConfig, 404);
+
+        $asset = SiteAsset::query()
+            ->where('key', $variantConfig['key'])
+            ->first();
+
+        if ($asset) {
+            $this->imageService->clearSiteAsset($asset);
+        }
+
+        return redirect()
+            ->route('admin.settings.global-assets.edit', ['tab' => 'default-media'])
+            ->with('success', $variantConfig['label'] . ' deleted successfully.');
+    }
+
     private function assetTabs(): array
     {
         return [
@@ -826,6 +909,11 @@ class SiteSettingController extends Controller
                 'key' => 'booking-cta',
                 'label' => 'Booking / CTA',
                 'description' => 'Global booking labels, WhatsApp message templates, and CTA placement rules.',
+            ],
+            [
+                'key' => 'default-media',
+                'label' => 'Default Media',
+                'description' => 'Global placeholder images for products, destinations, sections, heroes, and avatars.',
             ],
         ];
     }

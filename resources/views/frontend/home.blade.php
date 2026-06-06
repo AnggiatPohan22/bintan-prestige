@@ -5,8 +5,14 @@
 @php
     $heroSection = $sections['home.hero'] ?? null;
     $heroSlides = $heroSection?->galleryMedia() ?? collect();
-    $heroBackground = $heroSection?->mediaUrl('background', 'desktop_background') ?? $heroSection?->image_url ?? $heroBackgroundUrl;
-    $heroMobileBackground = $heroSection?->mediaUrl('background', 'mobile_background') ?? $heroSection?->mobile_image_url;
+    $heroPlaceholder = \App\Support\DefaultMediaAssets::asset($siteAssets ?? collect(), 'hero');
+    $heroMobilePlaceholder = \App\Support\DefaultMediaAssets::asset($siteAssets ?? collect(), 'hero_mobile');
+    $sectionPlaceholder = \App\Support\DefaultMediaAssets::asset($siteAssets ?? collect(), 'section');
+    $heroPlaceholderFit = \App\Support\DefaultMediaAssets::fit($defaultMediaSettings ?? [], 'hero');
+    $heroMobilePlaceholderFit = \App\Support\DefaultMediaAssets::fit($defaultMediaSettings ?? [], 'hero_mobile');
+    $sectionPlaceholderFit = \App\Support\DefaultMediaAssets::fit($defaultMediaSettings ?? [], 'section');
+    $heroBackground = $heroSection?->mediaUrl('background', 'desktop_background') ?? $heroSection?->image_url ?? $heroBackgroundUrl ?? $heroPlaceholder?->url;
+    $heroMobileBackground = $heroSection?->mediaUrl('background', 'mobile_background') ?? $heroSection?->mobile_image_url ?? $heroMobilePlaceholder?->url;
     $heroAnimation = $heroSection?->animation ?? 'ken-burns';
     $fallbackFaqs = collect([
         [
@@ -33,6 +39,8 @@
         data-section-key="home.hero"
         data-hero-background="{{ $heroBackground }}"
         data-hero-mobile-background="{{ $heroMobileBackground }}"
+        data-hero-background-fit="{{ $heroPlaceholderFit }}"
+        data-hero-mobile-background-fit="{{ $heroMobilePlaceholderFit }}"
         data-section-animation="{{ $heroAnimation }}"
         @if($heroSlides->count())
             data-section-slider
@@ -220,9 +228,13 @@
                     All you should know before embarking on your Bintan journey
                 </h2>
 
-                <div class="home-image-placeholder home-faq-preview__image">
-                    Travel Guide Image
-                </div>
+                @if($sectionPlaceholder?->url)
+                    <img src="{{ $sectionPlaceholder->url }}" alt="{{ $sectionPlaceholder->alt ?: 'Section placeholder image' }}" class="home-image-placeholder home-faq-preview__image" style="object-fit: {{ $sectionPlaceholderFit }}" loading="lazy" decoding="async">
+                @else
+                    <div class="home-image-placeholder home-faq-preview__image">
+                        Travel Guide Image
+                    </div>
+                @endif
             </div>
 
             <div class="home-faq-list">

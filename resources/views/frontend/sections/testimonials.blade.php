@@ -1,5 +1,7 @@
 @php
     $section = $sections['home.testimonials'] ?? null;
+    $avatarPlaceholder = \App\Support\DefaultMediaAssets::asset($siteAssets ?? collect(), 'avatar');
+    $avatarPlaceholderFit = \App\Support\DefaultMediaAssets::fit($defaultMediaSettings ?? [], 'avatar');
     $testimonials = [
         [
             'name' => 'Floyd Miles',
@@ -45,9 +47,13 @@
             @foreach($testimonials as $testimonial)
                 <article class="bp-testimonial-card">
                     <div class="bp-testimonial-card__top">
-                        <div class="bp-testimonial-card__avatar" aria-label="{{ $testimonial['name'] }} avatar placeholder">
-                            {{ $testimonial['initials'] }}
-                        </div>
+                        @if($avatarPlaceholder?->url)
+                            <img src="{{ $avatarPlaceholder->url }}" alt="{{ $avatarPlaceholder->alt ?: $testimonial['name'] . ' avatar placeholder' }}" class="bp-testimonial-card__avatar" style="object-fit: {{ $avatarPlaceholderFit }}" loading="lazy" decoding="async">
+                        @else
+                            <div class="bp-testimonial-card__avatar" aria-label="{{ $testimonial['name'] }} avatar placeholder">
+                                {{ $testimonial['initials'] }}
+                            </div>
+                        @endif
 
                         <div class="bp-testimonial-card__meta">
                             <h3 class="bp-testimonial-card__name title-card">

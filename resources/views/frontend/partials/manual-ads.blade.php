@@ -4,6 +4,8 @@
     $buttonUrl = $section?->button_url ?: route('products.index');
     $overlayTitle = $extraData['overlay_title'] ?? "Let's Discover The Whole World!";
     $mainVisual = $section?->mediaSlot('frame', 'main_visual');
+    $sectionPlaceholder = \App\Support\DefaultMediaAssets::asset($siteAssets ?? collect(), 'section');
+    $sectionPlaceholderFit = \App\Support\DefaultMediaAssets::fit($defaultMediaSettings ?? [], 'section');
 @endphp
 
 <section class="bp-manual-ads" id="home-manual-ads" data-section-key="home.manual_ads">
@@ -32,8 +34,8 @@
             </div>
 
             <div class="bp-manual-ads__visual">
-                @if($mainVisual?->url || $section?->image_url)
-                    <img src="{{ $mainVisual?->url ?? $section->image_url }}" alt="{{ $mainVisual?->alt ?: ($section->title ?? 'Manual ads image') }}" loading="lazy" decoding="async">
+                @if($mainVisual?->url || $section?->image_url || $sectionPlaceholder?->url)
+                    <img src="{{ $mainVisual?->url ?? $section?->image_url ?? $sectionPlaceholder->url }}" alt="{{ $mainVisual?->alt ?: ($section?->title ?? ($sectionPlaceholder?->alt ?: 'Section placeholder image')) }}" @if(! ($mainVisual?->url || $section?->image_url)) style="object-fit: {{ $sectionPlaceholderFit }}" @endif loading="lazy" decoding="async">
                 @else
                     <div class="bp-manual-ads__placeholder">
                         NO IMAGE

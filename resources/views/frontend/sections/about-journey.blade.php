@@ -1,5 +1,7 @@
 @php
     $section = $sections['home.about_journey'] ?? null;
+    $sectionPlaceholder = \App\Support\DefaultMediaAssets::asset($siteAssets ?? collect(), 'section');
+    $sectionPlaceholderFit = \App\Support\DefaultMediaAssets::fit($defaultMediaSettings ?? [], 'section');
 @endphp
 
 <section class="bp-journey-section" id="home-about-journey" data-section-key="home.about_journey" aria-labelledby="journey-title">
@@ -85,15 +87,23 @@
             </span>
 
             <div class="bp-journey-main-frame">
-                <div class="bp-journey-placeholder">
-                    NO IMAGE
-                </div>
+                @if($sectionPlaceholder?->url)
+                    <img src="{{ $sectionPlaceholder->url }}" alt="{{ $sectionPlaceholder->alt ?: 'Section placeholder image' }}" style="object-fit: {{ $sectionPlaceholderFit }}" loading="lazy" decoding="async">
+                @else
+                    <div class="bp-journey-placeholder">
+                        NO IMAGE
+                    </div>
+                @endif
             </div>
 
             <div class="bp-journey-small-frame">
-                <div class="bp-journey-placeholder">
-                    NO IMAGE
-                </div>
+                @if($sectionPlaceholder?->url)
+                    <img src="{{ $sectionPlaceholder->url }}" alt="{{ $sectionPlaceholder->alt ?: 'Section placeholder image' }}" style="object-fit: {{ $sectionPlaceholderFit }}" loading="lazy" decoding="async">
+                @else
+                    <div class="bp-journey-placeholder">
+                        NO IMAGE
+                    </div>
+                @endif
             </div>
         </div>
     </div>

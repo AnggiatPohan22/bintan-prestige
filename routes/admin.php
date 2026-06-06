@@ -80,6 +80,12 @@ Route::middleware(['auth'])
         Route::put('settings/global-assets/booking-cta', [SiteSettingController::class, 'updateBookingCtaSettings'])
             ->name('settings.global-assets.booking-cta.update');
 
+        Route::put('settings/global-assets/default-media', [SiteSettingController::class, 'updateDefaultMediaAssets'])
+            ->name('settings.global-assets.default-media.update');
+
+        Route::delete('settings/global-assets/default-media/{variant}', [SiteSettingController::class, 'destroyDefaultMediaAsset'])
+            ->name('settings.global-assets.default-media.destroy');
+
         Route::get('page-sections', [PageSectionController::class, 'index'])
             ->name('page-sections.index');
 

@@ -1535,6 +1535,194 @@
                 })();
             </script>
         @endif
+
+        @if($activeTab === 'default-media')
+            <form method="POST" action="{{ route('admin.settings.global-assets.default-media.update') }}" enctype="multipart/form-data" class="rounded-xl border border-slate-200 bg-slate-50 p-5">
+                @csrf
+                @method('PUT')
+
+                <h2 class="text-lg font-bold text-slate-800">Default Media / Placeholder Assets</h2>
+                <p class="mt-1 text-sm text-slate-500">Upload fallback images used only when product, destination, section, hero, or avatar media is missing.</p>
+
+                <div class="mt-5 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+                    <p class="font-bold">Fallback priority</p>
+                    <p class="mt-1">Specific product, destination, or section images stay first. Default Media only appears when the original media is empty.</p>
+                </div>
+
+                <div class="mt-5 grid grid-cols-1 gap-5 xl:grid-cols-2">
+                    @foreach($defaultMediaVariants as $variant)
+                        @php
+                            $asset = $defaultMediaAssets[$variant['key']] ?? null;
+                            $slug = $variant['slug'];
+                            $fitValue = old("default_media_fits.$slug", $defaultMediaSettings[$slug]['fit'] ?? \App\Support\DefaultMediaAssets::defaultFit($slug));
+                        @endphp
+
+                        <div class="rounded-xl border border-slate-200 bg-white p-4" data-default-media-card>
+                            <div class="flex flex-col gap-4 md:flex-row">
+                                <div class="md:w-48">
+                                    <div class="rounded-lg border bg-white p-2">
+                                        <img
+                                            src="{{ $asset?->url }}"
+                                            alt="{{ $asset?->alt ?: $variant['label'] }}"
+                                            class="aspect-[4/3] w-full rounded-md bg-slate-50 object-cover {{ $asset?->url ? '' : 'hidden' }}"
+                                            data-default-media-preview
+                                            data-current-src="{{ $asset?->url }}"
+                                            data-current-alt="{{ $asset?->alt ?: $variant['label'] }}"
+                                        >
+
+                                        <div class="{{ $asset?->url ? 'hidden' : 'flex' }} aspect-[4/3] w-full items-center justify-center rounded-md border border-dashed bg-slate-50 text-xs font-bold uppercase text-slate-400" data-default-media-empty>
+                                            No image
+                                        </div>
+                                    </div>
+
+                                    <div class="mt-3 rounded-lg border {{ $asset?->url ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : 'border-slate-200 bg-slate-50 text-slate-500' }} px-3 py-2 text-xs font-semibold" data-default-media-status data-saved-status="{{ $asset?->url ? 'Saved image active' : 'No image uploaded' }}">
+                                        {{ $asset?->url ? 'Saved image active' : 'No image uploaded' }}
+                                    </div>
+                                </div>
+
+                                <div class="min-w-0 flex-1">
+                                    <h3 class="text-base font-bold text-slate-800">{{ $variant['label'] }}</h3>
+                                    <p class="mt-1 text-xs text-slate-500">{{ $variant['hint'] }}</p>
+                                    <p class="mt-2 text-[11px] font-semibold uppercase text-slate-400">{{ $variant['key'] }}</p>
+
+                                    <div class="mt-4 space-y-3">
+                                        <div>
+                                            <label class="form-label">Upload image</label>
+                                            <input type="file" name="default_media[{{ $slug }}]" accept="image/jpeg,image/png,image/webp" class="{{ $inputClass }}" data-default-media-input>
+                                            <button type="button" class="mt-3 hidden w-full rounded-lg border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-600 transition hover:bg-slate-50" data-default-media-clear>
+                                                Clear selected image
+                                            </button>
+                                            @error("default_media.$slug") <p class="form-error">{{ $message }}</p> @enderror
+                                        </div>
+
+                                        <div>
+                                            <label class="form-label">Alt text</label>
+                                            <input type="text" name="default_media_alts[{{ $slug }}]" value="{{ old("default_media_alts.$slug", $asset?->alt) }}" class="{{ $inputClass }}" placeholder="{{ $variant['label'] }}">
+                                            @error("default_media_alts.$slug") <p class="form-error">{{ $message }}</p> @enderror
+                                        </div>
+
+                                        <div>
+                                            <label class="form-label">Image fit</label>
+                                            <select name="default_media_fits[{{ $slug }}]" class="{{ $inputClass }}">
+                                                @foreach(\App\Support\DefaultMediaAssets::fitOptions() as $optionValue => $optionLabel)
+                                                    <option value="{{ $optionValue }}" @selected($fitValue === $optionValue)>{{ $optionLabel }}</option>
+                                                @endforeach
+                                            </select>
+                                            <p class="mt-2 text-xs text-slate-500">Controls how this placeholder image fills its frontend frame.</p>
+                                            @error("default_media_fits.$slug") <p class="form-error">{{ $message }}</p> @enderror
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            @if($asset?->url)
+                                <div class="mt-4 border-t border-slate-100 pt-4">
+                                    <button type="submit" form="delete-default-media-{{ $slug }}" onclick="return confirm('Delete this uploaded placeholder and return this variant to the system fallback?')" class="w-full rounded-lg border border-red-200 px-4 py-3 text-sm font-semibold text-red-600 transition hover:bg-red-50">Delete / Reset to system fallback</button>
+                                    <p class="mt-2 text-xs text-slate-500">This removes the saved upload and returns this placeholder to the Laravel/system fallback.</p>
+                                </div>
+                            @endif
+                        </div>
+                    @endforeach
+                </div>
+
+                <div class="mt-5 flex items-center gap-3 border-t border-slate-200 pt-5">
+                    <button type="submit" class="btn-primary">Save Default Media</button>
+                </div>
+            </form>
+
+            @foreach($defaultMediaVariants as $variant)
+                @php
+                    $asset = $defaultMediaAssets[$variant['key']] ?? null;
+                    $slug = $variant['slug'];
+                @endphp
+
+                @if($asset?->url)
+                    <form id="delete-default-media-{{ $slug }}" method="POST" action="{{ route('admin.settings.global-assets.default-media.destroy', $slug) }}" class="hidden">
+                        @csrf
+                        @method('DELETE')
+                    </form>
+                @endif
+            @endforeach
+
+            <script>
+                (() => {
+                    document.querySelectorAll('[data-default-media-card]').forEach((card) => {
+                        const input = card.querySelector('[data-default-media-input]');
+                        const preview = card.querySelector('[data-default-media-preview]');
+                        const empty = card.querySelector('[data-default-media-empty]');
+                        const clear = card.querySelector('[data-default-media-clear]');
+                        const status = card.querySelector('[data-default-media-status]');
+
+                        if (!input || !preview || !empty || !clear || !status) {
+                            return;
+                        }
+
+                        const currentSrc = preview.dataset.currentSrc || '';
+                        const currentAlt = preview.dataset.currentAlt || '';
+                        const savedStatus = status.dataset.savedStatus || 'No image uploaded';
+                        let previewUrl = null;
+
+                        const setStatus = (text, mode) => {
+                            status.textContent = text;
+                            status.classList.toggle('border-emerald-200', mode === 'saved');
+                            status.classList.toggle('bg-emerald-50', mode === 'saved');
+                            status.classList.toggle('text-emerald-700', mode === 'saved');
+                            status.classList.toggle('border-amber-200', mode === 'pending');
+                            status.classList.toggle('bg-amber-50', mode === 'pending');
+                            status.classList.toggle('text-amber-700', mode === 'pending');
+                            status.classList.toggle('border-slate-200', mode === 'empty');
+                            status.classList.toggle('bg-slate-50', mode === 'empty');
+                            status.classList.toggle('text-slate-500', mode === 'empty');
+                        };
+
+                        const revokePreview = () => {
+                            if (previewUrl) {
+                                URL.revokeObjectURL(previewUrl);
+                                previewUrl = null;
+                            }
+                        };
+
+                        clear.addEventListener('click', () => {
+                            input.value = '';
+                            revokePreview();
+                            clear.classList.add('hidden');
+
+                            if (currentSrc) {
+                                preview.src = currentSrc;
+                                preview.alt = currentAlt;
+                                preview.classList.remove('hidden');
+                                empty.classList.add('hidden');
+                                setStatus(savedStatus, 'saved');
+                                return;
+                            }
+
+                            preview.removeAttribute('src');
+                            preview.classList.add('hidden');
+                            empty.classList.remove('hidden');
+                            setStatus(savedStatus, 'empty');
+                        });
+
+                        input.addEventListener('change', () => {
+                            const file = input.files?.[0];
+
+                            if (!file) {
+                                clear.click();
+                                return;
+                            }
+
+                            revokePreview();
+                            previewUrl = URL.createObjectURL(file);
+                            preview.src = previewUrl;
+                            preview.alt = file.name;
+                            preview.classList.remove('hidden');
+                            empty.classList.add('hidden');
+                            clear.classList.remove('hidden');
+                            setStatus('New image selected. Save to publish this placeholder.', 'pending');
+                        });
+                    });
+                })();
+            </script>
+        @endif
     </div>
 </div>
 

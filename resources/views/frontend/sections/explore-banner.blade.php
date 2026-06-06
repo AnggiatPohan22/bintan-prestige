@@ -2,12 +2,14 @@
     $section = $sections['home.explore_banner'] ?? null;
     $extraData = $section?->extra_data ?? [];
     $background = $section?->mediaSlot('background', 'desktop_background');
+    $heroPlaceholder = \App\Support\DefaultMediaAssets::asset($siteAssets ?? collect(), 'hero');
+    $heroPlaceholderFit = \App\Support\DefaultMediaAssets::fit($defaultMediaSettings ?? [], 'hero');
 @endphp
 
 <section class="bp-explore-banner" id="home-explore-banner" data-section-key="home.explore_banner" aria-labelledby="explore-banner-title">
     <div class="bp-explore-banner__bg" aria-hidden="true">
-        @if($background?->url || $section?->image_url)
-            <img src="{{ $background?->url ?? $section->image_url }}" alt="{{ $background?->alt ?: ($section->title ?? 'Explore banner image') }}" loading="lazy" decoding="async">
+        @if($background?->url || $section?->image_url || $heroPlaceholder?->url)
+            <img src="{{ $background?->url ?? $section?->image_url ?? $heroPlaceholder->url }}" alt="{{ $background?->alt ?: ($section?->title ?? ($heroPlaceholder?->alt ?: 'Hero placeholder image')) }}" @if(! ($background?->url || $section?->image_url)) style="object-fit: {{ $heroPlaceholderFit }}" @endif loading="lazy" decoding="async">
         @else
             <div class="bp-explore-banner__placeholder">
                 NO IMAGE

@@ -8,6 +8,7 @@ use App\Support\BrandColorSettings;
 use App\Support\BookingCtaSettings;
 use App\Support\BusinessIdentitySettings;
 use App\Support\ContactInformationSettings;
+use App\Support\DefaultMediaAssets;
 use App\Support\FooterSettings;
 use App\Support\NavigationSettings;
 use App\Support\SeoDefaultSettings;
@@ -162,6 +163,18 @@ class AppServiceProvider extends ServiceProvider
                     : collect();
 
                 $view->with('bookingCtaSettings', BookingCtaSettings::valuesFromSettings($bookingCtaRows));
+            }
+
+            if (! array_key_exists('defaultMediaSettings', $view->getData())) {
+                $defaultMediaRows = $siteSettingsTableExists
+                    ? SiteSetting::query()
+                        ->where('group', DefaultMediaAssets::SETTINGS_GROUP)
+                        ->where('is_active', true)
+                        ->get()
+                        ->keyBy('key')
+                    : collect();
+
+                $view->with('defaultMediaSettings', DefaultMediaAssets::valuesFromSettings($defaultMediaRows));
             }
         });
     }

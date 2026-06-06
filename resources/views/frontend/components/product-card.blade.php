@@ -1,13 +1,19 @@
+@php
+    $productPlaceholder = \App\Support\DefaultMediaAssets::asset($siteAssets ?? collect(), 'product');
+    $productPlaceholderFit = \App\Support\DefaultMediaAssets::fit($defaultMediaSettings ?? [], 'product');
+@endphp
+
 <article
     class="bp-product-card"
     data-product-card
     data-category-id="{{ $product->category?->id }}"
 >
     <a href="{{ route('products.show', $product) }}" class="bp-product-card__image" aria-label="View {{ $product->name }}">
-        @if($product->thumbnail_url)
+        @if($product->thumbnail_url || $productPlaceholder?->url)
             <img
-                src="{{ $product->thumbnail_url }}"
-                alt="{{ $product->name }}"
+                src="{{ $product->thumbnail_url ?: $productPlaceholder->url }}"
+                alt="{{ $product->thumbnail_url ? $product->name : ($productPlaceholder->alt ?: 'Product placeholder image') }}"
+                @if(! $product->thumbnail_url) style="object-fit: {{ $productPlaceholderFit }}" @endif
                 loading="lazy"
                 decoding="async"
             >

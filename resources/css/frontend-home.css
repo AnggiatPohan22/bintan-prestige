@@ -21,7 +21,7 @@
             var(--home-hero-image, linear-gradient(135deg, rgba(200, 162, 74, 0.18), rgba(9, 8, 6, 0.1))),
             linear-gradient(135deg, #060504 0%, #14100a 44%, #352810 100%);
         background-position: center;
-        background-size: cover;
+        background-size: cover, cover, var(--home-hero-media-fit, cover), cover;
     }
 
     .home-hero[data-section-has-media] {

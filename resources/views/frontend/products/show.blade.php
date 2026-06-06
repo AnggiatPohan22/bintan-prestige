@@ -4,6 +4,8 @@
 
 @php
     $bookingCtaSettings = $bookingCtaSettings ?? \App\Support\BookingCtaSettings::valuesFromSettings(collect());
+    $productPlaceholder = \App\Support\DefaultMediaAssets::asset($siteAssets ?? collect(), 'product');
+    $productPlaceholderFit = \App\Support\DefaultMediaAssets::fit($defaultMediaSettings ?? [], 'product');
     $usesGlobalProductCta = \App\Support\BookingCtaSettings::isEnabledFor($bookingCtaSettings, 'product');
     $productCtaContext = [
         'site_name' => $businessIdentity['brand_name'] ?? config('app.name'),
@@ -38,11 +40,12 @@
 
                 <div class="product-detail-gallery">
                     <div class="product-detail-gallery__main">
-                        @if($product->thumbnail_url)
+                        @if($product->thumbnail_url || $productPlaceholder?->url)
                             <img
-                                src="{{ $product->thumbnail_url }}"
-                                alt="{{ $product->name }}"
+                                src="{{ $product->thumbnail_url ?: $productPlaceholder->url }}"
+                                alt="{{ $product->thumbnail_url ? $product->name : ($productPlaceholder->alt ?: 'Product placeholder image') }}"
                                 class="product-detail-gallery__image"
+                                @if(! $product->thumbnail_url) style="object-fit: {{ $productPlaceholderFit }}" @endif
                                 decoding="async"
                             >
                         @else

@@ -1,5 +1,7 @@
 @php
     $section = $sections['home.categories_intro'] ?? null;
+    $destinationPlaceholder = \App\Support\DefaultMediaAssets::asset($siteAssets ?? collect(), 'destination');
+    $destinationPlaceholderFit = \App\Support\DefaultMediaAssets::fit($defaultMediaSettings ?? [], 'destination');
 @endphp
 
 <section class="bp-category-section" id="home-categories" data-section-key="home.categories_intro" aria-labelledby="categories-title">
@@ -28,9 +30,13 @@
 
                     <a href="{{ route('products.index', ['category' => [$category->id]]) }}" class="bp-category-card">
                         <div class="bp-category-image-frame">
-                            <div class="bp-category-placeholder">
-                                Category Image
-                            </div>
+                            @if($destinationPlaceholder?->url)
+                                <img src="{{ $destinationPlaceholder->url }}" alt="{{ $destinationPlaceholder->alt ?: 'Destination placeholder image' }}" style="object-fit: {{ $destinationPlaceholderFit }}" loading="lazy" decoding="async">
+                            @else
+                                <div class="bp-category-placeholder">
+                                    Category Image
+                                </div>
+                            @endif
 
                             <span class="bp-category-count-badge">
                                 {{ $packageLabel }}

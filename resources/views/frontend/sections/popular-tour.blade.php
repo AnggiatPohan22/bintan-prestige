@@ -1,6 +1,8 @@
 @php
     $section = $sections['home.popular_tour'] ?? null;
     $siteLogo = $siteAssets['site.logo'] ?? null;
+    $sectionPlaceholder = \App\Support\DefaultMediaAssets::asset($siteAssets ?? collect(), 'section');
+    $sectionPlaceholderFit = \App\Support\DefaultMediaAssets::fit($defaultMediaSettings ?? [], 'section');
     $popularTourMedia = [
         'left_wide' => $section?->mediaSlot('frame', 'left_wide'),
         'left_small' => $section?->mediaSlot('frame', 'left_small'),
@@ -13,16 +15,16 @@
     <div class="bp-popular-tour__inner">
         <div class="bp-popular-tour__media bp-popular-tour__media--left" aria-hidden="true">
             <div class="bp-popular-tour__media-frame bp-popular-tour__media-frame--wide">
-                @if($popularTourMedia['left_wide']?->url)
-                    <img src="{{ $popularTourMedia['left_wide']->url }}" alt="{{ $popularTourMedia['left_wide']->alt ?: 'Frame kiri atas' }}" loading="lazy" decoding="async">
+                @if($popularTourMedia['left_wide']?->url || $sectionPlaceholder?->url)
+                    <img src="{{ $popularTourMedia['left_wide']?->url ?: $sectionPlaceholder->url }}" alt="{{ $popularTourMedia['left_wide']?->alt ?: ($sectionPlaceholder?->alt ?: 'Section placeholder image') }}" @if(! $popularTourMedia['left_wide']?->url) style="object-fit: {{ $sectionPlaceholderFit }}" @endif loading="lazy" decoding="async">
                 @else
                     <div class="bp-popular-tour__placeholder">No Image</div>
                 @endif
             </div>
 
             <div class="bp-popular-tour__media-frame bp-popular-tour__media-frame--small">
-                @if($popularTourMedia['left_small']?->url)
-                    <img src="{{ $popularTourMedia['left_small']->url }}" alt="{{ $popularTourMedia['left_small']->alt ?: 'Frame kiri bawah' }}" loading="lazy" decoding="async">
+                @if($popularTourMedia['left_small']?->url || $sectionPlaceholder?->url)
+                    <img src="{{ $popularTourMedia['left_small']?->url ?: $sectionPlaceholder->url }}" alt="{{ $popularTourMedia['left_small']?->alt ?: ($sectionPlaceholder?->alt ?: 'Section placeholder image') }}" @if(! $popularTourMedia['left_small']?->url) style="object-fit: {{ $sectionPlaceholderFit }}" @endif loading="lazy" decoding="async">
                 @else
                     <div class="bp-popular-tour__placeholder">No Image</div>
                 @endif
@@ -61,16 +63,16 @@
 
         <div class="bp-popular-tour__media bp-popular-tour__media--right" aria-hidden="true">
             <div class="bp-popular-tour__media-frame bp-popular-tour__media-frame--wide">
-                @if($popularTourMedia['right_wide']?->url)
-                    <img src="{{ $popularTourMedia['right_wide']->url }}" alt="{{ $popularTourMedia['right_wide']->alt ?: 'Frame kanan atas' }}" loading="lazy" decoding="async">
+                @if($popularTourMedia['right_wide']?->url || $sectionPlaceholder?->url)
+                    <img src="{{ $popularTourMedia['right_wide']?->url ?: $sectionPlaceholder->url }}" alt="{{ $popularTourMedia['right_wide']?->alt ?: ($sectionPlaceholder?->alt ?: 'Section placeholder image') }}" @if(! $popularTourMedia['right_wide']?->url) style="object-fit: {{ $sectionPlaceholderFit }}" @endif loading="lazy" decoding="async">
                 @else
                     <div class="bp-popular-tour__placeholder">No Image</div>
                 @endif
             </div>
 
             <div class="bp-popular-tour__media-frame bp-popular-tour__media-frame--small">
-                @if($popularTourMedia['right_small']?->url)
-                    <img src="{{ $popularTourMedia['right_small']->url }}" alt="{{ $popularTourMedia['right_small']->alt ?: 'Frame kanan bawah' }}" loading="lazy" decoding="async">
+                @if($popularTourMedia['right_small']?->url || $sectionPlaceholder?->url)
+                    <img src="{{ $popularTourMedia['right_small']?->url ?: $sectionPlaceholder->url }}" alt="{{ $popularTourMedia['right_small']?->alt ?: ($sectionPlaceholder?->alt ?: 'Section placeholder image') }}" @if(! $popularTourMedia['right_small']?->url) style="object-fit: {{ $sectionPlaceholderFit }}" @endif loading="lazy" decoding="async">
                 @else
                     <div class="bp-popular-tour__placeholder">No Image</div>
                 @endif

@@ -71,7 +71,12 @@ export function initDynamicHeroBackground() {
             return;
         }
 
+        const selectedFit = mobileQuery.matches && section.dataset.heroMobileBackgroundFit
+            ? section.dataset.heroMobileBackgroundFit
+            : section.dataset.heroBackgroundFit;
+
         section.style.setProperty('--home-hero-image', `url("${selectedBackground}")`);
+        section.style.setProperty('--home-hero-media-fit', selectedFit || 'cover');
     };
 
     heroSections.forEach((section) => {
