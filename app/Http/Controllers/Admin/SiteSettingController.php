@@ -14,6 +14,7 @@ use App\Support\HomepageSectionMedia;
 use App\Support\NavigationSettings;
 use App\Support\SeoDefaultSettings;
 use App\Support\SocialMediaLinkSettings;
+use App\Support\TrackingIntegrationSettings;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\Rule;
@@ -106,8 +107,17 @@ class SiteSettingController extends Controller
                 ->keyBy('key')
             : collect();
         $seoDefaultSettings = SeoDefaultSettings::valuesFromSettings($seoDefaultSettingsRows);
+        $trackingIntegrationFields = TrackingIntegrationSettings::fields();
+        $trackingIntegrationRows = Schema::hasTable('site_settings')
+            ? SiteSetting::query()
+                ->where('group', TrackingIntegrationSettings::GROUP)
+                ->where('is_active', true)
+                ->get()
+                ->keyBy('key')
+            : collect();
+        $trackingIntegrationSettings = TrackingIntegrationSettings::valuesFromSettings($trackingIntegrationRows);
 
-        return view('backend.settings.global-assets', compact('activeTab', 'assetTabs', 'logoVariants', 'siteLogos', 'favicon', 'faviconConfig', 'socialShareImage', 'socialShareConfig', 'seoDefaultOgImage', 'brandColorFields', 'brandColors', 'businessIdentityFields', 'businessIdentity', 'contactInformationFields', 'contactInformation', 'socialMediaLinkFields', 'socialMediaLinks', 'navigationFields', 'navigationSettings', 'footerFields', 'footerSettings', 'seoDefaultFields', 'seoDefaultSettings'));
+        return view('backend.settings.global-assets', compact('activeTab', 'assetTabs', 'logoVariants', 'siteLogos', 'favicon', 'faviconConfig', 'socialShareImage', 'socialShareConfig', 'seoDefaultOgImage', 'brandColorFields', 'brandColors', 'businessIdentityFields', 'businessIdentity', 'contactInformationFields', 'contactInformation', 'socialMediaLinkFields', 'socialMediaLinks', 'navigationFields', 'navigationSettings', 'footerFields', 'footerSettings', 'seoDefaultFields', 'seoDefaultSettings', 'trackingIntegrationFields', 'trackingIntegrationSettings'));
     }
 
     public function update(Request $request)
@@ -660,6 +670,48 @@ class SiteSettingController extends Controller
             ->with('success', 'Default SEO OG image deleted successfully.');
     }
 
+    public function updateTrackingIntegrations(Request $request)
+    {
+        if (! Schema::hasTable('site_settings')) {
+            return redirect()
+                ->route('admin.settings.global-assets.edit', ['tab' => 'tracking-integrations'])
+                ->withErrors(['tracking_integrations' => 'Please run database migrations before updating tracking integrations.']);
+        }
+
+        $rules = [];
+
+        foreach (TrackingIntegrationSettings::fields() as $field) {
+            $rules['tracking_integrations.' . $field['slug']] = match ($field['type']) {
+                'boolean' => ['nullable', 'boolean'],
+                'select' => ['required', Rule::in(array_keys($field['options']))],
+                'textarea' => ['nullable', 'string', 'max:10000'],
+                default => ['nullable', 'string', 'max:255'],
+            };
+        }
+
+        $validated = $request->validate($rules);
+        $settings = $validated['tracking_integrations'] ?? [];
+
+        foreach (TrackingIntegrationSettings::fields() as $field) {
+            SiteSetting::updateOrCreate(
+                ['key' => $field['key']],
+                [
+                    'label' => $field['label'],
+                    'value' => $field['type'] === 'boolean'
+                        ? (string) (int) (bool) ($settings[$field['slug']] ?? false)
+                        : ($settings[$field['slug']] ?? $field['default']),
+                    'type' => $field['type'],
+                    'group' => TrackingIntegrationSettings::GROUP,
+                    'is_active' => true,
+                ]
+            );
+        }
+
+        return redirect()
+            ->route('admin.settings.global-assets.edit', ['tab' => 'tracking-integrations'])
+            ->with('success', 'Tracking integrations updated successfully.');
+    }
+
     private function assetTabs(): array
     {
         return [
@@ -712,6 +764,11 @@ class SiteSettingController extends Controller
                 'key' => 'seo-default',
                 'label' => 'SEO Default',
                 'description' => 'Global fallback metadata, canonical base URL, social preview, and schema controls.',
+            ],
+            [
+                'key' => 'tracking-integrations',
+                'label' => 'Tracking / Integrations',
+                'description' => 'Analytics, pixels, site verification, custom scripts, and WhatsApp CTA tracking.',
             ],
         ];
     }

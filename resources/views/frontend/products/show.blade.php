@@ -109,7 +109,13 @@
                         <a
                             href="https://wa.me/{{ $waNumber }}?text={{ $waMessage }}"
                             target="_blank"
+                            rel="noopener noreferrer"
                             class="btn btn-whatsapp product-detail-button"
+                            data-whatsapp-tracking="product"
+                            data-tracking-label="{{ $product->cta_button_text ?: 'Chat via WhatsApp' }}"
+                            data-product-id="{{ $product->id }}"
+                            data-product-name="{{ $product->name }}"
+                            data-product-slug="{{ $product->slug }}"
                         >
                             {{ $product->cta_button_text ?: 'Chat via WhatsApp' }}
                         </a>
@@ -323,7 +329,13 @@
                     <a
                         href="https://wa.me/{{ $waNumber }}?text={{ $bookingMessage }}"
                         target="_blank"
+                        rel="noopener noreferrer"
                         class="btn btn-whatsapp product-detail-button"
+                        data-whatsapp-tracking="product"
+                        data-tracking-label="{{ $product->cta_button_text ?: 'Book via WhatsApp' }}"
+                        data-product-id="{{ $product->id }}"
+                        data-product-name="{{ $product->name }}"
+                        data-product-slug="{{ $product->slug }}"
                     >
                         {{ $product->cta_button_text ?: 'Book via WhatsApp' }}
                     </a>

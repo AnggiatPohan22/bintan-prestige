@@ -17,6 +17,7 @@
 
     @include('partials.site-favicon')
     @include('partials.site-social-share-meta')
+    @include('partials.tracking-head')
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -32,6 +33,8 @@
 
 <body class="frontend-body">
 
+    @include('partials.tracking-body-start')
+
     @include('frontend.partials.header')
 
     <main class="frontend-main">
@@ -39,6 +42,8 @@
     </main>
 
     @include('frontend.partials.footer')
+
+    @include('partials.tracking-body-end')
 
 </body>
 </html>

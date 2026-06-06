@@ -74,6 +74,9 @@ Route::middleware(['auth'])
         Route::delete('settings/global-assets/seo-default/og-image', [SiteSettingController::class, 'destroySeoDefaultOgImage'])
             ->name('settings.global-assets.seo-default.og-image.destroy');
 
+        Route::put('settings/global-assets/tracking-integrations', [SiteSettingController::class, 'updateTrackingIntegrations'])
+            ->name('settings.global-assets.tracking-integrations.update');
+
         Route::get('page-sections', [PageSectionController::class, 'index'])
             ->name('page-sections.index');
 

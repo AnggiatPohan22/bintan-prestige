@@ -24,6 +24,8 @@
                 target="_blank"
                 rel="noopener noreferrer"
                 class="btn btn-whatsapp bp-footer-cta__button"
+                data-whatsapp-tracking="footer"
+                data-tracking-label="Chat via WhatsApp"
             >
                 <span>Chat via WhatsApp</span>
                 <svg class="bp-footer-cta__button-icon" viewBox="0 0 24 24" aria-hidden="true">
@@ -144,7 +146,7 @@
                             @if($phone)
                                 <a href="tel:{{ preg_replace('/\s+/', '', $phone) }}">{{ $phone }}</a>
                             @endif
-                            <a href="{{ $footerWhatsappUrl }}" target="_blank" rel="noopener noreferrer">
+                            <a href="{{ $footerWhatsappUrl }}" target="_blank" rel="noopener noreferrer" data-whatsapp-tracking="footer" data-tracking-label="WhatsApp Contact">
                                 WhatsApp Contact
                             </a>
                             <span>{{ $openingHours }}</span>

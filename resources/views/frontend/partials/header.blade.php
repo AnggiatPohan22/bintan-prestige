@@ -3,6 +3,9 @@
     $navigationItems = $navigationSettings['items'] ?? [];
     $headerCtaLabel = $navigationSettings['cta_label'] ?? 'Plan Trip';
     $headerCtaUrl = \App\Support\NavigationSettings::resolveUrl($navigationSettings['cta_url'] ?? '/#whatsapp-cta');
+    $tracksHeaderWhatsapp = str_contains($headerCtaUrl, 'wa.me')
+        || str_contains($headerCtaUrl, 'whatsapp')
+        || str_contains($headerCtaUrl, '#whatsapp-cta');
     $isStickyHeader = (bool) ($navigationSettings['is_sticky'] ?? true);
     $headerStyleVariables = collect([
         '--header-nav-color' => $navigationSettings['menu_text_color'] ?? null,
@@ -90,7 +93,14 @@
         </nav>
 
         <div class="frontend-header__actions">
-            <a href="{{ $headerCtaUrl }}" class="btn btn-outline btn-sm frontend-header__cta">
+            <a
+                href="{{ $headerCtaUrl }}"
+                class="btn btn-outline btn-sm frontend-header__cta"
+                @if($tracksHeaderWhatsapp)
+                    data-whatsapp-tracking="header"
+                    data-tracking-label="{{ $headerCtaLabel }}"
+                @endif
+            >
                 {{ $headerCtaLabel }}
             </a>
 
@@ -98,6 +108,10 @@
                 href="{{ $headerCtaUrl }}"
                 class="btn btn-outline btn-icon frontend-header__icon"
                 aria-label="{{ $headerCtaLabel }}"
+                @if($tracksHeaderWhatsapp)
+                    data-whatsapp-tracking="header"
+                    data-tracking-label="{{ $headerCtaLabel }}"
+                @endif
             >
                 <svg
                     class="frontend-header__icon-svg"

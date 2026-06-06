@@ -4,6 +4,7 @@ const packageCarouselSelector = '[data-package-carousel]';
 const productGridSelector = '[data-product-grid]';
 const sectionSliderSelector = '[data-section-slider]';
 const sectionSlideSelector = '[data-section-slide]';
+const whatsappTrackingSelector = '[data-whatsapp-tracking]';
 const scrolledClass = 'frontend-header--scrolled';
 const scrollThreshold = 24;
 
@@ -289,6 +290,66 @@ export function initSectionMediaSliders() {
 }
 
 /**
+ * Sends lightweight click events for WhatsApp CTAs to any enabled tracking
+ * integrations. The click is never blocked, so booking flow keeps moving.
+ */
+export function initWhatsappCtaTracking() {
+    const links = document.querySelectorAll(whatsappTrackingSelector);
+    const trackingConfig = window.BP_TRACKING_INTEGRATIONS?.whatsapp;
+
+    if (!links.length || !trackingConfig?.enabled) {
+        return;
+    }
+
+    const locationFlags = {
+        header: 'trackHeader',
+        footer: 'trackFooter',
+        product: 'trackProduct',
+    };
+
+    links.forEach((link) => {
+        link.addEventListener('click', () => {
+            const location = link.dataset.whatsappTracking || 'unknown';
+            const flagName = locationFlags[location];
+
+            if (flagName && trackingConfig[flagName] === false) {
+                return;
+            }
+
+            const payload = {
+                button_location: location,
+                cta_label: link.dataset.trackingLabel || link.textContent.trim(),
+                page_url: window.location.href,
+                destination_url: link.href,
+            };
+
+            if (link.dataset.productId) {
+                payload.product_id = link.dataset.productId;
+                payload.product_name = link.dataset.productName || '';
+                payload.product_slug = link.dataset.productSlug || '';
+            }
+
+            const eventName = trackingConfig.ga4EventName || 'whatsapp_cta_click';
+
+            if (typeof window.gtag === 'function') {
+                window.gtag('event', eventName, payload);
+            }
+
+            if (Array.isArray(window.dataLayer)) {
+                window.dataLayer.push({
+                    event: eventName,
+                    ...payload,
+                });
+            }
+
+            if (typeof window.fbq === 'function') {
+                window.fbq('track', trackingConfig.metaEventName || 'Lead', payload);
+            }
+        });
+    });
+}
+
+/**
  * Bootstraps all custom frontend interactions.
  * Add future lightweight homepage, menu, or shared public-site behavior here.
  */
@@ -298,4 +359,5 @@ export function initFrontend() {
     initPackageCarousels();
     initProductFilters();
     initSectionMediaSliders();
+    initWhatsappCtaTracking();
 }

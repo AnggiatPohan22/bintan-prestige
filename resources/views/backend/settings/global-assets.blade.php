@@ -1338,6 +1338,102 @@
                 </div>
             </form>
         @endif
+
+        @if($activeTab === 'tracking-integrations')
+            @php
+                $trackingSections = collect($trackingIntegrationFields)->groupBy('section');
+            @endphp
+
+            <form method="POST" action="{{ route('admin.settings.global-assets.tracking-integrations.update') }}" class="rounded-xl border border-slate-200 bg-slate-50 p-5">
+                @csrf
+                @method('PUT')
+
+                <h2 class="text-lg font-bold text-slate-800">Tracking / Integrations</h2>
+                <p class="mt-1 text-sm text-slate-500">Manage analytics scripts, verification tags, custom integrations, and WhatsApp CTA click events from one global source.</p>
+
+                <div class="mt-5 space-y-3" data-tracking-accordion>
+                    @foreach($trackingSections as $sectionName => $fields)
+                        <details class="rounded-xl border border-slate-200 bg-white" @if($loop->first) open @endif>
+                            <summary class="cursor-pointer px-4 py-3 text-sm font-bold text-slate-800">
+                                {{ $sectionName }}
+                            </summary>
+
+                            <div class="grid grid-cols-1 gap-4 border-t border-slate-100 p-4 lg:grid-cols-2">
+                                @foreach($fields as $field)
+                                    @php
+                                        $value = old("tracking_integrations.{$field['slug']}", $trackingIntegrationSettings[$field['slug']] ?? $field['default']);
+                                        $checkedValue = filter_var($value, FILTER_VALIDATE_BOOL);
+                                    @endphp
+
+                                    <div class="rounded-xl border border-slate-200 bg-slate-50 p-4 {{ $field['type'] === 'textarea' ? 'lg:col-span-2' : '' }}">
+                                        @if($field['type'] === 'boolean')
+                                            <input type="hidden" name="tracking_integrations[{{ $field['slug'] }}]" value="0">
+                                            <label class="flex items-start gap-3">
+                                                <input type="checkbox" name="tracking_integrations[{{ $field['slug'] }}]" value="1" @checked($checkedValue) class="mt-1 h-5 w-5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500">
+                                                <span>
+                                                    <span class="block text-sm font-bold text-slate-800">{{ $field['label'] }}</span>
+                                                    <span class="mt-1 block text-xs text-slate-500">{{ $field['hint'] }}</span>
+                                                    <span class="mt-2 block text-[11px] font-semibold uppercase text-slate-400">{{ $field['key'] }}</span>
+                                                </span>
+                                            </label>
+                                        @elseif($field['type'] === 'select')
+                                            <label class="form-label">{{ $field['label'] }}</label>
+                                            <select name="tracking_integrations[{{ $field['slug'] }}]" class="{{ $inputClass }}">
+                                                @foreach($field['options'] as $optionValue => $optionLabel)
+                                                    <option value="{{ $optionValue }}" @selected($value === $optionValue)>{{ $optionLabel }}</option>
+                                                @endforeach
+                                            </select>
+                                            <p class="mt-2 text-xs text-slate-500">{{ $field['hint'] }}</p>
+                                            <p class="mt-2 text-[11px] font-semibold uppercase text-slate-400">{{ $field['key'] }}</p>
+                                        @elseif($field['type'] === 'textarea')
+                                            <label class="form-label">{{ $field['label'] }}</label>
+                                            <textarea name="tracking_integrations[{{ $field['slug'] }}]" rows="5" class="{{ $inputClass }}" placeholder="{{ $field['hint'] }}">{{ $value }}</textarea>
+                                            <p class="mt-2 text-xs text-slate-500">{{ $field['hint'] }}</p>
+                                            <p class="mt-2 text-[11px] font-semibold uppercase text-slate-400">{{ $field['key'] }}</p>
+                                        @else
+                                            <label class="form-label">{{ $field['label'] }}</label>
+                                            <input type="text" name="tracking_integrations[{{ $field['slug'] }}]" value="{{ $value }}" class="{{ $inputClass }}" placeholder="{{ $field['default'] }}">
+                                            <p class="mt-2 text-xs text-slate-500">{{ $field['hint'] }}</p>
+                                            <p class="mt-2 text-[11px] font-semibold uppercase text-slate-400">{{ $field['key'] }}</p>
+                                        @endif
+
+                                        @error("tracking_integrations.{$field['slug']}") <p class="form-error">{{ $message }}</p> @enderror
+                                    </div>
+                                @endforeach
+                            </div>
+                        </details>
+                    @endforeach
+                </div>
+
+                <div class="mt-5 flex items-center gap-3 border-t border-slate-200 pt-5">
+                    <button type="submit" class="btn-primary">Save Tracking / Integrations</button>
+                </div>
+            </form>
+
+            <script>
+                (() => {
+                    const accordion = document.querySelector('[data-tracking-accordion]');
+
+                    if (!accordion) {
+                        return;
+                    }
+
+                    accordion.querySelectorAll('details').forEach((details) => {
+                        details.addEventListener('toggle', () => {
+                            if (!details.open) {
+                                return;
+                            }
+
+                            accordion.querySelectorAll('details[open]').forEach((openDetails) => {
+                                if (openDetails !== details) {
+                                    openDetails.open = false;
+                                }
+                            });
+                        });
+                    });
+                })();
+            </script>
+        @endif
     </div>
 </div>
 

@@ -11,6 +11,7 @@ use App\Support\FooterSettings;
 use App\Support\NavigationSettings;
 use App\Support\SeoDefaultSettings;
 use App\Support\SocialMediaLinkSettings;
+use App\Support\TrackingIntegrationSettings;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
@@ -136,6 +137,18 @@ class AppServiceProvider extends ServiceProvider
                     : collect();
 
                 $view->with('seoDefaultSettings', SeoDefaultSettings::valuesFromSettings($seoRows));
+            }
+
+            if (! array_key_exists('trackingIntegrationSettings', $view->getData())) {
+                $trackingRows = $siteSettingsTableExists
+                    ? SiteSetting::query()
+                        ->where('group', TrackingIntegrationSettings::GROUP)
+                        ->where('is_active', true)
+                        ->get()
+                        ->keyBy('key')
+                    : collect();
+
+                $view->with('trackingIntegrationSettings', TrackingIntegrationSettings::valuesFromSettings($trackingRows));
             }
         });
     }
