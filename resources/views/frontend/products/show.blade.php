@@ -3,15 +3,30 @@
 @section('content')
 
 @php
-    $waNumber = preg_replace('/[^0-9]/', '', $product->whatsapp_number);
+    $bookingCtaSettings = $bookingCtaSettings ?? \App\Support\BookingCtaSettings::valuesFromSettings(collect());
+    $usesGlobalProductCta = \App\Support\BookingCtaSettings::isEnabledFor($bookingCtaSettings, 'product');
+    $productCtaContext = [
+        'site_name' => $businessIdentity['brand_name'] ?? config('app.name'),
+        'product_name' => $product->name,
+        'product_url' => route('products.show', $product),
+        'page_url' => url()->current(),
+    ];
+    $waNumber = $usesGlobalProductCta
+        ? \App\Support\BookingCtaSettings::whatsappNumber($bookingCtaSettings, $contactInformation ?? [], $product->whatsapp_number)
+        : preg_replace('/[^0-9]/', '', $product->whatsapp_number);
 
-    $waMessage = urlencode(
-        "Hello, I want to ask about:\n\n" .
-        $product->name . "\n" .
-        route('products.show', $product)
-    );
+    $waMessageText = $usesGlobalProductCta
+        ? \App\Support\BookingCtaSettings::renderMessage($bookingCtaSettings['product_message_template'] ?? '', $productCtaContext)
+        : "Hello, I want to ask about:\n\n" . $product->name . "\n" . route('products.show', $product);
 
-    $bookingMessage = urlencode('Hello, I want to book ' . $product->name);
+    $bookingMessageText = $usesGlobalProductCta
+        ? \App\Support\BookingCtaSettings::renderMessage($bookingCtaSettings['product_message_template'] ?? '', $productCtaContext)
+        : 'Hello, I want to book ' . $product->name;
+
+    $waMessage = urlencode($waMessageText);
+    $bookingMessage = urlencode($bookingMessageText);
+    $productChatLabel = $product->cta_button_text ?: ($usesGlobalProductCta ? ($bookingCtaSettings['product_chat_label'] ?? 'Chat via WhatsApp') : 'Chat via WhatsApp');
+    $productBookingLabel = $product->cta_button_text ?: ($usesGlobalProductCta ? ($bookingCtaSettings['product_booking_label'] ?? 'Book via WhatsApp') : 'Book via WhatsApp');
 @endphp
 
 <div class="product-page">
@@ -112,12 +127,12 @@
                             rel="noopener noreferrer"
                             class="btn btn-whatsapp product-detail-button"
                             data-whatsapp-tracking="product"
-                            data-tracking-label="{{ $product->cta_button_text ?: 'Chat via WhatsApp' }}"
+                            data-tracking-label="{{ $productChatLabel }}"
                             data-product-id="{{ $product->id }}"
                             data-product-name="{{ $product->name }}"
                             data-product-slug="{{ $product->slug }}"
                         >
-                            {{ $product->cta_button_text ?: 'Chat via WhatsApp' }}
+                            {{ $productChatLabel }}
                         </a>
 
                         @if($product->cta_title || $product->cta_description)
@@ -332,12 +347,12 @@
                         rel="noopener noreferrer"
                         class="btn btn-whatsapp product-detail-button"
                         data-whatsapp-tracking="product"
-                        data-tracking-label="{{ $product->cta_button_text ?: 'Book via WhatsApp' }}"
+                        data-tracking-label="{{ $productBookingLabel }}"
                         data-product-id="{{ $product->id }}"
                         data-product-name="{{ $product->name }}"
                         data-product-slug="{{ $product->slug }}"
                     >
-                        {{ $product->cta_button_text ?: 'Book via WhatsApp' }}
+                        {{ $productBookingLabel }}
                     </a>
                 </div>
             </aside>

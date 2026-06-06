@@ -1,6 +1,14 @@
 @php
-    $footerWhatsappUrl = $contactWhatsappUrl ?? 'https://wa.me/?text=' . urlencode('Hello Bintan Prestige, I want to plan a Bintan trip.');
     $footerSettings = $footerSettings ?? \App\Support\FooterSettings::valuesFromSettings(collect());
+    $bookingCtaSettings = $bookingCtaSettings ?? \App\Support\BookingCtaSettings::valuesFromSettings(collect());
+    $usesGlobalFooterCta = \App\Support\BookingCtaSettings::isEnabledFor($bookingCtaSettings, 'footer');
+    $footerWhatsappUrl = $usesGlobalFooterCta
+        ? \App\Support\BookingCtaSettings::whatsappUrl($bookingCtaSettings, [
+            'site_name' => $businessIdentity['brand_name'] ?? config('app.name'),
+            'page_url' => url()->current(),
+        ], $contactInformation ?? [])
+        : ($contactWhatsappUrl ?? 'https://wa.me/?text=' . urlencode('Hello Bintan Prestige, I want to plan a Bintan trip.'));
+    $footerCtaLabel = $usesGlobalFooterCta ? ($bookingCtaSettings['footer_label'] ?? 'Chat via WhatsApp') : 'Chat via WhatsApp';
 @endphp
 
 <footer class="bp-footer" aria-labelledby="footer-title">
@@ -25,9 +33,9 @@
                 rel="noopener noreferrer"
                 class="btn btn-whatsapp bp-footer-cta__button"
                 data-whatsapp-tracking="footer"
-                data-tracking-label="Chat via WhatsApp"
+                data-tracking-label="{{ $footerCtaLabel }}"
             >
-                <span>Chat via WhatsApp</span>
+                <span>{{ $footerCtaLabel }}</span>
                 <svg class="bp-footer-cta__button-icon" viewBox="0 0 24 24" aria-hidden="true">
                     <path d="M7 17L17 7"></path>
                     <path d="M9 7h8v8"></path>

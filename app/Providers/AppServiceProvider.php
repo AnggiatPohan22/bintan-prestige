@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Models\SiteAsset;
 use App\Models\SiteSetting;
 use App\Support\BrandColorSettings;
+use App\Support\BookingCtaSettings;
 use App\Support\BusinessIdentitySettings;
 use App\Support\ContactInformationSettings;
 use App\Support\FooterSettings;
@@ -149,6 +150,18 @@ class AppServiceProvider extends ServiceProvider
                     : collect();
 
                 $view->with('trackingIntegrationSettings', TrackingIntegrationSettings::valuesFromSettings($trackingRows));
+            }
+
+            if (! array_key_exists('bookingCtaSettings', $view->getData())) {
+                $bookingCtaRows = $siteSettingsTableExists
+                    ? SiteSetting::query()
+                        ->where('group', BookingCtaSettings::GROUP)
+                        ->where('is_active', true)
+                        ->get()
+                        ->keyBy('key')
+                    : collect();
+
+                $view->with('bookingCtaSettings', BookingCtaSettings::valuesFromSettings($bookingCtaRows));
             }
         });
     }

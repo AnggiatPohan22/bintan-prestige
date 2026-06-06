@@ -77,6 +77,9 @@ Route::middleware(['auth'])
         Route::put('settings/global-assets/tracking-integrations', [SiteSettingController::class, 'updateTrackingIntegrations'])
             ->name('settings.global-assets.tracking-integrations.update');
 
+        Route::put('settings/global-assets/booking-cta', [SiteSettingController::class, 'updateBookingCtaSettings'])
+            ->name('settings.global-assets.booking-cta.update');
+
         Route::get('page-sections', [PageSectionController::class, 'index'])
             ->name('page-sections.index');
 

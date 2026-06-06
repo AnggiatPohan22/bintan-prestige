@@ -7,6 +7,7 @@ use App\Models\SiteAsset;
 use App\Models\SiteSetting;
 use App\Services\PageSectionImageService;
 use App\Support\BrandColorSettings;
+use App\Support\BookingCtaSettings;
 use App\Support\BusinessIdentitySettings;
 use App\Support\ContactInformationSettings;
 use App\Support\FooterSettings;
@@ -116,8 +117,17 @@ class SiteSettingController extends Controller
                 ->keyBy('key')
             : collect();
         $trackingIntegrationSettings = TrackingIntegrationSettings::valuesFromSettings($trackingIntegrationRows);
+        $bookingCtaFields = BookingCtaSettings::fields();
+        $bookingCtaRows = Schema::hasTable('site_settings')
+            ? SiteSetting::query()
+                ->where('group', BookingCtaSettings::GROUP)
+                ->where('is_active', true)
+                ->get()
+                ->keyBy('key')
+            : collect();
+        $bookingCtaSettings = BookingCtaSettings::valuesFromSettings($bookingCtaRows);
 
-        return view('backend.settings.global-assets', compact('activeTab', 'assetTabs', 'logoVariants', 'siteLogos', 'favicon', 'faviconConfig', 'socialShareImage', 'socialShareConfig', 'seoDefaultOgImage', 'brandColorFields', 'brandColors', 'businessIdentityFields', 'businessIdentity', 'contactInformationFields', 'contactInformation', 'socialMediaLinkFields', 'socialMediaLinks', 'navigationFields', 'navigationSettings', 'footerFields', 'footerSettings', 'seoDefaultFields', 'seoDefaultSettings', 'trackingIntegrationFields', 'trackingIntegrationSettings'));
+        return view('backend.settings.global-assets', compact('activeTab', 'assetTabs', 'logoVariants', 'siteLogos', 'favicon', 'faviconConfig', 'socialShareImage', 'socialShareConfig', 'seoDefaultOgImage', 'brandColorFields', 'brandColors', 'businessIdentityFields', 'businessIdentity', 'contactInformationFields', 'contactInformation', 'socialMediaLinkFields', 'socialMediaLinks', 'navigationFields', 'navigationSettings', 'footerFields', 'footerSettings', 'seoDefaultFields', 'seoDefaultSettings', 'trackingIntegrationFields', 'trackingIntegrationSettings', 'bookingCtaFields', 'bookingCtaSettings'));
     }
 
     public function update(Request $request)
@@ -712,6 +722,48 @@ class SiteSettingController extends Controller
             ->with('success', 'Tracking integrations updated successfully.');
     }
 
+    public function updateBookingCtaSettings(Request $request)
+    {
+        if (! Schema::hasTable('site_settings')) {
+            return redirect()
+                ->route('admin.settings.global-assets.edit', ['tab' => 'booking-cta'])
+                ->withErrors(['booking_cta' => 'Please run database migrations before updating booking CTA settings.']);
+        }
+
+        $rules = [];
+
+        foreach (BookingCtaSettings::fields() as $field) {
+            $rules['booking_cta.' . $field['slug']] = match ($field['type']) {
+                'boolean' => ['nullable', 'boolean'],
+                'select' => ['required', Rule::in(array_keys($field['options']))],
+                'textarea' => ['nullable', 'string', 'max:1500'],
+                default => ['nullable', 'string', 'max:255'],
+            };
+        }
+
+        $validated = $request->validate($rules);
+        $settings = $validated['booking_cta'] ?? [];
+
+        foreach (BookingCtaSettings::fields() as $field) {
+            SiteSetting::updateOrCreate(
+                ['key' => $field['key']],
+                [
+                    'label' => $field['label'],
+                    'value' => $field['type'] === 'boolean'
+                        ? (string) (int) (bool) ($settings[$field['slug']] ?? false)
+                        : ($settings[$field['slug']] ?? $field['default']),
+                    'type' => $field['type'],
+                    'group' => BookingCtaSettings::GROUP,
+                    'is_active' => true,
+                ]
+            );
+        }
+
+        return redirect()
+            ->route('admin.settings.global-assets.edit', ['tab' => 'booking-cta'])
+            ->with('success', 'Booking CTA settings updated successfully.');
+    }
+
     private function assetTabs(): array
     {
         return [
@@ -769,6 +821,11 @@ class SiteSettingController extends Controller
                 'key' => 'tracking-integrations',
                 'label' => 'Tracking / Integrations',
                 'description' => 'Analytics, pixels, site verification, custom scripts, and WhatsApp CTA tracking.',
+            ],
+            [
+                'key' => 'booking-cta',
+                'label' => 'Booking / CTA',
+                'description' => 'Global booking labels, WhatsApp message templates, and CTA placement rules.',
             ],
         ];
     }

@@ -1,8 +1,15 @@
 @php
     $navigationSettings = $navigationSettings ?? \App\Support\NavigationSettings::valuesFromSettings(collect());
     $navigationItems = $navigationSettings['items'] ?? [];
-    $headerCtaLabel = $navigationSettings['cta_label'] ?? 'Plan Trip';
-    $headerCtaUrl = \App\Support\NavigationSettings::resolveUrl($navigationSettings['cta_url'] ?? '/#whatsapp-cta');
+    $bookingCtaSettings = $bookingCtaSettings ?? \App\Support\BookingCtaSettings::valuesFromSettings(collect());
+    $usesGlobalHeaderCta = \App\Support\BookingCtaSettings::isEnabledFor($bookingCtaSettings, 'header');
+    $headerCtaLabel = $usesGlobalHeaderCta ? ($bookingCtaSettings['header_label'] ?? 'Plan Trip') : ($navigationSettings['cta_label'] ?? 'Plan Trip');
+    $headerCtaUrl = $usesGlobalHeaderCta
+        ? \App\Support\BookingCtaSettings::whatsappUrl($bookingCtaSettings, [
+            'site_name' => $businessIdentity['brand_name'] ?? config('app.name'),
+            'page_url' => url()->current(),
+        ], $contactInformation ?? [])
+        : \App\Support\NavigationSettings::resolveUrl($navigationSettings['cta_url'] ?? '/#whatsapp-cta');
     $tracksHeaderWhatsapp = str_contains($headerCtaUrl, 'wa.me')
         || str_contains($headerCtaUrl, 'whatsapp')
         || str_contains($headerCtaUrl, '#whatsapp-cta');
