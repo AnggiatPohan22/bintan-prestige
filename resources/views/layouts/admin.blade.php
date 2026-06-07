@@ -17,19 +17,20 @@
 
     @include('partials.site-brand-colors')
 </head>
-<body class="overflow-x-hidden bg-gray-100">
+<body class="admin-body">
 
-<div class="flex min-h-screen w-full overflow-x-hidden">
+<div class="admin-shell">
 
     {{-- Sidebar --}}
     @include('backend.partials.sidebar')
 
-    <div class="min-w-0 flex-1">
+    <div class="admin-shell__workspace">
 
         {{-- Navbar --}}
         @include('backend.partials.navbar')
 
-        <main class="min-w-0 overflow-x-hidden p-6">
+        <main class="admin-shell__main">
+            <div class="admin-shell__content">
             
             {{-- Flash Alert --}}
             <x-flash-alert />
@@ -38,6 +39,8 @@
             <x-confirm-modal />
 
             @yield('content')
+
+            </div>
         </main>
 
     </div>
