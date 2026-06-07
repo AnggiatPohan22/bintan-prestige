@@ -88,17 +88,17 @@
     ];
 @endphp
 
-<div class="admin-dashboard-shell">
-    <section class="admin-dashboard-hero">
+<div class="admin-page">
+    <section class="admin-page-header">
         <p class="admin-dashboard-kicker">
             Admin Overview
         </p>
 
-        <h1 class="admin-dashboard-title">
+        <h1 class="admin-page-title">
             Dashboard
         </h1>
 
-        <p class="admin-dashboard-description">
+        <p class="admin-page-subtitle">
             Monitor product content, global page sections, media readiness, and quick admin workflows from one clean overview.
         </p>
     </section>
@@ -130,7 +130,8 @@
     </section>
 
     <section class="admin-content-grid">
-        <div class="admin-panel">
+        <div class="admin-card">
+            <div class="admin-card-body">
             <div class="admin-panel__header">
                 <div>
                     <h2 class="admin-panel__title">
@@ -156,9 +157,11 @@
                     </a>
                 @endforeach
             </div>
+            </div>
         </div>
 
-        <div class="admin-panel admin-panel--wide">
+        <div class="admin-card admin-panel--wide">
+            <div class="admin-card-body">
             <div class="admin-panel__header">
                 <div>
                     <h2 class="admin-panel__title">
@@ -170,7 +173,7 @@
                     </p>
                 </div>
 
-                <a href="{{ route('admin.products.index') }}" class="btn-secondary px-4 py-2 text-sm">
+                <a href="{{ route('admin.products.index') }}" class="admin-btn-secondary px-4 py-2 text-sm">
                     View All
                 </a>
             </div>
@@ -192,11 +195,11 @@
                             </div>
 
                             <div class="flex shrink-0 items-center gap-3">
-                                <span class="admin-badge {{ $product->status === 'published' ? 'admin-badge--published' : 'admin-badge--draft' }}">
+                                <span class="{{ $product->status === 'published' ? 'admin-badge-success' : 'admin-badge-warning' }}">
                                     {{ ucfirst($product->status ?? 'draft') }}
                                 </span>
 
-                                <a href="{{ route('admin.products.edit', $product) }}" class="btn-secondary px-4 py-2 text-sm">
+                                <a href="{{ route('admin.products.edit', $product) }}" class="admin-btn-secondary px-4 py-2 text-sm">
                                     Edit
                                 </a>
                             </div>
@@ -214,6 +217,7 @@
                     </a>
                 </div>
             @endif
+            </div>
         </div>
     </section>
 </div>

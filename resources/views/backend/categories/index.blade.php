@@ -2,15 +2,15 @@
 
 @section('content')
 
-<div class="space-y-6">
-    <div class="rounded-xl bg-white p-4 shadow sm:p-6">
+<div class="admin-page">
+    <div class="admin-page-header">
         <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div>
-                <h1 class="text-2xl font-bold text-slate-800">
+                <h1 class="admin-page-title">
                     Categories
                 </h1>
 
-                <p class="mt-1 text-sm text-slate-500">
+                <p class="admin-page-subtitle">
                     Manage category data used by products.
                 </p>
             </div>
@@ -28,7 +28,7 @@
 
                 <a
                     href="{{ route('admin.categories.create') }}"
-                    class="btn-primary w-full sm:w-auto"
+                    class="admin-btn-primary w-full sm:w-auto"
                 >
                     Create Category
                 </a>
@@ -36,31 +36,34 @@
         </div>
     </div>
 
-    <div class="rounded-xl bg-white p-6 shadow">
-        <div class="mb-4 flex items-center justify-between">
-            <h2 class="text-lg font-bold text-slate-800">
-                Active Categories
-            </h2>
+    <div class="admin-card">
+        <div class="admin-card-header">
+            <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <h2 class="text-lg font-extrabold text-slate-900">
+                    Active Categories
+                </h2>
 
-            <span class="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">
-                {{ $categories->total() }} item(s)
-            </span>
+                <span class="admin-badge-success">
+                    {{ $categories->total() }} item(s)
+                </span>
+            </div>
         </div>
 
-        <div class="overflow-x-auto">
-            <table class="w-full min-w-[760px]">
+        <div class="admin-card-body">
+        <div class="admin-table-wrapper">
+            <table class="admin-table">
                 <thead>
-                    <tr class="border-b text-left">
-                        <th class="px-4 py-4 text-sm font-semibold text-slate-600">Category</th>
-                        <th class="px-4 py-4 text-sm font-semibold text-slate-600">Products</th>
-                        <th class="px-4 py-4 text-sm font-semibold text-slate-600">Status</th>
-                        <th class="px-4 py-4 text-right text-sm font-semibold text-slate-600">Action</th>
+                    <tr class="admin-table-header">
+                        <th class="px-4 py-4">Category</th>
+                        <th class="px-4 py-4">Products</th>
+                        <th class="px-4 py-4">Status</th>
+                        <th class="px-4 py-4 text-right">Action</th>
                     </tr>
                 </thead>
 
                 <tbody>
                     @forelse($categories as $category)
-                        <tr class="border-b hover:bg-slate-50">
+                        <tr class="admin-table-row">
                             <td class="px-4 py-4">
                                 <div class="font-semibold text-slate-800">
                                     {{ $category->name }}
@@ -80,19 +83,16 @@
                             </td>
 
                             <td class="px-4 py-4">
-                                <span class="rounded-full px-3 py-1 text-xs font-semibold
-                                    {{ $category->is_active
-                                        ? 'bg-emerald-100 text-emerald-700'
-                                        : 'bg-slate-100 text-slate-600' }}">
+                                <span class="{{ $category->is_active ? 'admin-badge-success' : 'admin-badge-warning' }}">
                                     {{ $category->is_active ? 'Active' : 'Inactive' }}
                                 </span>
                             </td>
 
                             <td class="px-4 py-4">
-                                <div class="flex justify-end gap-3">
+                                <div class="flex flex-col justify-end gap-2 sm:flex-row">
                                     <a
                                         href="{{ route('admin.categories.edit', $category) }}"
-                                        class="rounded-lg bg-amber-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-amber-600"
+                                        class="admin-btn-soft px-4 py-2"
                                     >
                                         Edit
                                     </a>
@@ -107,7 +107,7 @@
                                         <button
                                             type="submit"
                                             onclick="return confirm('Move this category to archive?')"
-                                            class="rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-700"
+                                            class="admin-btn-danger px-4 py-2"
                                         >
                                             Archive
                                         </button>
@@ -117,8 +117,10 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="4" class="py-10 text-center text-sm text-slate-500">
-                                No active categories found.
+                            <td colspan="4" class="px-4 py-6">
+                                <div class="admin-empty-state">
+                                    No active categories found.
+                                </div>
                             </td>
                         </tr>
                     @endforelse
@@ -129,33 +131,37 @@
         <div class="mt-4">
             {{ $categories->links() }}
         </div>
+        </div>
     </div>
 
-    <div class="rounded-xl bg-white p-6 shadow">
-        <div class="mb-4 flex items-center justify-between">
-            <h2 class="text-lg font-bold text-slate-800">
-                Archive
-            </h2>
+    <div class="admin-card">
+        <div class="admin-card-header">
+            <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <h2 class="text-lg font-extrabold text-slate-900">
+                    Archive
+                </h2>
 
-            <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
-                {{ $archivedCategories->total() }} item(s)
-            </span>
+                <span class="admin-badge-info">
+                    {{ $archivedCategories->total() }} item(s)
+                </span>
+            </div>
         </div>
 
-        <div class="overflow-x-auto">
-            <table class="w-full min-w-[760px]">
+        <div class="admin-card-body">
+        <div class="admin-table-wrapper">
+            <table class="admin-table">
                 <thead>
-                    <tr class="border-b text-left">
-                        <th class="px-4 py-4 text-sm font-semibold text-slate-600">Category</th>
-                        <th class="px-4 py-4 text-sm font-semibold text-slate-600">Archived At</th>
-                        <th class="px-4 py-4 text-sm font-semibold text-slate-600">Products</th>
-                        <th class="px-4 py-4 text-right text-sm font-semibold text-slate-600">Action</th>
+                    <tr class="admin-table-header">
+                        <th class="px-4 py-4">Category</th>
+                        <th class="px-4 py-4">Archived At</th>
+                        <th class="px-4 py-4">Products</th>
+                        <th class="px-4 py-4 text-right">Action</th>
                     </tr>
                 </thead>
 
                 <tbody>
                     @forelse($archivedCategories as $category)
-                        <tr class="border-b hover:bg-slate-50">
+                        <tr class="admin-table-row">
                             <td class="px-4 py-4">
                                 <div class="font-semibold text-slate-800">
                                     {{ $category->name }}
@@ -174,7 +180,7 @@
                             </td>
 
                             <td class="px-4 py-4">
-                                <div class="flex justify-end gap-3">
+                                <div class="flex flex-col justify-end gap-2 sm:flex-row">
                                     <form
                                         method="POST"
                                         action="{{ route('admin.categories.restore', $category->id) }}"
@@ -184,7 +190,7 @@
 
                                         <button
                                             type="submit"
-                                            class="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700"
+                                            class="admin-btn-success px-4 py-2"
                                         >
                                             Restore
                                         </button>
@@ -200,7 +206,7 @@
                                         <button
                                             type="submit"
                                             onclick="return confirm('Permanently delete this category?')"
-                                            class="rounded-lg bg-red-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-800"
+                                            class="admin-btn-danger px-4 py-2"
                                         >
                                             Delete Permanent
                                         </button>
@@ -210,8 +216,10 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="4" class="py-10 text-center text-sm text-slate-500">
-                                Archive is empty.
+                            <td colspan="4" class="px-4 py-6">
+                                <div class="admin-empty-state">
+                                    Archive is empty.
+                                </div>
                             </td>
                         </tr>
                     @endforelse
@@ -221,6 +229,7 @@
 
         <div class="mt-4">
             {{ $archivedCategories->links() }}
+        </div>
         </div>
     </div>
 </div>
