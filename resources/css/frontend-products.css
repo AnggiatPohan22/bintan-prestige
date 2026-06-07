@@ -7,78 +7,40 @@
         color: var(--frontend-charcoal);
     }
 
-    /* PRODUCT HERO: Creates a clean responsive header area for the products page. */
+    /* PRODUCT HERO: Creates a full-background catalog hero that sits behind the floating header. */
     .product-hero {
-        @apply relative overflow-hidden border-b;
+        @apply relative overflow-hidden;
+        min-height: clamp(520px, 72vh, 760px);
         background:
-            radial-gradient(circle at top right, rgba(200, 162, 74, 0.14), transparent 34%),
-            linear-gradient(135deg, var(--frontend-black) 0%, var(--frontend-charcoal) 44%, #2a2111 100%);
-        border-color: rgba(200, 162, 74, 0.28);
+            linear-gradient(180deg, rgba(9, 8, 6, 0.1), rgba(9, 8, 6, 0.76)),
+            linear-gradient(90deg, rgba(9, 8, 6, 0.56), rgba(9, 8, 6, 0.08) 52%, rgba(9, 8, 6, 0.52)),
+            var(--product-hero-image, linear-gradient(135deg, rgba(200, 162, 74, 0.18), rgba(9, 8, 6, 0.1))),
+            linear-gradient(135deg, #060504 0%, #14100a 44%, #352810 100%);
+        background-position: center;
+        background-size: cover, cover, var(--product-hero-media-fit, cover), cover;
     }
 
-    /* PRODUCT HERO CONTAINER: Keeps hero content centered with balanced desktop and mobile spacing. */
+    /* PRODUCT HERO CONTAINER: Aligns the catalog headline with the homepage hero rhythm. */
     .product-hero__container {
-        @apply mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:px-6 md:grid-cols-[1fr_auto] md:items-end md:py-16 lg:px-8;
+        @apply mx-auto flex min-h-[inherit] max-w-7xl items-end px-4 pb-24 pt-40 sm:px-6 lg:px-8 lg:pb-28 lg:pt-44;
     }
 
-    /* PRODUCT HERO CONTENT: Limits text width so the headline remains readable. */
+    /* PRODUCT HERO CONTENT: Limits text width so the headline remains readable over photography. */
     .product-hero__content {
-        @apply max-w-3xl;
-    }
-
-    /* PRODUCT EYEBROW: Adds a subtle category label above the main title. */
-    .product-hero__eyebrow {
-        @apply inline-flex items-center rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-bold uppercase text-amber-800;
-        background: rgba(200, 162, 74, 0.12);
-        border-color: rgba(200, 162, 74, 0.42);
-        color: var(--frontend-gold-soft);
+        @apply relative z-10 max-w-3xl;
     }
 
     /* PRODUCT TITLE: Controls headline size responsively without breaking mobile layout. */
     .product-hero__title {
-        @apply mt-5 max-w-3xl text-3xl font-extrabold leading-tight text-slate-950 sm:text-4xl lg:text-5xl;
-        color: var(--frontend-white);
+        @apply max-w-4xl text-4xl font-extrabold uppercase leading-tight sm:text-5xl lg:text-7xl;
+        color: rgba(255, 255, 255, 0.92);
+        text-shadow: 0 24px 80px rgba(0, 0, 0, 0.34);
     }
 
     /* PRODUCT DESCRIPTION: Styles supporting copy with comfortable line height. */
     .product-hero__description {
-        @apply mt-4 max-w-2xl text-base leading-7 text-slate-600 sm:text-lg;
-        color: rgba(255, 255, 255, 0.74);
-    }
-
-    /* PRODUCT HERO SUMMARY: Shows product count in a compact modern stat box. */
-    .product-hero__summary {
-        @apply w-full rounded-lg border border-slate-200 bg-slate-50 p-4 shadow-sm md:w-56;
-    }
-
-    /* PRODUCT HERO SUMMARY LABEL: Keeps helper text small and secondary. */
-    .product-hero__summary-label {
-        @apply text-xs font-semibold uppercase text-slate-500;
-    }
-
-    /* PRODUCT HERO SUMMARY VALUE: Highlights total products without overwhelming the hero. */
-    .product-hero__summary-value {
-        @apply mt-1 text-2xl font-extrabold text-slate-950;
-    }
-
-    /* PRODUCT HERO SOFT CARD: Replaces hard product count with a softer selling message. */
-    .product-hero__soft-card {
-        @apply w-full rounded-lg border border-slate-200 bg-slate-50 p-5 shadow-sm md:w-72;
-        background: rgba(255, 255, 255, 0.08);
-        border-color: rgba(200, 162, 74, 0.32);
-        box-shadow: none;
-    }
-
-    /* PRODUCT HERO SOFT TITLE: Gives the soft-selling card a clear headline. */
-    .product-hero__soft-title {
-        @apply text-sm font-extrabold text-slate-950;
-        color: var(--frontend-gold);
-    }
-
-    /* PRODUCT HERO SOFT TEXT: Keeps the supporting sales copy concise and readable. */
-    .product-hero__soft-text {
-        @apply mt-2 text-sm leading-6 text-slate-600;
-        color: rgba(255, 255, 255, 0.72);
+        @apply mt-6 max-w-2xl text-base font-semibold leading-7 sm:text-xl lg:text-2xl;
+        color: rgba(255, 255, 255, 0.78);
     }
 
     /* PRODUCT SECTION: Provides consistent vertical rhythm for the product listing area. */
@@ -170,7 +132,7 @@
         scrollbar-width: thin;
     }
 
-    /* PRODUCT GRID: Builds a swipeable mobile row and a four-column desktop grid. */
+    /* PRODUCT GRID: Builds a swipeable mobile row and a three-column desktop card layout. */
     .product-grid {
         display: grid;
         grid-auto-columns: minmax(252px, 84vw);
@@ -192,125 +154,175 @@
         }
     }
 
-    @media (min-width: 1280px) {
-        .product-grid {
-            grid-template-columns: repeat(4, minmax(0, 1fr));
-        }
-    }
-
-    /* PRODUCT CARD: Defines the main product card with stable height and clean edges. */
+    /* PRODUCT CARD: Defines an immersive image-led package card with stable overlay content. */
     .product-card {
-        @apply flex h-full flex-col overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:border-amber-200 hover:shadow-lg;
-        border-color: var(--frontend-border);
-        box-shadow: var(--frontend-shadow);
+        @apply relative flex min-h-[34rem] overflow-hidden rounded-[1.75rem] border bg-stone-950 shadow-xl transition duration-300 hover:-translate-y-1;
+        border-color: rgba(200, 162, 74, 0.22);
+        box-shadow: 0 28px 80px rgba(23, 19, 12, 0.16);
         scroll-snap-align: start;
     }
 
     /* PRODUCT CARD HOVER: Gives cards a subtle gold accent on hover. */
     .product-card:hover {
         border-color: var(--frontend-gold);
+        box-shadow: 0 34px 90px rgba(23, 19, 12, 0.24);
     }
 
-    /* PRODUCT CARD MEDIA: Keeps product images at a consistent ratio for a symmetric grid. */
+    /* PRODUCT CARD MEDIA: Turns all product images into a full card background frame. */
     .product-card__media {
-        @apply relative aspect-[16/11] overflow-hidden bg-slate-100;
+        @apply absolute inset-0 overflow-hidden bg-slate-900;
     }
 
-    /* PRODUCT CARD IMAGE: Makes images fill the card without distortion and adds a soft hover zoom. */
+    /* PRODUCT CARD IMAGE: Makes the thumbnail cover the card background. */
     .product-card__image {
-        @apply h-full w-full object-cover transition duration-500;
+        @apply absolute inset-0 h-full w-full object-cover opacity-100 transition duration-700;
+        max-width: none;
     }
 
-    /* PRODUCT CARD IMAGE HOVER: Zooms only the image when the full card is hovered. */
+    /* PRODUCT CARD IMAGE HOVER: Zooms the thumbnail layer when the full card is hovered. */
     .product-card:hover .product-card__image {
-        transform: scale(1.05);
+        transform: scale(1.045);
     }
 
     /* PRODUCT CARD PLACEHOLDER: Provides a polished empty state when an image is unavailable. */
     .product-card__placeholder {
-        @apply flex h-full w-full items-center justify-center bg-slate-100 text-sm font-semibold text-slate-400;
+        @apply absolute inset-0 flex h-full w-full items-center justify-center text-sm font-extrabold uppercase;
+        background:
+            linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(200, 162, 74, 0.18)),
+            repeating-linear-gradient(135deg, rgba(255,255,255,0.06) 0 1px, transparent 1px 18px);
+        color: rgba(245, 234, 208, 0.58);
+    }
+
+    /* PRODUCT CARD OVERLAY: Adds readable contrast for text over photography. */
+    .product-card::after {
+        @apply absolute inset-0;
+        background:
+            linear-gradient(180deg, rgba(9, 8, 6, 0.2), rgba(9, 8, 6, 0.18) 36%, rgba(9, 8, 6, 0.88)),
+            linear-gradient(90deg, rgba(9, 8, 6, 0.2), rgba(9, 8, 6, 0.02));
+        content: "";
+        z-index: 1;
     }
 
     /* PRODUCT CATEGORY BADGE: Places category information over the image with good contrast. */
     .product-card__category {
-        @apply absolute left-3 top-3 max-w-[calc(100%-1.5rem)] truncate rounded-lg bg-white/95 px-3 py-1.5 text-xs font-bold text-slate-700 shadow-sm ring-1 ring-slate-200;
-        background: rgba(9, 8, 6, 0.84);
-        color: var(--frontend-gold-soft);
-        --tw-ring-color: rgba(200, 162, 74, 0.36);
+        @apply inline-flex w-fit max-w-full truncate rounded-lg px-3 py-1.5 text-xs font-extrabold shadow-sm;
+        background: var(--frontend-gold);
+        color: var(--frontend-black);
     }
 
-    /* PRODUCT CARD BODY: Uses flex layout so prices and buttons align across cards. */
+    /* PRODUCT CARD BODY: Pins product copy to the lower overlay area. */
     .product-card__body {
-        @apply flex flex-1 flex-col p-4;
+        @apply relative z-10 mt-auto flex w-full flex-col p-5 sm:p-6;
     }
 
-    /* PRODUCT META: Displays destination and duration in one tidy responsive row. */
-    .product-card__meta {
-        @apply mb-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs font-semibold text-slate-500;
+    /* PRODUCT CARD PRICE: Groups dual-currency pricing near the card title. */
+    .product-card__price {
+        @apply mt-4;
     }
 
-    /* PRODUCT META DOT: Adds a small separator that stays visually balanced. */
-    .product-card__meta-dot {
-        @apply h-1 w-1 rounded-full bg-slate-300;
+    /* PRODUCT PRICE MAIN: Emphasizes IDR as the primary storefront currency. */
+    .product-card__price-main {
+        @apply text-3xl font-extrabold leading-none sm:text-4xl;
+        color: var(--frontend-white);
+        text-shadow: 0 16px 38px rgba(0, 0, 0, 0.34);
+    }
+
+    /* PRODUCT PRICE SECONDARY: Shows SGD as the secondary currency under IDR. */
+    .product-card__price-secondary {
+        @apply mt-2 text-base font-extrabold sm:text-lg;
+        color: rgba(255, 255, 255, 0.78);
     }
 
     /* PRODUCT CARD TITLE: Keeps product names strong while preventing uneven card heights. */
     .product-card__title {
-        @apply text-base font-extrabold leading-snug text-slate-950;
+        @apply mt-3 text-2xl font-extrabold leading-tight sm:text-3xl;
+        color: var(--frontend-white);
         display: -webkit-box;
-        min-height: 2.75rem;
         overflow: hidden;
         -webkit-box-orient: vertical;
         -webkit-line-clamp: 2;
     }
 
-    /* PRODUCT CARD DESCRIPTION: Clamps summaries so cards stay clean and symmetric. */
-    .product-card__description {
-        @apply mt-2 text-sm leading-5 text-slate-600;
-        display: -webkit-box;
-        min-height: 2.5rem;
-        overflow: hidden;
-        -webkit-box-orient: vertical;
-        -webkit-line-clamp: 2;
+    /* PRODUCT TITLE LINK: Makes the title the detail-page action with an animated line cue. */
+    .product-card__title-link {
+        @apply inline bg-no-repeat transition;
+        color: inherit;
+        background-image: linear-gradient(currentColor, currentColor);
+        background-position: 0 100%;
+        background-size: 0 2px;
+        padding-bottom: 0.16rem;
+        text-decoration: none;
+        transition: background-size 260ms var(--frontend-ease), color 260ms var(--frontend-ease);
     }
 
-    /* PRODUCT HIGHLIGHTS: Arranges short feature tags without crowding the card. */
-    .product-card__highlights {
-        @apply mt-4 flex flex-wrap gap-2;
+    /* PRODUCT TITLE LINK HOVER: Expands the line so visitors understand the title is clickable. */
+    .product-card__title-link:hover,
+    .product-card__title-link:focus-visible {
+        background-size: 100% 2px;
+        color: var(--frontend-gold-soft);
     }
 
-    /* PRODUCT HIGHLIGHT CHIP: Styles each highlight as a small modern chip. */
-    .product-card__highlight {
-        @apply max-w-full truncate rounded-lg bg-amber-50 px-2.5 py-1.5 text-xs font-semibold text-amber-800 ring-1 ring-amber-100;
-        background: var(--frontend-gold-pale);
-        color: #7c5e18;
-        --tw-ring-color: rgba(200, 162, 74, 0.26);
-    }
-
-    /* PRODUCT CARD FOOTER: Pins pricing and actions to the bottom for consistent alignment. */
+    /* PRODUCT CARD FOOTER: Aligns destination, duration, and media action icons. */
     .product-card__footer {
-        @apply mt-auto flex items-end justify-between gap-3 border-t border-slate-100 pt-4;
-        border-color: rgba(200, 162, 74, 0.18);
+        @apply mt-5 flex items-center justify-between gap-4;
     }
 
-    /* PRODUCT PRICE LABEL: Keeps the price helper text quiet and compact. */
-    .product-card__price-label {
-        @apply text-xs font-semibold uppercase text-slate-400;
+    /* PRODUCT META: Displays destination and duration in one tidy responsive row. */
+    .product-card__meta {
+        @apply flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 text-sm font-extrabold;
+        color: rgba(255, 255, 255, 0.88);
     }
 
-    /* PRODUCT PRICE MAIN: Emphasizes the IDR price with a clear hierarchy. */
-    .product-card__price-main {
-        @apply mt-1 text-lg font-extrabold leading-none text-slate-950;
+    /* PRODUCT META DOT: Adds a small separator that stays visually balanced. */
+    .product-card__meta-dot {
+        @apply h-1 w-1 rounded-full;
+        background: rgba(255, 255, 255, 0.56);
     }
 
-    /* PRODUCT PRICE SECONDARY: Shows alternate currency without competing with the main price. */
-    .product-card__price-secondary {
-        @apply mt-1 text-sm font-medium text-slate-500;
+    /* PRODUCT CARD ACTIONS: Groups image and video icon controls beside metadata. */
+    .product-card__actions {
+        @apply flex shrink-0 translate-y-4 items-center gap-2 opacity-0;
+        transition:
+            opacity 260ms var(--frontend-ease),
+            transform 320ms var(--frontend-ease-press);
     }
 
-    /* PRODUCT BUTTON: Creates a compact call-to-action with modern focus and hover states. */
-    .product-card__button {
-        @apply min-h-10 shrink-0 px-4 py-2 text-sm;
+    /* PRODUCT CARD ACTIONS REVEAL: Slides media icons up once the card receives attention. */
+    .product-card:hover .product-card__actions,
+    .product-card:focus-within .product-card__actions {
+        @apply translate-y-0 opacity-100;
+    }
+
+    @media (hover: none) {
+        .product-card__actions {
+            @apply translate-y-0 opacity-100;
+        }
+    }
+
+    /* PRODUCT CARD ICON BUTTON: Creates circular media controls inspired by the visual reference. */
+    .product-card__icon-button {
+        @apply inline-flex h-11 w-11 items-center justify-center rounded-full border transition;
+        background: rgba(255, 255, 255, 0.94);
+        border-color: rgba(255, 255, 255, 0.94);
+        color: var(--frontend-black);
+        box-shadow: 0 16px 34px rgba(0, 0, 0, 0.22);
+    }
+
+    .product-card__icon-button svg {
+        @apply h-5 w-5;
+        fill: none;
+        stroke: currentColor;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        stroke-width: 1.9;
+    }
+
+    /* PRODUCT CARD ICON BUTTON HOVER: Adds a gold media action hover state. */
+    .product-card__icon-button:hover,
+    .product-card__icon-button:focus-visible {
+        background: var(--frontend-gold);
+        border-color: var(--frontend-gold);
+        transform: translateY(-1px);
     }
 
     /* PRODUCT MODAL CLOAK: Prevents Alpine popups from flashing before JavaScript starts. */
@@ -354,6 +366,116 @@
     /* PRODUCT MODAL TITLE: Styles filter and sort popup titles. */
     .product-modal__title {
         @apply mt-1 text-2xl font-extrabold text-slate-950;
+    }
+
+    /* PRODUCT MEDIA MODAL: Displays product image/video previews without leaving the page. */
+    .product-media-modal {
+        @apply fixed inset-0 z-[70] flex items-center justify-center p-4 sm:p-6;
+    }
+
+    /* PRODUCT MEDIA MODAL BACKDROP: Dims the product grid while keeping page context visible. */
+    .product-media-modal__backdrop {
+        @apply absolute inset-0;
+        background: rgba(9, 8, 6, 0.72);
+    }
+
+    /* PRODUCT MEDIA MODAL PANEL: Centers the media frame and positions controls around it. */
+    .product-media-modal__panel {
+        @apply relative z-10 w-full max-w-[34rem];
+    }
+
+    /* PRODUCT MEDIA MODAL FRAME: Uses the same fixed card ratio so slides stay visually tidy. */
+    .product-media-modal__frame {
+        @apply relative mx-auto aspect-[4/5] w-full overflow-hidden rounded-[1.75rem] border bg-stone-950 shadow-2xl;
+        border-color: rgba(200, 162, 74, 0.28);
+        box-shadow: 0 32px 90px rgba(0, 0, 0, 0.36);
+    }
+
+    /* PRODUCT MEDIA MODAL IMAGE: Crops each slide consistently inside the fixed frame. */
+    .product-media-modal__image {
+        @apply absolute inset-0 h-full w-full object-cover;
+        max-width: none;
+    }
+
+    /* PRODUCT MEDIA MODAL COUNT: Shows gallery position without cluttering the image. */
+    .product-media-modal__count {
+        @apply absolute bottom-4 right-4 rounded-full px-3 py-1 text-xs font-extrabold;
+        background: rgba(9, 8, 6, 0.62);
+        color: var(--frontend-white);
+        backdrop-filter: blur(12px);
+    }
+
+    /* PRODUCT MEDIA MODAL EMPTY: Provides a clean state for future video support. */
+    .product-media-modal__empty {
+        @apply mx-auto flex aspect-[4/5] w-full items-center justify-center rounded-[1.75rem] border p-8 text-center text-sm font-extrabold uppercase;
+        background:
+            linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(200, 162, 74, 0.18)),
+            linear-gradient(135deg, #060504 0%, #14100a 44%, #352810 100%);
+        border-color: rgba(200, 162, 74, 0.28);
+        color: rgba(245, 234, 208, 0.78);
+    }
+
+    /* PRODUCT MEDIA MODAL CLOSE: Places a minimal close action above the frame. */
+    .product-media-modal__close {
+        @apply absolute -top-11 right-0 inline-flex h-10 w-10 items-center justify-center rounded-full text-xl font-extrabold transition;
+        color: rgba(255, 255, 255, 0.82);
+    }
+
+    .product-media-modal__close:hover,
+    .product-media-modal__close:focus-visible {
+        color: var(--frontend-white);
+        transform: scale(1.04);
+    }
+
+    /* PRODUCT MEDIA MODAL NAV: Places gallery arrows beside the fixed media frame. */
+    .product-media-modal__nav {
+        @apply absolute top-1/2 inline-flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full transition;
+        background: rgba(255, 255, 255, 0.9);
+        color: var(--frontend-black);
+        box-shadow: 0 18px 42px rgba(0, 0, 0, 0.24);
+    }
+
+    .product-media-modal__nav svg {
+        @apply h-6 w-6;
+        fill: none;
+        stroke: currentColor;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        stroke-width: 2.2;
+    }
+
+    .product-media-modal__nav:hover,
+    .product-media-modal__nav:focus-visible {
+        background: var(--frontend-gold);
+        transform: translateY(-50%) scale(1.04);
+    }
+
+    .product-media-modal__nav--previous {
+        left: 0.75rem;
+    }
+
+    .product-media-modal__nav--next {
+        right: 0.75rem;
+    }
+
+    @media (min-width: 640px) {
+        .product-media-modal__nav--previous {
+            left: -4.25rem;
+        }
+
+        .product-media-modal__nav--next {
+            right: -4.25rem;
+        }
+    }
+
+    @media (max-width: 639px) {
+        .product-media-modal__panel {
+            @apply max-w-sm;
+        }
+
+        .product-media-modal__close {
+            @apply -top-12;
+        }
     }
 
     /* PRODUCT MODAL CLOSE: Provides a compact close button for popups. */
@@ -491,9 +613,48 @@
         @apply mt-10;
     }
 
+    /* PRODUCT DETAIL MAIN OFFSET: Keeps product detail content clear of the floating header. */
+    body:has(.product-detail-page) .frontend-main {
+        padding-top: 6.75rem;
+    }
+
+    /* PRODUCT DETAIL HEADER: Uses readable glass navigation on non-hero detail pages. */
+    body:has(.product-detail-page) .frontend-header:not(.frontend-header--scrolled) .frontend-header__inner {
+        background: rgba(251, 247, 237, 0.94);
+        border: 1px solid rgba(200, 162, 74, 0.3);
+        box-shadow: 0 18px 50px rgba(23, 19, 12, 0.1);
+        backdrop-filter: blur(18px) saturate(1.12);
+    }
+
+    body:has(.product-detail-page) .frontend-header:not(.frontend-header--scrolled) .frontend-brand,
+    body:has(.product-detail-page) .frontend-header:not(.frontend-header--scrolled) .frontend-nav__link {
+        color: var(--frontend-black);
+    }
+
+    body:has(.product-detail-page) .frontend-header:not(.frontend-header--scrolled) .frontend-nav__link:hover,
+    body:has(.product-detail-page) .frontend-header:not(.frontend-header--scrolled) .frontend-nav__link--active {
+        color: var(--frontend-gold);
+    }
+
+    body:has(.product-detail-page) .frontend-header:not(.frontend-header--scrolled) .frontend-brand__mark {
+        background: var(--frontend-black);
+        border-color: var(--frontend-black);
+        color: var(--frontend-gold);
+    }
+
+    body:has(.product-detail-page) .frontend-header:not(.frontend-header--scrolled) .frontend-header__cta,
+    body:has(.product-detail-page) .frontend-header:not(.frontend-header--scrolled) .frontend-header__icon {
+        --btn-bg: var(--frontend-black);
+        --btn-border: var(--frontend-black);
+        --btn-color: var(--frontend-gold-soft);
+    }
+
     /* PRODUCT DETAIL HERO: Creates a bright first section for tour detail pages. */
     .product-detail-hero {
-        @apply border-b border-slate-200 bg-white py-8 sm:py-10 lg:py-12;
+        @apply border-b pb-10 pt-5 sm:pb-12 lg:pb-14;
+        background:
+            linear-gradient(180deg, rgba(251, 247, 237, 0.92), rgba(255, 255, 255, 0.98) 34%, rgba(255, 255, 255, 1));
+        border-color: rgba(200, 162, 74, 0.18);
     }
 
     /* PRODUCT DETAIL CONTAINER: Keeps detail content aligned with the product listing page. */
@@ -513,12 +674,13 @@
 
     /* PRODUCT DETAIL MAIN IMAGE: Provides a stable frame for the primary tour image. */
     .product-detail-gallery__main {
-        @apply aspect-[16/10] overflow-hidden rounded-lg bg-slate-100 shadow-sm ring-1 ring-slate-200;
+        @apply relative aspect-[16/10] overflow-hidden rounded-lg bg-slate-100 shadow-sm ring-1 ring-slate-200;
     }
 
     /* PRODUCT DETAIL IMAGE: Makes the primary image fill its frame cleanly. */
     .product-detail-gallery__image {
-        @apply h-full w-full object-cover;
+        @apply absolute inset-0 h-full w-full object-cover;
+        max-width: none;
     }
 
     /* PRODUCT DETAIL IMAGE PLACEHOLDER: Keeps the gallery polished when no image exists. */
@@ -528,12 +690,64 @@
 
     /* PRODUCT DETAIL THUMBNAILS: Creates a neat thumbnail row under the main image. */
     .product-detail-gallery__thumbs {
-        @apply grid grid-cols-4 gap-3;
+        @apply grid max-w-2xl grid-cols-4 gap-3;
     }
 
     /* PRODUCT DETAIL THUMBNAIL: Keeps thumbnail images consistent and clickable-looking. */
     .product-detail-gallery__thumb {
-        @apply aspect-[4/3] w-full rounded-lg border border-slate-200 object-cover shadow-sm;
+        @apply aspect-[4/3] w-full overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm transition;
+    }
+
+    .product-detail-gallery__thumb img {
+        @apply h-full w-full object-cover;
+        max-width: none;
+    }
+
+    .product-detail-gallery__thumb:hover,
+    .product-detail-gallery__thumb:focus-visible,
+    .product-detail-gallery__thumb.is-active {
+        border-color: var(--frontend-gold);
+        box-shadow: 0 16px 36px rgba(23, 19, 12, 0.12);
+        transform: translateY(-1px);
+    }
+
+    /* PRODUCT DETAIL GALLERY NAV: Moves the large gallery image without turning thumbnails into a slider. */
+    .product-detail-gallery__nav {
+        @apply absolute top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full transition;
+        background: rgba(255, 255, 255, 0.92);
+        color: var(--frontend-black);
+        box-shadow: 0 18px 38px rgba(0, 0, 0, 0.18);
+    }
+
+    .product-detail-gallery__nav svg {
+        @apply h-5 w-5;
+        fill: none;
+        stroke: currentColor;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        stroke-width: 2.2;
+    }
+
+    .product-detail-gallery__nav:hover,
+    .product-detail-gallery__nav:focus-visible {
+        background: var(--frontend-gold);
+        transform: translateY(-50%) scale(1.04);
+    }
+
+    .product-detail-gallery__nav--previous {
+        left: 1rem;
+    }
+
+    .product-detail-gallery__nav--next {
+        right: 1rem;
+    }
+
+    /* PRODUCT DETAIL GALLERY COUNT: Shows the active image position inside the main frame. */
+    .product-detail-gallery__count {
+        @apply absolute bottom-4 right-4 z-10 rounded-full px-3 py-1 text-xs font-extrabold;
+        background: rgba(9, 8, 6, 0.62);
+        color: var(--frontend-white);
+        backdrop-filter: blur(12px);
     }
 
     /* PRODUCT DETAIL SUMMARY: Aligns title, meta, price, and CTA with balanced spacing. */
@@ -658,7 +872,10 @@
 
     /* PRODUCT DETAIL CONTENT: Gives the lower detail area a quiet page background. */
     .product-detail-content {
-        @apply bg-slate-50 py-10 lg:py-12;
+        @apply py-10 lg:py-12;
+        background:
+            linear-gradient(180deg, rgba(251, 247, 237, 0.35), rgba(248, 250, 252, 1) 16rem),
+            #f8fafc;
     }
 
     /* PRODUCT DETAIL CONTENT GRID: Creates main content and sticky booking sidebar columns. */
@@ -788,29 +1005,99 @@
         @apply mt-3 text-sm leading-6 text-slate-600;
     }
 
-    /* PRODUCT DETAIL SIDEBAR: Keeps sidebar content positioned nicely on desktop. */
+    /* PRODUCT DETAIL SIDEBAR: Keeps sidebar content positioned below the floating header. */
     .product-detail-sidebar {
-        @apply lg:sticky lg:top-24;
+        @apply lg:sticky lg:top-32;
     }
 
-    /* PRODUCT DETAIL BOOKING CARD: Creates the sticky booking information card. */
+    /* PRODUCT DETAIL BOOKING CARD: Creates the sticky booking form card. */
     .product-detail-booking-card {
         @apply rounded-lg border border-slate-200 bg-white p-5 shadow-sm sm:p-6;
+        box-shadow: 0 22px 64px rgba(23, 19, 12, 0.08);
+    }
+
+    /* PRODUCT DETAIL BOOKING HEADING: Aligns the accent bar and booking form title. */
+    .product-detail-booking-card__heading {
+        @apply flex items-center gap-4;
+    }
+
+    /* PRODUCT DETAIL BOOKING ACCENT: Adds a small vertical booking accent. */
+    .product-detail-booking-card__accent {
+        @apply h-8 w-1 rounded-full;
+        background: #21bfa3;
     }
 
     /* PRODUCT DETAIL BOOKING TITLE: Styles the sidebar heading. */
     .product-detail-booking-card__title {
-        @apply text-xl font-extrabold text-slate-950;
+        @apply text-2xl font-extrabold text-slate-950;
     }
 
     /* PRODUCT DETAIL BOOKING LIST: Spaces booking facts inside the sidebar card. */
     .product-detail-booking-card__list {
-        @apply mt-5 space-y-3;
+        @apply mt-6 divide-y divide-slate-200;
+    }
+
+    /* PRODUCT DETAIL BOOKING PRICE ROW: Highlights the starting price without calculating totals. */
+    .product-detail-booking-card__price-row {
+        @apply flex items-end justify-between gap-4 pb-5;
+    }
+
+    .product-detail-booking-card__price-row span {
+        @apply text-sm font-bold uppercase text-slate-400;
+    }
+
+    .product-detail-booking-card__price-row strong {
+        @apply text-right text-2xl font-extrabold text-slate-950;
+    }
+
+    /* PRODUCT DETAIL BOOKING SECONDARY PRICE: Shows alternate currency below the main price. */
+    .product-detail-booking-card__secondary-price {
+        @apply -mt-3 pb-5 text-sm font-bold text-slate-500;
+    }
+
+    /* PRODUCT DETAIL BOOKING FIELD: Styles booking date input. */
+    .product-detail-booking-field {
+        @apply block py-5;
+    }
+
+    .product-detail-booking-field span {
+        @apply mb-2 block text-sm font-extrabold text-slate-900;
+    }
+
+    .product-detail-booking-field input {
+        @apply min-h-12 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 text-sm font-bold text-slate-700 outline-none transition focus:border-amber-500 focus:ring-4 focus:ring-amber-100;
+    }
+
+    /* PRODUCT DETAIL BOOKING COUNTER: Aligns guest labels and quantity controls. */
+    .product-detail-booking-counter {
+        @apply flex items-center justify-between gap-4 py-5;
+    }
+
+    .product-detail-booking-counter span {
+        @apply block text-base font-extrabold text-slate-900;
+    }
+
+    .product-detail-booking-counter p {
+        @apply mt-1 text-sm font-semibold text-slate-500;
+    }
+
+    /* PRODUCT DETAIL BOOKING STEPPER: Creates compact plus/minus controls. */
+    .product-detail-booking-stepper {
+        @apply inline-grid min-w-36 grid-cols-3 items-center rounded-full bg-slate-50 p-1 shadow-inner;
+    }
+
+    .product-detail-booking-stepper button {
+        @apply flex h-9 w-9 items-center justify-center rounded-full text-xl font-extrabold text-white transition hover:scale-105 focus:outline-none focus:ring-4 focus:ring-amber-100;
+        background: #4b4b4b;
+    }
+
+    .product-detail-booking-stepper strong {
+        @apply text-center text-base font-extrabold text-slate-950;
     }
 
     /* PRODUCT DETAIL BOOKING ROW: Aligns booking labels and values for easy scanning. */
     .product-detail-booking-card__row {
-        @apply flex items-start justify-between gap-4 border-b border-slate-100 pb-3 text-sm text-slate-500;
+        @apply flex items-start justify-between gap-4 py-5 text-sm text-slate-500;
     }
 
     /* PRODUCT DETAIL BOOKING ROW VALUE: Keeps sidebar values strong and right-aligned. */
@@ -818,8 +1105,45 @@
         @apply text-right font-bold text-slate-800;
     }
 
+    /* PRODUCT DETAIL BOOKING ADDONS: Groups optional reservation services. */
+    .product-detail-booking-addons {
+        @apply py-5;
+    }
+
+    .product-detail-booking-addons legend {
+        @apply text-base font-extrabold text-slate-900;
+    }
+
+    .product-detail-booking-addons p {
+        @apply mt-2 text-sm font-semibold leading-6 text-slate-500;
+    }
+
+    .product-detail-booking-addons__list {
+        @apply mt-4 space-y-3;
+    }
+
+    /* PRODUCT DETAIL BOOKING CHECK: Styles one add-on checkbox. */
+    .product-detail-booking-check {
+        @apply flex cursor-pointer items-center gap-3 text-sm font-bold text-slate-600;
+    }
+
+    .product-detail-booking-check input {
+        @apply h-5 w-5 rounded border-slate-300 text-amber-700 focus:ring-amber-500;
+        color: var(--frontend-gold);
+    }
+
     /* PRODUCT DETAIL BOOKING NOTE: Styles pickup notes as supporting information. */
     .product-detail-booking-card__note {
-        @apply rounded-lg bg-slate-50 p-3 text-sm leading-6 text-slate-600;
+        @apply mt-5 rounded-lg bg-slate-50 p-3 text-sm leading-6 text-slate-600;
+    }
+
+    @media (max-width: 639px) {
+        body:has(.product-detail-page) .frontend-main {
+            padding-top: 5.75rem;
+        }
+
+        .product-detail-booking-stepper {
+            @apply min-w-32;
+        }
     }
 }

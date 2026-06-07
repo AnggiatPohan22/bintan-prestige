@@ -14,6 +14,32 @@ class PageSectionMediaSlotTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_admin_page_sections_syncs_registered_product_pages(): void
+    {
+        $admin = User::factory()->create();
+
+        $response = $this->actingAs($admin)
+            ->get(route('admin.page-sections.index', ['page' => 'products.show']));
+
+        $response->assertOk();
+        $response->assertSee('Product Listing');
+        $response->assertSee('Product Detail');
+        $response->assertSee('products.show.hero');
+        $response->assertSee('products.show.gallery');
+        $response->assertSee('products.show.booking');
+        $response->assertSee('No image input');
+        $response->assertDontSee('0 / 10 media item(s)');
+
+        $this->assertDatabaseHas('page_sections', [
+            'page_key' => 'products.index',
+            'section_key' => 'products.index.hero',
+        ]);
+        $this->assertDatabaseHas('page_sections', [
+            'page_key' => 'products.show',
+            'section_key' => 'products.show.booking',
+        ]);
+    }
+
     public function test_admin_page_sections_index_can_filter_by_page_key(): void
     {
         $admin = User::factory()->create();

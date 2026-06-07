@@ -7,21 +7,66 @@
     $selectedDestinations = (array) request('destination', []);
     $selectedCategories = (array) request('category', []);
     $selectedVehicleTypes = (array) request('vehicle_type', []);
+    $heroPlaceholder = \App\Support\DefaultMediaAssets::asset($siteAssets ?? collect(), 'hero');
+    $heroPlaceholderFit = \App\Support\DefaultMediaAssets::fit($defaultMediaSettings ?? [], 'hero');
+    $productHeroBackgroundSize = match ($heroPlaceholderFit) {
+        'fill' => '100% 100%',
+        'scale-down' => 'contain',
+        default => $heroPlaceholderFit,
+    };
+    $productHeroBackground = $products->getCollection()->firstWhere('thumbnail_url')?->thumbnail_url ?? $heroPlaceholder?->url;
 @endphp
 
 <div
     class="product-page"
-    x-data="{ filterOpen: false, sortOpen: false }"
-    x-on:keydown.escape.window="filterOpen = false; sortOpen = false"
+    data-page-key="products.index"
+    x-data="{
+        filterOpen: false,
+        sortOpen: false,
+        mediaOpen: false,
+        mediaType: 'image',
+        mediaTitle: '',
+        mediaItems: [],
+        mediaIndex: 0,
+        openProductMedia(event) {
+            const detail = event.detail || {};
+
+            this.mediaType = detail.type || 'image';
+            this.mediaTitle = detail.title || '';
+            this.mediaItems = detail.items || [];
+            this.mediaIndex = 0;
+            this.mediaOpen = true;
+        },
+        closeProductMedia() {
+            this.mediaOpen = false;
+            this.mediaItems = [];
+            this.mediaIndex = 0;
+        },
+        nextProductMedia() {
+            if (! this.mediaItems.length) return;
+            this.mediaIndex = (this.mediaIndex + 1) % this.mediaItems.length;
+        },
+        previousProductMedia() {
+            if (! this.mediaItems.length) return;
+            this.mediaIndex = (this.mediaIndex - 1 + this.mediaItems.length) % this.mediaItems.length;
+        },
+    }"
+    x-on:open-product-media.window="openProductMedia($event)"
+    x-on:keydown.escape.window="filterOpen = false; sortOpen = false; closeProductMedia()"
+    x-on:keydown.arrow-right.window="if (mediaOpen) nextProductMedia()"
+    x-on:keydown.arrow-left.window="if (mediaOpen) previousProductMedia()"
 >
-    <section class="product-hero">
+    <section
+        id="products-index-hero"
+        class="product-hero"
+        data-section-key="products.index.hero"
+        @if($productHeroBackground)
+            style="--product-hero-image: url('{{ $productHeroBackground }}'); --product-hero-media-fit: {{ $productHeroBackgroundSize }}"
+        @endif
+    >
         <div class="product-hero__container">
 
             <div class="product-hero__content">
-                <span class="product-hero__eyebrow">
-                    Bintan Travel Experience
-                </span>
-
                 <h1 class="product-hero__title title-section">
                     Explore Tours, Taxi & Activities in Bintan
                 </h1>
@@ -31,20 +76,10 @@
                 </p>
             </div>
 
-            <div class="product-hero__soft-card">
-                <p class="product-hero__soft-title">
-                    Travel made simple
-                </p>
-
-                <p class="product-hero__soft-text">
-                    Local team, flexible pickup, and packages prepared for guests who want a smooth Bintan trip.
-                </p>
-            </div>
-
         </div>
     </section>
 
-    <section class="product-section">
+    <section id="products-index-catalog" class="product-section" data-section-key="products.index.catalog">
         <div class="product-container">
 
             <nav class="product-breadcrumb" aria-label="Breadcrumb">
@@ -129,7 +164,9 @@
     </section>
 
     <div
+        id="products-index-filter-modal"
         class="product-modal"
+        data-section-key="products.index.filter_modal"
         x-cloak
         x-show="filterOpen"
         x-transition.opacity
@@ -301,7 +338,9 @@
     </div>
 
     <div
+        id="products-index-sort-modal"
         class="product-modal"
+        data-section-key="products.index.sort_modal"
         x-cloak
         x-show="sortOpen"
         x-transition.opacity
@@ -390,6 +429,81 @@
                 </button>
             </div>
         </form>
+    </div>
+
+    <div
+        id="products-index-media-modal"
+        class="product-media-modal"
+        x-cloak
+        x-show="mediaOpen"
+        x-transition.opacity
+        aria-modal="true"
+        role="dialog"
+        aria-label="Product media viewer"
+    >
+        <button
+            type="button"
+            class="product-media-modal__backdrop"
+            aria-label="Close media viewer"
+            x-on:click="closeProductMedia()"
+        ></button>
+
+        <div class="product-media-modal__panel" x-transition>
+            <button
+                type="button"
+                class="product-media-modal__close"
+                aria-label="Close media viewer"
+                x-on:click="closeProductMedia()"
+            >
+                X
+            </button>
+
+            <template x-if="mediaItems.length">
+                <div class="product-media-modal__frame">
+                    <template x-for="(item, index) in mediaItems" :key="item.url">
+                        <img
+                            x-show="mediaIndex === index"
+                            x-transition.opacity
+                            :src="item.url"
+                            :alt="item.alt || mediaTitle"
+                            class="product-media-modal__image"
+                        >
+                    </template>
+
+                    <div class="product-media-modal__count" x-text="(mediaIndex + 1) + ' of ' + mediaItems.length"></div>
+                </div>
+            </template>
+
+            <template x-if="! mediaItems.length">
+                <div class="product-media-modal__empty">
+                    <p x-text="mediaType === 'video' ? 'Video is not available yet.' : 'Image is not available yet.'"></p>
+                </div>
+            </template>
+
+            <button
+                type="button"
+                class="product-media-modal__nav product-media-modal__nav--previous"
+                aria-label="Previous media"
+                x-show="mediaItems.length > 1"
+                x-on:click="previousProductMedia()"
+            >
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="m15 18-6-6 6-6"></path>
+                </svg>
+            </button>
+
+            <button
+                type="button"
+                class="product-media-modal__nav product-media-modal__nav--next"
+                aria-label="Next media"
+                x-show="mediaItems.length > 1"
+                x-on:click="nextProductMedia()"
+            >
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="m9 6 6 6-6 6"></path>
+                </svg>
+            </button>
+        </div>
     </div>
 </div>
 

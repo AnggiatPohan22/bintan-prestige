@@ -143,7 +143,8 @@ class GlobalDefaultMediaAssetsTest extends TestCase
         $card->assertSee('site-assets/default_media-product/product.jpg', false);
         $card->assertSee('style="object-fit: contain"', false);
         $card->assertDontSee('No Image');
-        $detail->assertSee('site-assets/default_media-product/product.jpg', false);
+        $detail->assertSee('default_media-product', false);
+        $detail->assertSee('product.jpg', false);
     }
 
     public function test_home_sections_use_default_media_placeholders(): void

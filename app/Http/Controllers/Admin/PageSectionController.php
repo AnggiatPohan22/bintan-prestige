@@ -7,6 +7,7 @@ use App\Models\PageSection;
 use App\Models\PageSectionMedia;
 use App\Services\PageSectionImageService;
 use App\Support\HomepageSectionMedia;
+use App\Support\PageSectionRegistry;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Schema;
@@ -17,7 +18,12 @@ class PageSectionController extends Controller
 
     public function index(Request $request)
     {
-        $orderedKeys = HomepageSectionMedia::orderedSectionKeys();
+        PageSectionRegistry::syncRegisteredSections();
+
+        $orderedKeys = array_values(array_unique([
+            ...HomepageSectionMedia::orderedSectionKeys(),
+            ...PageSectionRegistry::registeredSectionKeys(),
+        ]));
         $orderSql = collect($orderedKeys)
             ->map(fn (string $key, int $index) => "WHEN ? THEN {$index}")
             ->implode(' ');
@@ -34,6 +40,8 @@ class PageSectionController extends Controller
             $activePageKey = $pageKeys->first();
         }
 
+        $pageOptions = PageSectionRegistry::pageOptions($pageKeys);
+
         $pageSections = PageSection::query()
             ->withCount('media')
             ->when($activePageKey, fn ($query) => $query->where('page_key', $activePageKey))
@@ -46,7 +54,8 @@ class PageSectionController extends Controller
         return view('backend.page-sections.index', compact(
             'pageSections',
             'pageKeys',
-            'activePageKey'
+            'activePageKey',
+            'pageOptions'
         ));
     }
 

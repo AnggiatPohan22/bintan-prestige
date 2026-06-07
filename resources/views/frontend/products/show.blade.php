@@ -26,28 +26,159 @@
         : 'Hello, I want to book ' . $product->name;
 
     $waMessage = urlencode($waMessageText);
-    $bookingMessage = urlencode($bookingMessageText);
     $productChatLabel = $product->cta_button_text ?: ($usesGlobalProductCta ? ($bookingCtaSettings['product_chat_label'] ?? 'Chat via WhatsApp') : 'Chat via WhatsApp');
     $productBookingLabel = $product->cta_button_text ?: ($usesGlobalProductCta ? ($bookingCtaSettings['product_booking_label'] ?? 'Book via WhatsApp') : 'Book via WhatsApp');
+    $addonOptions = $product->features
+        ->where('label', 'addon')
+        ->pluck('value')
+        ->filter()
+        ->values();
+
+    if ($product->pickup_available) {
+        $addonOptions = $addonOptions
+            ->merge([
+                $product->pickup_type ?: 'Pickup',
+                'Drop off',
+            ])
+            ->unique()
+            ->values();
+    }
+
+    $galleryImages = collect();
+
+    if ($product->thumbnail_url) {
+        $galleryImages->push([
+            'url' => $product->thumbnail_url,
+            'alt' => $product->name,
+            'is_placeholder' => false,
+        ]);
+    }
+
+    $product->images
+        ->sortBy('sort_order')
+        ->each(function ($image) use ($galleryImages, $product) {
+            $galleryImages->push([
+                'url' => asset('storage/' . $image->image),
+                'alt' => $product->name,
+                'is_placeholder' => false,
+            ]);
+        });
+
+    if ($galleryImages->isEmpty() && $productPlaceholder?->url) {
+        $galleryImages->push([
+            'url' => $productPlaceholder->url,
+            'alt' => $productPlaceholder->alt ?: 'Product placeholder image',
+            'is_placeholder' => true,
+        ]);
+    }
+
+    $galleryImages = $galleryImages->unique('url')->values();
 @endphp
 
-<div class="product-page">
+<div
+    class="product-page product-detail-page"
+    data-page-key="products.show"
+    x-data="{
+        bookingDate: '',
+        adults: 1,
+        children: 0,
+        addons: [],
+        waNumber: @js($waNumber),
+        baseMessage: @js($bookingMessageText),
+        productName: @js($product->name),
+        productUrl: @js(route('products.show', $product)),
+        meetingPoint: @js($product->meeting_point ?: '-'),
+        duration: @js($product->duration ?: '-'),
+        galleryIndex: 0,
+        galleryImages: @js($galleryImages),
+        increment(field) {
+            this[field] = Math.max(0, this[field] + 1);
+        },
+        decrement(field) {
+            const minimum = field === 'adults' ? 1 : 0;
+            this[field] = Math.max(minimum, this[field] - 1);
+        },
+        bookingWhatsappUrl() {
+            const lines = [
+                this.baseMessage,
+                '',
+                'Booking Information:',
+                `Product: ${this.productName}`,
+                `Date: ${this.bookingDate || '-'}`,
+                `Adults: ${this.adults}`,
+                `Children: ${this.children}`,
+                `Duration: ${this.duration}`,
+                `Meeting Point: ${this.meetingPoint}`,
+                `Add-ons: ${this.addons.length ? this.addons.join(', ') : '-'}`,
+                `Product URL: ${this.productUrl}`,
+            ];
 
-    <section class="product-detail-hero">
+            return `https://wa.me/${this.waNumber}?text=${encodeURIComponent(lines.join('\n'))}`;
+        },
+        nextGalleryImage() {
+            if (! this.galleryImages.length) return;
+            this.galleryIndex = (this.galleryIndex + 1) % this.galleryImages.length;
+        },
+        previousGalleryImage() {
+            if (! this.galleryImages.length) return;
+            this.galleryIndex = (this.galleryIndex - 1 + this.galleryImages.length) % this.galleryImages.length;
+        },
+    }"
+>
+
+    <section
+        id="products-show-hero"
+        class="product-detail-hero"
+        data-section-key="products.show.hero"
+    >
         <div class="product-detail-container">
 
             <div class="product-detail-hero__grid">
 
-                <div class="product-detail-gallery">
+                <div
+                    id="products-show-gallery"
+                    class="product-detail-gallery"
+                    data-section-key="products.show.gallery"
+                >
                     <div class="product-detail-gallery__main">
-                        @if($product->thumbnail_url || $productPlaceholder?->url)
-                            <img
-                                src="{{ $product->thumbnail_url ?: $productPlaceholder->url }}"
-                                alt="{{ $product->thumbnail_url ? $product->name : ($productPlaceholder->alt ?: 'Product placeholder image') }}"
-                                class="product-detail-gallery__image"
-                                @if(! $product->thumbnail_url) style="object-fit: {{ $productPlaceholderFit }}" @endif
-                                decoding="async"
-                            >
+                        @if($galleryImages->count())
+                            <template x-for="(image, index) in galleryImages" :key="image.url">
+                                <img
+                                    x-show="galleryIndex === index"
+                                    x-transition.opacity
+                                    :src="image.url"
+                                    :alt="image.alt"
+                                    class="product-detail-gallery__image"
+                                    :style="image.is_placeholder ? 'object-fit: {{ $productPlaceholderFit }}' : ''"
+                                    decoding="async"
+                                >
+                            </template>
+
+                            @if($galleryImages->count() > 1)
+                                <button
+                                    type="button"
+                                    class="product-detail-gallery__nav product-detail-gallery__nav--previous"
+                                    aria-label="Previous product image"
+                                    x-on:click="previousGalleryImage()"
+                                >
+                                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                                        <path d="m15 18-6-6 6-6"></path>
+                                    </svg>
+                                </button>
+
+                                <button
+                                    type="button"
+                                    class="product-detail-gallery__nav product-detail-gallery__nav--next"
+                                    aria-label="Next product image"
+                                    x-on:click="nextGalleryImage()"
+                                >
+                                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                                        <path d="m9 6 6 6-6 6"></path>
+                                    </svg>
+                                </button>
+
+                                <div class="product-detail-gallery__count" x-text="(galleryIndex + 1) + ' / ' + galleryImages.length"></div>
+                            @endif
                         @else
                             <div class="product-detail-gallery__placeholder">
                                 No Image
@@ -55,22 +186,34 @@
                         @endif
                     </div>
 
-                    @if($product->images->count())
+                    @if($galleryImages->count() > 1)
                         <div class="product-detail-gallery__thumbs">
-                            @foreach($product->images->take(4) as $image)
-                                <img
-                                    src="{{ asset('storage/' . $image->image) }}"
+                            @foreach($galleryImages->take(4) as $image)
+                                <button
+                                    type="button"
                                     class="product-detail-gallery__thumb"
-                                    alt="{{ $product->name }}"
-                                    loading="lazy"
-                                    decoding="async"
+                                    :class="{ 'is-active': galleryIndex === {{ $loop->index }} }"
+                                    x-on:click="galleryIndex = {{ $loop->index }}"
+                                    aria-label="Show product image {{ $loop->iteration }}"
                                 >
+                                    <img
+                                        src="{{ $image['url'] }}"
+                                        alt="{{ $image['alt'] }}"
+                                        @if($image['is_placeholder']) style="object-fit: {{ $productPlaceholderFit }}" @endif
+                                        loading="lazy"
+                                        decoding="async"
+                                    >
+                                </button>
                             @endforeach
                         </div>
                     @endif
                 </div>
 
-                <div class="product-detail-summary">
+                <div
+                    id="products-show-summary"
+                    class="product-detail-summary"
+                    data-section-key="products.show.summary"
+                >
                     <div class="product-detail-badges">
                         @if($product->category?->name)
                             <span class="product-detail-badge product-detail-badge--primary">
@@ -179,12 +322,20 @@
         </div>
     </section>
 
-    <section class="product-detail-content">
+    <section
+        id="products-show-content"
+        class="product-detail-content"
+        data-section-key="products.show.content"
+    >
         <div class="product-detail-container product-detail-content__grid">
 
             <div class="product-detail-main">
 
-                <section class="product-detail-panel">
+                <section
+                    id="products-show-overview"
+                    class="product-detail-panel"
+                    data-section-key="products.show.overview"
+                >
                     <h2 class="product-detail-panel__title title-card">
                         Overview
                     </h2>
@@ -195,7 +346,11 @@
                 </section>
 
                 @if($product->features->count())
-                    <section class="product-detail-panel">
+                    <section
+                        id="products-show-features"
+                        class="product-detail-panel"
+                        data-section-key="products.show.features"
+                    >
                         <h2 class="product-detail-panel__title title-card">
                             What's Included
                         </h2>
@@ -236,7 +391,11 @@
                 @endif
 
                 @if($product->itineraries->count())
-                    <section class="product-detail-panel">
+                    <section
+                        id="products-show-itinerary"
+                        class="product-detail-panel"
+                        data-section-key="products.show.itinerary"
+                    >
                         <h2 class="product-detail-panel__title title-card">
                             Itinerary
                         </h2>
@@ -266,7 +425,11 @@
                 @endif
 
                 @if($product->notes->count())
-                    <section class="product-detail-panel">
+                    <section
+                        id="products-show-notes"
+                        class="product-detail-panel"
+                        data-section-key="products.show.notes"
+                    >
                         <h2 class="product-detail-panel__title title-card">
                             Important Notes
                         </h2>
@@ -290,7 +453,11 @@
                 @endif
 
                 @if($product->faqs->count())
-                    <section class="product-detail-panel">
+                    <section
+                        id="products-show-faq"
+                        class="product-detail-panel"
+                        data-section-key="products.show.faq"
+                    >
                         <h2 class="product-detail-panel__title title-card">
                             FAQ
                         </h2>
@@ -313,13 +480,70 @@
 
             </div>
 
-            <aside class="product-detail-sidebar">
+            <aside
+                id="products-show-booking"
+                class="product-detail-sidebar"
+                data-section-key="products.show.booking"
+            >
                 <div class="product-detail-booking-card">
-                    <h3 class="product-detail-booking-card__title title-card">
-                        Booking Information
-                    </h3>
+                    <div class="product-detail-booking-card__heading">
+                        <span class="product-detail-booking-card__accent" aria-hidden="true"></span>
+                        <h3 class="product-detail-booking-card__title title-card">
+                            Booking Information
+                        </h3>
+                    </div>
 
                     <div class="product-detail-booking-card__list">
+                        <div class="product-detail-booking-card__price-row">
+                            <span>Price from</span>
+                            <strong>Rp {{ number_format($product->idr_price ?? 0, 0, ',', '.') }}</strong>
+                        </div>
+
+                        @if($product->sgd_price)
+                            <p class="product-detail-booking-card__secondary-price">
+                                SGD {{ number_format($product->sgd_price, 0) }}
+                            </p>
+                        @endif
+
+                        <label class="product-detail-booking-field">
+                            <span>Date</span>
+                            <input type="date" x-model="bookingDate">
+                        </label>
+
+                        <div class="product-detail-booking-counter">
+                            <div>
+                                <span>Adults</span>
+                                <p>Over 18</p>
+                            </div>
+
+                            <div class="product-detail-booking-stepper" aria-label="Adults quantity">
+                                <button type="button" x-on:click="decrement('adults')" aria-label="Decrease adults">
+                                    -
+                                </button>
+                                <strong x-text="adults"></strong>
+                                <button type="button" x-on:click="increment('adults')" aria-label="Increase adults">
+                                    +
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="product-detail-booking-counter">
+                            <div>
+                                <span>Children</span>
+                                <p>Under 18</p>
+                            </div>
+
+                            <div class="product-detail-booking-stepper" aria-label="Children quantity">
+                                <button type="button" x-on:click="decrement('children')" aria-label="Decrease children">
+                                    -
+                                </button>
+                                <strong x-text="children"></strong>
+                                <button type="button" x-on:click="increment('children')" aria-label="Increase children">
+                                    +
+                                </button>
+                            </div>
+                        </div>
+
                         <div class="product-detail-booking-card__row">
                             <span>Duration</span>
                             <strong>{{ $product->duration ?: '-' }}</strong>
@@ -330,22 +554,31 @@
                             <strong>{{ $product->meeting_point ?: '-' }}</strong>
                         </div>
 
-                        @if($product->pickup_available)
-                            <div class="product-detail-booking-card__row">
-                                <span>Pickup</span>
-                                <strong>{{ $product->pickup_type ?: 'Available' }}</strong>
-                            </div>
+                        @if($addonOptions->count())
+                            <fieldset class="product-detail-booking-addons">
+                                <legend>Add-ons</legend>
+                                <p>Select extra services for your reservation.</p>
 
-                            @if($product->pickup_note)
-                                <p class="product-detail-booking-card__note">
-                                    {{ $product->pickup_note }}
-                                </p>
-                            @endif
+                                <div class="product-detail-booking-addons__list">
+                                    @foreach($addonOptions as $addon)
+                                        <label class="product-detail-booking-check">
+                                            <input type="checkbox" value="{{ $addon }}" x-model="addons">
+                                            <span>{{ $addon }}</span>
+                                        </label>
+                                    @endforeach
+                                </div>
+                            </fieldset>
+                        @endif
+
+                        @if($product->pickup_available && $product->pickup_note)
+                            <p class="product-detail-booking-card__note">
+                                {{ $product->pickup_note }}
+                            </p>
                         @endif
                     </div>
 
                     <a
-                        href="https://wa.me/{{ $waNumber }}?text={{ $bookingMessage }}"
+                        x-bind:href="bookingWhatsappUrl()"
                         target="_blank"
                         rel="noopener noreferrer"
                         class="btn btn-whatsapp product-detail-button"
