@@ -5,10 +5,32 @@
 <div class="space-y-6">
     <div class="rounded-xl bg-white p-6 shadow">
         <h1 class="text-2xl font-bold text-slate-800">Page Sections</h1>
-        <p class="mt-1 text-sm text-slate-500">Manage editable static section content and images.</p>
+        <p class="mt-1 text-sm text-slate-500">Manage editable static section content and images by page.</p>
     </div>
 
     <div class="rounded-xl bg-white p-6 shadow">
+        @if($pageKeys->count())
+            <div class="mb-5 border-b border-slate-200 pb-4">
+                <div class="flex gap-2 overflow-x-auto">
+                    @foreach($pageKeys as $pageKey)
+                        @php
+                            $isActivePage = $activePageKey === $pageKey;
+                            $pageLabel = ucwords(str_replace(['.', '_', '-'], ' ', $pageKey));
+                        @endphp
+
+                        <a
+                            href="{{ route('admin.page-sections.index', ['page' => $pageKey]) }}"
+                            class="shrink-0 rounded-lg border px-4 py-2 text-sm font-semibold transition {{ $isActivePage ? 'border-emerald-300 bg-emerald-50 text-emerald-700' : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50' }}"
+                            aria-current="{{ $isActivePage ? 'page' : 'false' }}"
+                        >
+                            {{ $pageLabel }}
+                        </a>
+                    @endforeach
+                </div>
+                <p class="mt-3 text-xs text-slate-500">Pages are detected from existing page section records. Section order follows the frontend mapping when available.</p>
+            </div>
+        @endif
+
         <div class="overflow-x-auto">
             <table class="w-full min-w-[980px]">
                 <thead>
@@ -41,7 +63,7 @@
                             </td>
                         </tr>
                     @empty
-                        <tr><td colspan="7" class="py-10 text-center text-sm text-slate-500">No page sections found.</td></tr>
+                        <tr><td colspan="7" class="py-10 text-center text-sm text-slate-500">No page sections found for this page.</td></tr>
                     @endforelse
                 </tbody>
             </table>

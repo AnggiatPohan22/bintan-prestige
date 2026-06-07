@@ -14,6 +14,68 @@ class PageSectionMediaSlotTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_admin_page_sections_index_can_filter_by_page_key(): void
+    {
+        $admin = User::factory()->create();
+
+        PageSection::create([
+            'page_key' => 'home',
+            'section_key' => 'home.hero',
+            'label' => 'Luxury Bintan Travel',
+            'title' => 'BINTAN PRESTIGE',
+            'is_active' => true,
+            'sort_order' => 0,
+        ]);
+        PageSection::create([
+            'page_key' => 'products',
+            'section_key' => 'products.index.hero',
+            'label' => 'Packages',
+            'title' => 'Explore Bintan Packages',
+            'is_active' => true,
+            'sort_order' => 0,
+        ]);
+
+        $response = $this->actingAs($admin)
+            ->get(route('admin.page-sections.index', ['page' => 'products']));
+
+        $response->assertOk();
+        $response->assertSee('Home');
+        $response->assertSee('Products');
+        $response->assertSee('products.index.hero');
+        $response->assertSee('Explore Bintan Packages');
+        $response->assertDontSee('home.hero');
+        $response->assertDontSee('BINTAN PRESTIGE');
+    }
+
+    public function test_admin_page_sections_index_defaults_to_first_available_page(): void
+    {
+        $admin = User::factory()->create();
+
+        PageSection::create([
+            'page_key' => 'home',
+            'section_key' => 'home.hero',
+            'label' => 'Luxury Bintan Travel',
+            'title' => 'BINTAN PRESTIGE',
+            'is_active' => true,
+            'sort_order' => 0,
+        ]);
+        PageSection::create([
+            'page_key' => 'products',
+            'section_key' => 'products.index.hero',
+            'label' => 'Packages',
+            'title' => 'Explore Bintan Packages',
+            'is_active' => true,
+            'sort_order' => 0,
+        ]);
+
+        $response = $this->actingAs($admin)
+            ->get(route('admin.page-sections.index'));
+
+        $response->assertOk();
+        $response->assertSee('home.hero');
+        $response->assertDontSee('products.index.hero');
+    }
+
     public function test_admin_can_see_homepage_media_slots_on_section_edit_screen(): void
     {
         $admin = User::factory()->create();

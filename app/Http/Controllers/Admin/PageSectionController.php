@@ -15,22 +15,39 @@ class PageSectionController extends Controller
 {
     public function __construct(protected PageSectionImageService $imageService) {}
 
-    public function index()
+    public function index(Request $request)
     {
         $orderedKeys = HomepageSectionMedia::orderedSectionKeys();
         $orderSql = collect($orderedKeys)
             ->map(fn (string $key, int $index) => "WHEN ? THEN {$index}")
             ->implode(' ');
+        $pageKeys = PageSection::query()
+            ->select('page_key')
+            ->distinct()
+            ->orderBy('page_key')
+            ->pluck('page_key')
+            ->filter()
+            ->values();
+        $activePageKey = $request->query('page');
+
+        if (! $pageKeys->contains($activePageKey)) {
+            $activePageKey = $pageKeys->first();
+        }
 
         $pageSections = PageSection::query()
             ->withCount('media')
-            ->orderBy('page_key')
+            ->when($activePageKey, fn ($query) => $query->where('page_key', $activePageKey))
             ->when($orderSql !== '', fn ($query) => $query->orderByRaw("CASE section_key {$orderSql} ELSE 9999 END", $orderedKeys))
             ->orderBy('sort_order')
             ->orderBy('section_key')
-            ->paginate(20);
+            ->paginate(20)
+            ->withQueryString();
 
-        return view('backend.page-sections.index', compact('pageSections'));
+        return view('backend.page-sections.index', compact(
+            'pageSections',
+            'pageKeys',
+            'activePageKey'
+        ));
     }
 
     public function edit(PageSection $pageSection)
