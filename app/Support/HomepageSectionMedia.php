@@ -18,7 +18,25 @@ class HomepageSectionMedia
 
     public static function allowsGallery(?string $sectionKey): bool
     {
-        return (bool) (self::config()[$sectionKey]['gallery'] ?? true);
+        return (bool) (self::config()[$sectionKey]['gallery'] ?? false);
+    }
+
+    public static function supportsLegacyImages(?string $sectionKey): bool
+    {
+        return (bool) (self::config()[$sectionKey]['legacy_images'] ?? false);
+    }
+
+    public static function displayOrder(?string $sectionKey): int
+    {
+        return self::config()[$sectionKey]['display_order'] ?? 9999;
+    }
+
+    public static function orderedSectionKeys(): array
+    {
+        return collect(self::config())
+            ->sortBy(fn (array $config) => $config['display_order'] ?? 9999)
+            ->keys()
+            ->all();
     }
 
     public static function slotLabel(string $sectionKey, string $role, string $slotKey): string
@@ -36,6 +54,8 @@ class HomepageSectionMedia
     {
         return [
             'home.hero' => [
+                'display_order' => 0,
+                'legacy_images' => true,
                 'media_slots' => [
                     [
                         'role' => 'background',
@@ -53,6 +73,7 @@ class HomepageSectionMedia
                 'gallery' => true,
             ],
             'home.popular_tour' => [
+                'display_order' => 10,
                 'global_assets' => [self::SITE_LOGO_KEY],
                 'media_slots' => [
                     [
@@ -82,7 +103,14 @@ class HomepageSectionMedia
                 ],
                 'gallery' => false,
             ],
+            'home.popular_products_intro' => [
+                'display_order' => 20,
+                'media_slots' => [],
+                'gallery' => false,
+            ],
             'home.manual_ads' => [
+                'display_order' => 30,
+                'legacy_images' => true,
                 'media_slots' => [
                     [
                         'role' => 'frame',
@@ -94,6 +122,8 @@ class HomepageSectionMedia
                 'gallery' => false,
             ],
             'home.explore_banner' => [
+                'display_order' => 60,
+                'legacy_images' => true,
                 'media_slots' => [
                     [
                         'role' => 'background',
@@ -106,6 +136,58 @@ class HomepageSectionMedia
                         'slot_key' => 'mobile_background',
                         'label' => 'Background banner mobile',
                         'hint' => 'Opsional untuk background khusus mobile.',
+                    ],
+                ],
+                'gallery' => false,
+            ],
+            'home.about_journey' => [
+                'display_order' => 40,
+                'media_slots' => [
+                    [
+                        'role' => 'frame',
+                        'slot_key' => 'main_visual',
+                        'label' => 'Journey main visual',
+                        'hint' => 'Gambar besar di area kanan section journey.',
+                    ],
+                    [
+                        'role' => 'frame',
+                        'slot_key' => 'secondary_visual',
+                        'label' => 'Journey secondary visual',
+                        'hint' => 'Gambar kecil overlay di bawah kanan section journey.',
+                    ],
+                ],
+                'gallery' => false,
+            ],
+            'home.categories_intro' => [
+                'display_order' => 50,
+                'media_slots' => [],
+                'gallery' => false,
+            ],
+            'home.testimonials' => [
+                'display_order' => 70,
+                'media_slots' => [],
+                'gallery' => false,
+            ],
+            'home.faq' => [
+                'display_order' => 80,
+                'media_slots' => [
+                    [
+                        'role' => 'frame',
+                        'slot_key' => 'main_visual',
+                        'label' => 'FAQ preview image',
+                        'hint' => 'Gambar di kolom kiri section FAQ preview.',
+                    ],
+                ],
+                'gallery' => false,
+            ],
+            'home.footer_cta' => [
+                'display_order' => 90,
+                'media_slots' => [
+                    [
+                        'role' => 'frame',
+                        'slot_key' => 'main_visual',
+                        'label' => 'Footer CTA visual',
+                        'hint' => 'Gambar di panel kanan CTA besar sebelum footer.',
                     ],
                 ],
                 'gallery' => false,

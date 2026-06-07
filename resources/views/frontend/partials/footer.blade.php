@@ -9,6 +9,8 @@
         ], $contactInformation ?? [])
         : ($contactWhatsappUrl ?? 'https://wa.me/?text=' . urlencode('Hello Bintan Prestige, I want to plan a Bintan trip.'));
     $footerCtaLabel = $usesGlobalFooterCta ? ($bookingCtaSettings['footer_label'] ?? 'Chat via WhatsApp') : 'Chat via WhatsApp';
+    $footerCtaSection = collect($sections ?? [])->get('home.footer_cta');
+    $footerCtaVisual = $footerCtaSection?->mediaSlot('frame', 'main_visual');
     $footerCtaPlaceholder = \App\Support\DefaultMediaAssets::asset($siteAssets ?? collect(), 'section');
     $footerCtaPlaceholderFit = \App\Support\DefaultMediaAssets::fit($defaultMediaSettings ?? [], 'section');
 @endphp
@@ -18,15 +20,15 @@
     <section class="bp-footer-cta" id="whatsapp-cta" aria-labelledby="footer-cta-title">
         <div class="bp-footer-cta__content">
             <span class="bp-footer-cta__label">
-                Explore Tour
+                {{ $footerCtaSection?->label ?? 'Explore Tour' }}
             </span>
 
             <h2 id="footer-cta-title" class="bp-footer-cta__title title-section">
-                Plan Your Perfect Bintan Escape With Us
+                {{ $footerCtaSection?->title ?? 'Plan Your Perfect Bintan Escape With Us' }}
             </h2>
 
             <p class="bp-footer-cta__text text-body">
-                Tell us your arrival point, travel date, and preferred experience. Our team will help you choose the right package.
+                {{ $footerCtaSection?->description ?? 'Tell us your arrival point, travel date, and preferred experience. Our team will help you choose the right package.' }}
             </p>
 
             <a
@@ -46,8 +48,8 @@
         </div>
 
         <div class="bp-footer-cta__visual" aria-hidden="true">
-            @if($footerCtaPlaceholder?->url)
-                <img src="{{ $footerCtaPlaceholder->url }}" alt="{{ $footerCtaPlaceholder->alt ?: 'Section placeholder image' }}" style="object-fit: {{ $footerCtaPlaceholderFit }}" loading="lazy" decoding="async">
+            @if($footerCtaVisual?->url || $footerCtaPlaceholder?->url)
+                <img src="{{ $footerCtaVisual?->url ?: $footerCtaPlaceholder->url }}" alt="{{ $footerCtaVisual?->alt ?: ($footerCtaPlaceholder?->alt ?: 'Section placeholder image') }}" style="{{ $footerCtaVisual?->image_style ?? 'object-fit: ' . $footerCtaPlaceholderFit }}" loading="lazy" decoding="async">
             @else
                 <div class="bp-footer-cta__placeholder">
                     NO IMAGE

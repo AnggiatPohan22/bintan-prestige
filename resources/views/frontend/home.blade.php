@@ -14,6 +14,8 @@
     $heroBackground = $heroSection?->mediaUrl('background', 'desktop_background') ?? $heroSection?->image_url ?? $heroBackgroundUrl ?? $heroPlaceholder?->url;
     $heroMobileBackground = $heroSection?->mediaUrl('background', 'mobile_background') ?? $heroSection?->mobile_image_url ?? $heroMobilePlaceholder?->url;
     $heroAnimation = $heroSection?->animation ?? 'ken-burns';
+    $faqSection = $sections['home.faq'] ?? null;
+    $faqVisual = $faqSection?->mediaSlot('frame', 'main_visual');
     $fallbackFaqs = collect([
         [
             'question' => 'Can I arrange pickup from ferry terminal or resort?',
@@ -223,13 +225,13 @@
     <section class="home-faq-preview" id="faq-preview">
         <div class="home-container home-faq-preview__grid">
             <div>
-                <span class="home-section__kicker">Before your journey</span>
+                <span class="home-section__kicker">{{ $faqSection?->label ?? 'Before your journey' }}</span>
                 <h2 class="home-section__title title-section">
-                    All you should know before embarking on your Bintan journey
+                    {{ $faqSection?->title ?? 'All you should know before embarking on your Bintan journey' }}
                 </h2>
 
-                @if($sectionPlaceholder?->url)
-                    <img src="{{ $sectionPlaceholder->url }}" alt="{{ $sectionPlaceholder->alt ?: 'Section placeholder image' }}" class="home-image-placeholder home-faq-preview__image" style="object-fit: {{ $sectionPlaceholderFit }}" loading="lazy" decoding="async">
+                @if($faqVisual?->url || $sectionPlaceholder?->url)
+                    <img src="{{ $faqVisual?->url ?: $sectionPlaceholder->url }}" alt="{{ $faqVisual?->alt ?: ($sectionPlaceholder?->alt ?: 'Section placeholder image') }}" class="home-image-placeholder home-faq-preview__image" style="{{ $faqVisual?->image_style ?? 'object-fit: ' . $sectionPlaceholderFit }}" loading="lazy" decoding="async">
                 @else
                     <div class="home-image-placeholder home-faq-preview__image">
                         Travel Guide Image

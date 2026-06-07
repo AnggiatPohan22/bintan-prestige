@@ -16,7 +16,7 @@
         <div class="bp-popular-tour__media bp-popular-tour__media--left" aria-hidden="true">
             <div class="bp-popular-tour__media-frame bp-popular-tour__media-frame--wide">
                 @if($popularTourMedia['left_wide']?->url || $sectionPlaceholder?->url)
-                    <img src="{{ $popularTourMedia['left_wide']?->url ?: $sectionPlaceholder->url }}" alt="{{ $popularTourMedia['left_wide']?->alt ?: ($sectionPlaceholder?->alt ?: 'Section placeholder image') }}" @if(! $popularTourMedia['left_wide']?->url) style="object-fit: {{ $sectionPlaceholderFit }}" @endif loading="lazy" decoding="async">
+                    <img src="{{ $popularTourMedia['left_wide']?->url ?: $sectionPlaceholder->url }}" alt="{{ $popularTourMedia['left_wide']?->alt ?: ($sectionPlaceholder?->alt ?: 'Section placeholder image') }}" style="{{ $popularTourMedia['left_wide']?->image_style ?? 'object-fit: ' . $sectionPlaceholderFit }}" loading="lazy" decoding="async">
                 @else
                     <div class="bp-popular-tour__placeholder">No Image</div>
                 @endif
@@ -24,7 +24,7 @@
 
             <div class="bp-popular-tour__media-frame bp-popular-tour__media-frame--small">
                 @if($popularTourMedia['left_small']?->url || $sectionPlaceholder?->url)
-                    <img src="{{ $popularTourMedia['left_small']?->url ?: $sectionPlaceholder->url }}" alt="{{ $popularTourMedia['left_small']?->alt ?: ($sectionPlaceholder?->alt ?: 'Section placeholder image') }}" @if(! $popularTourMedia['left_small']?->url) style="object-fit: {{ $sectionPlaceholderFit }}" @endif loading="lazy" decoding="async">
+                    <img src="{{ $popularTourMedia['left_small']?->url ?: $sectionPlaceholder->url }}" alt="{{ $popularTourMedia['left_small']?->alt ?: ($sectionPlaceholder?->alt ?: 'Section placeholder image') }}" style="{{ $popularTourMedia['left_small']?->image_style ?? 'object-fit: ' . $sectionPlaceholderFit }}" loading="lazy" decoding="async">
                 @else
                     <div class="bp-popular-tour__placeholder">No Image</div>
                 @endif
@@ -64,7 +64,7 @@
         <div class="bp-popular-tour__media bp-popular-tour__media--right" aria-hidden="true">
             <div class="bp-popular-tour__media-frame bp-popular-tour__media-frame--wide">
                 @if($popularTourMedia['right_wide']?->url || $sectionPlaceholder?->url)
-                    <img src="{{ $popularTourMedia['right_wide']?->url ?: $sectionPlaceholder->url }}" alt="{{ $popularTourMedia['right_wide']?->alt ?: ($sectionPlaceholder?->alt ?: 'Section placeholder image') }}" @if(! $popularTourMedia['right_wide']?->url) style="object-fit: {{ $sectionPlaceholderFit }}" @endif loading="lazy" decoding="async">
+                    <img src="{{ $popularTourMedia['right_wide']?->url ?: $sectionPlaceholder->url }}" alt="{{ $popularTourMedia['right_wide']?->alt ?: ($sectionPlaceholder?->alt ?: 'Section placeholder image') }}" style="{{ $popularTourMedia['right_wide']?->image_style ?? 'object-fit: ' . $sectionPlaceholderFit }}" loading="lazy" decoding="async">
                 @else
                     <div class="bp-popular-tour__placeholder">No Image</div>
                 @endif
@@ -72,7 +72,7 @@
 
             <div class="bp-popular-tour__media-frame bp-popular-tour__media-frame--small">
                 @if($popularTourMedia['right_small']?->url || $sectionPlaceholder?->url)
-                    <img src="{{ $popularTourMedia['right_small']?->url ?: $sectionPlaceholder->url }}" alt="{{ $popularTourMedia['right_small']?->alt ?: ($sectionPlaceholder?->alt ?: 'Section placeholder image') }}" @if(! $popularTourMedia['right_small']?->url) style="object-fit: {{ $sectionPlaceholderFit }}" @endif loading="lazy" decoding="async">
+                    <img src="{{ $popularTourMedia['right_small']?->url ?: $sectionPlaceholder->url }}" alt="{{ $popularTourMedia['right_small']?->alt ?: ($sectionPlaceholder?->alt ?: 'Section placeholder image') }}" style="{{ $popularTourMedia['right_small']?->image_style ?? 'object-fit: ' . $sectionPlaceholderFit }}" loading="lazy" decoding="async">
                 @else
                     <div class="bp-popular-tour__placeholder">No Image</div>
                 @endif

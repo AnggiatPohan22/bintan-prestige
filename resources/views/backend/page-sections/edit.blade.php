@@ -8,6 +8,7 @@
     $animation = old('animation', $pageSection->animation);
     $galleryCount = $pageSection->media->where('role', 'gallery')->count();
     $remainingSlots = max(0, \App\Models\PageSection::MEDIA_LIMIT - $galleryCount);
+    $supportsLegacyImages = \App\Support\HomepageSectionMedia::supportsLegacyImages($pageSection->section_key);
 @endphp
 
 <div class="rounded-xl bg-white p-6 shadow">
@@ -45,27 +46,60 @@
                 <div class="md:col-span-2">
                     <h2 class="text-lg font-bold text-slate-800">Section image slots</h2>
                     <p class="mt-1 text-sm text-slate-500">Upload sesuai posisi gambar di layout section ini.</p>
+                    @unless($supportsMediaDisplayOptions ?? false)
+                        <div class="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+                            Image size and position controls need the latest migration. Run <span class="font-semibold">php artisan migrate</span> to enable them.
+                        </div>
+                    @endunless
                     <div class="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
                         @foreach($mediaSlots as $slot)
                             @php
                                 $slotMedia = $pageSection->mediaSlot($slot['role'], $slot['slot_key']);
                                 $slotInputName = "slot_uploads[{$slot['role']}][{$slot['slot_key']}]";
+                                $slotFitName = "slot_object_fits[{$slot['role']}][{$slot['slot_key']}]";
+                                $slotPositionName = "slot_object_positions[{$slot['role']}][{$slot['slot_key']}]";
+                                $slotFit = old("slot_object_fits.{$slot['role']}.{$slot['slot_key']}", $slotMedia?->resolved_object_fit ?? 'cover');
+                                $slotPosition = old("slot_object_positions.{$slot['role']}.{$slot['slot_key']}", $slotMedia?->resolved_object_position ?? 'center center');
                             @endphp
                             <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
                                 <label class="form-label">{{ $slot['label'] }}</label>
                                 <input type="file" name="{{ $slotInputName }}" accept="image/jpeg,image/png,image/webp" class="{{ $inputClass }}">
                                 <p class="mt-2 text-xs text-slate-500">{{ $slot['hint'] ?? 'Leave empty to keep current image.' }}</p>
                                 @if($slotMedia?->url)
-                                    <img src="{{ $slotMedia->url }}" alt="{{ $slotMedia->alt }}" class="mt-3 h-32 w-full rounded-lg border bg-white object-cover">
+                                    <img src="{{ $slotMedia->url }}" alt="{{ $slotMedia->alt }}" class="mt-3 h-32 w-full rounded-lg border bg-white" style="{{ $slotMedia->image_style }}">
                                 @else
                                     <div class="mt-3 flex h-32 items-center justify-center rounded-lg border border-dashed bg-white text-xs font-bold uppercase text-slate-400">No image</div>
                                 @endif
+                                @if($supportsMediaDisplayOptions ?? false)
+                                    <div class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                                        <div>
+                                            <label class="form-label">Image size</label>
+                                            <select name="{{ $slotFitName }}" class="{{ $inputClass }}">
+                                                @foreach(\App\Models\PageSectionMedia::OBJECT_FIT_OPTIONS as $value => $label)
+                                                    <option value="{{ $value }}" @selected($slotFit === $value)>{{ $label }}</option>
+                                                @endforeach
+                                            </select>
+                                            <p class="mt-2 text-xs text-slate-500">Controls how the image fills its frame.</p>
+                                        </div>
+                                        <div>
+                                            <label class="form-label">Image position</label>
+                                            <select name="{{ $slotPositionName }}" class="{{ $inputClass }}">
+                                                @foreach(\App\Models\PageSectionMedia::OBJECT_POSITION_OPTIONS as $value => $label)
+                                                    <option value="{{ $value }}" @selected($slotPosition === $value)>{{ $label }}</option>
+                                                @endforeach
+                                            </select>
+                                            <p class="mt-2 text-xs text-slate-500">Controls which part stays visible when cropped.</p>
+                                        </div>
+                                    </div>
+                                @endif
                                 @error("slot_uploads.{$slot['role']}.{$slot['slot_key']}") <p class="form-error">{{ $message }}</p> @enderror
+                                @error("slot_object_fits.{$slot['role']}.{$slot['slot_key']}") <p class="form-error">{{ $message }}</p> @enderror
+                                @error("slot_object_positions.{$slot['role']}.{$slot['slot_key']}") <p class="form-error">{{ $message }}</p> @enderror
                             </div>
                         @endforeach
                     </div>
                 </div>
-            @else
+            @elseif($supportsLegacyImages)
                 <div>
                     <label class="form-label">Legacy image upload</label>
                     <input type="file" name="image" accept="image/jpeg,image/png,image/webp" class="{{ $inputClass }}">
@@ -78,10 +112,17 @@
                     <p class="mt-2 text-xs text-slate-400">Fallback lama. Leave empty to keep current image.</p>
                     @if($pageSection->mobile_image_url)<img src="{{ $pageSection->mobile_image_url }}" alt="{{ $pageSection->title }}" class="mt-3 h-32 w-full rounded-lg border object-cover">@endif
                 </div>
+            @else
+                <div class="md:col-span-2 rounded-xl border border-slate-200 bg-slate-50 p-4">
+                    <h2 class="text-sm font-bold text-slate-800">No section image upload for this layout</h2>
+                    <p class="mt-2 text-sm text-slate-500">Frontend for this section does not render a dedicated page-section image. It may use product, category, testimonial avatar, footer, or global placeholder media instead.</p>
+                </div>
             @endif
 
-            <div><label class="form-label">Legacy image path</label><input type="text" name="image_path" value="{{ old('image_path', $pageSection->image) }}" class="{{ $inputClass }}"></div>
-            <div><label class="form-label">Legacy mobile image path</label><input type="text" name="mobile_image_path" value="{{ old('mobile_image_path', $pageSection->mobile_image) }}" class="{{ $inputClass }}"></div>
+            @if($supportsLegacyImages)
+                <div><label class="form-label">Legacy image path</label><input type="text" name="image_path" value="{{ old('image_path', $pageSection->image) }}" class="{{ $inputClass }}"></div>
+                <div><label class="form-label">Legacy mobile image path</label><input type="text" name="mobile_image_path" value="{{ old('mobile_image_path', $pageSection->mobile_image) }}" class="{{ $inputClass }}"></div>
+            @endif
 
             @if($allowsGallery)
                 <div class="md:col-span-2">

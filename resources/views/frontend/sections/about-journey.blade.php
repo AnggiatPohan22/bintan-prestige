@@ -1,5 +1,7 @@
 @php
     $section = $sections['home.about_journey'] ?? null;
+    $mainVisual = $section?->mediaSlot('frame', 'main_visual');
+    $secondaryVisual = $section?->mediaSlot('frame', 'secondary_visual');
     $sectionPlaceholder = \App\Support\DefaultMediaAssets::asset($siteAssets ?? collect(), 'section');
     $sectionPlaceholderFit = \App\Support\DefaultMediaAssets::fit($defaultMediaSettings ?? [], 'section');
 @endphp
@@ -87,8 +89,8 @@
             </span>
 
             <div class="bp-journey-main-frame">
-                @if($sectionPlaceholder?->url)
-                    <img src="{{ $sectionPlaceholder->url }}" alt="{{ $sectionPlaceholder->alt ?: 'Section placeholder image' }}" style="object-fit: {{ $sectionPlaceholderFit }}" loading="lazy" decoding="async">
+                @if($mainVisual?->url || $sectionPlaceholder?->url)
+                    <img src="{{ $mainVisual?->url ?: $sectionPlaceholder->url }}" alt="{{ $mainVisual?->alt ?: ($sectionPlaceholder?->alt ?: 'Section placeholder image') }}" style="{{ $mainVisual?->image_style ?? 'object-fit: ' . $sectionPlaceholderFit }}" loading="lazy" decoding="async">
                 @else
                     <div class="bp-journey-placeholder">
                         NO IMAGE
@@ -97,8 +99,8 @@
             </div>
 
             <div class="bp-journey-small-frame">
-                @if($sectionPlaceholder?->url)
-                    <img src="{{ $sectionPlaceholder->url }}" alt="{{ $sectionPlaceholder->alt ?: 'Section placeholder image' }}" style="object-fit: {{ $sectionPlaceholderFit }}" loading="lazy" decoding="async">
+                @if($secondaryVisual?->url || $sectionPlaceholder?->url)
+                    <img src="{{ $secondaryVisual?->url ?: $sectionPlaceholder->url }}" alt="{{ $secondaryVisual?->alt ?: ($sectionPlaceholder?->alt ?: 'Section placeholder image') }}" style="{{ $secondaryVisual?->image_style ?? 'object-fit: ' . $sectionPlaceholderFit }}" loading="lazy" decoding="async">
                 @else
                     <div class="bp-journey-placeholder">
                         NO IMAGE

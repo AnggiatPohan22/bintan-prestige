@@ -18,7 +18,8 @@ class HomePageSectionSeeder extends Seeder
             ['section_key' => 'home.categories_intro', 'label' => 'Next Adventure Destination', 'title' => 'Popular Travel Categories Available In Bintan', 'description' => 'Explore Bintan by travel style and discover curated packages that match your journey.', 'sort_order' => 50],
             ['section_key' => 'home.explore_banner', 'label' => 'Next Adventure Destination', 'title' => 'Popular Travel Destinations Available Worldwide', 'button_text' => 'BOOK YOUR TRIP NOW', 'button_url' => '/products', 'sort_order' => 60, 'extra_data' => ['overlay_title' => 'EXPLORE THE WORLD']],
             ['section_key' => 'home.testimonials', 'label' => 'Clients Feedback About Us', 'title' => 'See Those Lovely Words From Clients', 'description' => 'Read what our guests say about their Bintan travel experience with Bintan Prestige.', 'sort_order' => 70],
-            ['section_key' => 'home.footer_cta', 'label' => 'Ready for Bintan?', 'title' => 'Start planning your premium island experience.', 'sort_order' => 80],
+            ['section_key' => 'home.faq', 'label' => 'Before your journey', 'title' => 'All you should know before embarking on your Bintan journey', 'sort_order' => 80],
+            ['section_key' => 'home.footer_cta', 'label' => 'Explore Tour', 'title' => 'Plan Your Perfect Bintan Escape With Us', 'description' => 'Tell us your arrival point, travel date, and preferred experience. Our team will help you choose the right package.', 'sort_order' => 90],
         ];
 
         foreach ($sections as $section) {

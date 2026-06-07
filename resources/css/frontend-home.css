@@ -1490,6 +1490,11 @@
         @apply absolute inset-0;
     }
 
+    /* BP EXPLORE BANNER PICTURE: Lets desktop/mobile uploads share the same cover frame. */
+    .bp-explore-banner__bg picture {
+        @apply block h-full w-full;
+    }
+
     /* BP EXPLORE BANNER BACKGROUND IMAGE: Crops future uploaded background images edge-to-edge. */
     .bp-explore-banner__bg img {
         @apply h-full w-full object-cover;

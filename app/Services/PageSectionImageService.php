@@ -6,6 +6,7 @@ use App\Models\PageSection;
 use App\Models\PageSectionMedia;
 use App\Models\SiteAsset;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -31,7 +32,15 @@ class PageSectionImageService
         ]);
     }
 
-    public function storeSlotUpload(UploadedFile $file, PageSection $section, string $role, string $slotKey, string $label): PageSectionMedia
+    public function storeSlotUpload(
+        UploadedFile $file,
+        PageSection $section,
+        string $role,
+        string $slotKey,
+        string $label,
+        ?string $objectFit = null,
+        ?string $objectPosition = null
+    ): PageSectionMedia
     {
         $media = $section->media()
             ->where('role', $role)
@@ -40,17 +49,24 @@ class PageSectionImageService
 
         if ($media) {
             $this->deleteIfLocalPageSectionImage($media->path);
-            $media->update([
+            $data = [
                 'label' => $label,
                 'path' => $this->storeFile($file, $this->folderFor($section) . '/' . Str::slug($role)),
                 'alt' => $label,
                 'is_active' => true,
-            ]);
+            ];
+
+            if ($this->supportsMediaDisplayOptions()) {
+                $data['object_fit'] = $objectFit;
+                $data['object_position'] = $objectPosition;
+            }
+
+            $media->update($data);
 
             return $media;
         }
 
-        return $section->media()->create([
+        $data = [
             'role' => $role,
             'slot_key' => $slotKey,
             'label' => $label,
@@ -58,7 +74,14 @@ class PageSectionImageService
             'alt' => $label,
             'sort_order' => 0,
             'is_active' => true,
-        ]);
+        ];
+
+        if ($this->supportsMediaDisplayOptions()) {
+            $data['object_fit'] = $objectFit;
+            $data['object_position'] = $objectPosition;
+        }
+
+        return $section->media()->create($data);
     }
 
     public function storeSiteAssetUpload(UploadedFile $file, string $key, string $label, ?string $alt = null): SiteAsset
@@ -124,5 +147,11 @@ class PageSectionImageService
         $extension = strtolower($file->extension() ?: $file->guessExtension() ?: 'jpg');
 
         return $file->storeAs($folder, Str::uuid() . '.' . $extension, 'public');
+    }
+
+    private function supportsMediaDisplayOptions(): bool
+    {
+        return Schema::hasColumn('page_section_media', 'object_fit')
+            && Schema::hasColumn('page_section_media', 'object_position');
     }
 }

@@ -35,7 +35,7 @@
 
             <div class="bp-manual-ads__visual">
                 @if($mainVisual?->url || $section?->image_url || $sectionPlaceholder?->url)
-                    <img src="{{ $mainVisual?->url ?? $section?->image_url ?? $sectionPlaceholder->url }}" alt="{{ $mainVisual?->alt ?: ($section?->title ?? ($sectionPlaceholder?->alt ?: 'Section placeholder image')) }}" @if(! ($mainVisual?->url || $section?->image_url)) style="object-fit: {{ $sectionPlaceholderFit }}" @endif loading="lazy" decoding="async">
+                    <img src="{{ $mainVisual?->url ?? $section?->image_url ?? $sectionPlaceholder->url }}" alt="{{ $mainVisual?->alt ?: ($section?->title ?? ($sectionPlaceholder?->alt ?: 'Section placeholder image')) }}" @if($mainVisual?->url) style="{{ $mainVisual->image_style }}" @elseif(! $section?->image_url) style="object-fit: {{ $sectionPlaceholderFit }}" @endif loading="lazy" decoding="async">
                 @else
                     <div class="bp-manual-ads__placeholder">
                         NO IMAGE

@@ -9,6 +9,7 @@ use App\Services\PageSectionImageService;
 use App\Support\HomepageSectionMedia;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Schema;
 
 class PageSectionController extends Controller
 {
@@ -16,9 +17,15 @@ class PageSectionController extends Controller
 
     public function index()
     {
+        $orderedKeys = HomepageSectionMedia::orderedSectionKeys();
+        $orderSql = collect($orderedKeys)
+            ->map(fn (string $key, int $index) => "WHEN ? THEN {$index}")
+            ->implode(' ');
+
         $pageSections = PageSection::query()
             ->withCount('media')
             ->orderBy('page_key')
+            ->when($orderSql !== '', fn ($query) => $query->orderByRaw("CASE section_key {$orderSql} ELSE 9999 END", $orderedKeys))
             ->orderBy('sort_order')
             ->orderBy('section_key')
             ->paginate(20);
@@ -32,12 +39,14 @@ class PageSectionController extends Controller
         $mediaSlots = HomepageSectionMedia::slotsFor($pageSection->section_key);
         $allowsGallery = HomepageSectionMedia::allowsGallery($pageSection->section_key);
         $usesLogo = HomepageSectionMedia::usesLogo($pageSection->section_key);
+        $supportsMediaDisplayOptions = $this->supportsMediaDisplayOptions();
 
         return view('backend.page-sections.edit', compact(
             'pageSection',
             'mediaSlots',
             'allowsGallery',
-            'usesLogo'
+            'usesLogo',
+            'supportsMediaDisplayOptions'
         ));
     }
 
@@ -45,8 +54,9 @@ class PageSectionController extends Controller
     {
         $mediaSlots = HomepageSectionMedia::slotsFor($pageSection->section_key);
         $allowsGallery = HomepageSectionMedia::allowsGallery($pageSection->section_key);
+        $supportsMediaDisplayOptions = $this->supportsMediaDisplayOptions();
 
-        $validated = $request->validate([
+        $rules = [
             'label' => ['nullable', 'string', 'max:255'],
             'title' => ['nullable', 'string', 'max:255'],
             'subtitle' => ['nullable', 'string', 'max:500'],
@@ -65,7 +75,16 @@ class PageSectionController extends Controller
             'animation' => ['nullable', 'string', 'in:' . implode(',', PageSection::ANIMATION_OPTIONS)],
             'is_active' => ['nullable', 'boolean'],
             'sort_order' => ['nullable', 'integer', 'min:0'],
-        ]);
+        ];
+
+        if ($supportsMediaDisplayOptions) {
+            $rules['slot_object_fits'] = ['nullable', 'array'];
+            $rules['slot_object_fits.*.*'] = ['nullable', 'string', 'in:' . implode(',', array_keys(PageSectionMedia::OBJECT_FIT_OPTIONS))];
+            $rules['slot_object_positions'] = ['nullable', 'array'];
+            $rules['slot_object_positions.*.*'] = ['nullable', 'string', 'in:' . implode(',', array_keys(PageSectionMedia::OBJECT_POSITION_OPTIONS))];
+        }
+
+        $validated = $request->validate($rules);
 
         $uploadedMedia = Arr::wrap($request->file('media_uploads', []));
         $mediaCount = $pageSection->media()
@@ -117,8 +136,20 @@ class PageSectionController extends Controller
         foreach ($mediaSlots as $slot) {
             $role = $slot['role'];
             $slotKey = $slot['slot_key'];
+            $objectFit = $supportsMediaDisplayOptions ? ($validated['slot_object_fits'][$role][$slotKey] ?? null) : null;
+            $objectPosition = $supportsMediaDisplayOptions ? ($validated['slot_object_positions'][$role][$slotKey] ?? null) : null;
 
             if (! $request->hasFile("slot_uploads.$role.$slotKey")) {
+                if ($supportsMediaDisplayOptions) {
+                    $pageSection->media()
+                        ->where('role', $role)
+                        ->where('slot_key', $slotKey)
+                        ->update([
+                            'object_fit' => $objectFit ?: null,
+                            'object_position' => $objectPosition ?: null,
+                        ]);
+                }
+
                 continue;
             }
 
@@ -127,7 +158,9 @@ class PageSectionController extends Controller
                 $pageSection,
                 $role,
                 $slotKey,
-                $slot['label']
+                $slot['label'],
+                $objectFit,
+                $objectPosition
             );
         }
 
@@ -138,6 +171,12 @@ class PageSectionController extends Controller
         }
 
         return redirect()->route('admin.page-sections.edit', $pageSection)->with('success', 'Page section updated successfully.');
+    }
+
+    private function supportsMediaDisplayOptions(): bool
+    {
+        return Schema::hasColumn('page_section_media', 'object_fit')
+            && Schema::hasColumn('page_section_media', 'object_position');
     }
 
     public function destroyMedia(PageSectionMedia $media)
