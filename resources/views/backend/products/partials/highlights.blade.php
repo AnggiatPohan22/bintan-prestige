@@ -1,4 +1,25 @@
-<div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+<div class="admin-card">
+    <div class="admin-card-header">
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+                <h3 class="text-lg font-extrabold text-slate-900">
+                    Product Highlights
+                </h3>
+
+                <p class="mt-1 text-sm leading-6 text-slate-500">
+                    Add short selling points shown on the product detail page.
+                </p>
+            </div>
+
+            @if(isset($product) && $product->exists)
+                <span class="admin-badge-info w-fit">
+                    {{ $product->highlights->count() }} item(s)
+                </span>
+            @endif
+        </div>
+    </div>
+
+    <div class="admin-card-body">
 
     @if(!isset($product) || !$product->exists)
 
@@ -17,35 +38,38 @@
         <form
             method="POST"
             action="{{ route('admin.products.highlights.store', $product) }}"
-            class="space-y-5"
+            class="admin-form-card space-y-5"
             data-preserve-scroll
         >
             @csrf
 
-            <div class="card-header mb-5">
-                <label class="form-heading" >
-                    Product Highlight
-                    <span class="text-red-500">*</span>
-                </label>
-            </div>
             <div>
-                <label class="form-label">Title</label>
+                <h4 class="text-base font-extrabold text-slate-900">
+                    Add Highlight
+                </h4>
+                <p class="mt-1 text-sm text-slate-500">
+                    Keep each highlight concise and action-oriented.
+                </p>
+            </div>
+
+            <div>
+                <label class="admin-form-label">Title</label>
                 <input
                     type="text"
                     name="title"
-                    class="form-input"
+                    class="admin-input"
                     placeholder="Example: Hotel Pickup"
                     required
                 >
             </div>
 
             <div class="relative">
-                <label class="form-label">Icon</label>
+                <label class="admin-form-label">Icon</label>
 
                 <button
                     type="button"
                     id="iconPickerTrigger"
-                    class="form-input flex items-center justify-between"
+                    class="admin-input flex items-center justify-between"
                 >
                     <span class="flex items-center gap-3">
                         <i id="selectedIcon" class="fa-solid fa-car text-slate-600"></i>
@@ -65,7 +89,7 @@
                     <input
                         type="text"
                         id="iconSearch"
-                        class="form-input mb-4"
+                        class="admin-input mb-4"
                         placeholder="Search icon..."
                     >
 
@@ -77,73 +101,80 @@
             </div>
 
             <div class="mb-5">
-                <label class="form-label">Sort Order</label>
+                <label class="admin-form-label">Sort Order</label>
                 <input
                     type="number"
                     name="sort_order"
-                    class="form-input"
+                    class="admin-input"
                     value="0"
                 >
             </div>
 
-            <button type="submit" class="btn-primary w-full">
+            <button type="submit" class="admin-btn-primary w-full">
                 Add Highlight
             </button>
         </form>
 
         <div class="my-6 border-t border-slate-200"></div>
 
-        @forelse($product->highlights as $highlight)
+        <div class="grid grid-cols-1 gap-4">
+            @forelse($product->highlights as $highlight)
 
-            <div class="rounded-xl border border-slate-200 p-4 mb-3 shadow-sm">
-                <div class="flex items-center justify-between gap-3">
+                <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                    <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
 
-                    <div>
-                        <p class="font-semibold text-slate-700">
-                            @if($highlight->icon)
-                                <i class="fa-solid {{ $highlight->icon }} mr-2"></i>
-                            @endif
+                        <div class="flex min-w-0 gap-3">
+                            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-indigo-50 text-indigo-700">
+                                @if($highlight->icon)
+                                    <i class="fa-solid {{ $highlight->icon }}"></i>
+                                @else
+                                    <span class="text-sm font-bold">#</span>
+                                @endif
+                            </div>
 
-                            {{ $highlight->title }}
-                        </p>
+                            <div class="min-w-0">
+                                <p class="font-semibold text-slate-800">
+                                    {{ $highlight->title }}
+                                </p>
 
-                        <p class="text-xs text-slate-400">
-                            Sort: {{ $highlight->sort_order }}
-                        </p>
-                    </div>
+                                <p class="mt-1 text-xs font-semibold text-slate-400">
+                                    Sort: {{ $highlight->sort_order }}
+                                </p>
+                            </div>
+                        </div>
 
-                    <div class="flex gap-2">
-                        <button
-                            type="button"
-                            class="btn-secondary"
-                            data-modal-open="edit-highlight-{{ $highlight->id }}"
-                        >
-                            Edit
-                        </button>
-
-                        <form
-                            method="POST"
-                            action="{{ route('admin.products.highlights.destroy', $highlight) }}"
-                            data-preserve-scroll
-                        >
-                            @csrf
-                            @method('DELETE')
-
+                        <div class="flex flex-col gap-2 sm:flex-row">
                             <button
-                                type="submit"
-                                class="btn-secondary"
-                                onclick="return confirm('Delete highlight?')"
+                                type="button"
+                                class="admin-btn-secondary w-full sm:w-auto"
+                                data-modal-open="edit-highlight-{{ $highlight->id }}"
                             >
-                                Delete
+                                Edit
                             </button>
-                        </form>
-                    </div>
 
-                    <div
-                        id="edit-highlight-{{ $highlight->id }}"
-                        class="fixed inset-0 z-50 hidden bg-slate-900/50 p-4"
-                        data-modal
-                    >
+                            <form
+                                method="POST"
+                                action="{{ route('admin.products.highlights.destroy', $highlight) }}"
+                                data-preserve-scroll
+                            >
+                                @csrf
+                                @method('DELETE')
+
+                                <button
+                                    type="submit"
+                                    class="admin-btn-danger w-full sm:w-auto"
+                                    onclick="return confirm('Delete highlight?')"
+                                >
+                                    Delete
+                                </button>
+                            </form>
+                        </div>
+
+                        <div
+                            id="edit-highlight-{{ $highlight->id }}"
+                            class="fixed inset-0 z-50 hidden bg-slate-900/50 p-4"
+                            data-modal
+                        >
                         <div class="mx-auto mt-16 max-w-lg rounded-2xl bg-white p-6 shadow-2xl">
                             <div class="mb-5 flex items-center justify-between gap-4">
                                 <h3 class="text-lg font-bold text-slate-800">
@@ -169,47 +200,47 @@
                                 @method('PUT')
 
                                 <div>
-                                    <label class="form-label">Title</label>
+                                    <label class="admin-form-label">Title</label>
                                     <input
                                         type="text"
                                         name="title"
                                         value="{{ $highlight->title }}"
-                                        class="form-input"
+                                        class="admin-input"
                                         required
                                     >
                                 </div>
 
                                 <div>
-                                    <label class="form-label">Icon</label>
+                                    <label class="admin-form-label">Icon</label>
                                     <input
                                         type="text"
                                         name="icon"
                                         value="{{ $highlight->icon }}"
-                                        class="form-input"
+                                        class="admin-input"
                                         placeholder="Example: fa-car"
                                     >
                                 </div>
 
                                 <div>
-                                    <label class="form-label">Sort Order</label>
+                                    <label class="admin-form-label">Sort Order</label>
                                     <input
                                         type="number"
                                         name="sort_order"
                                         value="{{ $highlight->sort_order }}"
-                                        class="form-input"
+                                        class="admin-input"
                                     >
                                 </div>
 
-                                <div class="flex justify-end gap-3">
+                                <div class="flex flex-col gap-3 sm:flex-row sm:justify-end">
                                     <button
                                         type="button"
-                                        class="btn-secondary"
+                                        class="admin-btn-secondary"
                                         data-modal-close
                                     >
                                         Cancel
                                     </button>
 
-                                    <button type="submit" class="btn-primary">
+                                    <button type="submit" class="admin-btn-primary">
                                         Save Changes
                                     </button>
                                 </div>
@@ -218,18 +249,20 @@
                     </div>
 
                 </div>
-            </div>
+                </div>
 
-        @empty
+            @empty
 
-            <div class="text-center py-8 text-slate-400">
+            <div class="admin-empty-state">
                 No highlights yet.
             </div>
 
-        @endforelse
+            @endforelse
+        </div>
 
     @endif
 
+    </div>
 </div>
 
 <script>
