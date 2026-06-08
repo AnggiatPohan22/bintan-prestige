@@ -50,13 +50,47 @@ class ProductController extends Controller
                     '%' . $request->search . '%'
                 )
             )
+            ->when(
+                $request->category_id,
+                fn ($query) => $query->where(
+                    'category_id',
+                    $request->category_id
+                )
+            )
+            ->when(
+                $request->destination_id,
+                fn ($query) => $query->where(
+                    'destination_id',
+                    $request->destination_id
+                )
+            )
+            ->when(
+                $request->status,
+                fn ($query) => $query->where(
+                    'status',
+                    $request->status
+                )
+            )
             ->latest()
             ->paginate(10)
             ->withQueryString();
 
+        $categories = Category::query()
+            ->orderBy('name')
+            ->get();
+        $destinations = Destination::query()
+            ->orderBy('name')
+            ->get();
+        $statuses = Product::query()
+            ->select('status')
+            ->whereNotNull('status')
+            ->distinct()
+            ->orderBy('status')
+            ->pluck('status');
+
         return view(
             'backend.products.index',
-            compact('products')
+            compact('products', 'categories', 'destinations', 'statuses')
         );
     }
 
