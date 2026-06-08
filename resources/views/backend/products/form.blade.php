@@ -379,30 +379,73 @@
                     </div>
                 </section>
 
+                <section class="admin-card">
+                    <div class="admin-card-header">
+                        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                            <div>
+                                <h3 class="text-lg font-extrabold text-slate-900">
+                                    Thumbnail Image
+                                </h3>
+
+                                <p class="mt-1 text-sm leading-6 text-slate-500">
+                                    Used as the main product card image.
+                                </p>
+                            </div>
+
+                            <span class="admin-badge-info w-fit">
+                                JPG, PNG, WEBP
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="admin-card-body">
+                        <div class="grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1fr)_220px]">
+                            <div>
+                                <label class="admin-form-label">
+                                    Thumbnail
+                                </label>
+
+                                <input type="file"
+                                    name="thumbnail"
+                                    class="admin-input {{ $errors->has('thumbnail') ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : '' }}">
+
+                                @error('thumbnail')
+                                    <p class="form-error">{{ $message }}</p>
+                                @enderror
+
+                                <div class="mt-3 space-y-1 text-xs leading-5 text-slate-400">
+                                    <p>Recommended size: 1200x800px or larger.</p>
+                                    <p>Leave thumbnail empty to auto-use first gallery image.</p>
+                                </div>
+                            </div>
+
+                            <div>
+                                @if(isset($product) && $product->thumbnail)
+                                    <div class="rounded-2xl border border-slate-200 bg-slate-50 p-3">
+                                        <img src="{{ asset('storage/'.$product->thumbnail) }}"
+                                            class="aspect-[3/2] w-full rounded-xl border border-slate-200 object-cover shadow-sm">
+
+                                        <button
+                                            type="submit"
+                                            form="delete-product-thumbnail"
+                                            class="mt-3 w-full rounded-lg border border-red-200 px-4 py-2 text-sm font-semibold text-red-600 hover:bg-red-50"
+                                            onclick="return confirm('Remove current thumbnail?')"
+                                        >
+                                            Remove Thumbnail
+                                        </button>
+                                    </div>
+                                @else
+                                    <div class="flex aspect-[3/2] w-full items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-slate-50 text-sm font-semibold text-slate-400">
+                                        No thumbnail
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
                 <section class="border-t border-slate-100 pt-6">
                     <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
-
-                        {{-- Thumbnail Upload --}}
-                        <div class="md:col-span-2">
-
-                            <label class="block mb-2 font-medium">
-                                Thumbnail
-                            </label>
-
-                            <input type="file"
-                                name="thumbnail"
-                                class="w-full border rounded-lg p-3">
-
-                            @error('thumbnail')
-                                <p class="text-red-500 text-sm mt-1">
-                                    {{ $message }}
-                                </p>
-                            @enderror
-                            <p class="mt-2 text-xs text-slate-400">
-                                Leave thumbnail empty to auto-use first gallery image.
-                            </p>
-
-                        </div>
 
                         {{-- Gallery Images --}}
                         <div class="md:col-span-2">
@@ -483,30 +526,6 @@
 
                         @endif
 
-                        {{-- Preview Image --}}
-                        @if(isset($product) && $product->thumbnail)
-
-                        <div class="md:col-span-2">
-
-                            <label class="block mb-2 font-medium">
-                                Current Thumbnail
-                            </label>
-
-                            <img src="{{ asset('storage/'.$product->thumbnail) }}"
-                                class="w-48 rounded-lg border shadow">
-
-                            <button
-                                type="submit"
-                                form="delete-product-thumbnail"
-                                class="mt-3 rounded-lg border border-red-200 px-4 py-2 text-sm font-semibold text-red-600 hover:bg-red-50"
-                                onclick="return confirm('Remove current thumbnail?')"
-                            >
-                                Remove Thumbnail
-                            </button>
-
-                        </div>
-
-                        @endif
                     </div>
                 </section>
 
