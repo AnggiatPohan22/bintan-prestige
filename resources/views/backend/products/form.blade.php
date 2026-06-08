@@ -316,11 +316,21 @@
                     </div>
                 </section>
 
-                <section class="border-t border-slate-100 pt-6">
-                    <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
+                <section class="admin-card">
+                    <div class="admin-card-header">
+                        <h3 class="text-lg font-extrabold text-slate-900">
+                            Pricing
+                        </h3>
+
+                        <p class="mt-1 text-sm leading-6 text-slate-500">
+                            Set product prices for local and international markets.
+                        </p>
+                    </div>
+
+                    <div class="admin-card-body grid grid-cols-1 gap-5 md:grid-cols-2">
                         {{-- IDR Price --}}
                         <div>
-                            <label class="block mb-2 font-medium">
+                            <label class="admin-form-label">
                                 IDR Price
                                 <span class="text-red-500">*</span>
                             </label>
@@ -332,21 +342,20 @@
                                     $product->idr_price ?? ''
                                 ) }}"
                                 placeholder="500000"
-                                class="{{ $inputClass }}
-                                {{ $errors->has('idr_price')
-                                    ? $errorClass
-                                    : $normalClass }}">
+                                class="admin-input {{ $errors->has('idr_price') ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : '' }}">
+
+                            <p class="mt-2 text-xs text-slate-400">
+                                Main local market price.
+                            </p>
 
                             @error('idr_price')
-                                <p class="text-red-500 text-sm mt-1">
-                                    {{ $message }}
-                                </p>
+                                <p class="form-error">{{ $message }}</p>
                             @enderror
                         </div>
 
                         {{-- SGD Price --}}
                         <div>
-                            <label class="block mb-2 font-medium">
+                            <label class="admin-form-label">
                                 SGD Price
                                 <span class="text-red-500">*</span>
                             </label>
@@ -357,17 +366,21 @@
                                     'sgd_price',
                                     $product->sgd_price ?? ''
                                 ) }}"
-                                class="{{ $inputClass }}
-                                {{ $errors->has('sgd_price')
-                                    ? $errorClass
-                                    : $normalClass }}">
+                                class="admin-input {{ $errors->has('sgd_price') ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : '' }}">
+
+                            <p class="mt-2 text-xs text-slate-400">
+                                Singapore/international market price.
+                            </p>
 
                             @error('sgd_price')
-                                <p class="text-red-500 text-sm mt-1">
-                                    {{ $message }}
-                                </p>
+                                <p class="form-error">{{ $message }}</p>
                             @enderror
                         </div>
+                    </div>
+                </section>
+
+                <section class="border-t border-slate-100 pt-6">
+                    <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
 
                         {{-- Thumbnail Upload --}}
                         <div class="md:col-span-2">
