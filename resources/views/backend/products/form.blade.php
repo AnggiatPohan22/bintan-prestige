@@ -55,26 +55,447 @@
         <details
             id="product-info-section"
             open
-            class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden"
+            class="admin-card"
             data-product-accordion
         >
 
             <summary
-                class="cursor-pointer px-6 py-5 font-semibold text-slate-800 bg-slate-50 border-b"
+                class="cursor-pointer border-b border-slate-100 bg-slate-50 px-6 py-5"
             >
-                Product Information
+                <span class="block text-lg font-extrabold text-slate-900">
+                    Basic Information
+                </span>
+                <span class="mt-1 block text-sm leading-6 text-slate-500">
+                    Manage the primary product identity, booking context, and publishing state.
+                </span>
             </summary>
 
-            <div class="p-6">
+            <div class="admin-card-body space-y-8">
 
-                {{-- Product Info --}}
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <section>
+                    <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
+                        <div>
+                            <label class="admin-form-label">
+                                Product Name
+                                <span class="text-red-500">*</span>
+                            </label>
 
-                    @include(
-                    'backend.products.partials.products'
-                    )
+                            <input
+                                type="text"
+                                name="name"
+                                value="{{ old('name', $product->name ?? '') }}"
+                                placeholder="Enter product name"
+                                class="admin-input {{ $errors->has('name') ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : '' }}"
+                            >
 
-                </div>
+                            @error('name')
+                                <p class="form-error">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label class="admin-form-label">Slug</label>
+
+                            <input
+                                type="text"
+                                name="slug"
+                                value="{{ old('slug', $product->slug ?? '') }}"
+                                placeholder="Auto generate if empty"
+                                class="admin-input"
+                            >
+
+                            <p class="mt-2 text-xs text-slate-400">
+                                Optional. Leave empty to auto-generate from product name.
+                            </p>
+                        </div>
+
+                        <div>
+                            <label class="admin-form-label">
+                                Category
+                                <span class="text-red-500">*</span>
+                            </label>
+
+                            <select
+                                name="category_id"
+                                class="admin-select {{ $errors->has('category_id') ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : '' }}"
+                            >
+                                <option value="">Select Category</option>
+
+                                @foreach($categories as $category)
+                                    <option value="{{ $category->id }}"
+                                        @selected(old('category_id', $product->category_id ?? '') == $category->id)>
+                                        {{ $category->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="admin-form-label">
+                                Destination
+                                <span class="text-red-500">*</span>
+                            </label>
+
+                            <select
+                                name="destination_id"
+                                class="admin-select {{ $errors->has('destination_id') ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : '' }}"
+                            >
+                                <option value="">Select Destination</option>
+
+                                @foreach($destinations as $destination)
+                                    <option value="{{ $destination->id }}"
+                                        @selected(old('destination_id', $product->destination_id ?? '') == $destination->id)>
+                                        {{ $destination->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="admin-form-label">
+                                WhatsApp Number
+                                <span class="text-red-500">*</span>
+                            </label>
+
+                            <input
+                                type="text"
+                                name="whatsapp_number"
+                                value="{{ old('whatsapp_number', $product->whatsapp_number ?? '') }}"
+                                placeholder="628xxxxxxxx"
+                                class="admin-input {{ $errors->has('whatsapp_number') ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : '' }}"
+                            >
+
+                            <p class="mt-2 text-xs text-slate-400">
+                                Used for the booking CTA on the product page.
+                            </p>
+
+                            @error('whatsapp_number')
+                                <p class="form-error">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label class="admin-form-label">
+                                Duration
+                                <span class="text-red-500">*</span>
+                            </label>
+
+                            <input
+                                type="text"
+                                name="duration"
+                                value="{{ old('duration', $product->duration ?? '') }}"
+                                placeholder="Example: 3 hours / Full day"
+                                class="admin-input {{ $errors->has('duration') ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : '' }}"
+                            >
+
+                            <p class="mt-2 text-xs text-slate-400">
+                                Example: 3 hours, Half day, or Full day.
+                            </p>
+
+                            @error('duration')
+                                <p class="form-error">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div class="md:col-span-2">
+                            <label class="admin-form-label">
+                                Meeting Point
+                                <span class="text-red-500">*</span>
+                            </label>
+
+                            <input
+                                type="text"
+                                name="meeting_point"
+                                value="{{ old('meeting_point', $product->meeting_point ?? '') }}"
+                                placeholder="Enter meeting point"
+                                class="admin-input {{ $errors->has('meeting_point') ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : '' }}"
+                            >
+
+                            @error('meeting_point')
+                                <p class="form-error">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div class="md:col-span-2">
+                            <label class="admin-form-label">
+                                Short Description
+                                <span class="text-red-500">*</span>
+                            </label>
+
+                            <textarea
+                                name="short_description"
+                                rows="4"
+                                placeholder="Input short description"
+                                class="admin-textarea {{ $errors->has('short_description') ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : '' }}"
+                            >{{ old('short_description', $product->short_description ?? '') }}</textarea>
+
+                            @error('short_description')
+                                <p class="form-error">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div class="md:col-span-2">
+                            <label class="admin-form-label">
+                                Description
+                                <span class="text-red-500">*</span>
+                            </label>
+
+                            <textarea
+                                name="description"
+                                rows="5"
+                                class="admin-textarea {{ $errors->has('description') ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : '' }}"
+                                placeholder="Enter product description"
+                            >{{ old('description', $product->description ?? '') }}</textarea>
+
+                            @error('description')
+                                <p class="form-error">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label class="admin-form-label">
+                                Status
+                                <span class="text-red-500">*</span>
+                            </label>
+
+                            <select
+                                name="status"
+                                class="admin-select {{ $errors->has('status') ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : '' }}"
+                            >
+                                <option value="draft"
+                                    @selected(old('status', $product->status ?? 'draft') == 'draft')>
+                                    Draft
+                                </option>
+
+                                <option value="published"
+                                    @selected(old('status', $product->status ?? '') == 'published')>
+                                    Published
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="rounded-xl border border-slate-200 p-4 shadow-sm">
+                            <div class="flex items-center justify-between gap-4">
+                                <div>
+                                    <h4 class="font-semibold text-slate-700">
+                                        Featured Product
+                                    </h4>
+
+                                    <p class="text-sm text-slate-500">
+                                        Show on featured section.
+                                    </p>
+                                </div>
+
+                                <label class="inline-flex cursor-pointer">
+                                    <input
+                                        type="hidden"
+                                        name="is_featured"
+                                        value="0"
+                                    >
+
+                                    <input
+                                        type="checkbox"
+                                        name="is_featured"
+                                        value="1"
+                                        class="sr-only peer"
+                                        {{ old('is_featured', $product->is_featured ?? false) ? 'checked' : '' }}
+                                    >
+
+                                    <div class="relative h-6 w-12 rounded-full bg-slate-300
+                                        peer peer-checked:bg-indigo-600
+                                        after:absolute after:left-[2px]
+                                        after:top-[2px]
+                                        after:h-5 after:w-5
+                                        after:rounded-full after:bg-white
+                                        after:transition-all after:content-['']
+                                        peer-checked:after:translate-x-full">
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="border-t border-slate-100 pt-6">
+                    <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
+                        {{-- IDR Price --}}
+                        <div>
+                            <label class="block mb-2 font-medium">
+                                IDR Price
+                                <span class="text-red-500">*</span>
+                            </label>
+
+                            <input type="number"
+                                name="idr_price"
+                                value="{{ old(
+                                    'idr_price',
+                                    $product->idr_price ?? ''
+                                ) }}"
+                                placeholder="500000"
+                                class="{{ $inputClass }}
+                                {{ $errors->has('idr_price')
+                                    ? $errorClass
+                                    : $normalClass }}">
+
+                            @error('idr_price')
+                                <p class="text-red-500 text-sm mt-1">
+                                    {{ $message }}
+                                </p>
+                            @enderror
+                        </div>
+
+                        {{-- SGD Price --}}
+                        <div>
+                            <label class="block mb-2 font-medium">
+                                SGD Price
+                                <span class="text-red-500">*</span>
+                            </label>
+
+                            <input type="number"
+                                name="sgd_price"
+                                value="{{ old(
+                                    'sgd_price',
+                                    $product->sgd_price ?? ''
+                                ) }}"
+                                class="{{ $inputClass }}
+                                {{ $errors->has('sgd_price')
+                                    ? $errorClass
+                                    : $normalClass }}">
+
+                            @error('sgd_price')
+                                <p class="text-red-500 text-sm mt-1">
+                                    {{ $message }}
+                                </p>
+                            @enderror
+                        </div>
+
+                        {{-- Thumbnail Upload --}}
+                        <div class="md:col-span-2">
+
+                            <label class="block mb-2 font-medium">
+                                Thumbnail
+                            </label>
+
+                            <input type="file"
+                                name="thumbnail"
+                                class="w-full border rounded-lg p-3">
+
+                            @error('thumbnail')
+                                <p class="text-red-500 text-sm mt-1">
+                                    {{ $message }}
+                                </p>
+                            @enderror
+                            <p class="mt-2 text-xs text-slate-400">
+                                Leave thumbnail empty to auto-use first gallery image.
+                            </p>
+
+                        </div>
+
+                        {{-- Gallery Images --}}
+                        <div class="md:col-span-2">
+
+                            <label class="block mb-2 font-medium">
+                                Gallery Images
+                            </label>
+
+                            <input
+                                type="file"
+                                name="gallery[]"
+                                multiple
+                                class="w-full border rounded-lg p-3">
+
+                            <p class="text-sm text-gray-500 mt-2">
+                                Multiple upload supported.
+                                Auto optimized to WEBP.
+                            </p>
+
+                        </div>
+
+                        @if(isset($product)
+                        && $product->images->count())
+
+                        <div class="md:col-span-2">
+
+                            <label class="block mb-4 font-medium">
+                                Product Gallery
+                            </label>
+
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+
+                                @foreach($product->images as $image)
+
+                                    <div class="relative overflow-hidden rounded-xl border bg-white shadow">
+
+                                        <img
+                                            src="{{ asset(
+                                                'storage/' .
+                                                $image->image
+                                            ) }}"
+                                            class="w-full aspect-[16/9]
+                                            object-cover">
+
+                                        <div class="space-y-2 p-3">
+                                            @if(($product->thumbnail ?? null) === $image->image)
+                                                <span class="inline-flex rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">
+                                                    Current Thumbnail
+                                                </span>
+                                            @else
+                                                <button
+                                                    type="submit"
+                                                    form="set-thumbnail-{{ $image->id }}"
+                                                    class="w-full rounded-lg border border-emerald-200 px-3 py-2 text-xs font-semibold text-emerald-700 hover:bg-emerald-50"
+                                                >
+                                                    Set as Thumbnail
+                                                </button>
+                                            @endif
+
+                                            <button
+                                                type="submit"
+                                                form="delete-gallery-image-{{ $image->id }}"
+                                                class="w-full rounded-lg border border-red-200 px-3 py-2 text-xs font-semibold text-red-600 hover:bg-red-50"
+                                                onclick="return confirm('Delete this gallery image?')"
+                                            >
+                                                Delete Image
+                                            </button>
+                                        </div>
+
+
+                                    </div>
+
+                                @endforeach
+
+                            </div>
+
+                        </div>
+
+                        @endif
+
+                        {{-- Preview Image --}}
+                        @if(isset($product) && $product->thumbnail)
+
+                        <div class="md:col-span-2">
+
+                            <label class="block mb-2 font-medium">
+                                Current Thumbnail
+                            </label>
+
+                            <img src="{{ asset('storage/'.$product->thumbnail) }}"
+                                class="w-48 rounded-lg border shadow">
+
+                            <button
+                                type="submit"
+                                form="delete-product-thumbnail"
+                                class="mt-3 rounded-lg border border-red-200 px-4 py-2 text-sm font-semibold text-red-600 hover:bg-red-50"
+                                onclick="return confirm('Remove current thumbnail?')"
+                            >
+                                Remove Thumbnail
+                            </button>
+
+                        </div>
+
+                        @endif
+                    </div>
+                </section>
 
             </div>
 
