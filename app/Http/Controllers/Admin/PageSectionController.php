@@ -20,6 +20,36 @@ class PageSectionController extends Controller
     {
         PageSectionRegistry::syncRegisteredSections();
 
+        $pageKeys = $this->pageKeys();
+        $pageOptions = PageSectionRegistry::pageOptions($pageKeys);
+        $activePageKey = $request->query('page');
+
+        if (! $pageKeys->contains($activePageKey)) {
+            $activePageKey = null;
+        }
+
+        return view('backend.page-sections.index', compact(
+            'pageKeys',
+            'activePageKey',
+            'pageOptions'
+        ));
+    }
+
+    public function sections(Request $request)
+    {
+        PageSectionRegistry::syncRegisteredSections();
+
+        $pageKeys = $this->pageKeys();
+        $pageOptions = PageSectionRegistry::pageOptions($pageKeys);
+        $pageKey = $request->query('page');
+        $selectedPage = $pageOptions->firstWhere('key', $pageKey);
+
+        if (! $pageKey || ! $selectedPage) {
+            return redirect()
+                ->route('admin.page-sections.index')
+                ->with('warning', 'Please select a valid page before managing sections.');
+        }
+
         $orderedKeys = array_values(array_unique([
             ...HomepageSectionMedia::orderedSectionKeys(),
             ...PageSectionRegistry::registeredSectionKeys(),
@@ -27,35 +57,20 @@ class PageSectionController extends Controller
         $orderSql = collect($orderedKeys)
             ->map(fn (string $key, int $index) => "WHEN ? THEN {$index}")
             ->implode(' ');
-        $pageKeys = PageSection::query()
-            ->select('page_key')
-            ->distinct()
-            ->orderBy('page_key')
-            ->pluck('page_key')
-            ->filter()
-            ->values();
-        $activePageKey = $request->query('page');
-
-        if (! $pageKeys->contains($activePageKey)) {
-            $activePageKey = $pageKeys->first();
-        }
-
-        $pageOptions = PageSectionRegistry::pageOptions($pageKeys);
 
         $pageSections = PageSection::query()
             ->withCount('media')
-            ->when($activePageKey, fn ($query) => $query->where('page_key', $activePageKey))
+            ->where('page_key', $pageKey)
             ->when($orderSql !== '', fn ($query) => $query->orderByRaw("CASE section_key {$orderSql} ELSE 9999 END", $orderedKeys))
             ->orderBy('sort_order')
             ->orderBy('section_key')
             ->paginate(20)
             ->withQueryString();
 
-        return view('backend.page-sections.index', compact(
+        return view('backend.page-sections.sections', compact(
             'pageSections',
-            'pageKeys',
-            'activePageKey',
-            'pageOptions'
+            'pageKey',
+            'selectedPage'
         ));
     }
 
@@ -203,6 +218,17 @@ class PageSectionController extends Controller
     {
         return Schema::hasColumn('page_section_media', 'object_fit')
             && Schema::hasColumn('page_section_media', 'object_position');
+    }
+
+    private function pageKeys()
+    {
+        return PageSection::query()
+            ->select('page_key')
+            ->distinct()
+            ->orderBy('page_key')
+            ->pluck('page_key')
+            ->filter()
+            ->values();
     }
 
     public function destroyMedia(PageSectionMedia $media)

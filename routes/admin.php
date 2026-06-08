@@ -92,6 +92,9 @@ Route::middleware(['auth'])
         Route::get('page-sections', [PageSectionController::class, 'index'])
             ->name('page-sections.index');
 
+        Route::get('page-sections/sections', [PageSectionController::class, 'sections'])
+            ->name('page-sections.sections');
+
         Route::get('page-sections/{pageSection}/edit', [PageSectionController::class, 'edit'])
             ->name('page-sections.edit');
 
