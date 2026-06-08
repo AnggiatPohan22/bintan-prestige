@@ -11,20 +11,31 @@
     $supportsLegacyImages = \App\Support\HomepageSectionMedia::supportsLegacyImages($pageSection->section_key);
 @endphp
 
-<div class="rounded-xl bg-white p-6 shadow">
-    <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-            <h1 class="text-2xl font-bold text-slate-800">Edit Page Section</h1>
-            <p class="mt-1 text-sm text-slate-500">Manage content and images by their real layout position.</p>
+<div class="admin-page">
+    <div class="admin-page-header">
+        <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div>
+                <h1 class="admin-page-title">Edit Page Section</h1>
+                <p class="admin-page-subtitle">
+                    Manage content and images by their real layout position.
+                </p>
+            </div>
+
+            <a
+                href="{{ route('admin.page-sections.index') }}"
+                class="admin-btn-secondary w-full sm:w-auto"
+            >
+                Back
+            </a>
         </div>
-        <a href="{{ route('admin.page-sections.index') }}" class="btn-secondary">Back</a>
     </div>
 
-    <form method="POST" action="{{ route('admin.page-sections.update', $pageSection) }}" enctype="multipart/form-data" class="space-y-5">
-        @csrf
-        @method('PUT')
+    <div class="admin-form-card">
+        <form method="POST" action="{{ route('admin.page-sections.update', $pageSection) }}" enctype="multipart/form-data" class="space-y-6">
+            @csrf
+            @method('PUT')
 
-        <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
+            <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
             <div><label class="form-label">Page key</label><input type="text" value="{{ $pageSection->page_key }}" disabled class="{{ $inputClass }} bg-slate-100"></div>
             <div><label class="form-label">Section key</label><input type="text" value="{{ $pageSection->section_key }}" disabled class="{{ $inputClass }} bg-slate-100"></div>
             <div><label class="form-label">Label</label><input type="text" name="label" value="{{ old('label', $pageSection->label) }}" class="{{ $inputClass }}"></div>
@@ -145,26 +156,35 @@
             <div><label class="form-label">Sort order</label><input type="number" name="sort_order" min="0" value="{{ old('sort_order', $pageSection->sort_order) }}" class="{{ $inputClass }}"></div>
             <div class="md:col-span-2"><label class="form-label">Extra data JSON</label><textarea name="extra_data" rows="6" class="{{ $inputClass }}">{{ $extraData }}</textarea></div>
             <label class="flex items-center gap-3"><input type="checkbox" name="is_active" value="1" @checked(old('is_active', $pageSection->is_active))><span class="text-sm font-semibold text-slate-700">Active</span></label>
-        </div>
-        <div class="flex items-center gap-3 border-t pt-5"><button type="submit" class="btn-primary">Save Section</button><a href="{{ route('admin.page-sections.index') }}" class="btn-secondary">Cancel</a></div>
-    </form>
+            </div>
+            <div class="flex flex-col gap-3 border-t border-slate-100 pt-5 sm:flex-row sm:items-center">
+                <button type="submit" class="admin-btn-primary w-full sm:w-auto">Save Section</button>
+                <a href="{{ route('admin.page-sections.index') }}" class="admin-btn-secondary w-full sm:w-auto">Cancel</a>
+            </div>
+        </form>
+    </div>
 
     @if($pageSection->media->count())
-        <div class="mt-8 border-t pt-6">
-            <h2 class="text-lg font-bold text-slate-800">Stored Section Media</h2>
-            <div class="mt-4 grid grid-cols-2 gap-4 md:grid-cols-4">
-                @foreach($pageSection->media as $media)
-                    <div class="rounded-xl border bg-white p-3 shadow-sm">
-                        <img src="{{ $media->url }}" alt="{{ $media->alt }}" class="h-32 w-full rounded-lg object-cover">
-                        <div class="mt-2 text-xs font-semibold text-slate-500">
-                            {{ $media->label ?: ucwords(str_replace('_', ' ', $media->slot_key)) }}
+        <div class="admin-card">
+            <div class="admin-card-header">
+                <h2 class="text-lg font-extrabold text-slate-900">Stored Section Media</h2>
+            </div>
+
+            <div class="admin-card-body">
+                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4">
+                    @foreach($pageSection->media as $media)
+                        <div class="rounded-xl border bg-white p-3 shadow-sm">
+                            <img src="{{ $media->url }}" alt="{{ $media->alt }}" class="h-32 w-full rounded-lg object-cover">
+                            <div class="mt-2 text-xs font-semibold text-slate-500">
+                                {{ $media->label ?: ucwords(str_replace('_', ' ', $media->slot_key)) }}
+                            </div>
+                            <div class="mt-1 text-[11px] uppercase text-slate-400">
+                                {{ $media->role }} / {{ $media->slot_key }}
+                            </div>
+                            <form method="POST" action="{{ route('admin.page-sections.media.destroy', $media) }}" class="mt-3">@csrf @method('DELETE')<button type="submit" onclick="return confirm('Delete this section image?')" class="w-full rounded-lg border border-red-200 px-3 py-2 text-xs font-semibold text-red-600 hover:bg-red-50">Delete Image</button></form>
                         </div>
-                        <div class="mt-1 text-[11px] uppercase text-slate-400">
-                            {{ $media->role }} / {{ $media->slot_key }}
-                        </div>
-                        <form method="POST" action="{{ route('admin.page-sections.media.destroy', $media) }}" class="mt-3">@csrf @method('DELETE')<button type="submit" onclick="return confirm('Delete this section image?')" class="w-full rounded-lg border border-red-200 px-3 py-2 text-xs font-semibold text-red-600 hover:bg-red-50">Delete Image</button></form>
-                    </div>
-                @endforeach
+                    @endforeach
+                </div>
             </div>
         </div>
     @endif
