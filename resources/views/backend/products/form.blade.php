@@ -444,13 +444,28 @@
                     </div>
                 </section>
 
-                <section class="border-t border-slate-100 pt-6">
-                    <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
+                <section class="admin-card">
+                    <div class="admin-card-header">
+                        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                            <div>
+                                <h3 class="text-lg font-extrabold text-slate-900">
+                                    Product Gallery
+                                </h3>
 
-                        {{-- Gallery Images --}}
-                        <div class="md:col-span-2">
+                                <p class="mt-1 text-sm leading-6 text-slate-500">
+                                    Upload supporting images for the product detail page.
+                                </p>
+                            </div>
 
-                            <label class="block mb-2 font-medium">
+                            <span class="admin-badge-info w-fit">
+                                Max 10 images
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="admin-card-body space-y-6">
+                        <div>
+                            <label class="admin-form-label">
                                 Gallery Images
                             </label>
 
@@ -458,74 +473,66 @@
                                 type="file"
                                 name="gallery[]"
                                 multiple
-                                class="w-full border rounded-lg p-3">
+                                class="admin-input">
 
-                            <p class="text-sm text-gray-500 mt-2">
-                                Multiple upload supported.
-                                Auto optimized to WEBP.
-                            </p>
-
+                            <div class="mt-3 space-y-1 text-xs leading-5 text-slate-400">
+                                <p>Maximum 10 gallery images.</p>
+                                <p>Recommended format: JPG, PNG, WEBP.</p>
+                                <p>Recommended size: 1200x800px or larger.</p>
+                            </div>
                         </div>
 
-                        @if(isset($product)
-                        && $product->images->count())
-
-                        <div class="md:col-span-2">
-
-                            <label class="block mb-4 font-medium">
-                                Product Gallery
-                            </label>
-
-                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-
+                        @if(isset($product) && $product->images->count())
+                            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
                                 @foreach($product->images as $image)
-
-                                    <div class="relative overflow-hidden rounded-xl border bg-white shadow">
-
+                                    <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
                                         <img
                                             src="{{ asset(
                                                 'storage/' .
                                                 $image->image
                                             ) }}"
-                                            class="w-full aspect-[16/9]
-                                            object-cover">
+                                            class="aspect-[16/9] w-full object-cover">
 
-                                        <div class="space-y-2 p-3">
-                                            @if(($product->thumbnail ?? null) === $image->image)
-                                                <span class="inline-flex rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">
-                                                    Current Thumbnail
+                                        <div class="space-y-3 p-4">
+                                            <div>
+                                                <span class="text-xs font-semibold text-slate-400">
+                                                    Sort: {{ $image->sort_order ?? 0 }}
                                                 </span>
-                                            @else
+                                            </div>
+
+                                            <div class="flex flex-col gap-2">
+                                                @if(($product->thumbnail ?? null) === $image->image)
+                                                    <div class="admin-btn-success w-full px-3 py-2">
+                                                        Current Thumbnail
+                                                    </div>
+                                                @else
+                                                    <button
+                                                        type="submit"
+                                                        form="set-thumbnail-{{ $image->id }}"
+                                                        class="admin-btn-soft w-full px-3 py-2"
+                                                    >
+                                                        Set as Thumbnail
+                                                    </button>
+                                                @endif
+
                                                 <button
                                                     type="submit"
-                                                    form="set-thumbnail-{{ $image->id }}"
-                                                    class="w-full rounded-lg border border-emerald-200 px-3 py-2 text-xs font-semibold text-emerald-700 hover:bg-emerald-50"
+                                                    form="delete-gallery-image-{{ $image->id }}"
+                                                    class="admin-btn-danger w-full px-3 py-2"
+                                                    onclick="return confirm('Delete this gallery image?')"
                                                 >
-                                                    Set as Thumbnail
+                                                    Delete Image
                                                 </button>
-                                            @endif
-
-                                            <button
-                                                type="submit"
-                                                form="delete-gallery-image-{{ $image->id }}"
-                                                class="w-full rounded-lg border border-red-200 px-3 py-2 text-xs font-semibold text-red-600 hover:bg-red-50"
-                                                onclick="return confirm('Delete this gallery image?')"
-                                            >
-                                                Delete Image
-                                            </button>
+                                            </div>
                                         </div>
-
-
                                     </div>
-
                                 @endforeach
-
                             </div>
-
-                        </div>
-
+                        @else
+                            <div class="admin-empty-state">
+                                No gallery images yet.
+                            </div>
                         @endif
-
                     </div>
                 </section>
 
