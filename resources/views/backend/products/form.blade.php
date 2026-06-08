@@ -7,46 +7,49 @@
     $errorClass = 'border-red-500 bg-red-50 focus:border-red-500 focus:ring-red-100 shadow-md shadow-red-100';
 @endphp
 
-<div class="bg-white rounded-xl shadow p-6">
+<div class="admin-page">
 
-    <div class="flex items-center justify-between mb-6">
+    <div class="admin-page-header">
+        <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
 
-        <div>
-            <h1 class="text-2xl font-bold">
-                {{ isset($product)
-                    ? 'Edit Product'
-                    : 'Create Product' }}
-            </h1>
+            <div>
+                <h1 class="admin-page-title">
+                    {{ isset($product)
+                        ? 'Edit Product'
+                        : 'Create Product' }}
+                </h1>
 
-            <p class="text-gray-500 text-sm mt-1">
-                {{ isset($product)
-                    ? 'Update product information'
-                    : 'Create a new product' }}
-            </p>
+                <p class="admin-page-subtitle">
+                    {{ isset($product)
+                        ? 'Update product information'
+                        : 'Create a new product' }}
+                </p>
+            </div>
+
+            <a href="{{ route('admin.products.index') }}"
+               class="admin-btn-secondary w-full sm:w-auto">
+                Back
+            </a>
+
         </div>
-
-        <a href="{{ route('admin.products.index') }}"
-           class="px-4 py-2 border rounded-lg hover:bg-gray-100 transition">
-            Cancel
-        </a>
-
     </div>
 
-    <form
-    action="{{ isset($product)
-        ? route('admin.products.update', $product)
-        : route('admin.products.store') }}"
-    method="POST"
-    enctype="multipart/form-data"
->
+    <div class="admin-form-card">
+        <form
+            action="{{ isset($product)
+                ? route('admin.products.update', $product)
+                : route('admin.products.store') }}"
+            method="POST"
+            enctype="multipart/form-data"
+        >
 
-    @csrf
+        @csrf
 
-    @isset($product)
-        @method('PUT')
-    @endisset
+        @isset($product)
+            @method('PUT')
+        @endisset
 
-    <div class="space-y-5">
+        <div class="space-y-6">
 
         {{-- PRODUCT INFO --}}
         <details
@@ -80,12 +83,12 @@
 
         {{-- ACTION BUTTON --}}
         <div
-            class="pt-5 border-t flex items-center gap-3"
+            class="flex flex-col gap-3 border-t border-slate-100 pt-5 sm:flex-row sm:items-center"
         >
 
             <button
                 type="submit"
-                class="btn-primary"
+                class="admin-btn-primary w-full sm:w-auto"
             >
                 {{ isset($product)
                     ? 'Update Product'
@@ -94,7 +97,7 @@
 
             <a
                 href="{{ route('admin.products.index') }}"
-                class="btn-secondary"
+                class="admin-btn-secondary w-full sm:w-auto"
             >
                 Cancel
             </a>
@@ -103,7 +106,8 @@
 
     </div>
 
-    </form>
+        </form>
+    </div>
 
     @if(isset($product) && $product->exists)
         @foreach($product->images as $image)
@@ -223,17 +227,19 @@
                 ->count();
         @endphp
 
-        <div class="mt-8 border-t border-slate-200 pt-6">
-            <h2 class="text-xl font-bold text-slate-800">
-                Product Detail Content
-            </h2>
+        <div class="admin-card">
+            <div class="admin-card-header">
+                <h2 class="text-xl font-extrabold text-slate-900">
+                    Product Detail Content
+                </h2>
 
-            <p class="mt-1 text-sm text-slate-500">
-                Manage highlights, features, FAQs, itineraries, and notes for this product.
-            </p>
+                <p class="mt-1 text-sm text-slate-500">
+                    Manage highlights, features, FAQs, itineraries, and notes for this product.
+                </p>
+            </div>
         </div>
 
-        <div class="mt-6 grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
+        <div class="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
             <div class="rounded-2xl border border-slate-200 bg-slate-50 p-5">
                 <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                     <div>
@@ -401,7 +407,7 @@
                             Save these settings separately from the main product information.
                         </p>
 
-                        <button type="submit" class="btn-primary">
+                        <button type="submit" class="admin-btn-primary w-full sm:w-auto">
                             Save Search & Booking
                         </button>
                     </div>
@@ -411,7 +417,7 @@
 
     @else
 
-        <div class="mt-6 rounded-2xl border border-amber-200 bg-amber-50 p-5 shadow-sm">
+        <div class="rounded-2xl border border-amber-200 bg-amber-50 p-5 shadow-sm">
             <h2 class="font-semibold text-amber-800">
                 Save product first
             </h2>
