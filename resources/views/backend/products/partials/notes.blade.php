@@ -1,231 +1,246 @@
-<div id="notes-section" class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-
-    @if(!isset($product) || !$product->exists)
-
-        <div class="rounded-2xl border border-amber-200 bg-amber-50 p-5">
-            <h4 class="font-semibold text-amber-800">
-                Save product first
-            </h4>
-
-            <p class="mt-2 text-sm text-amber-700">
-                Product notes can be added after the product is created.
-            </p>
-        </div>
-
-    @else
-
-        <form
-            method="POST"
-            action="{{ route('admin.products.notes.store', $product) }}"
-            class="space-y-5"
-            data-preserve-scroll
-        >
-            @csrf
-
-            <div class="card-header mb-5">
-                <label class="form-heading" >
+<div id="notes-section" class="admin-card">
+    <div class="admin-card-header">
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+                <h3 class="text-lg font-extrabold text-slate-900">
                     Product Notes
-                    <span class="text-red-500">*</span>
-                </label>
+                </h3>
+
+                <p class="mt-1 text-sm leading-6 text-slate-500">
+                    Add important reminders, rules, and guest-facing notes.
+                </p>
             </div>
 
-            <div>
-                <label class="form-label">Title</label>
+            @if(isset($product) && $product->exists)
+                <span class="admin-badge-info w-fit">
+                    {{ $product->notes->count() }} item(s)
+                </span>
+            @endif
+        </div>
+    </div>
 
-                <input
-                    type="text"
-                    name="title"
-                    class="form-input"
-                    placeholder="Example: Important Information"
-                >
+    <div class="admin-card-body">
+        @if(!isset($product) || !$product->exists)
+
+            <div class="rounded-2xl border border-amber-200 bg-amber-50 p-5">
+                <h4 class="font-semibold text-amber-800">
+                    Save product first
+                </h4>
+
+                <p class="mt-2 text-sm text-amber-700">
+                    Product notes can be added after the product is created.
+                </p>
             </div>
 
-            <div>
-                <label class="form-label">Description</label>
+        @else
 
-                <textarea
-                    name="description"
-                    rows="4"
-                    class="form-textarea"
-                    placeholder="Example: Bring sunscreen and comfortable clothes."
-                    required
-                ></textarea>
-            </div>
+            <form
+                method="POST"
+                action="{{ route('admin.products.notes.store', $product) }}"
+                class="admin-form-card space-y-5"
+                data-preserve-scroll
+            >
+                @csrf
 
-            <div>
-                <label class="form-label">Sort Order</label>
+                <div>
+                    <h4 class="text-base font-extrabold text-slate-900">
+                        Add Note
+                    </h4>
+                    <p class="mt-1 text-sm text-slate-500">
+                        Keep notes concise and easy for guests to scan.
+                    </p>
+                </div>
 
-                <input
-                    type="number"
-                    name="sort_order"
-                    class="form-input"
-                    value="0"
-                >
-            </div>
+                <div>
+                    <label class="admin-form-label">Title</label>
 
-            <button type="submit" class="btn-primary w-full">
-                Add Note
-            </button>
-        </form>
+                    <input
+                        type="text"
+                        name="title"
+                        class="admin-input"
+                        placeholder="Example: Important Information"
+                    >
+                </div>
 
-        <div class="my-6 border-t border-slate-200"></div>
+                <div>
+                    <label class="admin-form-label">Description</label>
 
-        @forelse($product->notes as $note)
+                    <textarea
+                        name="description"
+                        rows="4"
+                        class="admin-textarea"
+                        placeholder="Example: Bring sunscreen and comfortable clothes."
+                        required
+                    ></textarea>
+                </div>
 
-                <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm hover:shadow-md transition">
+                <div>
+                    <label class="admin-form-label">Sort Order</label>
 
-                    <div class="flex items-start justify-between gap-4">
+                    <input
+                        type="number"
+                        name="sort_order"
+                        class="admin-input"
+                        value="0"
+                    >
+                </div>
 
-                        <div class="flex gap-3 flex-1 min-w-0">
+                <button type="submit" class="admin-btn-primary w-full">
+                    Add Note
+                </button>
+            </form>
 
-                            {{-- Icon --}}
-                            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-amber-100 text-amber-700">
-                                !
-                            </div>
+            <div class="my-6 border-t border-slate-200"></div>
 
-                            {{-- Content --}}
-                            <div class="min-w-0 flex-1">
+            <div class="space-y-4">
+                @forelse($product->notes as $note)
 
-                                @if($note->title)
-                                    <div class="flex items-center gap-2 mb-1">
+                    <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                        <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
 
-                                        <h4 class="font-semibold text-slate-800 leading-snug">
-                                            {{ $note->title }}
-                                        </h4>
+                            <div class="flex min-w-0 flex-1 gap-3">
+                                <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-amber-100 font-bold text-amber-700">
+                                    !
+                                </div>
+
+                                <div class="min-w-0 flex-1">
+                                    <div class="mb-2 flex flex-wrap items-center gap-2">
+                                        @if($note->title)
+                                            <h4 class="font-semibold leading-snug text-slate-800">
+                                                {{ $note->title }}
+                                            </h4>
+                                        @else
+                                            <h4 class="font-semibold leading-snug text-slate-800">
+                                                Product Note
+                                            </h4>
+                                        @endif
 
                                         <span class="rounded-full bg-slate-100 px-2 py-1 text-[11px] font-medium text-slate-500">
                                             #{{ $note->sort_order }}
                                         </span>
-
                                     </div>
-                                @endif
 
-                                <p class="text-sm leading-relaxed text-slate-500 whitespace-pre-line">
-                                    {{ $note->description }}
-                                </p>
-
+                                    <p class="whitespace-pre-line text-sm leading-relaxed text-slate-500">
+                                        {{ $note->description }}
+                                    </p>
+                                </div>
                             </div>
 
-                        </div>
-
-                        <div class="flex shrink-0 flex-col gap-2 sm:flex-row">
-                            <button
-                                type="button"
-                                class="btn-secondary"
-                                data-modal-open="edit-note-{{ $note->id }}"
-                            >
-                                Edit
-                            </button>
-
-                            {{-- Delete --}}
-                            <form
-                                method="POST"
-                                action="{{ route('admin.products.notes.destroy', $note) }}"
-                                data-preserve-scroll
-                            >
-                                @csrf
-                                @method('DELETE')
-
+                            <div class="flex shrink-0 flex-col gap-2 sm:flex-row">
                                 <button
-                                    type="submit"
-                                    class="rounded-xl border border-red-200 px-4 py-2 text-sm font-semibold text-red-600 hover:bg-red-50 transition"
-                                    onclick="return confirm('Delete note?')"
+                                    type="button"
+                                    class="admin-btn-secondary w-full sm:w-auto"
+                                    data-modal-open="edit-note-{{ $note->id }}"
                                 >
-                                    Delete
+                                    Edit
                                 </button>
-                            </form>
-                        </div>
-
-                        <div
-                            id="edit-note-{{ $note->id }}"
-                            class="fixed inset-0 z-50 hidden bg-slate-900/50 p-4"
-                            data-modal
-                        >
-                            <div class="mx-auto mt-16 max-w-2xl rounded-2xl bg-white p-6 shadow-2xl">
-                                <div class="mb-5 flex items-center justify-between gap-4">
-                                    <h3 class="text-lg font-bold text-slate-800">
-                                        Edit Note
-                                    </h3>
-
-                                    <button
-                                        type="button"
-                                        class="rounded-lg px-3 py-2 text-slate-400 hover:bg-slate-100"
-                                        data-modal-close
-                                    >
-                                        X
-                                    </button>
-                                </div>
 
                                 <form
                                     method="POST"
-                                    action="{{ route('admin.products.notes.update', $note) }}"
-                                    class="space-y-4"
+                                    action="{{ route('admin.products.notes.destroy', $note) }}"
                                     data-preserve-scroll
                                 >
                                     @csrf
-                                    @method('PUT')
+                                    @method('DELETE')
 
-                                    <div>
-                                        <label class="form-label">Title</label>
-                                        <input
-                                            type="text"
-                                            name="title"
-                                            value="{{ $note->title }}"
-                                            class="form-input"
-                                        >
-                                    </div>
-
-                                    <div>
-                                        <label class="form-label">Description</label>
-                                        <textarea
-                                            name="description"
-                                            rows="4"
-                                            class="form-textarea"
-                                            required
-                                        >{{ $note->description }}</textarea>
-                                    </div>
-
-                                    <div>
-                                        <label class="form-label">Sort Order</label>
-                                        <input
-                                            type="number"
-                                            name="sort_order"
-                                            value="{{ $note->sort_order }}"
-                                            class="form-input"
-                                        >
-                                    </div>
-
-                                    <div class="flex justify-end gap-3">
-                                        <button
-                                            type="button"
-                                            class="btn-secondary"
-                                            data-modal-close
-                                        >
-                                            Cancel
-                                        </button>
-
-                                        <button type="submit" class="btn-primary">
-                                            Save Changes
-                                        </button>
-                                    </div>
+                                    <button
+                                        type="submit"
+                                        class="admin-btn-danger w-full sm:w-auto"
+                                        onclick="return confirm('Delete note?')"
+                                    >
+                                        Delete
+                                    </button>
                                 </form>
                             </div>
-                        </div>
 
+                            <div
+                                id="edit-note-{{ $note->id }}"
+                                class="fixed inset-0 z-50 hidden bg-slate-900/50 p-4"
+                                data-modal
+                            >
+                                <div class="mx-auto mt-16 max-w-2xl rounded-2xl bg-white p-6 shadow-2xl">
+                                    <div class="mb-5 flex items-center justify-between gap-4">
+                                        <h3 class="text-lg font-bold text-slate-800">
+                                            Edit Note
+                                        </h3>
+
+                                        <button
+                                            type="button"
+                                            class="rounded-lg px-3 py-2 text-slate-400 hover:bg-slate-100"
+                                            data-modal-close
+                                        >
+                                            X
+                                        </button>
+                                    </div>
+
+                                    <form
+                                        method="POST"
+                                        action="{{ route('admin.products.notes.update', $note) }}"
+                                        class="space-y-4"
+                                        data-preserve-scroll
+                                    >
+                                        @csrf
+                                        @method('PUT')
+
+                                        <div>
+                                            <label class="admin-form-label">Title</label>
+                                            <input
+                                                type="text"
+                                                name="title"
+                                                value="{{ $note->title }}"
+                                                class="admin-input"
+                                            >
+                                        </div>
+
+                                        <div>
+                                            <label class="admin-form-label">Description</label>
+                                            <textarea
+                                                name="description"
+                                                rows="4"
+                                                class="admin-textarea"
+                                                required
+                                            >{{ $note->description }}</textarea>
+                                        </div>
+
+                                        <div>
+                                            <label class="admin-form-label">Sort Order</label>
+                                            <input
+                                                type="number"
+                                                name="sort_order"
+                                                value="{{ $note->sort_order }}"
+                                                class="admin-input"
+                                            >
+                                        </div>
+
+                                        <div class="flex flex-col gap-3 sm:flex-row sm:justify-end">
+                                            <button
+                                                type="button"
+                                                class="admin-btn-secondary"
+                                                data-modal-close
+                                            >
+                                                Cancel
+                                            </button>
+
+                                            <button type="submit" class="admin-btn-primary">
+                                                Save Changes
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+
+                        </div>
                     </div>
 
-                </div>
+                @empty
 
-            @empty
-
-                <div class="rounded-2xl border border-dashed border-slate-300 bg-slate-50 py-8 text-center">
-                    <p class="text-sm text-slate-400">
+                    <div class="admin-empty-state">
                         No notes yet.
-                    </p>
-                </div>
+                    </div>
 
-            @endforelse
+                @endforelse
+            </div>
 
-    @endif
-
+        @endif
+    </div>
 </div>
