@@ -18,17 +18,22 @@ class PageSectionMediaSlotTest extends TestCase
     {
         $admin = User::factory()->admin()->create();
 
-        $response = $this->actingAs($admin)
+        $indexResponse = $this->actingAs($admin)
             ->get(route('admin.page-sections.index', ['page' => 'products.show']));
 
-        $response->assertOk();
-        $response->assertSee('Product Listing');
-        $response->assertSee('Product Detail');
-        $response->assertSee('products.show.hero');
-        $response->assertSee('products.show.gallery');
-        $response->assertSee('products.show.booking');
-        $response->assertSee('No image input');
-        $response->assertDontSee('0 / 10 media item(s)');
+        $indexResponse->assertOk();
+        $indexResponse->assertSee('Product Listing');
+        $indexResponse->assertSee('Product Detail');
+
+        $sectionsResponse = $this->actingAs($admin)
+            ->get(route('admin.page-sections.sections', ['page' => 'products.show']));
+
+        $sectionsResponse->assertOk();
+        $sectionsResponse->assertSee('products.show.hero');
+        $sectionsResponse->assertSee('products.show.gallery');
+        $sectionsResponse->assertSee('products.show.booking');
+        $sectionsResponse->assertSee('No image input');
+        $sectionsResponse->assertDontSee('0 / 10 media item(s)');
 
         $this->assertDatabaseHas('page_sections', [
             'page_key' => 'products.index',
@@ -40,7 +45,7 @@ class PageSectionMediaSlotTest extends TestCase
         ]);
     }
 
-    public function test_admin_page_sections_index_can_filter_by_page_key(): void
+    public function test_admin_page_sections_can_filter_section_rows_by_page_key(): void
     {
         $admin = User::factory()->admin()->create();
 
@@ -62,10 +67,9 @@ class PageSectionMediaSlotTest extends TestCase
         ]);
 
         $response = $this->actingAs($admin)
-            ->get(route('admin.page-sections.index', ['page' => 'products']));
+            ->get(route('admin.page-sections.sections', ['page' => 'products']));
 
         $response->assertOk();
-        $response->assertSee('Home');
         $response->assertSee('Products');
         $response->assertSee('products.index.hero');
         $response->assertSee('Explore Bintan Packages');
@@ -73,7 +77,7 @@ class PageSectionMediaSlotTest extends TestCase
         $response->assertDontSee('BINTAN PRESTIGE');
     }
 
-    public function test_admin_page_sections_index_defaults_to_first_available_page(): void
+    public function test_admin_page_sections_index_lists_available_page_options(): void
     {
         $admin = User::factory()->admin()->create();
 
@@ -98,7 +102,12 @@ class PageSectionMediaSlotTest extends TestCase
             ->get(route('admin.page-sections.index'));
 
         $response->assertOk();
-        $response->assertSee('home.hero');
+        $response->assertSee('Home');
+        $response->assertSee('Product Listing');
+        $response->assertSee('Product Detail');
+        $response->assertSee(route('admin.page-sections.sections', ['page' => 'home']), false);
+        $response->assertSee(route('admin.page-sections.sections', ['page' => 'products.index']), false);
+        $response->assertDontSee('home.hero');
         $response->assertDontSee('products.index.hero');
     }
 
@@ -456,7 +465,7 @@ class PageSectionMediaSlotTest extends TestCase
         ]);
 
         $response = $this->actingAs($admin)
-            ->get(route('admin.page-sections.index'));
+            ->get(route('admin.page-sections.sections', ['page' => 'home']));
 
         $response->assertOk();
         $response->assertSeeInOrder([
