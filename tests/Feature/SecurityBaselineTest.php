@@ -36,6 +36,15 @@ class SecurityBaselineTest extends TestCase
             ->assertOk();
     }
 
+    public function test_inactive_admin_user_can_not_access_admin_dashboard(): void
+    {
+        $admin = User::factory()->admin()->inactive()->create();
+
+        $this->actingAs($admin)
+            ->get('/admin/dashboard')
+            ->assertForbidden();
+    }
+
     public function test_public_registration_routes_are_disabled(): void
     {
         $this->get('/register')

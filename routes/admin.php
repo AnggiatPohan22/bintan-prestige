@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\ProductHighlightController;
 use App\Http\Controllers\Admin\ProductItineraryController;
 use App\Http\Controllers\Admin\ProductNoteController;
 use App\Http\Controllers\Admin\SiteSettingController;
+use App\Http\Controllers\Admin\UserManagementController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', 'admin'])
@@ -28,6 +29,29 @@ Route::middleware(['auth', 'admin'])
             DashboardController::class,
             'index'
         ])->name('dashboard');
+
+        Route::middleware('can:manage-users')
+            ->prefix('users')
+            ->name('users.')
+            ->group(function () {
+                Route::get('/', [UserManagementController::class, 'index'])
+                    ->name('index');
+
+                Route::get('/create', [UserManagementController::class, 'create'])
+                    ->name('create');
+
+                Route::post('/', [UserManagementController::class, 'store'])
+                    ->name('store');
+
+                Route::get('/{user}/edit', [UserManagementController::class, 'edit'])
+                    ->name('edit');
+
+                Route::put('/{user}', [UserManagementController::class, 'update'])
+                    ->name('update');
+
+                Route::patch('/{user}/deactivate', [UserManagementController::class, 'deactivate'])
+                    ->name('deactivate');
+            });
 
         Route::get('settings/global-assets', [SiteSettingController::class, 'edit'])
             ->name('settings.global-assets.edit');

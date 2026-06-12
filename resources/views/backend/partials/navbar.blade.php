@@ -4,6 +4,7 @@
         request()->routeIs('admin.products.*') => 'Products',
         request()->routeIs('admin.page-sections.*') => 'Page Sections',
         request()->routeIs('admin.settings.*') => 'Global Assets',
+        request()->routeIs('admin.users.*') => 'Admin Users',
         request()->routeIs('admin.faqs.*') => 'FAQs',
         request()->routeIs('admin.categories.*') => 'Categories',
         request()->routeIs('admin.destinations.*') => 'Destinations',
@@ -71,7 +72,7 @@
 
                     <span class="admin-user-menu__identity">
                         <span>{{ $user?->name ?? 'Admin' }}</span>
-                        <small>Administrator</small>
+                        <small>{{ $user?->isSuperAdmin() ? 'Super Admin' : 'Administrator' }}</small>
                     </span>
 
                     <i class="fa-solid fa-chevron-down admin-user-menu__chevron" aria-hidden="true"></i>

@@ -28,6 +28,9 @@ class ProvisionFirstAdminCommandTest extends TestCase
         $admin = User::where('email', 'admin@example.com')->firstOrFail();
 
         $this->assertTrue($admin->isAdmin());
+        $this->assertTrue($admin->isSuperAdmin());
+        $this->assertSame(User::ROLE_SUPER_ADMIN, $admin->role);
+        $this->assertTrue($admin->is_active);
         $this->assertTrue(Hash::check($password, $admin->password));
         $this->assertNotSame($password, $admin->password);
     }

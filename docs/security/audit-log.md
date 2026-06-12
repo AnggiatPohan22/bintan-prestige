@@ -2,6 +2,139 @@
 
 This log records security-relevant audits and fixes. It does not contain secrets.
 
+## 2026-06-13 - STEP DOC-SYNC-SECURITY-08 Documentation Sync
+
+Type: Documentation sync
+Runtime behavior changed: No.
+Routes changed: No.
+Database changed: No.
+Migrations changed: No.
+Views changed: No runtime views changed.
+Public assets changed: No.
+
+### Summary
+
+Security and admin documentation was synchronized after SECURITY-08. The sync records that public registration remains disabled, first admin provisioning remains CLI-only, Super Admin can manage admin users, ordinary Admin cannot manage users, inactive users cannot access admin, and granular module permissions remain future improvement.
+
+### Files Changed
+
+- `docs/security/checklist.md`
+- `docs/security/audit-log.md`
+- `docs/security/security-baseline.md`
+- `docs/changelog/CHANGELOG.md`
+
+### Files Created
+
+- `docs/admin/user-management.md`
+- `docs/admin/dashboard-access-control.md`
+- `ai/reports/documentation/doc-sync-security-08-report.md`
+
+### Validation Recorded
+
+- Read `security-07-super-admin-user-management-plan.md`.
+- Read `security-08-super-admin-user-management-implementation-report.md`.
+- Read existing security docs and changelog before update.
+- Read-only implementation validation checked registration route posture, admin user routes, user role helpers, `manage-users` Gate, first-admin command behavior, and absence of a role/permission package in `composer.json`.
+
+### Testing Reference
+
+No runtime tests were required for this documentation-only step.
+
+Latest SECURITY-08 verification remains:
+
+- `php artisan test`: passed, 117 tests, 560 assertions.
+- `git diff --check`: passed.
+
+### Related Reports
+
+- `ai/reports/security/security-07-super-admin-user-management-plan.md`
+- `ai/reports/security/security-08-super-admin-user-management-implementation-report.md`
+- `ai/reports/documentation/doc-sync-security-08-report.md`
+
+### Rollback Note
+
+Rollback by reverting the documentation files listed in this entry. No database rollback is required for this documentation-only sync.
+
+## 2026-06-12 - STEP SECURITY-08 Super Admin & Admin User Management Implementation
+
+Type: Security implementation
+Runtime behavior changed: Yes.
+Routes changed: Yes, `admin.users.*` routes were added behind `auth`, `admin`, and `can:manage-users`.
+Database changed: Yes, a new migration adds admin role/status metadata to `users`.
+Migrations changed: New migration only.
+Views changed: Yes, Super Admin user management views were added.
+Public assets changed: No.
+
+### Summary
+
+SECURITY-08 implemented a minimal multi-user admin foundation without installing a role/permission package. Admin access now requires `is_admin = true`, `is_active = true`, and a valid admin role. Super Admin can manage admin users from the dashboard through the `manage-users` Gate, while ordinary Admin can continue managing CMS content but cannot manage users.
+
+### Files Changed
+
+- `routes/admin.php`
+- `app/Models/User.php`
+- `app/Http/Middleware/AdminMiddleware.php`
+- `app/Http/Requests/Auth/LoginRequest.php`
+- `app/Console/Commands/ProvisionFirstAdmin.php`
+- `app/Providers/AppServiceProvider.php`
+- `database/factories/UserFactory.php`
+- `resources/views/backend/partials/sidebar.blade.php`
+- `resources/views/backend/partials/navbar.blade.php`
+- `tests/Feature/Console/ProvisionFirstAdminCommandTest.php`
+- `tests/Feature/Auth/AuthenticationTest.php`
+- `tests/Feature/SecurityBaselineTest.php`
+- `docs/security/checklist.md`
+- `docs/security/audit-log.md`
+- `docs/security/security-baseline.md`
+- `docs/changelog/CHANGELOG.md`
+
+### Files Created
+
+- `database/migrations/2026_06_12_000002_add_admin_role_status_to_users_table.php`
+- `app/Http/Controllers/Admin/UserManagementController.php`
+- `app/Http/Requests/Admin/StoreAdminUserRequest.php`
+- `app/Http/Requests/Admin/UpdateAdminUserRequest.php`
+- `resources/views/admin/users/index.blade.php`
+- `resources/views/admin/users/create.blade.php`
+- `resources/views/admin/users/edit.blade.php`
+- `tests/Feature/Security/SuperAdminUserManagementTest.php`
+- `ai/reports/security/security-08-super-admin-user-management-implementation-report.md`
+
+### Issues Fixed
+
+- Super Admin and ordinary Admin are now separated without a package.
+- Admin user management is available only to Super Admin.
+- Inactive users cannot login or access admin.
+- First admin provisioning now creates a `super_admin` and active account.
+- Super Admin cannot deactivate themselves.
+- The only active Super Admin cannot be downgraded.
+
+### Issues Still Pending
+
+- Granular policies/gates for CMS content/settings actions remain pending.
+- Admin user management audit logging remains pending.
+- Tracking script governance remains pending.
+
+### Testing Recorded
+
+- `php artisan migrate`
+- `php artisan route:list --path=admin/users`
+- `php artisan test tests/Feature/Security/SuperAdminUserManagementTest.php`
+- Result: passed, 10 tests, 29 assertions.
+- `php artisan test tests/Feature/Console/ProvisionFirstAdminCommandTest.php tests/Feature/Auth/AuthenticationTest.php tests/Feature/Auth/RegistrationTest.php tests/Feature/SecurityBaselineTest.php tests/Feature/Security/SuperAdminUserManagementTest.php`
+- Result: passed, 32 tests, 98 assertions.
+- `php artisan test`
+- Result: passed, 117 tests, 560 assertions.
+
+### Related Reports
+
+- `ai/reports/security/security-07-super-admin-user-management-plan.md`
+- `ai/reports/security/security-08-super-admin-user-management-implementation-report.md`
+
+### Rollback Note
+
+Rollback code by reverting the files listed above. Roll back the database change with `php artisan migrate:rollback --path=database/migrations/2026_06_12_000002_add_admin_role_status_to_users_table.php`.
+
 ## 2026-06-12 - STEP SECURITY-05 First Admin Provisioning Implementation
 
 Type: Security implementation

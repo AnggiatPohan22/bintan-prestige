@@ -2,7 +2,61 @@
 
 All notable project documentation and baseline improvement steps are tracked here.
 
+## 2026-06-13
+
+### STEP DOC-SYNC-SECURITY-08 - Documentation Sync for Super Admin & Admin User Management
+
+Changed:
+
+- Added `docs/admin/user-management.md`.
+- Added `docs/admin/dashboard-access-control.md`.
+- Updated security checklist with SECURITY-08 documentation sync status.
+- Updated security audit log with documentation-only sync entry.
+- Updated security baseline references for Super Admin/Admin access control.
+- Created `ai/reports/documentation/doc-sync-security-08-report.md`.
+
+Notes:
+
+- Documentation-only sync.
+- No Laravel runtime logic was changed.
+- No database, migration, route, controller, model, middleware, runtime view, config, public, or asset files were changed.
+- Public registration remains disabled.
+- First admin provisioning remains CLI-only.
+- No hidden superadmin, hardcoded credential, or role/permission package was introduced.
+- Granular module authorization remains future work.
+
 ## 2026-06-12
+
+### STEP SECURITY-08 - Super Admin & Admin User Management Implementation
+
+Changed:
+
+- Added `users.role`, `users.is_active`, and `users.created_by` through a new migration.
+- Added Super Admin and Admin role helpers to the User model.
+- Updated admin middleware to require active admin access.
+- Added inactive user login blocking.
+- Added `manage-users` Gate for Super Admin only.
+- Updated first admin provisioning to create an active `super_admin`.
+- Added Super Admin-only admin user management routes, controller, requests, and views.
+- Added dashboard navigation for Admin Users visible only to Super Admin.
+- Added focused Super Admin user management tests.
+- Updated security checklist, audit log, baseline, changelog, and SECURITY-08 report.
+
+Security impact:
+
+- Ordinary Admin can manage CMS content but cannot manage users.
+- Super Admin can create Admin and Super Admin accounts explicitly.
+- Inactive users cannot login or access admin.
+- Super Admin cannot deactivate themselves.
+- The only active Super Admin cannot be downgraded.
+- Public registration remains disabled.
+
+Verification:
+
+- `php artisan migrate` applied the SECURITY-08 migration.
+- Focused Super Admin suite passed with 10 tests and 29 assertions.
+- Focused auth/security suite passed with 32 tests and 98 assertions.
+- Full `php artisan test` passed with 117 tests and 560 assertions.
 
 ### STEP IMPROVE-02 - Documentation Sync After Security Baseline Chain
 

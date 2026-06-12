@@ -83,6 +83,16 @@
                 <span>Global Assets</span>
             </a>
 
+            @can('manage-users')
+                <a href="{{ route('admin.users.index') }}"
+                   class="group admin-sidebar__link {{ request()->routeIs('admin.users.*') ? 'admin-sidebar__link--active' : '' }}">
+                    <span class="admin-sidebar__icon">
+                        <i class="fa-solid fa-users-gear" aria-hidden="true"></i>
+                    </span>
+                    <span>Admin Users</span>
+                </a>
+            @endcan
+
             <p class="admin-sidebar__section-label">
                 Content
             </p>

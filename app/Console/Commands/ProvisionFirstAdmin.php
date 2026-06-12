@@ -76,6 +76,8 @@ class ProvisionFirstAdmin extends Command
         $user->email = $email;
         $user->password = Hash::make($password);
         $user->is_admin = true;
+        $user->role = User::ROLE_SUPER_ADMIN;
+        $user->is_active = true;
         $user->save();
 
         $this->info('First admin user created successfully.');

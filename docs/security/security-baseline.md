@@ -1,13 +1,13 @@
 # Security Baseline
 
-Date: 2026-06-12
-Status: Updated after STEP SECURITY-05 first admin provisioning implementation.
+Date: 2026-06-13
+Status: Updated after STEP DOC-SYNC-SECURITY-08 documentation sync.
 
 ## Executive Summary
 
-Bintan Prestige CMS has a stronger security baseline after the SECURITY-03 through SECURITY-05 chain. Public registration is disabled, admin routes now require an authenticated user with `users.is_admin = true`, non-admin login no longer redirects into the CMS, first-admin provisioning is CLI-only, and regression tests cover guest, non-admin, admin, public registration, first-admin provisioning, and public homepage access.
+Bintan Prestige CMS has a stronger security baseline after the SECURITY-03 through SECURITY-08 chain. Public registration is disabled, admin routes now require an authenticated active admin user, first-admin provisioning is CLI-only, and Super Admin can manage admin users from the dashboard without a complex permission package.
 
-The project is not yet fully security-hardened. SECURITY-05 adds the CLI-only first-admin provisioning command. The next implementation work should focus on granular controller-level policies and gates.
+The project is not yet fully security-hardened. SECURITY-08 adds the minimal Super Admin/Admin foundation. The next implementation work should focus on granular controller-level policies/gates for CMS content and settings actions.
 
 ## Security Fixes Already Applied
 
@@ -22,12 +22,30 @@ The project is not yet fully security-hardened. SECURITY-05 adds the CLI-only fi
 
 - Admin routes now use both `auth` and `admin` middleware.
 - The `users.is_admin` migration has been applied to the active database.
-- The `admin` middleware checks `User::isAdmin()`.
-- `User::isAdmin()` reads the boolean `users.is_admin` field.
+- The `users.role`, `users.is_active`, and `users.created_by` migration has been applied to the active database.
+- The `admin` middleware checks `User::canAccessAdmin()`.
+- `User::canAccessAdmin()` requires `is_admin = true`, `is_active = true`, and role `admin` or `super_admin`.
+- `User::isSuperAdmin()` identifies active Super Admin users.
+- No role/permission package is used for this phase.
 - The legacy `/dashboard` backend route also requires `admin`.
 - Guest access to `/admin/dashboard` redirects to `/login`.
 - Non-admin authenticated access to `/admin/dashboard` returns 403.
 - Admin authenticated access to `/admin/dashboard` returns 200.
+- Inactive admin authenticated access to `/admin/dashboard` returns 403.
+
+### Super Admin User Management
+
+- Admin user management lives under `admin.users.*`.
+- All admin user management routes require `auth`, `admin`, and `can:manage-users`.
+- The `manage-users` Gate allows only active Super Admin users.
+- Super Admin can create Admin and Super Admin users explicitly from the dashboard.
+- Ordinary Admin cannot access user management routes.
+- Super Admin cannot deactivate themselves.
+- The only active Super Admin cannot be downgraded.
+- Permanent user deletion was not added; deactivation is used instead.
+- User management does not use public registration.
+- User management does not use hidden superadmin logic.
+- No admin credential is hardcoded in the user-management flow.
 
 ### Registration Policy
 
@@ -50,8 +68,9 @@ The project is not yet fully security-hardened. SECURITY-05 adds the CLI-only fi
 - The command validates email format and uniqueness.
 - The command validates password strength and confirmation.
 - The command hashes the password with Laravel Hash before saving.
-- The command creates the first admin with `is_admin = true`.
+- The command creates the first admin with `is_admin = true`, `role = super_admin`, and `is_active = true`.
 - The command does not accept a password argument and does not print the password.
+- The command does not hardcode an email or password.
 
 ### Upload Validation
 
@@ -103,9 +122,9 @@ The STEP IMPROVE-01 scoped scan did not find:
 
 ### High Priority
 
-1. Granular admin authorization design
+1. Granular admin authorization implementation
 
-   SECURITY-04 maps policies and gates for products, categories, destinations, FAQs, page sections, product submodules, dashboard, and global assets. Implementation is still pending.
+   SECURITY-06 maps policies and gates for products, categories, destinations, FAQs, page sections, product submodules, dashboard, and global assets. Implementation is still pending for content/settings actions.
 
 2. Tracking script governance
 
@@ -131,7 +150,7 @@ The STEP IMPROVE-01 scoped scan did not find:
 
 4. Security audit logging
 
-   Security-sensitive admin setting changes should eventually have an audit-log strategy.
+   Security-sensitive admin setting and user-management changes should eventually have an audit-log strategy.
 
 ## Security Testing Baseline
 
@@ -140,13 +159,15 @@ Current focused tests:
 - `php artisan test tests/Feature/SecurityBaselineTest.php`
 - `php artisan test tests/Feature/Auth/AuthenticationTest.php tests/Feature/Auth/RegistrationTest.php tests/Feature/SecurityBaselineTest.php`
 - `php artisan test tests/Feature/Console/ProvisionFirstAdminCommandTest.php tests/Feature/Auth/AuthenticationTest.php tests/Feature/Auth/RegistrationTest.php tests/Feature/SecurityBaselineTest.php`
+- `php artisan test tests/Feature/Security/SuperAdminUserManagementTest.php`
 - `php artisan test tests/Feature/Admin`
+- `php artisan test`
 
 Recorded result:
 
-- Auth and security focused suite: passed, 14 tests, 24 assertions.
-- SECURITY-05 focused suite: passed, 20 tests, 62 assertions.
-- Admin feature suite: 58 passed, 4 failed, 352 assertions.
+- SECURITY-08 focused Super Admin suite: passed, 10 tests, 29 assertions.
+- SECURITY-08 auth/security focused suite: passed, 32 tests, 98 assertions.
+- Full test suite: passed, 117 tests, 560 assertions.
 
 Covered by test:
 
@@ -158,16 +179,19 @@ Covered by test:
 - Admin login redirects to admin dashboard.
 - Public homepage remains accessible.
 - First admin command creates an admin user.
+- First admin command creates a Super Admin user.
 - First admin command stores a hashed password.
 - First admin command stops if an admin already exists.
 - First admin command rejects duplicate email.
 - First admin command rejects password confirmation mismatch.
+- Super Admin can access admin user management.
+- Ordinary Admin cannot access admin user management.
+- Super Admin can create Admin and Super Admin users.
+- Inactive users cannot login or access admin.
+- Super Admin cannot deactivate themselves.
+- The only active Super Admin cannot be downgraded.
 - Image content with unsafe extension fails validation.
 - `.env.example` defaults `APP_DEBUG=false`.
-
-Admin suite note:
-
-- The remaining admin failures were in `tests/Feature/Admin/PageSectionMediaSlotTest.php` and were caused by existing page-section content/order assertions expecting historical keys such as `home.hero` and `home.faq`. They were not caused by the admin middleware gate.
 
 ## Related Files
 
@@ -193,7 +217,17 @@ Admin suite note:
 - `tests/Feature/Auth/RegistrationTest.php`
 - `app/Console/Commands/ProvisionFirstAdmin.php`
 - `tests/Feature/Console/ProvisionFirstAdminCommandTest.php`
+- `database/migrations/2026_06_12_000002_add_admin_role_status_to_users_table.php`
+- `app/Http/Controllers/Admin/UserManagementController.php`
+- `app/Http/Requests/Admin/StoreAdminUserRequest.php`
+- `app/Http/Requests/Admin/UpdateAdminUserRequest.php`
+- `resources/views/admin/users/index.blade.php`
+- `resources/views/admin/users/create.blade.php`
+- `resources/views/admin/users/edit.blade.php`
+- `tests/Feature/Security/SuperAdminUserManagementTest.php`
 - `docs/security/admin-provisioning.md`
+- `docs/admin/user-management.md`
+- `docs/admin/dashboard-access-control.md`
 
 ## Related Reports
 
@@ -205,11 +239,14 @@ Admin suite note:
 - `ai/reports/security/security-03-admin-access-fix-report.md`
 - `ai/reports/security/security-04-first-admin-provisioning-granular-authorization-plan.md`
 - `ai/reports/security/security-05-first-admin-provisioning-implementation-report.md`
+- `ai/reports/security/security-07-super-admin-user-management-plan.md`
+- `ai/reports/security/security-08-super-admin-user-management-implementation-report.md`
+- `ai/reports/documentation/doc-sync-security-08-report.md`
 
 ## Recommended Next Step
 
-Run STEP SECURITY-06 as a granular authorization implementation. Add Laravel-native policy/gate coverage for sensitive admin actions without introducing a complex role/permission package yet.
+Run the next granular authorization implementation step for CMS content and settings actions. Keep the new Super Admin/Admin foundation intact and avoid adding a complex role/permission package.
 
 ## Rollback Note
 
-Rollback STEP SECURITY-05 by reverting the command, command registration, tests, docs, and report updates. If a first admin was created through the command, remove or demote that specific user through an approved database operation after backup and operator confirmation.
+Rollback STEP SECURITY-08 by reverting the created/changed files from that step and running `php artisan migrate:rollback --path=database/migrations/2026_06_12_000002_add_admin_role_status_to_users_table.php`. Do not delete user rows without separate approval and backup.

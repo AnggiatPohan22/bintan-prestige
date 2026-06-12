@@ -1,7 +1,7 @@
 # Security Checklist
 
-Last updated: 2026-06-12
-Related step: STEP SECURITY-05 first admin provisioning implementation.
+Last updated: 2026-06-13
+Related step: STEP DOC-SYNC-SECURITY-08 documentation sync.
 
 ## Purpose
 
@@ -15,10 +15,14 @@ This checklist tracks the current security baseline for Bintan Prestige CMS. It 
 | `.env.example` debug default | Fixed | `APP_DEBUG=false` was set in STEP IMPROVE-01. |
 | Exposed key scan | Passed with expected matches | No raw secret was reported. Matches were config placeholders, docs, or expected key names. |
 | Admin route guest protection | Fixed / covered | `/admin/dashboard` guest access redirects guests to `/login`. |
-| Admin authorization roles/policies | Baseline fixed | Admin routes now require `auth` and `admin`; `admin` checks `users.is_admin`. Granular policies remain pending. |
+| Admin authorization roles/policies | Improved | Admin routes now require `auth` and `admin`; admin access requires `is_admin`, active status, and an admin role. User management uses the `manage-users` Gate for Super Admin only. |
 | Public registration policy | Fixed | Public `GET /register` and `POST /register` return 404. |
 | First admin provisioning | Fixed / covered | `php artisan admin:provision-first` provisions the first admin through a CLI-only interactive flow. |
 | `users.is_admin` schema | Applied | SECURITY-03 migration has been run and `users.is_admin` exists in the active database. |
+| Admin role/status schema | Applied | SECURITY-08 migration adds `users.role`, `users.is_active`, and `users.created_by`. |
+| Super Admin user management | Fixed / covered | Super Admin can manage admin users from the dashboard; ordinary Admin cannot access user management. |
+| Hidden superadmin policy | Passed | No hidden superadmin or hardcoded admin credential is documented or used. |
+| Role/permission package policy | Passed | No role/permission package is used for SECURITY-08; granular module permissions remain future work. |
 | Upload MIME validation | Improved | Existing `image`, `mimes`, and `max` rules remain in place. |
 | Upload extension validation | Fixed | STEP IMPROVE-01 added Laravel `extensions` rules to key upload surfaces. |
 | Upload storage filename guard | Fixed | `PageSectionImageService` now validates allowed extensions before storing page-section and site-asset uploads. |
@@ -88,11 +92,48 @@ This checklist tracks the current security baseline for Bintan Prestige CMS. It 
 - [x] Add command tests.
 - [x] Add admin provisioning documentation.
 
+## STEP SECURITY-08 Fix Checklist
+
+- [x] Add `users.role` through a new migration.
+- [x] Add `users.is_active` through a new migration.
+- [x] Add `users.created_by` through a new migration.
+- [x] Backfill the first existing admin to `super_admin` safely by user id.
+- [x] Keep `users.is_admin` as the outer CMS access flag.
+- [x] Add `User::canAccessAdmin()`.
+- [x] Add `User::isSuperAdmin()`.
+- [x] Require active admin status in admin middleware.
+- [x] Block inactive users during login.
+- [x] Add `manage-users` Gate for Super Admin only.
+- [x] Update first admin provisioning to create a `super_admin` with `is_active = true`.
+- [x] Add Super Admin-only admin user management routes.
+- [x] Add admin user management controller, validation, and views.
+- [x] Prevent ordinary Admin from accessing user management.
+- [x] Prevent Super Admin self-deactivation.
+- [x] Prevent downgrading the only active Super Admin.
+- [x] Keep public registration disabled.
+- [x] Add focused Super Admin user management tests.
+- [x] Run full test suite.
+
+## STEP DOC-SYNC-SECURITY-08 Checklist
+
+- [x] Document public registration remains disabled.
+- [x] Document first admin remains CLI-only.
+- [x] Document Super Admin full access and user-management capability.
+- [x] Document ordinary Admin dashboard/content access without user-management access.
+- [x] Document inactive users cannot access admin.
+- [x] Document no hidden superadmin.
+- [x] Document no hardcoded credentials.
+- [x] Document no role/permission package.
+- [x] Document granular module permissions remain future work.
+- [x] Add admin user management documentation.
+- [x] Add dashboard access-control documentation.
+
 ## Pending Security Checklist
 
-- [ ] Implement granular Laravel policies/gates after the first-admin command is stable.
+- [ ] Implement granular Laravel policies/gates for CMS content/settings actions after user management is stable.
 - [ ] Add authorization checks for sensitive admin actions.
 - [ ] Add role/policy tests for create/update/delete/settings actions.
+- [ ] Add audit logging for admin user management actions.
 - [ ] Create governance for admin-managed tracking scripts.
 - [ ] Add audit logging plan for security-sensitive admin settings.
 - [ ] Review production `.env` posture without committing secrets.
@@ -112,6 +153,11 @@ This checklist tracks the current security baseline for Bintan Prestige CMS. It 
 - `ai/reports/security/security-03-admin-access-fix-report.md`
 - `ai/reports/security/security-04-first-admin-provisioning-granular-authorization-plan.md`
 - `ai/reports/security/security-05-first-admin-provisioning-implementation-report.md`
+- `ai/reports/security/security-07-super-admin-user-management-plan.md`
+- `ai/reports/security/security-08-super-admin-user-management-implementation-report.md`
+- `ai/reports/documentation/doc-sync-security-08-report.md`
+- `docs/admin/user-management.md`
+- `docs/admin/dashboard-access-control.md`
 - `docs/security/admin-provisioning.md`
 
 ## Rollback Note

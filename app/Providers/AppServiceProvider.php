@@ -15,6 +15,7 @@ use App\Support\SeoDefaultSettings;
 use App\Support\SocialMediaLinkSettings;
 use App\Support\StructuredDataSettings;
 use App\Support\TrackingIntegrationSettings;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
@@ -34,6 +35,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Gate::define('manage-users', fn ($user) => $user->isSuperAdmin());
+
         View::composer([
             'frontend.partials.header',
             'frontend.partials.footer',
