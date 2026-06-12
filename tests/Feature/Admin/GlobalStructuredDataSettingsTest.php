@@ -17,7 +17,7 @@ class GlobalStructuredDataSettingsTest extends TestCase
 
     public function test_admin_can_manage_structured_data_settings_from_global_assets(): void
     {
-        $admin = User::factory()->create();
+        $admin = User::factory()->admin()->create();
 
         $response = $this->actingAs($admin)
             ->put(route('admin.settings.global-assets.structured-data.update'), [
@@ -61,7 +61,7 @@ class GlobalStructuredDataSettingsTest extends TestCase
 
     public function test_structured_data_tab_only_shows_structured_data_form(): void
     {
-        $admin = User::factory()->create();
+        $admin = User::factory()->admin()->create();
 
         $response = $this->actingAs($admin)
             ->get(route('admin.settings.global-assets.edit', ['tab' => 'structured-data']));

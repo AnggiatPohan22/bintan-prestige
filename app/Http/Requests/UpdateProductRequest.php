@@ -43,6 +43,7 @@ class UpdateProductRequest
                 'nullable',
                 'image',
                 'mimes:jpg,jpeg,png,webp',
+                'extensions:jpg,jpeg,png,webp',
                 'max:2048'
             ],
 
@@ -54,6 +55,7 @@ class UpdateProductRequest
             'gallery.*' => [
                 'image',
                 'mimes:jpg,jpeg,png,webp',
+                'extensions:jpg,jpeg,png,webp',
                 'max:2048',
             ],
 

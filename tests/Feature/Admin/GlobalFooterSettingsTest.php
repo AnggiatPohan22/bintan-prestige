@@ -14,7 +14,7 @@ class GlobalFooterSettingsTest extends TestCase
 
     public function test_admin_can_manage_footer_settings_from_global_assets_settings(): void
     {
-        $admin = User::factory()->create();
+        $admin = User::factory()->admin()->create();
 
         $response = $this->actingAs($admin)
             ->put(route('admin.settings.global-assets.footer-settings.update'), [
@@ -106,7 +106,7 @@ class GlobalFooterSettingsTest extends TestCase
 
     public function test_footer_settings_tab_only_shows_footer_form(): void
     {
-        $admin = User::factory()->create();
+        $admin = User::factory()->admin()->create();
 
         $response = $this->actingAs($admin)
             ->get(route('admin.settings.global-assets.edit', ['tab' => 'footer-settings']));
@@ -126,7 +126,7 @@ class GlobalFooterSettingsTest extends TestCase
 
     public function test_footer_layout_blocks_cannot_exceed_three_active_columns(): void
     {
-        $admin = User::factory()->create();
+        $admin = User::factory()->admin()->create();
 
         $response = $this->actingAs($admin)
             ->from(route('admin.settings.global-assets.edit', ['tab' => 'footer-settings']))

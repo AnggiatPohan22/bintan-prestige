@@ -17,7 +17,7 @@ class GlobalSeoDefaultSettingsTest extends TestCase
 
     public function test_admin_can_manage_seo_default_settings_from_global_assets(): void
     {
-        $admin = User::factory()->create();
+        $admin = User::factory()->admin()->create();
 
         $response = $this->actingAs($admin)
             ->put(route('admin.settings.global-assets.seo-default.update'), [
@@ -61,7 +61,7 @@ class GlobalSeoDefaultSettingsTest extends TestCase
 
     public function test_seo_default_tab_only_shows_seo_form(): void
     {
-        $admin = User::factory()->create();
+        $admin = User::factory()->admin()->create();
 
         $response = $this->actingAs($admin)
             ->get(route('admin.settings.global-assets.edit', ['tab' => 'seo-default']));

@@ -14,7 +14,7 @@ class GlobalNavigationSettingsTest extends TestCase
 
     public function test_admin_can_manage_header_navigation_from_global_assets_settings(): void
     {
-        $admin = User::factory()->create();
+        $admin = User::factory()->admin()->create();
 
         $response = $this->actingAs($admin)
             ->put(route('admin.settings.global-assets.navigation-settings.update'), [
@@ -98,7 +98,7 @@ class GlobalNavigationSettingsTest extends TestCase
 
     public function test_navigation_settings_tab_only_shows_navigation_form(): void
     {
-        $admin = User::factory()->create();
+        $admin = User::factory()->admin()->create();
 
         $response = $this->actingAs($admin)
             ->get(route('admin.settings.global-assets.edit', ['tab' => 'navigation-settings']));

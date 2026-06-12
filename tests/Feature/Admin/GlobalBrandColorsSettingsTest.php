@@ -14,7 +14,7 @@ class GlobalBrandColorsSettingsTest extends TestCase
 
     public function test_admin_can_manage_brand_colors_from_global_assets_settings(): void
     {
-        $admin = User::factory()->create();
+        $admin = User::factory()->admin()->create();
         $colors = collect(BrandColorSettings::fields())
             ->mapWithKeys(fn (array $field) => [$field['slug'] => $field['default']])
             ->all();
@@ -57,7 +57,7 @@ class GlobalBrandColorsSettingsTest extends TestCase
 
     public function test_brand_color_tab_only_shows_brand_color_form(): void
     {
-        $admin = User::factory()->create();
+        $admin = User::factory()->admin()->create();
 
         $response = $this->actingAs($admin)
             ->get(route('admin.settings.global-assets.edit', ['tab' => 'brand-colors']));

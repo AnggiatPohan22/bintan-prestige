@@ -15,7 +15,7 @@ class GlobalFaviconSettingsTest extends TestCase
 
     public function test_global_assets_page_uses_query_tabs_for_settings_sections(): void
     {
-        $admin = User::factory()->create();
+        $admin = User::factory()->admin()->create();
 
         $siteLogoResponse = $this->actingAs($admin)
             ->get(route('admin.settings.global-assets.edit', ['tab' => 'site-logo']));
@@ -38,7 +38,7 @@ class GlobalFaviconSettingsTest extends TestCase
     {
         Storage::fake('public');
 
-        $admin = User::factory()->create();
+        $admin = User::factory()->admin()->create();
 
         $response = $this->actingAs($admin)
             ->put(route('admin.settings.global-assets.favicon.update'), [

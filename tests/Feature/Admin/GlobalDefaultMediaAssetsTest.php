@@ -22,7 +22,7 @@ class GlobalDefaultMediaAssetsTest extends TestCase
     {
         Storage::fake('public');
 
-        $admin = User::factory()->create();
+        $admin = User::factory()->admin()->create();
 
         $response = $this->actingAs($admin)
             ->put(route('admin.settings.global-assets.default-media.update'), [
@@ -75,7 +75,7 @@ class GlobalDefaultMediaAssetsTest extends TestCase
 
     public function test_default_media_tab_only_shows_default_media_form(): void
     {
-        $admin = User::factory()->create();
+        $admin = User::factory()->admin()->create();
 
         $response = $this->actingAs($admin)
             ->get(route('admin.settings.global-assets.edit', ['tab' => 'default-media']));
@@ -96,7 +96,7 @@ class GlobalDefaultMediaAssetsTest extends TestCase
 
     public function test_default_media_tab_shows_saved_preview_and_reset_action(): void
     {
-        $admin = User::factory()->create();
+        $admin = User::factory()->admin()->create();
 
         $asset = SiteAsset::create([
             'key' => 'default_media.product',

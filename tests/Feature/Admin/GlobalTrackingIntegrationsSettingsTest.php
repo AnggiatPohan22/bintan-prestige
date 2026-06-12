@@ -17,7 +17,7 @@ class GlobalTrackingIntegrationsSettingsTest extends TestCase
 
     public function test_admin_can_manage_tracking_integrations_from_global_assets(): void
     {
-        $admin = User::factory()->create();
+        $admin = User::factory()->admin()->create();
 
         $response = $this->actingAs($admin)
             ->put(route('admin.settings.global-assets.tracking-integrations.update'), [
@@ -69,7 +69,7 @@ class GlobalTrackingIntegrationsSettingsTest extends TestCase
 
     public function test_tracking_integrations_tab_only_shows_tracking_form(): void
     {
-        $admin = User::factory()->create();
+        $admin = User::factory()->admin()->create();
 
         $response = $this->actingAs($admin)
             ->get(route('admin.settings.global-assets.edit', ['tab' => 'tracking-integrations']));

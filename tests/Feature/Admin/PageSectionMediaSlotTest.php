@@ -16,7 +16,7 @@ class PageSectionMediaSlotTest extends TestCase
 
     public function test_admin_page_sections_syncs_registered_product_pages(): void
     {
-        $admin = User::factory()->create();
+        $admin = User::factory()->admin()->create();
 
         $response = $this->actingAs($admin)
             ->get(route('admin.page-sections.index', ['page' => 'products.show']));
@@ -42,7 +42,7 @@ class PageSectionMediaSlotTest extends TestCase
 
     public function test_admin_page_sections_index_can_filter_by_page_key(): void
     {
-        $admin = User::factory()->create();
+        $admin = User::factory()->admin()->create();
 
         PageSection::create([
             'page_key' => 'home',
@@ -75,7 +75,7 @@ class PageSectionMediaSlotTest extends TestCase
 
     public function test_admin_page_sections_index_defaults_to_first_available_page(): void
     {
-        $admin = User::factory()->create();
+        $admin = User::factory()->admin()->create();
 
         PageSection::create([
             'page_key' => 'home',
@@ -104,7 +104,7 @@ class PageSectionMediaSlotTest extends TestCase
 
     public function test_admin_can_see_homepage_media_slots_on_section_edit_screen(): void
     {
-        $admin = User::factory()->create();
+        $admin = User::factory()->admin()->create();
         $section = PageSection::create([
             'page_key' => 'home',
             'section_key' => 'home.popular_tour',
@@ -126,7 +126,7 @@ class PageSectionMediaSlotTest extends TestCase
 
     public function test_admin_does_not_show_image_uploads_for_sections_without_frontend_media(): void
     {
-        $admin = User::factory()->create();
+        $admin = User::factory()->admin()->create();
         $section = PageSection::create([
             'page_key' => 'home',
             'section_key' => 'home.popular_products_intro',
@@ -149,7 +149,7 @@ class PageSectionMediaSlotTest extends TestCase
     {
         Storage::fake('public');
 
-        $admin = User::factory()->create();
+        $admin = User::factory()->admin()->create();
         $section = PageSection::create([
             'page_key' => 'home',
             'section_key' => 'home.popular_tour',
@@ -211,7 +211,7 @@ class PageSectionMediaSlotTest extends TestCase
     {
         Storage::fake('public');
 
-        $admin = User::factory()->create();
+        $admin = User::factory()->admin()->create();
         $section = PageSection::create([
             'page_key' => 'home',
             'section_key' => 'home.popular_tour',
@@ -270,7 +270,7 @@ class PageSectionMediaSlotTest extends TestCase
     {
         Storage::fake('public');
 
-        $admin = User::factory()->create();
+        $admin = User::factory()->admin()->create();
         $section = PageSection::create([
             'page_key' => 'home',
             'section_key' => 'home.about_journey',
@@ -436,7 +436,7 @@ class PageSectionMediaSlotTest extends TestCase
 
     public function test_admin_page_sections_index_uses_frontend_display_order(): void
     {
-        $admin = User::factory()->create();
+        $admin = User::factory()->admin()->create();
 
         $footerCta = PageSection::create([
             'page_key' => 'home',
@@ -471,7 +471,7 @@ class PageSectionMediaSlotTest extends TestCase
     {
         Storage::fake('public');
 
-        $admin = User::factory()->create();
+        $admin = User::factory()->admin()->create();
 
         $response = $this->actingAs($admin)
             ->put(route('admin.settings.global-assets.site-logo.update'), [

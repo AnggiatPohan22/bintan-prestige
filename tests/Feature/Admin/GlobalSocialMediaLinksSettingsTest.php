@@ -13,7 +13,7 @@ class GlobalSocialMediaLinksSettingsTest extends TestCase
 
     public function test_admin_can_manage_social_media_links_from_global_assets_settings(): void
     {
-        $admin = User::factory()->create();
+        $admin = User::factory()->admin()->create();
 
         $response = $this->actingAs($admin)
             ->put(route('admin.settings.global-assets.social-media-links.update'), [
@@ -63,7 +63,7 @@ class GlobalSocialMediaLinksSettingsTest extends TestCase
 
     public function test_social_media_links_tab_only_shows_social_links_form(): void
     {
-        $admin = User::factory()->create();
+        $admin = User::factory()->admin()->create();
 
         $response = $this->actingAs($admin)
             ->get(route('admin.settings.global-assets.edit', ['tab' => 'social-media-links']));
@@ -79,7 +79,7 @@ class GlobalSocialMediaLinksSettingsTest extends TestCase
 
     public function test_global_assets_tabs_use_horizontal_overflow(): void
     {
-        $admin = User::factory()->create();
+        $admin = User::factory()->admin()->create();
 
         $response = $this->actingAs($admin)
             ->get(route('admin.settings.global-assets.edit'));

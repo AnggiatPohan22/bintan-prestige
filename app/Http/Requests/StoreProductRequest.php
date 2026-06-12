@@ -82,6 +82,7 @@ class StoreProductRequest
                 'nullable',
                 'image',
                 'mimes:jpg,jpeg,png,webp',
+                'extensions:jpg,jpeg,png,webp',
                 'max:2048'
             ],
             'pickup_available' => ['nullable'],

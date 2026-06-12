@@ -14,7 +14,7 @@ use App\Http\Controllers\Admin\ProductNoteController;
 use App\Http\Controllers\Admin\SiteSettingController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware(['auth'])
+Route::middleware(['auth', 'admin'])
     ->prefix('admin')
     ->name('admin.')
     ->group(function () {

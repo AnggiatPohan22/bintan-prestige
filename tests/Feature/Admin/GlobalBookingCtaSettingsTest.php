@@ -16,7 +16,7 @@ class GlobalBookingCtaSettingsTest extends TestCase
 
     public function test_admin_can_manage_booking_cta_settings_from_global_assets(): void
     {
-        $admin = User::factory()->create();
+        $admin = User::factory()->admin()->create();
 
         $response = $this->actingAs($admin)
             ->put(route('admin.settings.global-assets.booking-cta.update'), [
@@ -57,7 +57,7 @@ class GlobalBookingCtaSettingsTest extends TestCase
 
     public function test_booking_cta_tab_only_shows_booking_cta_form(): void
     {
-        $admin = User::factory()->create();
+        $admin = User::factory()->admin()->create();
 
         $response = $this->actingAs($admin)
             ->get(route('admin.settings.global-assets.edit', ['tab' => 'booking-cta']));
