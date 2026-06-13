@@ -4,6 +4,22 @@ All notable project documentation and baseline improvement steps are tracked her
 
 ## 2026-06-13
 
+### STEP FRONTEND-04B - Homepage Hardcoded Copy Cleanup, No Schema
+
+Changed:
+
+- Added `App\Support\HomepageContent` to prepare editable homepage copy from PageSection fields and controlled `extra_data`.
+- Moved supported homepage copy sources out of Blade conditionals for search softcopy/labels, product section CTA/empty state, journey feature cards, category empty state, and FAQ fallback items.
+- Added controlled default `extra_data` values to canonical homepage PageSection registry defaults.
+- Kept Products, Categories, Destinations, Testimonials, and FAQs module-driven where applicable.
+- Added focused homepage copy cleanup tests.
+- Created `ai/reports/frontend/frontend-04b-homepage-hardcoded-copy-cleanup-report.md`.
+
+Notes:
+
+- No database schema, migration, route, model, package, homepage redesign, or page builder was added.
+- Remaining hardcoded testimonial cards, Why Choose Us cards, placeholder labels, newsletter placeholder behavior, and footer utility placeholder links are intentionally deferred.
+
 ### STEP FRONTEND-04A - Homepage Section Key and CTA CMS Sync
 
 Changed:

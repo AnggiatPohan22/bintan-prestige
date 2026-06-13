@@ -2,6 +2,7 @@
     $section = $sections['home.categories_intro'] ?? null;
     $destinationPlaceholder = \App\Support\DefaultMediaAssets::asset($siteAssets ?? collect(), 'destination');
     $destinationPlaceholderFit = \App\Support\DefaultMediaAssets::fit($defaultMediaSettings ?? [], 'destination');
+    $sectionContent = ($homepageContent ?? [])['categories'] ?? [];
 @endphp
 
 <section class="bp-category-section" id="home-categories" data-section-key="home.categories_intro" aria-labelledby="categories-title">
@@ -52,7 +53,7 @@
         @else
             <div class="product-empty">
                 <h3 class="product-empty__title">
-                    No categories available yet.
+                    {{ $sectionContent['empty_title'] ?? 'No categories available yet.' }}
                 </h3>
             </div>
         @endif

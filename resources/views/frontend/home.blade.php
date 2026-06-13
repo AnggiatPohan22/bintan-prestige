@@ -16,22 +16,12 @@
     $heroAnimation = $heroSection?->animation ?? 'ken-burns';
     $heroCtaUrl = \App\Support\PageSectionCta::safeUrl($heroSection?->button_url);
     $heroCtaText = $heroSection?->button_text;
+    $homepageContent = $homepageContent ?? [];
+    $searchContent = $homepageContent['search'] ?? [];
     $faqSection = $sections['home.faq'] ?? null;
     $faqVisual = $faqSection?->mediaSlot('frame', 'main_visual');
-    $fallbackFaqs = collect([
-        [
-            'question' => 'Can I arrange pickup from ferry terminal or resort?',
-            'answer' => 'Yes, pickup options can be arranged depending on package, meeting point, and route availability.',
-        ],
-        [
-            'question' => 'How do I confirm a booking?',
-            'answer' => 'Choose a package and contact us through WhatsApp to confirm date, guests, pickup, and availability.',
-        ],
-        [
-            'question' => 'Can packages be customized?',
-            'answer' => 'Many tours and transfers can be adjusted for timing, route, or pickup location.',
-        ],
-    ]);
+    $faqContent = $homepageContent['faq'] ?? [];
+    $fallbackFaqs = collect($faqContent['fallback_items'] ?? []);
     $faqItems = isset($faqs) && $faqs->count() ? $faqs : $fallbackFaqs;
 @endphp
 
@@ -91,9 +81,9 @@
             <div class="home-search__panel">
                 <form method="GET" action="{{ route('products.index') }}" class="home-search__form">
                     <label class="home-field">
-                        <span class="home-field__label">Destination</span>
+                        <span class="home-field__label">{{ $searchContent['destination_label'] ?? 'Destination' }}</span>
                         <select name="destination[]" class="home-field__control">
-                            <option value="">All Destinations</option>
+                            <option value="">{{ $searchContent['destination_placeholder'] ?? 'All Destinations' }}</option>
                             @foreach($destinations as $destination)
                                 <option value="{{ $destination->id }}">
                                     {{ $destination->name }}
@@ -103,9 +93,9 @@
                     </label>
 
                     <label class="home-field">
-                        <span class="home-field__label">Package Type</span>
+                        <span class="home-field__label">{{ $searchContent['category_label'] ?? 'Package Type' }}</span>
                         <select name="category[]" class="home-field__control">
-                            <option value="">All Categories</option>
+                            <option value="">{{ $searchContent['category_placeholder'] ?? 'All Categories' }}</option>
                             @foreach($categories as $category)
                                 <option value="{{ $category->id }}">
                                     {{ $category->name }}
@@ -115,13 +105,15 @@
                     </label>
 
                     <button type="submit" class="btn btn-submit home-button home-button--dark home-button--search">
-                        Find Packages
+                        {{ $searchContent['submit_label'] ?? 'Find Packages' }}
                     </button>
                 </form>
 
-                <p class="home-hero__softcopy text-muted">
-                    Discover premium Bintan packages with local assistance, flexible pickup, and simple WhatsApp booking.
-                </p>
+                @if(filled($searchContent['softcopy'] ?? null))
+                    <p class="home-hero__softcopy text-muted">
+                        {{ $searchContent['softcopy'] }}
+                    </p>
+                @endif
             </div>
         </div>
     </section>

@@ -9,6 +9,7 @@ use App\Models\Faq;
 use App\Models\PageSection;
 use App\Models\Product;
 use App\Services\GlobalSettingsService;
+use App\Support\HomepageContent;
 use App\Support\PageSectionRegistry;
 
 class HomeController extends Controller
@@ -29,6 +30,8 @@ class HomeController extends Controller
             ->orderBy('sort_order')
             ->get()
             ->keyBy('section_key');
+
+        $homepageContent = HomepageContent::fromSections($sections);
 
         $siteAssets = $globalSettings->siteAssets();
 
@@ -88,6 +91,7 @@ class HomeController extends Controller
                 'destinations',
                 'heroBackgroundUrl',
                 'sections',
+                'homepageContent',
                 'siteAssets',
                 'faqs'
             )

@@ -3,7 +3,10 @@
 namespace Tests\Feature\Frontend;
 
 use App\Models\Faq;
+use App\Models\Category;
+use App\Models\Destination;
 use App\Models\PageSection;
+use App\Models\Product;
 use App\Models\SiteSetting;
 use App\Services\GlobalSettingsService;
 use App\Support\BookingCtaSettings;
@@ -189,6 +192,183 @@ class HomepageCmsContentTest extends TestCase
         $response->assertSee('CMS FAQ question?');
         $response->assertSee('CMS FAQ answer.');
         $response->assertDontSee('Inactive FAQ question?');
+    }
+
+    public function test_homepage_uses_page_section_extra_data_for_supported_copy_cleanup(): void
+    {
+        PageSection::create([
+            'page_key' => 'home',
+            'section_key' => 'home.hero',
+            'label' => 'CMS Hero Label',
+            'title' => 'CMS Hero Title',
+            'description' => 'CMS hero description.',
+            'extra_data' => [
+                'search_destination_label' => 'CMS Destination Label',
+                'search_destination_placeholder' => 'CMS All Destinations',
+                'search_category_label' => 'CMS Package Label',
+                'search_category_placeholder' => 'CMS All Packages',
+                'search_submit_label' => 'Find CMS Packages',
+                'search_softcopy' => 'CMS search support copy.',
+            ],
+            'is_active' => true,
+            'sort_order' => 0,
+        ]);
+
+        PageSection::create([
+            'page_key' => 'home',
+            'section_key' => 'home.popular_products_intro',
+            'label' => 'CMS Products Label',
+            'title' => 'CMS Products Title',
+            'button_text' => 'Browse CMS Packages',
+            'button_url' => '/products?source=products-cms',
+            'extra_data' => [
+                'empty_title' => 'CMS product empty title',
+                'empty_text' => 'CMS product empty text.',
+            ],
+            'is_active' => true,
+            'sort_order' => 20,
+        ]);
+
+        PageSection::create([
+            'page_key' => 'home',
+            'section_key' => 'home.about_journey',
+            'label' => 'CMS Journey Label',
+            'title' => 'CMS Journey Title',
+            'description' => 'CMS Journey Description',
+            'extra_data' => [
+                'features' => [
+                    [
+                        'title' => 'CMS Journey Feature',
+                        'text' => 'CMS journey feature text.',
+                        'icon' => 'support',
+                    ],
+                ],
+            ],
+            'is_active' => true,
+            'sort_order' => 40,
+        ]);
+
+        PageSection::create([
+            'page_key' => 'home',
+            'section_key' => 'home.categories_intro',
+            'label' => 'CMS Category Label',
+            'title' => 'CMS Category Title',
+            'description' => 'CMS Category Description',
+            'extra_data' => [
+                'empty_title' => 'CMS category empty title',
+            ],
+            'is_active' => true,
+            'sort_order' => 50,
+        ]);
+
+        $response = $this->get(route('home'));
+
+        $response->assertOk();
+        $response->assertSee('CMS Destination Label');
+        $response->assertSee('CMS All Destinations');
+        $response->assertSee('CMS Package Label');
+        $response->assertSee('CMS All Packages');
+        $response->assertSee('Find CMS Packages');
+        $response->assertSee('CMS search support copy.');
+        $response->assertSee('Browse CMS Packages');
+        $response->assertSee('href="/products?source=products-cms"', false);
+        $response->assertSee('CMS product empty title');
+        $response->assertSee('CMS product empty text.');
+        $response->assertSee('CMS Journey Feature');
+        $response->assertSee('CMS journey feature text.');
+        $response->assertDontSee('Best Travel Agency');
+        $response->assertSee('CMS category empty title');
+    }
+
+    public function test_homepage_copy_fallbacks_remain_when_page_section_extra_data_is_empty(): void
+    {
+        PageSection::create([
+            'page_key' => 'home',
+            'section_key' => 'home.hero',
+            'label' => 'CMS Hero Label',
+            'title' => 'CMS Hero Title',
+            'extra_data' => [
+                'search_softcopy' => '',
+            ],
+            'is_active' => true,
+            'sort_order' => 0,
+        ]);
+
+        PageSection::create([
+            'page_key' => 'home',
+            'section_key' => 'home.about_journey',
+            'label' => 'CMS Journey Label',
+            'title' => 'CMS Journey Title',
+            'extra_data' => [
+                'features' => [],
+            ],
+            'is_active' => true,
+            'sort_order' => 40,
+        ]);
+
+        $response = $this->get(route('home'));
+
+        $response->assertOk();
+        $response->assertSee('Discover premium Bintan packages with local assistance, flexible pickup, and simple WhatsApp booking.');
+        $response->assertDontSee('Best Travel Agency');
+        $response->assertSee('Products coming soon');
+        $response->assertSee('Published tour packages will appear here.');
+    }
+
+    public function test_homepage_module_driven_data_stays_module_driven_after_copy_cleanup(): void
+    {
+        $category = Category::factory()->create([
+            'name' => 'CMS Tour Category',
+            'is_active' => true,
+        ]);
+        $destination = Destination::factory()->create([
+            'name' => 'CMS Destination',
+            'is_active' => true,
+        ]);
+        Product::factory()->create([
+            'category_id' => $category->id,
+            'destination_id' => $destination->id,
+            'name' => 'Module Product Name',
+            'status' => 'published',
+        ]);
+        Faq::create([
+            'question' => 'Module FAQ question?',
+            'answer' => 'Module FAQ answer.',
+            'is_active' => true,
+            'sort_order' => 1,
+        ]);
+
+        $response = $this->get(route('home'));
+
+        $response->assertOk();
+        $response->assertSee('CMS Tour Category');
+        $response->assertSee('CMS Destination');
+        $response->assertSee('Module Product Name');
+        $response->assertSee('Module FAQ question?');
+        $response->assertSee('Module FAQ answer.');
+    }
+
+    public function test_homepage_blade_files_do_not_query_database_directly(): void
+    {
+        $files = [
+            resource_path('views/frontend/home.blade.php'),
+            resource_path('views/frontend/sections/popular-products.blade.php'),
+            resource_path('views/frontend/sections/about-journey.blade.php'),
+            resource_path('views/frontend/sections/categories.blade.php'),
+            resource_path('views/frontend/sections/popular-tour.blade.php'),
+            resource_path('views/frontend/sections/explore-banner.blade.php'),
+            resource_path('views/frontend/sections/testimonials.blade.php'),
+            resource_path('views/frontend/partials/manual-ads.blade.php'),
+        ];
+
+        foreach ($files as $file) {
+            $contents = file_get_contents($file);
+
+            $this->assertStringNotContainsString('::query(', $contents, $file);
+            $this->assertStringNotContainsString('DB::', $contents, $file);
+            $this->assertStringNotContainsString('->where(', $contents, $file);
+            $this->assertStringNotContainsString('->get(', $contents, $file);
+        }
     }
 
     private function siteSetting(string $key, string $value, string $type, string $group): SiteSetting

@@ -41,7 +41,15 @@ class PageSectionRegistry
                     'title' => 'BINTAN PRESTIGE',
                     'description' => 'Private tours, island transfers, and curated experiences designed for a smoother premium escape.',
                     'sort_order' => 0,
-                    'extra_data' => ['animation' => 'ken-burns'],
+                    'extra_data' => [
+                        'animation' => 'ken-burns',
+                        'search_destination_label' => 'Destination',
+                        'search_destination_placeholder' => 'All Destinations',
+                        'search_category_label' => 'Package Type',
+                        'search_category_placeholder' => 'All Categories',
+                        'search_submit_label' => 'Find Packages',
+                        'search_softcopy' => 'Discover premium Bintan packages with local assistance, flexible pickup, and simple WhatsApp booking.',
+                    ],
                 ],
                 [
                     'section_key' => 'home.popular_tour',
@@ -56,7 +64,13 @@ class PageSectionRegistry
                     'section_key' => 'home.popular_products_intro',
                     'label' => 'Most Popular Tour Packages',
                     'title' => 'Something Amazing Waiting For You',
+                    'button_text' => 'View All Package',
+                    'button_url' => '/products',
                     'sort_order' => 20,
+                    'extra_data' => [
+                        'empty_title' => 'Products coming soon',
+                        'empty_text' => 'Published tour packages will appear here.',
+                    ],
                 ],
                 [
                     'section_key' => 'home.manual_ads',
@@ -75,6 +89,20 @@ class PageSectionRegistry
                     'button_text' => 'BOOK YOUR TRIP',
                     'button_url' => '/products',
                     'sort_order' => 40,
+                    'extra_data' => [
+                        'features' => [
+                            [
+                                'title' => 'Best Travel Agency',
+                                'text' => 'Thoughtfully arranged Bintan travel experiences for guests who want comfort, quality, and reliable service.',
+                                'icon' => 'shield',
+                            ],
+                            [
+                                'title' => 'Secure Journey With Us',
+                                'text' => 'Travel with confidence through organized transfers, curated tours, and clear guest support.',
+                                'icon' => 'support',
+                            ],
+                        ],
+                    ],
                 ],
                 [
                     'section_key' => 'home.categories_intro',
@@ -82,6 +110,9 @@ class PageSectionRegistry
                     'title' => 'Popular Travel Categories Available In Bintan',
                     'description' => 'Explore Bintan by travel style and discover curated packages that match your journey.',
                     'sort_order' => 50,
+                    'extra_data' => [
+                        'empty_title' => 'No categories available yet.',
+                    ],
                 ],
                 [
                     'section_key' => 'home.explore_banner',
@@ -104,6 +135,22 @@ class PageSectionRegistry
                     'label' => 'Before your journey',
                     'title' => 'All you should know before embarking on your Bintan journey',
                     'sort_order' => 80,
+                    'extra_data' => [
+                        'fallback_items' => [
+                            [
+                                'question' => 'Can I arrange pickup from ferry terminal or resort?',
+                                'answer' => 'Yes, pickup options can be arranged depending on package, meeting point, and route availability.',
+                            ],
+                            [
+                                'question' => 'How do I confirm a booking?',
+                                'answer' => 'Choose a package and contact us through WhatsApp to confirm date, guests, pickup, and availability.',
+                            ],
+                            [
+                                'question' => 'Can packages be customized?',
+                                'answer' => 'Many tours and transfers can be adjusted for timing, route, or pickup location.',
+                            ],
+                        ],
+                    ],
                 ],
                 [
                     'section_key' => 'home.footer_cta',

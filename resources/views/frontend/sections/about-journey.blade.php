@@ -5,6 +5,8 @@
     $sectionPlaceholder = \App\Support\DefaultMediaAssets::asset($siteAssets ?? collect(), 'section');
     $sectionPlaceholderFit = \App\Support\DefaultMediaAssets::fit($defaultMediaSettings ?? [], 'section');
     $buttonUrl = \App\Support\PageSectionCta::safeUrl($section?->button_url, route('products.index'));
+    $sectionContent = ($homepageContent ?? [])['about_journey'] ?? [];
+    $journeyFeatures = collect($sectionContent['features'] ?? []);
 @endphp
 
 <section class="bp-journey-section" id="home-about-journey" data-section-key="home.about_journey" aria-labelledby="journey-title">
@@ -22,47 +24,44 @@
                 {{ $section?->description ?? 'Are you tired of the typical tourist destinations and looking to step out of your comfort zone? Adventure travel may be the perfect solution for you! Here are four.' }}
             </p>
 
-            <div class="bp-journey-features">
-                <article class="bp-journey-feature">
-                    <span class="bp-journey-feature__icon" aria-hidden="true">
-                        <svg viewBox="0 0 24 24">
-                            <path d="M12 3l7 4v5c0 4.3-2.9 8.3-7 9.4-4.1-1.1-7-5.1-7-9.4V7l7-4z"></path>
-                            <path d="M9 12l2 2 4-5"></path>
-                        </svg>
-                    </span>
+            @if($journeyFeatures->isNotEmpty())
+                <div class="bp-journey-features">
+                    @foreach($journeyFeatures as $feature)
+                        @continue(! filled($feature['title'] ?? null) && ! filled($feature['text'] ?? null))
+                        <article class="bp-journey-feature">
+                            <span class="bp-journey-feature__icon" aria-hidden="true">
+                                @if(($feature['icon'] ?? 'shield') === 'support')
+                                    <svg viewBox="0 0 24 24">
+                                        <path d="M4 12a8 8 0 0 1 16 0"></path>
+                                        <path d="M6 12v5a2 2 0 0 0 2 2h2"></path>
+                                        <path d="M18 12v5a2 2 0 0 1-2 2h-2"></path>
+                                        <path d="M10 19h4"></path>
+                                    </svg>
+                                @else
+                                    <svg viewBox="0 0 24 24">
+                                        <path d="M12 3l7 4v5c0 4.3-2.9 8.3-7 9.4-4.1-1.1-7-5.1-7-9.4V7l7-4z"></path>
+                                        <path d="M9 12l2 2 4-5"></path>
+                                    </svg>
+                                @endif
+                            </span>
 
-                    <div>
-                        <h3 class="bp-journey-feature__title title-card">
-                            Best Travel Agency
-                        </h3>
+                            <div>
+                                @if(filled($feature['title'] ?? null))
+                                    <h3 class="bp-journey-feature__title title-card">
+                                        {{ $feature['title'] }}
+                                    </h3>
+                                @endif
 
-                        <p class="bp-journey-feature__text text-muted">
-                            Thoughtfully arranged Bintan travel experiences for guests who want comfort, quality, and reliable service.
-                        </p>
-                    </div>
-                </article>
-
-                <article class="bp-journey-feature">
-                    <span class="bp-journey-feature__icon" aria-hidden="true">
-                        <svg viewBox="0 0 24 24">
-                            <path d="M4 12a8 8 0 0 1 16 0"></path>
-                            <path d="M6 12v5a2 2 0 0 0 2 2h2"></path>
-                            <path d="M18 12v5a2 2 0 0 1-2 2h-2"></path>
-                            <path d="M10 19h4"></path>
-                        </svg>
-                    </span>
-
-                    <div>
-                        <h3 class="bp-journey-feature__title title-card">
-                            Secure Journey With Us
-                        </h3>
-
-                        <p class="bp-journey-feature__text text-muted">
-                            Travel with confidence through organized transfers, curated tours, and clear guest support.
-                        </p>
-                    </div>
-                </article>
-            </div>
+                                @if(filled($feature['text'] ?? null))
+                                    <p class="bp-journey-feature__text text-muted">
+                                        {{ $feature['text'] }}
+                                    </p>
+                                @endif
+                            </div>
+                        </article>
+                    @endforeach
+                </div>
+            @endif
 
             <a href="{{ $buttonUrl }}" class="btn btn-primary btn-lg bp-journey-cta">
                 {{ $section?->button_text ?? 'BOOK YOUR TRIP' }}
