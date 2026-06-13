@@ -81,6 +81,18 @@ class HomeController extends Controller
             ->orderBy('name')
             ->get();
 
+        $homeDestinations = $destinations
+            ->take(4)
+            ->map(fn (Destination $destination) => [
+                'id' => $destination->id,
+                'slug' => $destination->slug,
+                'name' => $destination->name,
+                'description' => $destination->description,
+                'image_url' => $destination->image ? asset('storage/' . $destination->image) : null,
+                'products_count' => (int) ($destination->products_count ?? 0),
+            ])
+            ->values();
+
         return view(
             'frontend.home',
             compact(
@@ -89,6 +101,7 @@ class HomeController extends Controller
                 'homeProductCategories',
                 'categories',
                 'destinations',
+                'homeDestinations',
                 'heroBackgroundUrl',
                 'sections',
                 'homepageContent',

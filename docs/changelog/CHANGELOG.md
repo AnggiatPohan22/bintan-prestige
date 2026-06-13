@@ -4,6 +4,22 @@ All notable project documentation and baseline improvement steps are tracked her
 
 ## 2026-06-13
 
+### STEP FRONTEND-04C - Destination, Review & Final CTA Sync
+
+Changed:
+
+- Synced the homepage destination card section with the existing Destination module collection.
+- Kept the legacy `home.categories_intro` PageSection key while rendering active Destination records for the homepage card grid.
+- Moved testimonial fallback items out of Blade into `App\Support\HomepageContent`; no review table, model, migration, or CRUD was added.
+- Confirmed Footer CTA continues to use `home.footer_cta` copy with Global Settings WhatsApp fallback when CMS URL is empty or invalid.
+- Added focused homepage regression tests for active/inactive/soft-deleted Destinations, missing Destination images, testimonial fallback, and Footer CTA Global Settings fallback.
+- Created `ai/reports/frontend/frontend-04c-destination-review-final-cta-sync-report.md`.
+
+Notes:
+
+- No database schema, migration, route, model, package, homepage redesign, review module, page builder, header, footer layout, product listing, or product detail flow was changed.
+- Granular testimonial/review CMS management remains a future planning item.
+
 ### STEP FRONTEND-04B - Homepage Hardcoded Copy Cleanup, No Schema
 
 Changed:

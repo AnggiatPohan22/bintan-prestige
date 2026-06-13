@@ -107,11 +107,11 @@ class PageSectionRegistry
                 [
                     'section_key' => 'home.categories_intro',
                     'label' => 'Next Adventure Destination',
-                    'title' => 'Popular Travel Categories Available In Bintan',
-                    'description' => 'Explore Bintan by travel style and discover curated packages that match your journey.',
+                    'title' => 'Popular Travel Destinations Available In Bintan',
+                    'description' => 'Explore Bintan by destination and discover curated packages that match your journey.',
                     'sort_order' => 50,
                     'extra_data' => [
-                        'empty_title' => 'No categories available yet.',
+                        'empty_title' => 'No destinations available yet.',
                     ],
                 ],
                 [

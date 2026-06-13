@@ -348,6 +348,134 @@ class HomepageCmsContentTest extends TestCase
         $response->assertSee('Module FAQ answer.');
     }
 
+    public function test_homepage_destination_section_uses_active_destination_module_data(): void
+    {
+        $category = Category::create([
+            'name' => 'Tour Packages',
+            'slug' => 'tour-packages',
+            'is_active' => true,
+        ]);
+
+        $activeDestination = Destination::create([
+            'name' => 'Lagoi Bay',
+            'slug' => 'lagoi-bay',
+            'description' => 'Premium resort coast in Bintan.',
+            'image' => 'destinations/lagoi-bay.jpg',
+            'is_active' => true,
+        ]);
+
+        Destination::create([
+            'name' => 'Inactive Destination',
+            'slug' => 'inactive-destination',
+            'is_active' => false,
+        ]);
+
+        $deletedDestination = Destination::create([
+            'name' => 'Deleted Destination',
+            'slug' => 'deleted-destination',
+            'is_active' => true,
+        ]);
+        $deletedDestination->delete();
+
+        Product::factory()->create([
+            'category_id' => $category->id,
+            'destination_id' => $activeDestination->id,
+            'name' => 'Lagoi Private Tour',
+            'status' => 'published',
+        ]);
+
+        $response = $this->get(route('home'));
+
+        $response->assertOk();
+        $response->assertSee('Popular Travel Destinations Available In Bintan');
+        $response->assertSee('Lagoi Bay');
+        $response->assertSee('data-destination-slug="lagoi-bay"', false);
+        $response->assertSee('storage/destinations/lagoi-bay.jpg', false);
+        $response->assertSee('destination%5B0%5D=' . $activeDestination->id, false);
+        $response->assertSee('01 Package');
+        $response->assertDontSee('Inactive Destination');
+        $response->assertDontSee('Deleted Destination');
+    }
+
+    public function test_homepage_destination_section_has_safe_empty_and_missing_image_states(): void
+    {
+        $destination = Destination::create([
+            'name' => 'Trikora Coast',
+            'slug' => 'trikora-coast',
+            'description' => 'Quiet coast for scenic island routes.',
+            'image' => null,
+            'is_active' => true,
+        ]);
+
+        $response = $this->get(route('home'));
+
+        $response->assertOk();
+        $response->assertSee('Trikora Coast');
+        $response->assertSee('Destination Image');
+        $response->assertSee('destination%5B0%5D=' . $destination->id, false);
+
+        $destination->update(['is_active' => false]);
+
+        $emptyResponse = $this->get(route('home'));
+
+        $emptyResponse->assertOk();
+        $emptyResponse->assertSee('No destinations available yet.');
+        $emptyResponse->assertDontSee('Trikora Coast');
+    }
+
+    public function test_homepage_review_section_uses_static_fallback_when_no_review_module_exists(): void
+    {
+        PageSection::create([
+            'page_key' => 'home',
+            'section_key' => 'home.testimonials',
+            'label' => 'CMS Testimonial Label',
+            'title' => 'CMS Testimonial Title',
+            'description' => 'CMS testimonial intro.',
+            'is_active' => true,
+            'sort_order' => 70,
+        ]);
+
+        $response = $this->get(route('home'));
+
+        $response->assertOk();
+        $response->assertSee('CMS Testimonial Label');
+        $response->assertSee('CMS Testimonial Title');
+        $response->assertSee('CMS testimonial intro.');
+        $response->assertSee('Floyd Miles');
+        $response->assertSee('Guest Traveller');
+        $response->assertSee('Our Bintan trip was smooth from pickup to the tour arrangement.');
+    }
+
+    public function test_homepage_footer_cta_uses_global_whatsapp_when_cms_url_is_empty(): void
+    {
+        PageSection::create([
+            'page_key' => 'home',
+            'section_key' => 'home.footer_cta',
+            'label' => 'CMS Footer CTA Label',
+            'title' => 'CMS Footer CTA Title',
+            'description' => 'CMS footer CTA description.',
+            'button_text' => 'Chat With Concierge',
+            'button_url' => '',
+            'is_active' => true,
+            'sort_order' => 90,
+        ]);
+
+        $this->siteSetting('booking_cta.enabled', '1', 'boolean', BookingCtaSettings::GROUP);
+        $this->siteSetting('booking_cta.use_on_footer', '1', 'boolean', BookingCtaSettings::GROUP);
+        $this->siteSetting('booking_cta.whatsapp_number_source', 'override', 'select', BookingCtaSettings::GROUP);
+        $this->siteSetting('booking_cta.whatsapp_number_override', '628111222333', 'text', BookingCtaSettings::GROUP);
+
+        $response = $this->get(route('home'));
+
+        $response->assertOk();
+        $response->assertSee('CMS Footer CTA Label');
+        $response->assertSee('CMS Footer CTA Title');
+        $response->assertSee('CMS footer CTA description.');
+        $response->assertSee('Chat With Concierge');
+        $response->assertSee('https://wa.me/628111222333', false);
+        $response->assertDontSee('href=""', false);
+    }
+
     public function test_homepage_blade_files_do_not_query_database_directly(): void
     {
         $files = [

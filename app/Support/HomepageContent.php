@@ -13,6 +13,8 @@ class HomepageContent
             'popular_products' => self::popularProducts($sections),
             'about_journey' => self::aboutJourney($sections),
             'categories' => self::categories($sections),
+            'destinations' => self::destinations($sections),
+            'testimonials' => self::testimonials(),
             'faq' => self::faq($sections),
         ];
     }
@@ -70,6 +72,44 @@ class HomepageContent
 
         return [
             'empty_title' => self::text($extra, 'empty_title', 'No categories available yet.'),
+        ];
+    }
+
+    private static function destinations(Collection $sections): array
+    {
+        $extra = self::extra($sections, 'home.categories_intro');
+
+        return [
+            'empty_title' => self::text($extra, 'empty_title', 'No destinations available yet.'),
+        ];
+    }
+
+    private static function testimonials(): array
+    {
+        return [
+            'fallback_items' => [
+                [
+                    'name' => 'Floyd Miles',
+                    'role' => 'Guest Traveller',
+                    'text' => 'Our Bintan trip was smooth from pickup to the tour arrangement. Everything felt organized, comfortable, and professional.',
+                    'rating' => 4,
+                    'initials' => 'FM',
+                ],
+                [
+                    'name' => 'Esther Howard',
+                    'role' => 'Family Traveller',
+                    'text' => 'The service was very helpful and easy to communicate with. The team made our island activity feel simple and enjoyable.',
+                    'rating' => 4,
+                    'initials' => 'EH',
+                ],
+                [
+                    'name' => 'Albert Flores',
+                    'role' => 'Resort Guest',
+                    'text' => 'Great experience with clear booking support and reliable transfer service. Highly recommended for guests visiting Bintan.',
+                    'rating' => 4,
+                    'initials' => 'AF',
+                ],
+            ],
         ];
     }
 
