@@ -4,6 +4,29 @@ All notable project documentation and baseline improvement steps are tracked her
 
 ## 2026-06-13
 
+### STEP DB-06 - Global Settings Service & Cache Implementation
+
+Changed:
+
+- Added `App\Services\GlobalSettingsService` for public global settings and active site assets.
+- Replaced repeated global settings queries in `AppServiceProvider` with cached service reads.
+- Added scoped cache invalidation for `SiteSetting` and `SiteAsset` saves/deletes.
+- Updated cache payload format to primitive arrays so stale object payloads cannot break typed service properties.
+- Added regression coverage for stale invalid cache payloads on `/dashboard`.
+- Updated homepage site asset loading to use the global settings service.
+- Added focused cache/invalidation tests.
+- Added performance/admin/architecture documentation for global settings cache.
+- Created `ai/reports/performance/db-06-global-settings-cache-implementation-report.md`.
+
+Notes:
+
+- No database schema, migration, route, layout, package, or product index was changed.
+- Cache keys are `global_settings.public.v1` and `global_assets.public.v1`.
+- Cache TTL is 30 minutes.
+- Legacy/invalid cache payloads are forgotten and rebuilt from database data.
+- Public registration and admin authorization were not changed.
+- Full `php artisan test` passed with 136 tests and 603 assertions after regression coverage was added.
+
 ### STEP DB-04 - Product Price Unique Index & Safe Update Flow Implementation
 
 Changed:

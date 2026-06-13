@@ -8,11 +8,11 @@ use App\Models\Destination;
 use App\Models\Faq;
 use App\Models\PageSection;
 use App\Models\Product;
-use App\Models\SiteAsset;
+use App\Services\GlobalSettingsService;
 
 class HomeController extends Controller
 {
-    public function index()
+    public function index(GlobalSettingsService $globalSettings)
     {
         $heroBackgroundUrl = null;
 
@@ -24,10 +24,7 @@ class HomeController extends Controller
             ->get()
             ->keyBy('section_key');
 
-        $siteAssets = SiteAsset::query()
-            ->where('is_active', true)
-            ->get()
-            ->keyBy('key');
+        $siteAssets = $globalSettings->siteAssets();
 
         $faqs = Faq::query()
             ->active()

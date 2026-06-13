@@ -18,4 +18,10 @@ class SiteSetting extends Model
     protected $casts = [
         'is_active' => 'boolean',
     ];
+
+    protected static function booted(): void
+    {
+        static::saved(fn () => app(\App\Services\GlobalSettingsService::class)->forgetSettingsCache());
+        static::deleted(fn () => app(\App\Services\GlobalSettingsService::class)->forgetSettingsCache());
+    }
 }

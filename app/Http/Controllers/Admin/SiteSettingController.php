@@ -179,7 +179,8 @@ class SiteSettingController extends Controller
             if ($alt !== null) {
                 SiteAsset::query()
                     ->where('key', $variant['key'])
-                    ->update(['alt' => $alt]);
+                    ->first()
+                    ?->update(['alt' => $alt]);
             }
         }
 
@@ -679,7 +680,8 @@ class SiteSettingController extends Controller
         } elseif (array_key_exists('og_image_alt', $settings)) {
             SiteAsset::query()
                 ->where('key', SeoDefaultSettings::OG_IMAGE_KEY)
-                ->update(['alt' => $settings['og_image_alt']]);
+                ->first()
+                ?->update(['alt' => $settings['og_image_alt']]);
         }
 
         return redirect()
@@ -829,7 +831,8 @@ class SiteSettingController extends Controller
             if ($alt !== null) {
                 SiteAsset::query()
                     ->where('key', $variant['key'])
-                    ->update(['alt' => $alt]);
+                    ->first()
+                    ?->update(['alt' => $alt]);
             }
         }
 

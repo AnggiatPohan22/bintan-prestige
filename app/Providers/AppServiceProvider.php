@@ -2,21 +2,8 @@
 
 namespace App\Providers;
 
-use App\Models\SiteAsset;
-use App\Models\SiteSetting;
-use App\Support\BrandColorSettings;
-use App\Support\BookingCtaSettings;
-use App\Support\BusinessIdentitySettings;
-use App\Support\ContactInformationSettings;
-use App\Support\DefaultMediaAssets;
-use App\Support\FooterSettings;
-use App\Support\NavigationSettings;
-use App\Support\SeoDefaultSettings;
-use App\Support\SocialMediaLinkSettings;
-use App\Support\StructuredDataSettings;
-use App\Support\TrackingIntegrationSettings;
+use App\Services\GlobalSettingsService;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
@@ -27,7 +14,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->singleton(GlobalSettingsService::class);
     }
 
     /**
@@ -46,151 +33,40 @@ class AppServiceProvider extends ServiceProvider
             'layouts.app',
             'layouts.guest',
         ], function ($view) {
-            if (! array_key_exists('siteAssets', $view->getData())) {
-                $view->with('siteAssets', SiteAsset::query()
-                    ->where('is_active', true)
-                    ->get()
-                    ->keyBy('key'));
+            $viewData = $view->getData();
+            $globalSettings = null;
+            $resolveGlobalSettings = function () use (&$globalSettings): array {
+                return $globalSettings ??= app(GlobalSettingsService::class)->viewData();
+            };
+
+            foreach ([
+                'siteAssets',
+                'brandColors',
+                'businessIdentity',
+                'navigationSettings',
+                'footerSettings',
+                'seoDefaultSettings',
+                'trackingIntegrationSettings',
+                'bookingCtaSettings',
+                'defaultMediaSettings',
+                'structuredDataSettings',
+            ] as $key) {
+                if (! array_key_exists($key, $viewData)) {
+                    $globalSettings = $resolveGlobalSettings();
+                    $view->with($key, $globalSettings[$key]);
+                }
             }
 
-            $siteSettingsTableExists = Schema::hasTable('site_settings');
-
-            if (! array_key_exists('brandColors', $view->getData())) {
-                $brandColorSettings = $siteSettingsTableExists
-                    ? SiteSetting::query()
-                        ->where('group', BrandColorSettings::GROUP)
-                        ->where('is_active', true)
-                        ->get()
-                        ->keyBy('key')
-                    : collect();
-
-                $view->with('brandColors', BrandColorSettings::valuesFromSettings($brandColorSettings));
+            if (! array_key_exists('contactInformation', $viewData)) {
+                $globalSettings = $resolveGlobalSettings();
+                $view->with('contactInformation', $globalSettings['contactInformation']);
+                $view->with('contactWhatsappUrl', $globalSettings['contactWhatsappUrl']);
             }
 
-            if (! array_key_exists('businessIdentity', $view->getData())) {
-                $identitySettings = $siteSettingsTableExists
-                    ? SiteSetting::query()
-                        ->where('group', BusinessIdentitySettings::GROUP)
-                        ->where('is_active', true)
-                        ->get()
-                        ->keyBy('key')
-                    : collect();
-
-                $view->with('businessIdentity', BusinessIdentitySettings::valuesFromSettings($identitySettings));
-            }
-
-            if (! array_key_exists('contactInformation', $view->getData())) {
-                $contactSettings = $siteSettingsTableExists
-                    ? SiteSetting::query()
-                        ->where('group', ContactInformationSettings::GROUP)
-                        ->where('is_active', true)
-                        ->get()
-                        ->keyBy('key')
-                    : collect();
-
-                $contactInformation = ContactInformationSettings::valuesFromSettings($contactSettings);
-
-                $view->with('contactInformation', $contactInformation);
-                $view->with('contactWhatsappUrl', ContactInformationSettings::whatsappUrl($contactInformation));
-            }
-
-            if (! array_key_exists('socialMediaLinks', $view->getData())) {
-                $socialSettings = $siteSettingsTableExists
-                    ? SiteSetting::query()
-                        ->where('group', SocialMediaLinkSettings::GROUP)
-                        ->where('is_active', true)
-                        ->get()
-                        ->keyBy('key')
-                    : collect();
-
-                $socialMediaLinks = SocialMediaLinkSettings::valuesFromSettings($socialSettings);
-
-                $view->with('socialMediaLinks', $socialMediaLinks);
-                $view->with('activeSocialMediaLinks', SocialMediaLinkSettings::activeLinks($socialMediaLinks));
-            }
-
-            if (! array_key_exists('navigationSettings', $view->getData())) {
-                $navigationRows = $siteSettingsTableExists
-                    ? SiteSetting::query()
-                        ->where('group', NavigationSettings::GROUP)
-                        ->where('is_active', true)
-                        ->get()
-                        ->keyBy('key')
-                    : collect();
-
-                $view->with('navigationSettings', NavigationSettings::valuesFromSettings($navigationRows));
-            }
-
-            if (! array_key_exists('footerSettings', $view->getData())) {
-                $footerRows = $siteSettingsTableExists
-                    ? SiteSetting::query()
-                        ->where('group', FooterSettings::GROUP)
-                        ->where('is_active', true)
-                        ->get()
-                        ->keyBy('key')
-                    : collect();
-
-                $view->with('footerSettings', FooterSettings::valuesFromSettings($footerRows));
-            }
-
-            if (! array_key_exists('seoDefaultSettings', $view->getData())) {
-                $seoRows = $siteSettingsTableExists
-                    ? SiteSetting::query()
-                        ->where('group', SeoDefaultSettings::GROUP)
-                        ->where('is_active', true)
-                        ->get()
-                        ->keyBy('key')
-                    : collect();
-
-                $view->with('seoDefaultSettings', SeoDefaultSettings::valuesFromSettings($seoRows));
-            }
-
-            if (! array_key_exists('trackingIntegrationSettings', $view->getData())) {
-                $trackingRows = $siteSettingsTableExists
-                    ? SiteSetting::query()
-                        ->where('group', TrackingIntegrationSettings::GROUP)
-                        ->where('is_active', true)
-                        ->get()
-                        ->keyBy('key')
-                    : collect();
-
-                $view->with('trackingIntegrationSettings', TrackingIntegrationSettings::valuesFromSettings($trackingRows));
-            }
-
-            if (! array_key_exists('bookingCtaSettings', $view->getData())) {
-                $bookingCtaRows = $siteSettingsTableExists
-                    ? SiteSetting::query()
-                        ->where('group', BookingCtaSettings::GROUP)
-                        ->where('is_active', true)
-                        ->get()
-                        ->keyBy('key')
-                    : collect();
-
-                $view->with('bookingCtaSettings', BookingCtaSettings::valuesFromSettings($bookingCtaRows));
-            }
-
-            if (! array_key_exists('defaultMediaSettings', $view->getData())) {
-                $defaultMediaRows = $siteSettingsTableExists
-                    ? SiteSetting::query()
-                        ->where('group', DefaultMediaAssets::SETTINGS_GROUP)
-                        ->where('is_active', true)
-                        ->get()
-                        ->keyBy('key')
-                    : collect();
-
-                $view->with('defaultMediaSettings', DefaultMediaAssets::valuesFromSettings($defaultMediaRows));
-            }
-
-            if (! array_key_exists('structuredDataSettings', $view->getData())) {
-                $structuredDataRows = $siteSettingsTableExists
-                    ? SiteSetting::query()
-                        ->where('group', StructuredDataSettings::GROUP)
-                        ->where('is_active', true)
-                        ->get()
-                        ->keyBy('key')
-                    : collect();
-
-                $view->with('structuredDataSettings', StructuredDataSettings::valuesFromSettings($structuredDataRows));
+            if (! array_key_exists('socialMediaLinks', $viewData)) {
+                $globalSettings = $resolveGlobalSettings();
+                $view->with('socialMediaLinks', $globalSettings['socialMediaLinks']);
+                $view->with('activeSocialMediaLinks', $globalSettings['activeSocialMediaLinks']);
             }
         });
     }

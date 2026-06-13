@@ -18,6 +18,12 @@ class SiteAsset extends Model
         'is_active' => 'boolean',
     ];
 
+    protected static function booted(): void
+    {
+        static::saved(fn () => app(\App\Services\GlobalSettingsService::class)->forgetAssetsCache());
+        static::deleted(fn () => app(\App\Services\GlobalSettingsService::class)->forgetAssetsCache());
+    }
+
     public function getUrlAttribute(): ?string
     {
         if (! $this->path) {
