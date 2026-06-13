@@ -31,23 +31,12 @@ class HomeController extends Controller
             ->get()
             ->keyBy('section_key');
 
-        $homepageContent = HomepageContent::fromSections($sections);
-
         $siteAssets = $globalSettings->siteAssets();
 
         $faqs = Faq::query()
             ->active()
             ->orderBy('sort_order')
             ->orderBy('id')
-            ->take(6)
-            ->get();
-
-        $featuredProducts = Product::query()
-            ->published()
-            ->frontendReady()
-            ->with(['category', 'destination', 'images'])
-            ->where('is_featured', true)
-            ->latest()
             ->take(6)
             ->get();
 
@@ -81,27 +70,19 @@ class HomeController extends Controller
             ->orderBy('name')
             ->get();
 
-        $homeDestinations = $destinations
-            ->take(4)
-            ->map(fn (Destination $destination) => [
-                'id' => $destination->id,
-                'slug' => $destination->slug,
-                'name' => $destination->name,
-                'description' => $destination->description,
-                'image_url' => $destination->image ? asset('storage/' . $destination->image) : null,
-                'products_count' => (int) ($destination->products_count ?? 0),
-            ])
-            ->values();
+        $homepageContent = HomepageContent::fromSections($sections);
+        $homeDestinations = HomepageContent::destinationCards($destinations);
+        $homeFaqItems = HomepageContent::faqItems($faqs, $homepageContent);
 
         return view(
             'frontend.home',
             compact(
-                'featuredProducts',
                 'homeProducts',
                 'homeProductCategories',
                 'categories',
                 'destinations',
                 'homeDestinations',
+                'homeFaqItems',
                 'heroBackgroundUrl',
                 'sections',
                 'homepageContent',

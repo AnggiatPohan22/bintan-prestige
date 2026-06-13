@@ -2,26 +2,60 @@
 
 namespace App\Support;
 
+use App\Models\Destination;
+use Illuminate\Support\Str;
 use Illuminate\Support\Collection;
 
 class HomepageContent
 {
     public static function fromSections(Collection $sections): array
     {
+        $sectionData = HomepageSectionData::fromSections($sections);
+
         return [
-            'search' => self::search($sections),
-            'popular_products' => self::popularProducts($sections),
-            'about_journey' => self::aboutJourney($sections),
-            'categories' => self::categories($sections),
-            'destinations' => self::destinations($sections),
+            'sections' => $sectionData,
+            'search' => self::search($sectionData),
+            'popular_products' => self::popularProducts($sectionData),
+            'about_journey' => self::aboutJourney($sectionData),
+            'categories' => self::categories($sectionData),
+            'destinations' => self::destinations($sectionData),
             'testimonials' => self::testimonials(),
-            'faq' => self::faq($sections),
+            'faq' => self::faq($sectionData),
         ];
     }
 
-    private static function search(Collection $sections): array
+    public static function destinationCards(Collection $destinations): Collection
     {
-        $extra = self::extra($sections, 'home.hero');
+        return $destinations
+            ->take(4)
+            ->map(fn (Destination $destination) => self::destinationCard($destination))
+            ->values();
+    }
+
+    public static function faqItems(Collection $faqs, array $homepageContent): Collection
+    {
+        if ($faqs->isNotEmpty()) {
+            return $faqs
+                ->map(fn ($faq) => [
+                    'question' => $faq->question,
+                    'answer' => $faq->answer,
+                ])
+                ->values();
+        }
+
+        return collect($homepageContent['faq']['fallback_items'] ?? [])
+            ->filter(fn ($faq) => is_array($faq))
+            ->map(fn (array $faq) => [
+                'question' => trim((string) ($faq['question'] ?? '')),
+                'answer' => trim((string) ($faq['answer'] ?? '')),
+            ])
+            ->filter(fn (array $faq) => filled($faq['question']) || filled($faq['answer']))
+            ->values();
+    }
+
+    private static function search(array $sectionData): array
+    {
+        $extra = self::extra($sectionData, 'home.hero');
 
         return [
             'destination_label' => self::text($extra, 'search_destination_label', 'Destination'),
@@ -33,22 +67,22 @@ class HomepageContent
         ];
     }
 
-    private static function popularProducts(Collection $sections): array
+    private static function popularProducts(array $sectionData): array
     {
-        $section = $sections->get('home.popular_products_intro');
-        $extra = self::extra($sections, 'home.popular_products_intro');
+        $section = $sectionData['home.popular_products_intro'] ?? [];
+        $extra = self::extra($sectionData, 'home.popular_products_intro');
 
         return [
-            'view_all_text' => filled($section?->button_text) ? $section->button_text : 'View All Package',
-            'view_all_url' => PageSectionCta::safeUrl($section?->button_url, route('products.index')),
+            'view_all_text' => filled($section['button_text'] ?? null) ? $section['button_text'] : 'View All Package',
+            'view_all_url' => PageSectionCta::safeUrl($section['button_url'] ?? null, route('products.index')),
             'empty_title' => self::text($extra, 'empty_title', 'Products coming soon'),
             'empty_text' => self::text($extra, 'empty_text', 'Published tour packages will appear here.'),
         ];
     }
 
-    private static function aboutJourney(Collection $sections): array
+    private static function aboutJourney(array $sectionData): array
     {
-        $extra = self::extra($sections, 'home.about_journey');
+        $extra = self::extra($sectionData, 'home.about_journey');
 
         return [
             'features' => self::items($extra, 'features', [
@@ -66,18 +100,18 @@ class HomepageContent
         ];
     }
 
-    private static function categories(Collection $sections): array
+    private static function categories(array $sectionData): array
     {
-        $extra = self::extra($sections, 'home.categories_intro');
+        $extra = self::extra($sectionData, 'home.categories_intro');
 
         return [
             'empty_title' => self::text($extra, 'empty_title', 'No categories available yet.'),
         ];
     }
 
-    private static function destinations(Collection $sections): array
+    private static function destinations(array $sectionData): array
     {
-        $extra = self::extra($sections, 'home.categories_intro');
+        $extra = self::extra($sectionData, 'home.categories_intro');
 
         return [
             'empty_title' => self::text($extra, 'empty_title', 'No destinations available yet.'),
@@ -113,9 +147,9 @@ class HomepageContent
         ];
     }
 
-    private static function faq(Collection $sections): array
+    private static function faq(array $sectionData): array
     {
-        $extra = self::extra($sections, 'home.faq');
+        $extra = self::extra($sectionData, 'home.faq');
 
         return [
             'fallback_items' => self::items($extra, 'fallback_items', [
@@ -135,9 +169,30 @@ class HomepageContent
         ];
     }
 
-    private static function extra(Collection $sections, string $sectionKey): array
+    private static function destinationCard(Destination $destination): array
     {
-        $extraData = $sections->get($sectionKey)?->extra_data;
+        $packageCount = (int) ($destination->products_count ?? 0);
+        $name = $destination->name ?: 'Bintan Destination';
+        $description = trim((string) $destination->description);
+
+        return [
+            'id' => $destination->id,
+            'slug' => $destination->slug,
+            'name' => $name,
+            'description' => $description,
+            'url' => route('products.index', ['destination' => [$destination->id]]),
+            'aria_label' => $description !== ''
+                ? $name . ' - ' . Str::limit($description, 90)
+                : 'View packages for ' . $name,
+            'image_url' => $destination->image ? asset('storage/' . $destination->image) : null,
+            'products_count' => $packageCount,
+            'package_label' => str_pad($packageCount, 2, '0', STR_PAD_LEFT) . ' ' . Str::plural('Package', $packageCount),
+        ];
+    }
+
+    private static function extra(array $sectionData, string $sectionKey): array
+    {
+        $extraData = $sectionData[$sectionKey]['extra'] ?? [];
 
         return is_array($extraData) ? $extraData : [];
     }

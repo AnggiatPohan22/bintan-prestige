@@ -56,3 +56,31 @@ Frontend implication:
 
 - Public Product listing/detail behavior is unchanged by DB-09.
 - A future frontend/backend sync step should decide whether published Products under archived/inactive parents should remain visible or be hidden by a stricter public visibility scope.
+
+## Homepage CMS Flow
+
+The homepage keeps a fixed frontend layout while receiving prepared backend data.
+
+Flow:
+
+1. `HomeController@index` loads active registered `home.*` Page Sections with media in one query.
+2. `HomepageSectionData` normalizes PageSection copy, CTA fields, `extra_data`, and registered fallback defaults.
+3. `HomepageContent` prepares supported homepage content arrays, Destination cards, and FAQ item fallbacks.
+4. Blade section partials render the prepared values and keep layout-specific markup in code.
+
+Homepage data sources:
+
+- Page Sections: section copy, CTA fields, section media, controlled `extra_data`.
+- Products: published Product module records and reusable product cards.
+- Categories: active Category module records for search/filter controls and product tabs.
+- Destinations: active Destination module records for search/filter controls and homepage destination cards.
+- FAQs: active FAQ module records with PageSection fallback items when empty.
+- Reviews/Testimonials: static fallback source until a dedicated module is approved.
+- Global Settings: site assets, default media, business/contact data, footer settings, and WhatsApp CTA fallback.
+
+Rules:
+
+- Blade must not query the database.
+- Missing or inactive homepage Page Sections fall back to registered defaults.
+- No page-builder behavior is introduced by Page Sections.
+- Product Listing, Product Detail, header, and footer layout flows remain separate from homepage renderer consolidation.

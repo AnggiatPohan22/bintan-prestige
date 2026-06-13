@@ -1,5 +1,6 @@
 @php
-    $section = $sections['home.popular_products_intro'] ?? null;
+    $homepageContent = $homepageContent ?? \App\Support\HomepageContent::fromSections(collect($sections ?? []));
+    $section = ($homepageContent ?? [])['sections']['home.popular_products_intro'] ?? [];
     $sectionContent = ($homepageContent ?? [])['popular_products'] ?? [];
 @endphp
 
@@ -7,11 +8,11 @@
     <div class="home-container">
         <div class="bp-product-section__header">
             <span class="bp-product-section__label">
-                {{ $section?->label ?? 'Most Popular Tour Packages' }}
+                {{ $section['label'] ?? 'Most Popular Tour Packages' }}
             </span>
 
             <h2 id="popular-products-title" class="bp-product-section__title title-section">
-                {{ $section?->title ?? 'Something Amazing Waiting For You' }}
+                {{ $section['title'] ?? 'Something Amazing Waiting For You' }}
             </h2>
         </div>
 

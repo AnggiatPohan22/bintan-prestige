@@ -1,7 +1,9 @@
 @php
-    $section = $sections['home.manual_ads'] ?? null;
-    $extraData = $section?->extra_data ?? [];
-    $buttonUrl = \App\Support\PageSectionCta::safeUrl($section?->button_url, route('products.index'));
+    $homepageContent = $homepageContent ?? \App\Support\HomepageContent::fromSections(collect($sections ?? []));
+    $sectionContent = ($homepageContent ?? [])['sections']['home.manual_ads'] ?? [];
+    $section = $sectionContent['model'] ?? null;
+    $extraData = $sectionContent['extra'] ?? [];
+    $buttonUrl = $sectionContent['button_url'] ?? route('products.index');
     $overlayTitle = $extraData['overlay_title'] ?? "Let's Discover The Whole World!";
     $mainVisual = $section?->mediaSlot('frame', 'main_visual');
     $sectionPlaceholder = \App\Support\DefaultMediaAssets::asset($siteAssets ?? collect(), 'section');
@@ -13,19 +15,19 @@
         <div class="bp-manual-ads__inner">
             <div class="bp-manual-ads__content">
                 <span class="bp-manual-ads__label">
-                    {{ $section?->label ?? 'Special Offer' }}
+                    {{ $sectionContent['label'] ?? 'Special Offer' }}
                 </span>
 
                 <h2 class="bp-manual-ads__title title-section">
-                    {{ $section?->title ?? 'Plan Your Bintan Journey With Us' }}
+                    {{ $sectionContent['title'] ?? 'Plan Your Bintan Journey With Us' }}
                 </h2>
 
                 <p class="bp-manual-ads__text text-muted">
-                    {{ $section?->description ?? 'Find curated tours, resort transfers, and flexible island experiences with simple booking support.' }}
+                    {{ $sectionContent['description'] ?? 'Find curated tours, resort transfers, and flexible island experiences with simple booking support.' }}
                 </p>
 
                 <a href="{{ $buttonUrl }}" class="btn btn-primary bp-manual-ads__button">
-                    <span>{{ $section?->button_text ?? 'SEE DETAILS' }}</span>
+                    <span>{{ $sectionContent['button_text'] ?? 'SEE DETAILS' }}</span>
                     <svg class="bp-manual-ads__button-icon" viewBox="0 0 24 24" aria-hidden="true">
                         <path d="M7 17L17 7"></path>
                         <path d="M9 7h8v8"></path>

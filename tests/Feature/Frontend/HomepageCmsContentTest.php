@@ -7,10 +7,12 @@ use App\Models\Category;
 use App\Models\Destination;
 use App\Models\PageSection;
 use App\Models\Product;
+use App\Models\SiteAsset;
 use App\Models\SiteSetting;
 use App\Services\GlobalSettingsService;
 use App\Support\BookingCtaSettings;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Route;
 use Tests\TestCase;
 
 class HomepageCmsContentTest extends TestCase
@@ -348,6 +350,165 @@ class HomepageCmsContentTest extends TestCase
         $response->assertSee('Module FAQ answer.');
     }
 
+    public function test_homepage_renderer_handles_complete_cms_and_module_data(): void
+    {
+        foreach ($this->homeSections() as $sectionKey => $sortOrder) {
+            PageSection::create([
+                'page_key' => 'home',
+                'section_key' => $sectionKey,
+                'label' => 'Renderer Label ' . $sectionKey,
+                'title' => 'Renderer Title ' . $sectionKey,
+                'description' => 'Renderer Description ' . $sectionKey,
+                'button_text' => in_array($sectionKey, [
+                    'home.popular_tour',
+                    'home.popular_products_intro',
+                    'home.manual_ads',
+                    'home.about_journey',
+                    'home.explore_banner',
+                    'home.footer_cta',
+                ], true) ? 'Renderer CTA' : null,
+                'button_url' => in_array($sectionKey, [
+                    'home.popular_tour',
+                    'home.popular_products_intro',
+                    'home.manual_ads',
+                    'home.about_journey',
+                    'home.explore_banner',
+                    'home.footer_cta',
+                ], true) ? '/products?renderer=' . str_replace('home.', '', $sectionKey) : null,
+                'is_active' => true,
+                'sort_order' => $sortOrder,
+            ]);
+        }
+
+        $category = Category::create([
+            'name' => 'Renderer Category',
+            'slug' => 'renderer-category',
+            'is_active' => true,
+        ]);
+
+        $destination = Destination::create([
+            'name' => 'Renderer Destination',
+            'slug' => 'renderer-destination',
+            'description' => 'Renderer destination description.',
+            'is_active' => true,
+        ]);
+
+        Product::factory()->create([
+            'category_id' => $category->id,
+            'destination_id' => $destination->id,
+            'name' => 'Renderer Published Product',
+            'status' => 'published',
+        ]);
+
+        Product::factory()->create([
+            'category_id' => $category->id,
+            'destination_id' => $destination->id,
+            'name' => 'Renderer Draft Product',
+            'status' => 'draft',
+        ]);
+
+        Faq::create([
+            'question' => 'Renderer FAQ question?',
+            'answer' => 'Renderer FAQ answer.',
+            'is_active' => true,
+            'sort_order' => 1,
+        ]);
+
+        $response = $this->get(route('home'));
+
+        $response->assertOk();
+        $response->assertSee('Renderer Title home.hero');
+        $response->assertSee('Renderer CTA');
+        $response->assertSee('Renderer Published Product');
+        $response->assertDontSee('Renderer Draft Product');
+        $response->assertSee('Price on request');
+        $response->assertDontSee('Rp 0');
+        $response->assertSee('Renderer Destination');
+        $response->assertSee('Renderer FAQ question?');
+        $response->assertSee('Floyd Miles');
+        $response->assertDontSee('href=""', false);
+    }
+
+    public function test_homepage_missing_and_inactive_sections_use_existing_fallback_behavior(): void
+    {
+        PageSection::create([
+            'page_key' => 'home',
+            'section_key' => 'home.hero',
+            'label' => 'Inactive Hero Label',
+            'title' => 'Inactive Hero Title',
+            'description' => 'Inactive hero description.',
+            'is_active' => false,
+            'sort_order' => 0,
+        ]);
+
+        PageSection::create([
+            'page_key' => 'home',
+            'section_key' => 'home.footer_cta',
+            'label' => 'Inactive Footer CTA Label',
+            'title' => 'Inactive Footer CTA Title',
+            'description' => 'Inactive footer CTA description.',
+            'is_active' => false,
+            'sort_order' => 90,
+        ]);
+
+        $response = $this->get(route('home'));
+
+        $response->assertOk();
+        $response->assertSee('BINTAN PRESTIGE');
+        $response->assertSee('Luxury Bintan Travel');
+        $response->assertSee('Plan Your Perfect Bintan Escape With Us');
+        $response->assertDontSee('Inactive Hero Title');
+        $response->assertDontSee('Inactive Footer CTA Title');
+    }
+
+    public function test_homepage_uses_global_default_media_assets_for_missing_images(): void
+    {
+        SiteAsset::create([
+            'key' => 'default_media.product',
+            'label' => 'Product fallback',
+            'path' => 'defaults/product.jpg',
+            'alt' => 'Default product image',
+            'is_active' => true,
+        ]);
+
+        SiteAsset::create([
+            'key' => 'default_media.destination',
+            'label' => 'Destination fallback',
+            'path' => 'defaults/destination.jpg',
+            'alt' => 'Default destination image',
+            'is_active' => true,
+        ]);
+
+        $category = Category::create([
+            'name' => 'Fallback Category',
+            'slug' => 'fallback-category',
+            'is_active' => true,
+        ]);
+
+        $destination = Destination::create([
+            'name' => 'Fallback Destination',
+            'slug' => 'fallback-destination',
+            'image' => null,
+            'is_active' => true,
+        ]);
+
+        Product::factory()->create([
+            'category_id' => $category->id,
+            'destination_id' => $destination->id,
+            'name' => 'Fallback Product',
+            'thumbnail' => null,
+            'status' => 'published',
+        ]);
+
+        $response = $this->get(route('home'));
+
+        $response->assertOk();
+        $response->assertSee('storage/defaults/product.jpg', false);
+        $response->assertSee('Default product image');
+        $response->assertSee('storage/defaults/destination.jpg', false);
+        $response->assertSee('Default destination image');
+    }
+
     public function test_homepage_destination_section_uses_active_destination_module_data(): void
     {
         $category = Category::create([
@@ -476,6 +637,16 @@ class HomepageCmsContentTest extends TestCase
         $response->assertDontSee('href=""', false);
     }
 
+    public function test_frontend_and_admin_route_contracts_remain_registered(): void
+    {
+        $this->assertTrue(Route::has('home'));
+        $this->assertTrue(Route::has('products.index'));
+        $this->assertTrue(Route::has('products.show'));
+        $this->assertTrue(Route::has('admin.dashboard'));
+        $this->assertSame(url('/'), route('home'));
+        $this->assertSame(url('/products'), route('products.index'));
+    }
+
     public function test_homepage_blade_files_do_not_query_database_directly(): void
     {
         $files = [
@@ -487,6 +658,9 @@ class HomepageCmsContentTest extends TestCase
             resource_path('views/frontend/sections/explore-banner.blade.php'),
             resource_path('views/frontend/sections/testimonials.blade.php'),
             resource_path('views/frontend/partials/manual-ads.blade.php'),
+            resource_path('views/frontend/partials/footer.blade.php'),
+            resource_path('views/frontend/components/product-card.blade.php'),
+            resource_path('views/frontend/components/product-price.blade.php'),
         ];
 
         foreach ($files as $file) {
@@ -495,7 +669,7 @@ class HomepageCmsContentTest extends TestCase
             $this->assertStringNotContainsString('::query(', $contents, $file);
             $this->assertStringNotContainsString('DB::', $contents, $file);
             $this->assertStringNotContainsString('->where(', $contents, $file);
-            $this->assertStringNotContainsString('->get(', $contents, $file);
+            $this->assertDoesNotMatchRegularExpression('/\\\\App\\\\Models\\\\[A-Za-z]+::/', $contents, $file);
         }
     }
 

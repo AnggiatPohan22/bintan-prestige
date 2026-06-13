@@ -3,7 +3,10 @@
 @section('content')
 
 @php
-    $heroSection = $sections['home.hero'] ?? null;
+    $homepageContent = $homepageContent ?? \App\Support\HomepageContent::fromSections(collect($sections ?? []));
+    $homepageSections = $homepageContent['sections'] ?? [];
+    $heroContent = $homepageSections['home.hero'] ?? [];
+    $heroSection = $heroContent['model'] ?? null;
     $heroSlides = $heroSection?->galleryMedia() ?? collect();
     $heroPlaceholder = \App\Support\DefaultMediaAssets::asset($siteAssets ?? collect(), 'hero');
     $heroMobilePlaceholder = \App\Support\DefaultMediaAssets::asset($siteAssets ?? collect(), 'hero_mobile');
@@ -13,16 +16,15 @@
     $sectionPlaceholderFit = \App\Support\DefaultMediaAssets::fit($defaultMediaSettings ?? [], 'section');
     $heroBackground = $heroSection?->mediaUrl('background', 'desktop_background') ?? $heroSection?->image_url ?? $heroBackgroundUrl ?? $heroPlaceholder?->url;
     $heroMobileBackground = $heroSection?->mediaUrl('background', 'mobile_background') ?? $heroSection?->mobile_image_url ?? $heroMobilePlaceholder?->url;
-    $heroAnimation = $heroSection?->animation ?? 'ken-burns';
-    $heroCtaUrl = \App\Support\PageSectionCta::safeUrl($heroSection?->button_url);
-    $heroCtaText = $heroSection?->button_text;
-    $homepageContent = $homepageContent ?? [];
+    $heroAnimation = $heroContent['animation'] ?? 'ken-burns';
+    $heroCtaUrl = $heroContent['button_url'] ?? null;
+    $heroCtaText = $heroContent['button_text'] ?? '';
+    $heroHasButton = (bool) ($heroContent['has_button'] ?? false);
     $searchContent = $homepageContent['search'] ?? [];
-    $faqSection = $sections['home.faq'] ?? null;
+    $faqContentSection = $homepageSections['home.faq'] ?? [];
+    $faqSection = $faqContentSection['model'] ?? null;
     $faqVisual = $faqSection?->mediaSlot('frame', 'main_visual');
-    $faqContent = $homepageContent['faq'] ?? [];
-    $fallbackFaqs = collect($faqContent['fallback_items'] ?? []);
-    $faqItems = isset($faqs) && $faqs->count() ? $faqs : $fallbackFaqs;
+    $faqItems = collect($homeFaqItems ?? \App\Support\HomepageContent::faqItems(collect($faqs ?? []), $homepageContent));
 @endphp
 
 <div class="home-page">
@@ -54,18 +56,18 @@
             <div class="home-hero__stage">
                 <div class="home-hero__copy">
                     <span class="home-eyebrow">
-                        {{ $heroSection?->label ?? 'Luxury Bintan Travel' }}
+                        {{ $heroContent['label'] ?? 'Luxury Bintan Travel' }}
                     </span>
 
                     <h1 class="home-hero__title title-hero">
-                        {{ $heroSection?->title ?? 'BINTAN PRESTIGE' }}
+                        {{ $heroContent['title'] ?? 'BINTAN PRESTIGE' }}
                     </h1>
 
                     <p class="home-hero__text text-body">
-                        {{ $heroSection?->description ?? 'Private tours, island transfers, and curated experiences designed for a smoother premium escape.' }}
+                        {{ $heroContent['description'] ?? 'Private tours, island transfers, and curated experiences designed for a smoother premium escape.' }}
                     </p>
 
-                    @if(\App\Support\PageSectionCta::hasButton($heroCtaText, $heroCtaUrl))
+                    @if($heroHasButton)
                         <a href="{{ $heroCtaUrl }}" class="btn btn-primary btn-lg">
                             {{ $heroCtaText }}
                         </a>
@@ -225,9 +227,9 @@
     <section class="home-faq-preview" id="faq-preview" data-section-key="home.faq">
         <div class="home-container home-faq-preview__grid">
             <div>
-                <span class="home-section__kicker">{{ $faqSection?->label ?? 'Before your journey' }}</span>
+                <span class="home-section__kicker">{{ $faqContentSection['label'] ?? 'Before your journey' }}</span>
                 <h2 class="home-section__title title-section">
-                    {{ $faqSection?->title ?? 'All you should know before embarking on your Bintan journey' }}
+                    {{ $faqContentSection['title'] ?? 'All you should know before embarking on your Bintan journey' }}
                 </h2>
 
                 @if($faqVisual?->url || $sectionPlaceholder?->url)
@@ -242,8 +244,8 @@
             <div class="home-faq-list">
                 @foreach($faqItems as $faqIndex => $faq)
                     <details @if($faqIndex === 0) open @endif>
-                        <summary>{{ is_array($faq) ? $faq['question'] : $faq->question }}</summary>
-                        <p>{{ is_array($faq) ? $faq['answer'] : $faq->answer }}</p>
+                        <summary>{{ $faq['question'] }}</summary>
+                        <p>{{ $faq['answer'] }}</p>
                     </details>
                 @endforeach
             </div>

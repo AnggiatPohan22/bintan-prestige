@@ -4,6 +4,23 @@ All notable project documentation and baseline improvement steps are tracked her
 
 ## 2026-06-13
 
+### STEP FRONTEND-04D - Homepage Renderer Consolidation & Tests
+
+Changed:
+
+- Added `App\Support\HomepageSectionData` as the homepage PageSection display-data map.
+- Consolidated homepage section label/title/description/CTA fallback reads through prepared backend data.
+- Moved Destination card and FAQ item preparation into `App\Support\HomepageContent`.
+- Removed the unused featured Products homepage query from `HomeController`.
+- Added focused homepage renderer regression tests for full data, missing/inactive section fallback, Product price empty state, Destination visibility, testimonial fallback, default media fallback, route contract, and Blade query safety.
+- Added canonical homepage and Page Sections documentation.
+- Created `ai/reports/frontend/frontend-04d-homepage-renderer-consolidation-tests-report.md`.
+
+Notes:
+
+- No database schema, migration, route, model, package, page builder, homepage redesign, header/footer layout, Product Listing, Product Detail, Review CRUD, or Admin redesign work was added.
+- Testimonials remain a documented static fallback until a dedicated CMS strategy is approved.
+
 ### STEP FRONTEND-04C - Destination, Review & Final CTA Sync
 
 Changed:

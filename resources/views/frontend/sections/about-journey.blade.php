@@ -1,27 +1,29 @@
 @php
-    $section = $sections['home.about_journey'] ?? null;
+    $homepageContent = $homepageContent ?? \App\Support\HomepageContent::fromSections(collect($sections ?? []));
+    $sectionContent = ($homepageContent ?? [])['sections']['home.about_journey'] ?? [];
+    $section = $sectionContent['model'] ?? null;
     $mainVisual = $section?->mediaSlot('frame', 'main_visual');
     $secondaryVisual = $section?->mediaSlot('frame', 'secondary_visual');
     $sectionPlaceholder = \App\Support\DefaultMediaAssets::asset($siteAssets ?? collect(), 'section');
     $sectionPlaceholderFit = \App\Support\DefaultMediaAssets::fit($defaultMediaSettings ?? [], 'section');
-    $buttonUrl = \App\Support\PageSectionCta::safeUrl($section?->button_url, route('products.index'));
-    $sectionContent = ($homepageContent ?? [])['about_journey'] ?? [];
-    $journeyFeatures = collect($sectionContent['features'] ?? []);
+    $buttonUrl = $sectionContent['button_url'] ?? route('products.index');
+    $journeyContent = ($homepageContent ?? [])['about_journey'] ?? [];
+    $journeyFeatures = collect($journeyContent['features'] ?? []);
 @endphp
 
 <section class="bp-journey-section" id="home-about-journey" data-section-key="home.about_journey" aria-labelledby="journey-title">
     <div class="home-container bp-journey-section__grid">
         <div class="bp-journey-content">
             <span class="bp-journey-label">
-                {{ $section?->label ?? 'Dream Your Next Trip' }}
+                {{ $sectionContent['label'] ?? 'Dream Your Next Trip' }}
             </span>
 
             <h2 id="journey-title" class="bp-journey-title title-section">
-                {{ $section?->title ?? 'Discover When Even You Want To Go' }}
+                {{ $sectionContent['title'] ?? 'Discover When Even You Want To Go' }}
             </h2>
 
             <p class="bp-journey-text text-muted">
-                {{ $section?->description ?? 'Are you tired of the typical tourist destinations and looking to step out of your comfort zone? Adventure travel may be the perfect solution for you! Here are four.' }}
+                {{ $sectionContent['description'] ?? 'Are you tired of the typical tourist destinations and looking to step out of your comfort zone? Adventure travel may be the perfect solution for you! Here are four.' }}
             </p>
 
             @if($journeyFeatures->isNotEmpty())
@@ -64,7 +66,7 @@
             @endif
 
             <a href="{{ $buttonUrl }}" class="btn btn-primary btn-lg bp-journey-cta">
-                {{ $section?->button_text ?? 'BOOK YOUR TRIP' }}
+                {{ $sectionContent['button_text'] ?? 'BOOK YOUR TRIP' }}
                 <svg class="bp-journey-cta__icon" viewBox="0 0 24 24" aria-hidden="true">
                     <path d="M7 17L17 7"></path>
                     <path d="M9 7h8v8"></path>

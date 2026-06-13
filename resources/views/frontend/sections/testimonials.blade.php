@@ -1,5 +1,6 @@
 @php
-    $section = $sections['home.testimonials'] ?? null;
+    $homepageContent = $homepageContent ?? \App\Support\HomepageContent::fromSections(collect($sections ?? []));
+    $section = ($homepageContent ?? [])['sections']['home.testimonials'] ?? [];
     $avatarPlaceholder = \App\Support\DefaultMediaAssets::asset($siteAssets ?? collect(), 'avatar');
     $avatarPlaceholderFit = \App\Support\DefaultMediaAssets::fit($defaultMediaSettings ?? [], 'avatar');
     $testimonials = collect(($homepageContent ?? [])['testimonials']['fallback_items'] ?? []);
@@ -9,15 +10,15 @@
     <div class="home-container">
         <div class="bp-testimonials__header">
             <span class="bp-testimonials__label">
-                {{ $section?->label ?? 'Clients Feedback About Us' }}
+                {{ $section['label'] ?? 'Clients Feedback About Us' }}
             </span>
 
             <h2 id="testimonials-title" class="bp-testimonials__title title-section">
-                {{ $section?->title ?? 'See Those Lovely Words From Clients' }}
+                {{ $section['title'] ?? 'See Those Lovely Words From Clients' }}
             </h2>
 
             <p class="bp-testimonials__text text-muted">
-                {{ $section?->description ?? 'Read what our guests say about their Bintan travel experience with Bintan Prestige.' }}
+                {{ $section['description'] ?? 'Read what our guests say about their Bintan travel experience with Bintan Prestige.' }}
             </p>
         </div>
 
