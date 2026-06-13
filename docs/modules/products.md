@@ -1,5 +1,7 @@
 # Products Module
 
+Last updated: 2026-06-13
+
 ## Category and Destination Integrity
 
 Products require both a Category and a Destination.
@@ -11,6 +13,15 @@ Rules:
 - A Category or Destination archive action does not delete products.
 - A Category or Destination cannot be permanently deleted while products reference it.
 - Product-owned child data remains governed by Product-level relationships and constraints.
+
+## Status Policy
+
+Products use string publication status values:
+
+- `draft`
+- `published`
+
+`ProductFactory` defaults to `published` and provides explicit `draft()` and `published()` states for focused tests and seed/demo data.
 
 ## Product Query Index
 
@@ -41,3 +52,9 @@ Current guardrails:
 - Database unique index: `product_prices_product_id_currency_unique`.
 - Form Request validation for product price amount fields.
 - ProductPrice service allowlist for supported currencies.
+
+## Remaining Product Risks
+
+- Product hard delete still cascades product-owned child rows.
+- Product price range index `product_prices(currency, price)` remains deferred.
+- Public visibility for products under archived/inactive parents remains a future policy decision.

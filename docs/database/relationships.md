@@ -1,5 +1,9 @@
 # Database Relationships
 
+Last updated: 2026-06-13
+
+This page documents the canonical relationship rules after the DB-01 through DB-09 database improvement phase.
+
 ## Products, Categories, and Destinations
 
 `Product` belongs to `Category`.
@@ -35,3 +39,31 @@ Canonical write path:
 
 - Admin product create/update flows use `ProductPriceService::sync()`.
 - The service writes prices with `updateOrCreate()` by `product_id` and `currency`.
+
+## Products and Child Content
+
+`Product` has many product child rows:
+
+- `ProductImage`
+- `ProductFeature`
+- `ProductFaq`
+- `ProductItinerary`
+- `ProductNote`
+
+Each child row belongs to one Product.
+
+Integrity rules:
+
+- Product child data remains owned by the Product.
+- Product child foreign keys still cascade when the Product itself is deleted.
+- DB-09 did not change product child foreign keys.
+
+## Global Settings and Assets
+
+`SiteSetting` and `SiteAsset` are read for public display through `App\Services\GlobalSettingsService`.
+
+Cache invalidation rules:
+
+- Saving or deleting `SiteSetting` clears `global_settings.public.v1`.
+- Saving or deleting `SiteAsset` clears `global_assets.public.v1`.
+- Cache invalidation is scoped and does not use `Cache::flush()`.

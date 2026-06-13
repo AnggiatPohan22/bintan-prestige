@@ -71,3 +71,20 @@ Deferred:
 
 - `product_prices(currency, price)` remains deferred.
 - Additional product indexes are not added in DB-07.
+
+## Database Improvement Phase Summary
+
+DB-01 through DB-09 resolved or documented the main database/performance baseline items before frontend audit work:
+
+- ProductFactory status now uses valid string status values.
+- Product price uniqueness is enforced by `product_prices_product_id_currency_unique`.
+- Product query status/latest flow is supported by `products_status_created_at_index`.
+- Global settings/assets public reads are cached through `GlobalSettingsService`.
+- Category/Destination parent deletes are restricted while Products reference them.
+
+Still deferred:
+
+- `product_prices(currency, price)` for price range/min/max performance.
+- Featured/category/destination/pickup/duration product composite indexes.
+- Product delete policy audit.
+- Public visibility policy for Products under archived/inactive parents.

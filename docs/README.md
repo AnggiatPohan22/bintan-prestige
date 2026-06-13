@@ -26,6 +26,19 @@ For the detailed STEP DOC-02 mapping from old docs to the canonical structure, s
 
 ## Active Docs
 
+### Database Improvement Canonical Docs
+These docs are active canonical references after the DB-01 through DB-09 database improvement phase:
+- `database/schema-overview.md`
+- `database/relationships.md`
+- `database/indexes.md`
+- `database/data-integrity.md`
+- `modules/products.md`
+- `modules/categories.md`
+- `modules/destinations.md`
+- `admin/site-settings.md`
+- `performance/audit-report.md`
+- `architecture/frontend-backend-sync.md`
+
 ### Global Assets / Admin Settings
 These docs are active implementation references for global settings currently stored at the docs root:
 - `global-booking-cta-settings.md`

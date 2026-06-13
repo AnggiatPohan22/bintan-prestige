@@ -39,3 +39,20 @@ The existing variable contract is preserved, including:
 - `structuredDataSettings`
 
 Blade templates should keep rendering prepared data and must not query the database directly.
+
+## Product Data Integrity Flow
+
+The backend prepares Product data before it reaches Blade.
+
+Current database-backed rules:
+
+- Products use string statuses: `draft` and `published`.
+- Product prices are written by `ProductPriceService` and are unique by `product_id` and `currency`.
+- Supported product price currencies are `IDR` and `SGD`.
+- Category and Destination archive flows use soft delete and do not delete Products.
+- Category/Destination hard deletes are restricted by database FK rules while Products reference them.
+
+Frontend implication:
+
+- Public Product listing/detail behavior is unchanged by DB-09.
+- A future frontend/backend sync step should decide whether published Products under archived/inactive parents should remain visible or be hidden by a stricter public visibility scope.

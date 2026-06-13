@@ -4,6 +4,22 @@ All notable project documentation and baseline improvement steps are tracked her
 
 ## 2026-06-13
 
+### STEP DOC-SYNC-DB - Database Improvement Documentation Sync
+
+Changed:
+
+- Consolidated DB-01 through DB-09 database improvement outcomes into canonical documentation.
+- Added `docs/database/data-integrity.md`.
+- Updated database schema, relationship, index, module, performance, admin settings, frontend-backend sync, changelog, and docs index references.
+- Created `ai/reports/documentation/doc-sync-db-database-improvement-report.md`.
+
+Notes:
+
+- Documentation-only sync.
+- No Laravel runtime logic was changed.
+- No database, migration, model, controller, route, service, middleware, view, config, asset, public file, test, or package was changed.
+- Historical reports remain in `ai/reports/database/` and `ai/reports/performance/`.
+
 ### STEP DB-09 - Category & Destination Foreign Key Restriction Implementation
 
 Changed:
