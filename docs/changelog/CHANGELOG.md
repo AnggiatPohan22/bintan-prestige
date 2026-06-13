@@ -4,6 +4,25 @@ All notable project documentation and baseline improvement steps are tracked her
 
 ## 2026-06-13
 
+### STEP DB-04 - Product Price Unique Index & Safe Update Flow Implementation
+
+Changed:
+
+- Added a new migration for unique `product_prices(product_id, currency)`.
+- Added ProductPrice currency constants and supported currency helper.
+- Updated ProductPriceService to sync prices through a single currency-aware method.
+- Added non-negative validation for IDR and SGD product price fields.
+- Added focused ProductPrice integrity tests.
+- Added database/module documentation for product price integrity.
+- Created `ai/reports/database/db-04-product-price-unique-index-implementation-report.md`.
+
+Notes:
+
+- No old migration was changed.
+- No existing product price rows were deleted or modified.
+- No frontend layout was changed.
+- Global settings cache, additional product indexes, and soft-delete/cascade policy were not changed in this step.
+
 ### STEP DOC-SYNC-SECURITY-08 - Documentation Sync for Super Admin & Admin User Management
 
 Changed:

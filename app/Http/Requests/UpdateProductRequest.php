@@ -31,12 +31,14 @@ class UpdateProductRequest
 
             'idr_price' => [
                 'required',
-                'numeric'
+                'numeric',
+                'min:0'
             ],
 
             'sgd_price' => [
                 'required',
-                'numeric'
+                'numeric',
+                'min:0'
             ],
 
             'thumbnail' => [
