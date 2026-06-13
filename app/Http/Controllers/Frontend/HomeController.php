@@ -9,6 +9,7 @@ use App\Models\Faq;
 use App\Models\PageSection;
 use App\Models\Product;
 use App\Services\GlobalSettingsService;
+use App\Support\PageSectionRegistry;
 
 class HomeController extends Controller
 {
@@ -16,8 +17,13 @@ class HomeController extends Controller
     {
         $heroBackgroundUrl = null;
 
+        $homepageSectionKeys = collect(PageSectionRegistry::sections()['home'] ?? [])
+            ->pluck('section_key')
+            ->all();
+
         $sections = PageSection::query()
             ->where('page_key', 'home')
+            ->whereIn('section_key', $homepageSectionKeys)
             ->where('is_active', true)
             ->with('media')
             ->orderBy('sort_order')

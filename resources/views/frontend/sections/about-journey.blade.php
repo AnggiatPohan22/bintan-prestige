@@ -4,6 +4,7 @@
     $secondaryVisual = $section?->mediaSlot('frame', 'secondary_visual');
     $sectionPlaceholder = \App\Support\DefaultMediaAssets::asset($siteAssets ?? collect(), 'section');
     $sectionPlaceholderFit = \App\Support\DefaultMediaAssets::fit($defaultMediaSettings ?? [], 'section');
+    $buttonUrl = \App\Support\PageSectionCta::safeUrl($section?->button_url, route('products.index'));
 @endphp
 
 <section class="bp-journey-section" id="home-about-journey" data-section-key="home.about_journey" aria-labelledby="journey-title">
@@ -63,7 +64,7 @@
                 </article>
             </div>
 
-            <a href="{{ $section?->button_url ?: route('products.index') }}" class="btn btn-primary btn-lg bp-journey-cta">
+            <a href="{{ $buttonUrl }}" class="btn btn-primary btn-lg bp-journey-cta">
                 {{ $section?->button_text ?? 'BOOK YOUR TRIP' }}
                 <svg class="bp-journey-cta__icon" viewBox="0 0 24 24" aria-hidden="true">
                     <path d="M7 17L17 7"></path>

@@ -34,6 +34,85 @@ class PageSectionRegistry
     public static function sections(): array
     {
         return [
+            'home' => [
+                [
+                    'section_key' => 'home.hero',
+                    'label' => 'Luxury Bintan Travel',
+                    'title' => 'BINTAN PRESTIGE',
+                    'description' => 'Private tours, island transfers, and curated experiences designed for a smoother premium escape.',
+                    'sort_order' => 0,
+                    'extra_data' => ['animation' => 'ken-burns'],
+                ],
+                [
+                    'section_key' => 'home.popular_tour',
+                    'label' => 'Most Popular Tour',
+                    'title' => "Let's Discover Bintan With Our Excellent Trips",
+                    'description' => "Whether you're looking for a private island escape, resort transfer, family-friendly activity, or curated Bintan journey, Bintan Prestige provides thoughtfully arranged travel experiences with comfort, quality, and local insight.",
+                    'button_text' => 'TAKE A TOUR',
+                    'button_url' => '/products',
+                    'sort_order' => 10,
+                ],
+                [
+                    'section_key' => 'home.popular_products_intro',
+                    'label' => 'Most Popular Tour Packages',
+                    'title' => 'Something Amazing Waiting For You',
+                    'sort_order' => 20,
+                ],
+                [
+                    'section_key' => 'home.manual_ads',
+                    'label' => 'Special Offer',
+                    'title' => 'Plan Your Bintan Journey With Us',
+                    'button_text' => 'SEE DETAILS',
+                    'button_url' => '/products',
+                    'sort_order' => 30,
+                    'extra_data' => ['overlay_title' => "Let's Discover The Whole World!"],
+                ],
+                [
+                    'section_key' => 'home.about_journey',
+                    'label' => 'Dream Your Next Trip',
+                    'title' => 'Discover When Even You Want To Go',
+                    'description' => 'Are you tired of the typical tourist destinations and looking to step out of your comfort zone? Adventure travel may be the perfect solution for you! Here are four.',
+                    'button_text' => 'BOOK YOUR TRIP',
+                    'button_url' => '/products',
+                    'sort_order' => 40,
+                ],
+                [
+                    'section_key' => 'home.categories_intro',
+                    'label' => 'Next Adventure Destination',
+                    'title' => 'Popular Travel Categories Available In Bintan',
+                    'description' => 'Explore Bintan by travel style and discover curated packages that match your journey.',
+                    'sort_order' => 50,
+                ],
+                [
+                    'section_key' => 'home.explore_banner',
+                    'label' => 'Next Adventure Destination',
+                    'title' => 'Popular Travel Destinations Available Worldwide',
+                    'button_text' => 'BOOK YOUR TRIP NOW',
+                    'button_url' => '/products',
+                    'sort_order' => 60,
+                    'extra_data' => ['outline_text' => 'EXPLORE THE WORLD'],
+                ],
+                [
+                    'section_key' => 'home.testimonials',
+                    'label' => 'Clients Feedback About Us',
+                    'title' => 'See Those Lovely Words From Clients',
+                    'description' => 'Read what our guests say about their Bintan travel experience with Bintan Prestige.',
+                    'sort_order' => 70,
+                ],
+                [
+                    'section_key' => 'home.faq',
+                    'label' => 'Before your journey',
+                    'title' => 'All you should know before embarking on your Bintan journey',
+                    'sort_order' => 80,
+                ],
+                [
+                    'section_key' => 'home.footer_cta',
+                    'label' => 'Explore Tour',
+                    'title' => 'Plan Your Perfect Bintan Escape With Us',
+                    'description' => 'Tell us your arrival point, travel date, and preferred experience. Our team will help you choose the right package.',
+                    'sort_order' => 90,
+                ],
+            ],
             'products.index' => [
                 [
                     'section_key' => 'products.index.hero',

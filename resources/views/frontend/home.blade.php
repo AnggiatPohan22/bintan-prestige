@@ -14,6 +14,8 @@
     $heroBackground = $heroSection?->mediaUrl('background', 'desktop_background') ?? $heroSection?->image_url ?? $heroBackgroundUrl ?? $heroPlaceholder?->url;
     $heroMobileBackground = $heroSection?->mediaUrl('background', 'mobile_background') ?? $heroSection?->mobile_image_url ?? $heroMobilePlaceholder?->url;
     $heroAnimation = $heroSection?->animation ?? 'ken-burns';
+    $heroCtaUrl = \App\Support\PageSectionCta::safeUrl($heroSection?->button_url);
+    $heroCtaText = $heroSection?->button_text;
     $faqSection = $sections['home.faq'] ?? null;
     $faqVisual = $faqSection?->mediaSlot('frame', 'main_visual');
     $fallbackFaqs = collect([
@@ -72,6 +74,12 @@
                     <p class="home-hero__text text-body">
                         {{ $heroSection?->description ?? 'Private tours, island transfers, and curated experiences designed for a smoother premium escape.' }}
                     </p>
+
+                    @if(\App\Support\PageSectionCta::hasButton($heroCtaText, $heroCtaUrl))
+                        <a href="{{ $heroCtaUrl }}" class="btn btn-primary btn-lg">
+                            {{ $heroCtaText }}
+                        </a>
+                    @endif
                 </div>
 
             </div>
@@ -222,7 +230,7 @@
         </div>
     </section>
 
-    <section class="home-faq-preview" id="faq-preview">
+    <section class="home-faq-preview" id="faq-preview" data-section-key="home.faq">
         <div class="home-container home-faq-preview__grid">
             <div>
                 <span class="home-section__kicker">{{ $faqSection?->label ?? 'Before your journey' }}</span>

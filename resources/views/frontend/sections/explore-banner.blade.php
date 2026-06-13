@@ -5,6 +5,7 @@
     $mobileBackground = $section?->mediaSlot('background', 'mobile_background');
     $heroPlaceholder = \App\Support\DefaultMediaAssets::asset($siteAssets ?? collect(), 'hero');
     $heroPlaceholderFit = \App\Support\DefaultMediaAssets::fit($defaultMediaSettings ?? [], 'hero');
+    $buttonUrl = \App\Support\PageSectionCta::safeUrl($section?->button_url, route('products.index'));
 @endphp
 
 <section class="bp-explore-banner" id="home-explore-banner" data-section-key="home.explore_banner" aria-labelledby="explore-banner-title">
@@ -34,7 +35,7 @@
             {{ $section?->title ?? 'Popular Travel Destinations Available Worldwide' }}
         </h2>
 
-        <a href="{{ $section?->button_url ?: route('products.index') }}" class="btn btn-primary btn-lg bp-explore-banner__cta">
+        <a href="{{ $buttonUrl }}" class="btn btn-primary btn-lg bp-explore-banner__cta">
             {{ $section?->button_text ?? 'BOOK YOUR TRIP NOW' }}
             <svg class="bp-explore-banner__cta-icon" viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M7 17L17 7"></path>

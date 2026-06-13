@@ -4,6 +4,26 @@ All notable project documentation and baseline improvement steps are tracked her
 
 ## 2026-06-13
 
+### STEP FRONTEND-04A - Homepage Section Key and CTA CMS Sync
+
+Changed:
+
+- Registered homepage PageSection keys in the canonical PageSection registry.
+- Scoped homepage PageSection loading to the registered active homepage keys.
+- Added `data-section-key` markers for FAQ preview and Footer CTA.
+- Added safe PageSection CTA URL handling for homepage CTA links.
+- Added Hero CTA rendering when CMS button text and a safe URL are provided.
+- Allowed Footer CTA button text/URL to use `home.footer_cta` CMS values while preserving global WhatsApp CTA fallback.
+- Added focused homepage CMS/CTA tests.
+- Created `ai/reports/frontend/frontend-04a-homepage-section-key-cta-cms-sync-report.md`.
+
+Notes:
+
+- No database schema, migration, route, model, package, or homepage redesign was changed.
+- Product, category, destination, FAQ, and global settings module data remain module-driven.
+- Existing fixed luxury layout, responsive structure, Tailwind classes, and animations were preserved.
+- Full `php artisan test` passed with 153 tests and 735 assertions.
+
 ### STEP DOC-SYNC-DB - Database Improvement Documentation Sync
 
 Changed:

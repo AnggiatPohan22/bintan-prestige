@@ -1,7 +1,7 @@
 @php
     $section = $sections['home.manual_ads'] ?? null;
     $extraData = $section?->extra_data ?? [];
-    $buttonUrl = $section?->button_url ?: route('products.index');
+    $buttonUrl = \App\Support\PageSectionCta::safeUrl($section?->button_url, route('products.index'));
     $overlayTitle = $extraData['overlay_title'] ?? "Let's Discover The Whole World!";
     $mainVisual = $section?->mediaSlot('frame', 'main_visual');
     $sectionPlaceholder = \App\Support\DefaultMediaAssets::asset($siteAssets ?? collect(), 'section');
