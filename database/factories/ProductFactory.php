@@ -49,7 +49,21 @@ class ProductFactory extends Factory
 
             'is_featured' => fake()->boolean(),
 
-            'status' => true,
+            'status' => 'published',
         ];
+    }
+
+    public function published(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'status' => 'published',
+        ]);
+    }
+
+    public function draft(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'status' => 'draft',
+        ]);
     }
 }
