@@ -4,6 +4,22 @@ All notable project documentation and baseline improvement steps are tracked her
 
 ## 2026-06-13
 
+### STEP DB-07 - Product Query Index Implementation
+
+Changed:
+
+- Added a new migration for `products(status, created_at)`.
+- Added explicit index name `products_status_created_at_index`.
+- Updated database, product module, performance, and changelog documentation.
+- Created `ai/reports/database/db-07-product-query-index-implementation-report.md`.
+
+Notes:
+
+- No existing migration was changed.
+- No product data was changed or deleted.
+- No product query behavior, layout, route, controller, or model was changed.
+- `product_prices(currency, price)` remains deferred.
+
 ### STEP DB-06 - Global Settings Service & Cache Implementation
 
 Changed:

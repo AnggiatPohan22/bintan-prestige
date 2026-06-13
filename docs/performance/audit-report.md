@@ -56,3 +56,18 @@ Regression verification after the fix:
 - `backend.dashboard` rendered successfully through Laravel bootstrap after cache rebuild.
 
 No database schema, migration, route, layout, or product index was changed in this step.
+
+## DB-07 Product Status/Created At Index
+
+DB-07 added one product query index:
+
+- `products_status_created_at_index` on `products(status, created_at)`
+
+Before the index, EXPLAIN for `WHERE status = 'published' ORDER BY created_at DESC LIMIT ...` showed a full table scan and filesort.
+
+After the index, EXPLAIN uses `products_status_created_at_index` with a backward index scan for latest/newest queries. Draft/published behavior, product query output, pagination, route behavior, and frontend/admin layouts are unchanged.
+
+Deferred:
+
+- `product_prices(currency, price)` remains deferred.
+- Additional product indexes are not added in DB-07.

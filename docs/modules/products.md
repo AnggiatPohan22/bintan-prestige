@@ -1,5 +1,13 @@
 # Products Module
 
+## Product Query Index
+
+The Products module has a non-unique composite index:
+
+- `products_status_created_at_index` on `products(status, created_at)`.
+
+This supports common product queries that filter by publication status and read newest products first. It does not change product visibility, sorting behavior, pagination, or draft/published policy.
+
 ## Product Price Integrity
 
 The Products module stores prices in `product_prices`.
