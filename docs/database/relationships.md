@@ -1,5 +1,23 @@
 # Database Relationships
 
+## Products, Categories, and Destinations
+
+`Product` belongs to `Category`.
+
+`Product` belongs to `Destination`.
+
+`Category` has many `Product` rows.
+
+`Destination` has many `Product` rows.
+
+Integrity rules:
+
+- Category and Destination use soft delete for the admin archive flow.
+- Soft-deleting a Category or Destination does not delete products.
+- Permanent parent delete is restricted while products reference the parent.
+- Product parent references are required; `category_id` and `destination_id` are not nullable.
+- Product relationships keep `withTrashed()` parent access for admin/history readability.
+
 ## Products and Prices
 
 `Product` has many `ProductPrice` rows.

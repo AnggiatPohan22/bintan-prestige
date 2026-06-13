@@ -4,6 +4,23 @@ All notable project documentation and baseline improvement steps are tracked her
 
 ## 2026-06-13
 
+### STEP DB-09 - Category & Destination Foreign Key Restriction Implementation
+
+Changed:
+
+- Added a new migration changing `products.category_id` and `products.destination_id` parent delete behavior from cascade to restrict.
+- Added focused tests for Category/Destination soft delete, permanent delete restrictions, controller force-delete guards, empty parent permanent delete, and orphan checks.
+- Updated database relationship/module documentation for Category, Destination, and Product delete integrity.
+- Created `ai/reports/database/db-09-category-destination-fk-restriction-implementation-report.md`.
+
+Notes:
+
+- No old migration was changed.
+- No existing product, category, destination, or product child data was deleted or modified.
+- Product child foreign keys were not changed.
+- Admin/frontend layout was not changed.
+- Soft delete remains the normal Category/Destination archive flow.
+
 ### STEP DB-07 - Product Query Index Implementation
 
 Changed:

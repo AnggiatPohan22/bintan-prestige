@@ -4,6 +4,14 @@
 
 `products` stores public/admin product records and publication state.
 
+Category/Destination parent integrity:
+
+- `products.category_id` references `categories.id`.
+- `products.destination_id` references `destinations.id`.
+- Parent category/destination hard deletes are restricted while products reference them.
+- Category and Destination archive flow uses soft delete, so archiving does not delete Product rows.
+- Product parent columns remain required and are not nullable.
+
 Current product performance index:
 
 - `products_status_created_at_index` on `products(status, created_at)`.

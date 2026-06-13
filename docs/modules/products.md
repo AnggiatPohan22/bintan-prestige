@@ -1,5 +1,17 @@
 # Products Module
 
+## Category and Destination Integrity
+
+Products require both a Category and a Destination.
+
+Rules:
+
+- `category_id` and `destination_id` are required.
+- Product parent references are protected by restricted delete foreign keys.
+- A Category or Destination archive action does not delete products.
+- A Category or Destination cannot be permanently deleted while products reference it.
+- Product-owned child data remains governed by Product-level relationships and constraints.
+
 ## Product Query Index
 
 The Products module has a non-unique composite index:
