@@ -66,4 +66,47 @@ class ProductDetailBookingFormTest extends TestCase
         $response->assertSee('Hotel Pickup');
         $response->assertSee('bookingWhatsappUrl()', false);
     }
+
+    public function test_product_detail_without_price_renders_request_price_state(): void
+    {
+        Category::factory()->create(['name' => 'Tour Package']);
+        Destination::factory()->create(['name' => 'Lagoi']);
+
+        $product = Product::factory()->create([
+            'name' => 'Custom Private Tour',
+            'status' => 'published',
+            'duration' => 'Flexible',
+        ]);
+
+        $response = $this->get(route('products.show', $product));
+
+        $response->assertOk();
+        $response->assertSee('Custom Private Tour');
+        $response->assertSee('Price on request');
+        $response->assertDontSee('Rp 0');
+    }
+
+    public function test_product_detail_renders_sgd_price_when_idr_is_missing(): void
+    {
+        Category::factory()->create(['name' => 'Tour Package']);
+        Destination::factory()->create(['name' => 'Lagoi']);
+
+        $product = Product::factory()->create([
+            'name' => 'Singapore Guest Tour',
+            'status' => 'published',
+        ]);
+
+        ProductPrice::create([
+            'product_id' => $product->id,
+            'currency' => ProductPrice::CURRENCY_SGD,
+            'price' => 45,
+        ]);
+
+        $response = $this->get(route('products.show', $product));
+
+        $response->assertOk();
+        $response->assertSee('Singapore Guest Tour');
+        $response->assertSee('SGD 45');
+        $response->assertDontSee('Rp 0');
+    }
 }

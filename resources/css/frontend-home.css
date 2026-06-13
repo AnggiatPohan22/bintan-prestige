@@ -613,6 +613,16 @@
         color: var(--frontend-charcoal);
     }
 
+    .bp-product-card__price-empty {
+        @apply leading-tight;
+        color: #8a681a;
+    }
+
+    .bp-product-card__price-secondary {
+        @apply mt-1 block text-xs font-extrabold;
+        color: var(--frontend-gray);
+    }
+
     /* BP PRODUCT CARD BUTTON: Keeps the detail button compact inside card footer. */
     .bp-product-card__button {
         @apply shrink-0;

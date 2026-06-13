@@ -233,6 +233,11 @@
         color: rgba(255, 255, 255, 0.78);
     }
 
+    .product-card__price-main--empty {
+        @apply text-2xl leading-tight sm:text-3xl;
+        color: var(--frontend-gold-soft);
+    }
+
     /* PRODUCT CARD TITLE: Keeps product names strong while preventing uneven card heights. */
     .product-card__title {
         @apply mt-3 text-2xl font-extrabold leading-tight sm:text-3xl;
@@ -823,6 +828,11 @@
         @apply mt-2 text-sm font-semibold text-slate-500;
     }
 
+    .product-detail-price-card__main--empty {
+        @apply text-2xl leading-tight sm:text-3xl;
+        color: #8a681a;
+    }
+
     /* PRODUCT DETAIL BUTTON: Defines the main WhatsApp booking action. */
     .product-detail-button {
         @apply mt-5 w-full;
@@ -1048,6 +1058,11 @@
 
     .product-detail-booking-card__price-row strong {
         @apply text-right text-2xl font-extrabold text-slate-950;
+    }
+
+    .product-detail-booking-card__price-empty {
+        @apply text-xl leading-tight;
+        color: #8a681a;
     }
 
     /* PRODUCT DETAIL BOOKING SECONDARY PRICE: Shows alternate currency below the main price. */

@@ -253,19 +253,11 @@
                     </div>
 
                     <div class="product-detail-price-card">
-                        <p class="product-detail-price-card__label">
-                            Start from
-                        </p>
-
-                        <p class="product-detail-price-card__main">
-                            Rp {{ number_format($product->idr_price ?? 0, 0, ',', '.') }}
-                        </p>
-
-                        @if($product->sgd_price)
-                            <p class="product-detail-price-card__secondary">
-                                SGD {{ number_format($product->sgd_price, 0) }}
-                            </p>
-                        @endif
+                        @include('frontend.components.product-price', [
+                            'product' => $product,
+                            'context' => 'detail',
+                            'label' => 'Start from',
+                        ])
 
                         <a
                             href="https://wa.me/{{ $waNumber }}?text={{ $waMessage }}"
@@ -494,16 +486,11 @@
                     </div>
 
                     <div class="product-detail-booking-card__list">
-                        <div class="product-detail-booking-card__price-row">
-                            <span>Price from</span>
-                            <strong>Rp {{ number_format($product->idr_price ?? 0, 0, ',', '.') }}</strong>
-                        </div>
-
-                        @if($product->sgd_price)
-                            <p class="product-detail-booking-card__secondary-price">
-                                SGD {{ number_format($product->sgd_price, 0) }}
-                            </p>
-                        @endif
+                        @include('frontend.components.product-price', [
+                            'product' => $product,
+                            'context' => 'booking',
+                            'label' => 'Price from',
+                        ])
 
                         <label class="product-detail-booking-field">
                             <span>Date</span>

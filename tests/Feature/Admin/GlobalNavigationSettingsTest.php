@@ -166,6 +166,13 @@ class GlobalNavigationSettingsTest extends TestCase
         $response->assertSee('Experiences');
         $response->assertSee('Private Trip');
         $response->assertSee('frontend-nav__dropdown');
+        $response->assertSee('data-mobile-nav', false);
+        $response->assertSee('data-mobile-nav-toggle', false);
+        $response->assertSee('aria-controls="frontend-mobile-menu"', false);
+        $response->assertSee('aria-expanded="false"', false);
+        $response->assertSee('id="frontend-mobile-menu"', false);
+        $response->assertSee('data-mobile-nav-panel', false);
+        $response->assertSee('frontend-mobile-nav__children');
         $response->assertSee('href="http://localhost/experiences"', false);
         $response->assertSee('Reserve Trip');
         $response->assertSee('href="http://localhost/#reserve"', false);

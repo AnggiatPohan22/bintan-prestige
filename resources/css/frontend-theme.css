@@ -815,8 +815,17 @@
         --btn-color: var(--frontend-white);
     }
 
+    /* FRONTEND MENU BUTTON: Shows a dedicated mobile navigation trigger below desktop nav. */
+    .frontend-header__menu {
+        @apply md:hidden;
+        --btn-bg: transparent;
+        --btn-border: rgba(255, 255, 255, 0.58);
+        --btn-color: var(--frontend-white);
+    }
+
     /* FRONTEND HEADER ICON SVG: Draws a crisp modern arrow without loading an icon package. */
-    .frontend-header__icon-svg {
+    .frontend-header__icon-svg,
+    .frontend-header__menu-icon {
         @apply h-5 w-5;
         fill: none;
         stroke: currentColor;
@@ -833,7 +842,19 @@
         --btn-color: var(--frontend-gold-soft);
     }
 
+    .frontend-header--scrolled .frontend-header__menu {
+        --btn-bg: var(--frontend-black);
+        --btn-border: var(--frontend-black);
+        --btn-color: var(--frontend-gold-soft);
+    }
+
     .frontend-header--inline .frontend-header__icon {
+        --btn-bg: var(--frontend-black);
+        --btn-border: var(--frontend-black);
+        --btn-color: var(--frontend-gold-soft);
+    }
+
+    .frontend-header--inline .frontend-header__menu {
         --btn-bg: var(--frontend-black);
         --btn-border: var(--frontend-black);
         --btn-color: var(--frontend-gold-soft);
@@ -842,6 +863,103 @@
     /* FRONTEND HEADER ICON SVG HOVER: Adds a tiny arrow motion for a polished feel. */
     .frontend-header__icon:hover .frontend-header__icon-svg {
         transform: translate(1px, -1px);
+    }
+
+    /* FRONTEND MOBILE NAV: Provides an accessible mobile drawer using the same navigation data. */
+    .frontend-mobile-nav {
+        @apply fixed inset-0 z-[70] md:hidden;
+        pointer-events: auto;
+    }
+
+    .frontend-mobile-nav[hidden] {
+        display: none !important;
+    }
+
+    .frontend-mobile-nav__backdrop {
+        @apply absolute inset-0 bg-slate-950/50;
+    }
+
+    .frontend-mobile-nav__panel {
+        @apply absolute right-0 top-0 flex h-full w-[min(88vw,24rem)] flex-col overflow-y-auto border-l px-5 py-5 shadow-2xl;
+        background: rgba(251, 247, 237, 0.98);
+        border-color: rgba(200, 162, 74, 0.34);
+        color: var(--frontend-charcoal);
+        transform: translateX(0);
+    }
+
+    .frontend-mobile-nav__header {
+        @apply flex items-center justify-between gap-4 border-b pb-4;
+        border-color: rgba(200, 162, 74, 0.22);
+    }
+
+    .frontend-mobile-nav__title {
+        @apply text-sm font-extrabold uppercase;
+        color: #8a681a;
+    }
+
+    .frontend-mobile-nav__close {
+        --btn-bg: var(--frontend-black);
+        --btn-border: var(--frontend-black);
+        --btn-color: var(--frontend-gold-soft);
+    }
+
+    .frontend-mobile-nav__links {
+        @apply mt-5 flex flex-col gap-3;
+    }
+
+    .frontend-mobile-nav__group {
+        @apply rounded-2xl border bg-white/80 p-2;
+        border-color: rgba(200, 162, 74, 0.18);
+    }
+
+    .frontend-mobile-nav__link {
+        @apply flex min-h-12 items-center rounded-xl px-4 text-base font-extrabold no-underline transition;
+        color: var(--frontend-charcoal);
+    }
+
+    .frontend-mobile-nav__link:hover,
+    .frontend-mobile-nav__link:focus-visible,
+    .frontend-mobile-nav__link--active {
+        background: rgba(200, 162, 74, 0.16);
+        color: var(--frontend-black);
+    }
+
+    .frontend-mobile-nav__children {
+        @apply ml-3 mt-1 border-l pl-3;
+        border-color: rgba(200, 162, 74, 0.28);
+    }
+
+    .frontend-mobile-nav__child-link {
+        @apply block rounded-xl px-4 py-3 text-sm font-bold no-underline transition;
+        color: var(--frontend-gray);
+    }
+
+    .frontend-mobile-nav__child-link:hover,
+    .frontend-mobile-nav__child-link:focus-visible,
+    .frontend-mobile-nav__child-link--active {
+        background: rgba(200, 162, 74, 0.14);
+        color: var(--frontend-black);
+    }
+
+    .frontend-mobile-nav__cta {
+        @apply mt-5 w-full shrink-0;
+    }
+
+    .frontend-body--nav-open {
+        overflow: hidden;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .frontend-header,
+        .frontend-header__inner,
+        .frontend-header__icon-svg,
+        .frontend-header__menu-icon,
+        .frontend-nav__chevron,
+        .frontend-nav__dropdown,
+        .frontend-mobile-nav__link,
+        .frontend-mobile-nav__child-link {
+            transition: none;
+        }
     }
 
     .bp-manual-ads {
