@@ -95,12 +95,12 @@
         <div class="product-container">
 
             <nav class="product-breadcrumb" aria-label="Breadcrumb">
-                <a href="{{ route('products.index') }}" class="product-breadcrumb__link">
-                    Products
+                <a href="{{ route('home') }}" class="product-breadcrumb__link">
+                    Home
                 </a>
                 <span class="product-breadcrumb__separator" aria-hidden="true">/</span>
                 <span class="product-breadcrumb__current">
-                    All Tour
+                    Products
                 </span>
             </nav>
 
@@ -111,7 +111,7 @@
                     </h2>
 
                     <p class="product-toolbar__text text-muted">
-                        {{ $products->total() }} packages available for your next Bintan experience.
+                        {{ $resultSummary }} for your next Bintan experience.
                     </p>
 
                     @if(! empty($listingCatalog['description']))
@@ -126,6 +126,9 @@
                         type="button"
                         class="btn btn-outline btn-sm product-action-button"
                         x-on:click="filterOpen = true"
+                        x-bind:aria-expanded="filterOpen.toString()"
+                        aria-controls="products-index-filter-modal"
+                        aria-label="Open product listing filters"
                     >
                         Filter
                         @if($activeFilterCount)
@@ -139,6 +142,9 @@
                         type="button"
                         class="btn btn-outline btn-sm product-action-button"
                         x-on:click="sortOpen = true"
+                        x-bind:aria-expanded="sortOpen.toString()"
+                        aria-controls="products-index-sort-modal"
+                        aria-label="Open product listing sorting options"
                     >
                         Urutkan
                         <span class="product-action-button__label">
@@ -147,6 +153,68 @@
                     </button>
                 </div>
             </div>
+
+            <section class="product-discovery" aria-labelledby="product-discovery-title">
+                <div>
+                    <p class="product-discovery__eyebrow">
+                        Discovery controls
+                    </p>
+
+                    <h3 id="product-discovery-title" class="product-discovery__title">
+                        Filter by destination, category, duration, vehicle, and {{ $priceCurrency }} price.
+                    </h3>
+                </div>
+
+                <div class="product-discovery__meta" aria-label="Current listing state">
+                    <span>{{ $resultSummary }}</span>
+                    <span>{{ $sortOptions[$sort] ?? 'Tour Terbaru' }}</span>
+                    <span>Price context: {{ $priceCurrency }}</span>
+                </div>
+            </section>
+
+            @if($activeFilterSummary || $hasInvalidFilter)
+                <section class="product-active-filters" aria-labelledby="product-active-filters-title">
+                    <div class="product-active-filters__header">
+                        <div>
+                            <p class="product-active-filters__eyebrow">
+                                Active listing state
+                            </p>
+
+                            <h3 id="product-active-filters-title" class="product-active-filters__title">
+                                Current filters
+                            </h3>
+                        </div>
+
+                        <a href="{{ $resetListingUrl }}" class="product-active-filters__clear">
+                            Clear all
+                        </a>
+                    </div>
+
+                    @if($activeFilterSummary)
+                        <ul class="product-active-filters__list" aria-label="Active filters">
+                            @foreach($activeFilterSummary as $filter)
+                                <li class="product-active-filter">
+                                    <span class="product-active-filter__label">{{ $filter['label'] }}</span>
+                                    <strong>{{ $filter['value'] }}</strong>
+                                    <a
+                                        href="{{ $filter['remove_url'] }}"
+                                        class="product-active-filter__remove"
+                                        aria-label="{{ $filter['remove_label'] }}: {{ $filter['value'] }}"
+                                    >
+                                        Remove
+                                    </a>
+                                </li>
+                            @endforeach
+                        </ul>
+                    @endif
+
+                    @if($hasInvalidFilter)
+                        <p class="product-active-filters__notice">
+                            Some query values were ignored because they are not available filter options.
+                        </p>
+                    @endif
+                </section>
+            @endif
 
             @if($products->count())
 
@@ -161,27 +229,40 @@
                 </div>
 
                 <div class="product-pagination">
-                    {{ $products->links() }}
+                    @if($products->firstItem() && $products->lastItem())
+                        <p class="product-pagination__summary">
+                            Showing {{ $products->firstItem() }}-{{ $products->lastItem() }} of {{ $products->total() }} packages.
+                        </p>
+                    @endif
+
+                    {{ $products->links('frontend.components.product-pagination-links') }}
                 </div>
 
             @else
 
-                <div class="product-empty">
-                    <h3 class="product-empty__title">
-                        No products available
+                <section class="product-empty" aria-labelledby="product-empty-title">
+                    <h3 id="product-empty-title" class="product-empty__title">
+                        {{ $emptyState['title'] }}
                     </h3>
 
                     <p class="product-empty__text">
-                        Try clearing filters or choose another destination.
+                        {{ $emptyState['description'] }}
                     </p>
-                </div>
+
+                    <a href="{{ $emptyState['action_url'] ?? $resetListingUrl }}" class="btn btn-submit product-empty__action">
+                        {{ $emptyState['action'] }}
+                    </a>
+                </section>
 
             @endif
 
             @if(! empty($listingCatalog['has_cta']))
-                <div class="product-empty">
+                <section
+                    class="product-empty product-final-cta"
+                    @if(! empty($listingCatalog['subtitle'])) aria-labelledby="product-final-cta-title" @endif
+                >
                     @if(! empty($listingCatalog['subtitle']))
-                        <h3 class="product-empty__title">
+                        <h3 id="product-final-cta-title" class="product-empty__title">
                             {{ $listingCatalog['subtitle'] }}
                         </h3>
                     @endif
@@ -189,7 +270,7 @@
                     <a href="{{ $listingCatalog['cta_url'] }}" class="btn btn-submit">
                         {{ $listingCatalog['cta_text'] }}
                     </a>
-                </div>
+                </section>
             @endif
 
         </div>
@@ -204,6 +285,7 @@
         x-transition.opacity
         aria-modal="true"
         role="dialog"
+        aria-labelledby="products-index-filter-title"
     >
         <button
             type="button"
@@ -216,6 +298,7 @@
             method="GET"
             action="{{ route('products.index') }}"
             class="product-modal__panel"
+            aria-labelledby="products-index-filter-title"
             x-transition
         >
             <input type="hidden" name="sort" value="{{ $sort }}">
@@ -226,7 +309,7 @@
                         Refine packages
                     </p>
 
-                    <h3 class="product-modal__title title-card">
+                    <h3 id="products-index-filter-title" class="product-modal__title title-card">
                         Filter
                     </h3>
                 </div>
@@ -242,45 +325,53 @@
             </div>
 
             <div class="product-filter">
-                <section class="product-filter__group">
-                    <h4 class="product-filter__title">
+                <fieldset class="product-filter__group">
+                    <legend class="product-filter__title">
                         Rentang Harga {{ $priceCurrency }}
-                    </h4>
+                    </legend>
 
                     <div class="product-filter__price-grid">
-                        <label class="product-field">
+                        <label class="product-field" for="product-filter-min-price">
                             <span class="product-field__label">Minimum</span>
                             <input
+                                id="product-filter-min-price"
                                 type="number"
                                 name="min_price"
                                 value="{{ $minPrice ?? '' }}"
                                 placeholder="{{ $priceRange['min'] ? number_format($priceRange['min'], 0, ',', '.') : '0' }}"
+                                inputmode="numeric"
+                                min="0"
                                 class="product-field__input"
                             >
                         </label>
 
-                        <label class="product-field">
+                        <label class="product-field" for="product-filter-max-price">
                             <span class="product-field__label">Maximum</span>
                             <input
+                                id="product-filter-max-price"
                                 type="number"
                                 name="max_price"
                                 value="{{ $maxPrice ?? '' }}"
                                 placeholder="{{ $priceRange['max'] ? number_format($priceRange['max'], 0, ',', '.') : '0' }}"
+                                inputmode="numeric"
+                                min="0"
                                 class="product-field__input"
                             >
                         </label>
                     </div>
-                </section>
+                </fieldset>
 
-                <section class="product-filter__group">
-                    <h4 class="product-filter__title">
+                <fieldset class="product-filter__group">
+                    <legend class="product-filter__title">
                         Durasi
-                    </h4>
+                    </legend>
 
                     <div class="product-filter__options">
                         @forelse($durations as $duration)
-                            <label class="product-check">
+                            @php($durationId = 'product-filter-duration-' . md5($duration))
+                            <label class="product-check" for="{{ $durationId }}">
                                 <input
+                                    id="{{ $durationId }}"
                                     type="checkbox"
                                     name="duration[]"
                                     value="{{ $duration }}"
@@ -292,17 +383,18 @@
                         <p class="product-filter__empty text-muted">No duration options yet.</p>
                         @endforelse
                     </div>
-                </section>
+                </fieldset>
 
-                <section class="product-filter__group">
-                    <h4 class="product-filter__title">
+                <fieldset class="product-filter__group">
+                    <legend class="product-filter__title">
                         Destinations
-                    </h4>
+                    </legend>
 
                     <div class="product-filter__options">
                         @foreach($destinations as $destination)
-                            <label class="product-check">
+                            <label class="product-check" for="product-filter-destination-{{ $destination->id }}">
                                 <input
+                                    id="product-filter-destination-{{ $destination->id }}"
                                     type="checkbox"
                                     name="destination[]"
                                     value="{{ $destination->id }}"
@@ -312,17 +404,18 @@
                             </label>
                         @endforeach
                     </div>
-                </section>
+                </fieldset>
 
-                <section class="product-filter__group">
-                    <h4 class="product-filter__title">
+                <fieldset class="product-filter__group">
+                    <legend class="product-filter__title">
                         Jenis Tour
-                    </h4>
+                    </legend>
 
                     <div class="product-filter__options">
                         @foreach($categories as $category)
-                            <label class="product-check">
+                            <label class="product-check" for="product-filter-category-{{ $category->id }}">
                                 <input
+                                    id="product-filter-category-{{ $category->id }}"
                                     type="checkbox"
                                     name="category[]"
                                     value="{{ $category->id }}"
@@ -332,17 +425,19 @@
                             </label>
                         @endforeach
                     </div>
-                </section>
+                </fieldset>
 
-                <section class="product-filter__group">
-                    <h4 class="product-filter__title">
+                <fieldset class="product-filter__group">
+                    <legend class="product-filter__title">
                         Jenis Mobil
-                    </h4>
+                    </legend>
 
                     <div class="product-filter__options">
                         @forelse($vehicleTypes as $vehicleType)
-                            <label class="product-check">
+                            @php($vehicleTypeId = 'product-filter-vehicle-' . md5($vehicleType))
+                            <label class="product-check" for="{{ $vehicleTypeId }}">
                                 <input
+                                    id="{{ $vehicleTypeId }}"
                                     type="checkbox"
                                     name="vehicle_type[]"
                                     value="{{ $vehicleType }}"
@@ -354,11 +449,11 @@
                             <p class="product-filter__empty text-muted">No vehicle options yet.</p>
                         @endforelse
                     </div>
-                </section>
+                </fieldset>
             </div>
 
             <div class="product-modal__footer">
-                <a href="{{ route('products.index', ['sort' => $sort]) }}" class="btn btn-outline product-modal__reset">
+                <a href="{{ $resetListingUrl }}" class="btn btn-outline product-modal__reset">
                     Hapus Filter
                 </a>
 
@@ -378,6 +473,7 @@
         x-transition.opacity
         aria-modal="true"
         role="dialog"
+        aria-labelledby="products-index-sort-title"
     >
         <button
             type="button"
@@ -390,6 +486,7 @@
             method="GET"
             action="{{ route('products.index') }}"
             class="product-modal__panel product-modal__panel--small"
+            aria-labelledby="products-index-sort-title"
             x-transition
         >
             @if($minPrice !== null)
@@ -422,7 +519,7 @@
                         Sort packages
                     </p>
 
-                    <h3 class="product-modal__title title-card">
+                    <h3 id="products-index-sort-title" class="product-modal__title title-card">
                         Urutkan
                     </h3>
                 </div>
@@ -437,7 +534,9 @@
                 </button>
             </div>
 
-            <div class="product-sort-list">
+            <fieldset class="product-sort-list">
+                <legend class="sr-only">Sort product listing</legend>
+
                 @foreach($sortOptions as $value => $label)
                     <label class="product-sort-option">
                         <input
@@ -449,10 +548,14 @@
                         <span>{{ $label }}</span>
                     </label>
                 @endforeach
-            </div>
+            </fieldset>
 
             <div class="product-modal__footer">
-                <a href="{{ route('products.index', $filterQueryParameters) }}" class="btn btn-outline product-modal__reset">
+                <a
+                    href="{{ route('products.index', $filterQueryParameters) }}"
+                    class="btn btn-outline product-modal__reset"
+                    aria-label="Reset sorting to newest while keeping filters"
+                >
                     Reset
                 </a>
 

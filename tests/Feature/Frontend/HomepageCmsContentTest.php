@@ -548,7 +548,7 @@ class HomepageCmsContentTest extends TestCase
 
         $response->assertOk();
         $response->assertSee('storage/defaults/product.jpg', false);
-        $response->assertSee('Default product image');
+        $response->assertSee('alt="Fallback Product in Fallback Destination"', false);
         $response->assertSee('storage/defaults/destination.jpg', false);
         $response->assertSee('Default destination image');
     }

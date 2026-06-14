@@ -1,6 +1,6 @@
 # Frontend Backend Sync
 
-Last updated: 2026-06-13
+Last updated: 2026-06-14
 
 ## Global Settings Flow
 
@@ -62,6 +62,17 @@ Frontend implication:
 - Product Listing treats duration as display/filter text only; deprecated duration sort query values fall back to newest.
 - Product Listing content is prepared by `ProductListingContent` from active `products.index.*` Page Sections with code fallbacks.
 - Product Listing Page Sections control intro/catalog copy, optional hero image, and optional catalog CTA only; filters, sorting, pagination, product query, and Product cards remain application-owned.
+- Product Listing filter UX uses normalized backend state for active filter labels, result count, empty-state copy, reset URLs, and pagination query persistence.
+- Product Listing paginates public catalog results at 9 Products per page; admin Product pagination and homepage Product counts stay separate.
+- Public Product Listing does not currently expose a free-text search parameter; homepage discovery still maps to existing `destination[]` and `category[]` filters.
+- Product Listing high-page empty recovery is prepared by the controller so Blade renders a first-page URL without changing pagination semantics.
+- Product Listing card image rendering keeps Product thumbnail first, then `default_media.product`, with Product-context alt text and a stable 4:5 frontend frame.
+- Product Listing responsive layout is CSS-owned: one column on mobile, two on tablet, and three on desktop/large desktop without horizontal card scrolling.
+- Product Listing metadata is prepared by `ProductController@index` and rendered by the existing frontend layout/meta partials: title, meta description, canonical URL, and robots policy.
+- Product Listing base and valid plain pagination URLs are indexable; filter/sort/price/invalid/unsupported/high-page query URLs use `noindex, follow` with canonical back to the clean listing URL.
+- Product Listing active filter summaries include backend-prepared remove URLs and accessible labels; Blade only renders the prepared state.
+- Product Listing pagination uses a listing-scoped Blade pagination view so current page, previous/next, disabled states, and page anchors have Product Listing-specific accessible text.
+- Product Listing structured data stays in `StructuredDataBuilder`: BreadcrumbList reuses the existing route-aware breadcrumb behavior, and ItemList contains only public listed Product names, positions, and detail URLs.
 - Public Product Detail behavior remains separate from the FRONTEND-07 listing policy.
 
 ## Homepage CMS Flow

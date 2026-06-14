@@ -8,9 +8,10 @@
     $productPlaceholder = \App\Support\DefaultMediaAssets::asset($siteAssets ?? collect(), 'product');
     $productPlaceholderFit = \App\Support\DefaultMediaAssets::fit($defaultMediaSettings ?? [], 'product');
     $productImageUrl = $product->thumbnail_url ?: $productPlaceholder?->url;
-    $productImageAlt = $product->thumbnail_url
-        ? trim($product->name . ($productDestinationName ? ' in ' . $productDestinationName : ''))
-        : ($productPlaceholder->alt ?? $product->name . ' image');
+    $productImageAlt = trim($product->name . ($productDestinationName ? ' in ' . $productDestinationName : ''));
+    $productImageAlt = $productImageAlt !== ''
+        ? $productImageAlt
+        : ($productPlaceholder->alt ?? 'Bintan product package');
     $usesPlaceholderImage = ! $product->thumbnail_url && $productPlaceholder?->url;
     $productMediaItems = collect();
     $productVideoItems = collect($productVideoItems ?? []);
@@ -62,11 +63,11 @@
                 </span>
             @endif
 
-            <h2 class="product-card__title title-card">
+            <h3 class="product-card__title title-card">
                 <a href="{{ $productDetailUrl }}" class="product-card__title-link">
                     {{ $product->name }}
                 </a>
-            </h2>
+            </h3>
 
             <div class="product-card__meta">
                 @if($productDestinationName)
@@ -135,7 +136,11 @@
                         </div>
                     @endif
 
-                    <a href="{{ $productDetailUrl }}" class="btn btn-primary btn-sm product-card__cta">
+                    <a
+                        href="{{ $productDetailUrl }}"
+                        class="btn btn-primary btn-sm product-card__cta"
+                        aria-label="View details for {{ $product->name }}"
+                    >
                         Details
                     </a>
                 </div>

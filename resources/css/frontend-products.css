@@ -7,6 +7,13 @@
         color: var(--frontend-charcoal);
     }
 
+    .product-page a:focus-visible,
+    .product-page button:focus-visible,
+    .product-page input:focus-visible {
+        outline: 2px solid var(--frontend-gold);
+        outline-offset: 3px;
+    }
+
     /* PRODUCT HERO: Creates a full-background catalog hero that sits behind the floating header. */
     .product-hero {
         @apply relative overflow-hidden;
@@ -125,24 +132,127 @@
         @apply hidden text-xs font-bold text-slate-400 sm:inline;
     }
 
-    /* PRODUCT GRID SHELL: Allows horizontal swipe for cards on smaller screens. */
-    .product-grid-shell {
-        @apply -mx-4 overflow-x-auto px-4 pb-2 sm:mx-0 sm:overflow-visible sm:px-0 sm:pb-0;
-        scroll-snap-type: x mandatory;
-        scrollbar-width: thin;
+    /* PRODUCT DISCOVERY: Summarizes filterable listing controls without crowding the toolbar. */
+    .product-discovery {
+        @apply mb-6 grid gap-4 rounded-lg border bg-white p-5 shadow-sm lg:grid-cols-[1fr_auto] lg:items-center;
+        border-color: rgba(200, 162, 74, 0.2);
     }
 
-    /* PRODUCT GRID: Builds a swipeable mobile row and a three-column desktop card layout. */
+    /* PRODUCT DISCOVERY EYEBROW: Adds quiet context for the listing controls. */
+    .product-discovery__eyebrow {
+        @apply text-xs font-extrabold uppercase;
+        color: #8a681a;
+    }
+
+    /* PRODUCT DISCOVERY TITLE: Keeps the available filter scope readable. */
+    .product-discovery__title {
+        @apply mt-1 text-sm font-bold leading-6;
+        color: var(--frontend-charcoal);
+    }
+
+    /* PRODUCT DISCOVERY META: Shows result, sort, and currency state as compact pills. */
+    .product-discovery__meta {
+        @apply flex flex-wrap gap-2;
+    }
+
+    .product-discovery__meta span {
+        @apply inline-flex min-h-9 items-center rounded-md border px-3 py-1.5 text-xs font-extrabold;
+        background: var(--frontend-gold-pale);
+        border-color: rgba(200, 162, 74, 0.22);
+        color: var(--frontend-charcoal);
+    }
+
+    /* PRODUCT ACTIVE FILTERS: Displays normalized active filter state from the backend. */
+    .product-active-filters {
+        @apply mb-6 rounded-lg border bg-white p-5 shadow-sm;
+        border-color: var(--frontend-border);
+    }
+
+    /* PRODUCT ACTIVE FILTERS HEADER: Aligns clear-all with the active-filter label. */
+    .product-active-filters__header {
+        @apply flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between;
+    }
+
+    .product-active-filters__eyebrow {
+        @apply text-xs font-extrabold uppercase;
+        color: #8a681a;
+    }
+
+    .product-active-filters__title {
+        @apply mt-1 text-base font-extrabold;
+        color: var(--frontend-charcoal);
+    }
+
+    .product-active-filters__clear {
+        @apply inline-flex min-h-10 w-fit items-center rounded-md border px-3 py-2 text-xs font-extrabold transition;
+        border-color: var(--frontend-border);
+        color: var(--frontend-charcoal);
+    }
+
+    .product-active-filters__clear:hover,
+    .product-active-filters__clear:focus-visible {
+        border-color: var(--frontend-gold);
+        color: #8a681a;
+    }
+
+    /* PRODUCT ACTIVE FILTER LIST: Wraps chips cleanly on narrow screens. */
+    .product-active-filters__list {
+        @apply mt-4 flex flex-wrap gap-2;
+    }
+
+    .product-active-filter {
+        @apply inline-flex max-w-full min-w-0 items-center gap-2 rounded-md border px-3 py-2 text-xs;
+        flex: 1 1 12rem;
+        background: rgba(251, 247, 237, 0.72);
+        border-color: rgba(200, 162, 74, 0.22);
+        color: var(--frontend-gray);
+    }
+
+    .product-active-filter__label {
+        @apply shrink-0 font-bold uppercase;
+        color: #8a681a;
+    }
+
+    .product-active-filter strong {
+        @apply min-w-0 truncate font-extrabold;
+        color: var(--frontend-charcoal);
+    }
+
+    .product-active-filter__remove {
+        @apply ml-auto inline-flex min-h-8 shrink-0 items-center rounded-md border px-2 text-[0.7rem] font-extrabold uppercase transition;
+        border-color: rgba(200, 162, 74, 0.28);
+        color: #7c5e18;
+    }
+
+    .product-active-filter__remove:hover,
+    .product-active-filter__remove:focus-visible {
+        background: var(--frontend-gold);
+        border-color: var(--frontend-gold);
+        color: var(--frontend-black);
+    }
+
+    .product-active-filters__notice {
+        @apply mt-4 rounded-md border px-3 py-2 text-sm font-semibold;
+        background: rgba(251, 247, 237, 0.72);
+        border-color: rgba(200, 162, 74, 0.22);
+        color: var(--frontend-gray);
+    }
+
+    /* PRODUCT GRID SHELL: Keeps listing cards inside the page container on every breakpoint. */
+    .product-grid-shell {
+        @apply overflow-visible;
+    }
+
+    /* PRODUCT GRID: Builds a readable one/two/three-column listing without horizontal scroll. */
     .product-grid {
         display: grid;
-        grid-auto-columns: minmax(252px, 84vw);
-        grid-auto-flow: column;
+        grid-template-columns: minmax(0, 1fr);
         gap: 1rem;
+        align-items: stretch;
     }
 
     @media (min-width: 640px) {
         .product-grid {
-            grid-auto-flow: row;
             grid-template-columns: repeat(2, minmax(0, 1fr));
         }
     }
@@ -154,12 +264,20 @@
         }
     }
 
+    @media (min-width: 1280px) {
+        .product-grid {
+            gap: 1.5rem;
+        }
+    }
+
     /* PRODUCT CARD: Defines an immersive image-led package card with stable overlay content. */
     .product-card {
-        @apply relative flex min-h-[34rem] overflow-hidden rounded-[1.5rem] border bg-stone-950 shadow-xl transition duration-300 hover:-translate-y-1;
+        @apply relative flex min-h-[32rem] overflow-hidden rounded-[1.5rem] border bg-stone-950 shadow-xl transition duration-300 hover:-translate-y-1 sm:min-h-[33rem] lg:min-h-[34rem];
+        aspect-ratio: 4 / 5;
         border-color: rgba(200, 162, 74, 0.22);
         box-shadow: 0 28px 80px rgba(23, 19, 12, 0.16);
-        scroll-snap-align: start;
+        height: 100%;
+        width: 100%;
     }
 
     /* PRODUCT CARD HOVER: Gives cards a subtle gold accent on hover. */
@@ -213,6 +331,7 @@
     /* PRODUCT CARD BODY: Pins product copy to the lower overlay area. */
     .product-card__body {
         @apply relative z-10 mt-auto flex w-full flex-col p-5 sm:p-6;
+        min-height: 0;
     }
 
     /* PRODUCT CARD PRICE: Groups dual-currency pricing near the bottom action row. */
@@ -292,12 +411,13 @@
 
     /* PRODUCT CARD FOOTER: Pins price and actions to the bottom of the card. */
     .product-card__footer {
-        @apply mt-6 flex flex-col gap-4 sm:mt-7 sm:flex-row sm:items-end sm:justify-between;
+        @apply mt-6 flex flex-col gap-4 sm:mt-auto sm:flex-row sm:items-end sm:justify-between sm:pt-7;
+        min-width: 0;
     }
 
     /* PRODUCT CARD CONTROLS: Keeps media buttons and detail CTA grouped with touch-safe sizing. */
     .product-card__controls {
-        @apply flex shrink-0 flex-wrap items-center gap-2;
+        @apply flex min-w-0 shrink-0 flex-wrap items-center gap-2;
     }
 
     /* PRODUCT CARD ACTIONS: Groups image and video icon controls beside metadata. */
@@ -333,7 +453,7 @@
 
     /* PRODUCT CARD CTA: Gives listing cards a clear non-nested detail action. */
     .product-card__cta {
-        @apply min-h-11 shrink-0 px-4;
+        @apply min-h-11 shrink-0 justify-center px-4;
     }
 
     /* PRODUCT MODAL CLOAK: Prevents Alpine popups from flashing before JavaScript starts. */
@@ -606,7 +726,7 @@
 
     /* PRODUCT EMPTY STATE: Centers the empty product message in a clean bordered panel. */
     .product-empty {
-        @apply rounded-lg border border-dashed border-slate-300 bg-white p-10 text-center shadow-sm sm:p-12;
+        @apply mx-auto max-w-3xl rounded-lg border border-dashed border-slate-300 bg-white p-8 text-center shadow-sm sm:p-12;
     }
 
     /* PRODUCT EMPTY TITLE: Makes the empty state heading visible without feeling oversized. */
@@ -619,9 +739,87 @@
         @apply mt-2 text-sm text-slate-500;
     }
 
-    /* PRODUCT PAGINATION: Adds spacing and alignment around Laravel pagination links. */
+    /* PRODUCT EMPTY ACTION: Gives filtered empty states an immediate recovery path. */
+    .product-empty__action {
+        @apply mt-6 inline-flex;
+    }
+
+    /* PRODUCT PAGINATION: Adds spacing and alignment around product listing pagination links. */
     .product-pagination {
-        @apply mt-10;
+        @apply mt-10 overflow-x-auto rounded-lg border bg-white p-4 shadow-sm;
+        border-color: var(--frontend-border);
+        scrollbar-width: thin;
+    }
+
+    .product-pagination__summary {
+        @apply mb-3 text-sm font-semibold;
+        color: var(--frontend-gray);
+    }
+
+    .product-pagination nav {
+        @apply min-w-max;
+    }
+
+    .product-pagination__list {
+        @apply flex min-w-max flex-wrap items-center gap-2;
+    }
+
+    .product-pagination__link {
+        @apply inline-flex min-h-10 min-w-10 items-center justify-center rounded-md border bg-white px-3 py-2 text-sm font-extrabold transition;
+        border-color: var(--frontend-border);
+        color: var(--frontend-charcoal);
+    }
+
+    .product-pagination__link:hover,
+    .product-pagination__link:focus-visible {
+        border-color: var(--frontend-gold);
+        color: #8a681a;
+    }
+
+    .product-pagination__link--current {
+        background: var(--frontend-black);
+        border-color: var(--frontend-black);
+        color: var(--frontend-gold-soft);
+    }
+
+    .product-pagination__link--disabled {
+        cursor: not-allowed;
+        opacity: 0.58;
+    }
+
+    @media (max-width: 420px) {
+        .product-discovery,
+        .product-active-filters,
+        .product-empty,
+        .product-pagination {
+            @apply rounded-md p-4;
+        }
+
+        .product-card__controls,
+        .product-card__actions,
+        .product-card__cta {
+            @apply w-full;
+        }
+
+        .product-card__actions {
+            @apply justify-start;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .product-card,
+        .product-card__image,
+        .product-card__icon-button,
+        .product-card__title-link {
+            transition: none;
+        }
+
+        .product-card:hover,
+        .product-card:hover .product-card__image,
+        .product-card__icon-button:hover,
+        .product-card__icon-button:focus-visible {
+            transform: none;
+        }
     }
 
     /* PRODUCT DETAIL MAIN OFFSET: Keeps product detail content clear of the floating header. */

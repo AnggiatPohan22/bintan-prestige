@@ -1,6 +1,6 @@
 # Products Module
 
-Last updated: 2026-06-13
+Last updated: 2026-06-14
 
 ## Category and Destination Integrity
 
@@ -75,6 +75,90 @@ Filter/sort rules:
 - `price_high` sorts by IDR price descending.
 - Products without an IDR price are placed after products with IDR prices for both price sorts.
 - Duration remains display/filter text only; duration sorting is disabled until normalized duration data exists.
+
+## Public Listing Filter, Search, and Pagination UX
+
+The public Product Listing uses shareable GET query parameters for existing backend-supported controls.
+
+Supported listing parameters:
+
+- `category[]`
+- `destination[]`
+- `duration[]`
+- `vehicle_type[]`
+- `min_price`
+- `max_price`
+- `sort`
+- `page`
+
+Current search behavior:
+
+- The homepage discovery form routes users to `/products` with `category[]` and `destination[]`.
+- Public Product Listing does not currently support a free-text `search` query parameter.
+- FRONTEND-11 did not add a new free-text search parameter because listing query semantics were intentionally preserved.
+
+UX behavior:
+
+- Filter and sort forms use `method="GET"`.
+- Filter application uses explicit Apply buttons.
+- Active filter labels are prepared by `ProductController@index` from normalized state.
+- Invalid or unavailable query values are not displayed as active filters.
+- Clear-all reset returns to the base Product Listing route.
+- Result count uses the paginator total.
+- Pagination uses 9 Products per page on the public Product Listing so the desktop three-column grid can render full 3-by-3 pages when enough Products exist.
+- Pagination keeps normalized valid parameters and drops unsupported query values.
+
+## Public Listing Responsive, Image, and Empty-State Contract
+
+The Product Listing grid is mobile-first and does not use horizontal card scrolling.
+
+Responsive grid:
+
+- 320px through 639px: one column.
+- 640px through 1023px: two columns.
+- 1024px and wider: three columns with wider gaps on large desktop.
+- A full public listing page can render 9 Products as three rows of three cards on desktop.
+
+Image behavior:
+
+- Product thumbnail remains the preferred source.
+- `default_media.product` is used when the thumbnail is missing.
+- If no product thumbnail or fallback asset exists, the existing text placeholder renders.
+- Listing product images use a stable 4:5 card frame, explicit `width` and `height`, native `loading="lazy"`, and async decoding.
+- Fallback product image alt text is based on the Product name, with Destination context when available, rather than placeholder asset copy.
+
+Empty-state behavior:
+
+- Global empty listing shows the no-public-products message.
+- Filtered empty listing keeps the FRONTEND-11 clear-filters recovery.
+- Invalid filter state keeps the clear-filters recovery and explanatory notice.
+- A page number above the available paginator range renders a page-empty state with a first-page recovery URL.
+- No free-text Product Listing search state exists yet because no public `search` parameter is implemented.
+
+## Public Listing Accessibility and SEO Rendering
+
+The public Product Listing prepares listing SEO and accessibility state in `ProductController@index` and renders it through the existing frontend layout/meta partials.
+
+Accessibility behavior:
+
+- The listing has one logical H1 from the CMS-backed hero title or code fallback.
+- Product Listing cards use H3 product headings under the catalog section heading.
+- Filter and sort controls remain GET forms and use visible labels, fieldsets, legends, and accessible dialog names.
+- Active filter chips include remove links with descriptive `aria-label` values.
+- Product detail links are standard crawlable anchors; listing card Details CTAs include product-specific accessible names.
+- Listing prices include screen-reader context such as `Price starts from` while preserving FRONTEND-08 IDR/SGD display rules.
+- Empty states are labeled sections with clear recovery actions.
+- Product Listing pagination uses a listing-scoped pagination view with `aria-label="Product listing pagination"`, `aria-current="page"`, disabled non-links, and crawlable page anchors.
+
+SEO rendering behavior:
+
+- Base `/products` uses listing-specific title, meta description, canonical URL, and `index, follow`.
+- Plain pagination pages with valid results self-canonicalize to their page URL and remain `index, follow`.
+- Filter, sort, price-range, invalid, unsupported, and high-page URLs render `noindex, follow` and canonicalize to the clean Product Listing URL.
+- Canonical URLs are built from normalized route state, not raw request query strings.
+- Unknown query parameters are not preserved in paginator links and are treated as duplicate-content risk for robots policy.
+- The listing reuses the existing structured-data builder for BreadcrumbList and a minimal ItemList containing only public listed product names, positions, and Product Detail URLs.
+- ItemList does not include fake ratings, reviews, availability, or offer data.
 
 ## Product Query Index
 

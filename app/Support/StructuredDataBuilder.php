@@ -19,6 +19,7 @@ class StructuredDataBuilder
             self::businessSchema($context),
             self::websiteSchema($context),
             self::breadcrumbSchema($context),
+            self::itemListSchema($context),
             self::productSchema($context),
         ])->filter()->values()->all();
     }
@@ -156,6 +157,50 @@ class StructuredDataBuilder
                 ['name' => 'Destination', 'value' => $product->destination?->name],
                 ['name' => 'Meeting point', 'value' => $product->meeting_point],
             ])->filter(fn (array $property) => filled($property['value']))->values()->all() ?: null,
+        ]);
+    }
+
+    public static function itemListSchema(array $context): ?array
+    {
+        $settings = $context['structuredDataSettings'] ?? [];
+        $listingProducts = $context['listingProducts'] ?? null;
+
+        if (! ($settings['enabled'] ?? true) || ! $listingProducts) {
+            return null;
+        }
+
+        $products = method_exists($listingProducts, 'getCollection')
+            ? $listingProducts->getCollection()
+            : collect($listingProducts);
+
+        $products = $products
+            ->filter(fn ($product) => $product instanceof Product)
+            ->values();
+
+        if ($products->isEmpty()) {
+            return null;
+        }
+
+        $firstPosition = method_exists($listingProducts, 'firstItem')
+            ? ($listingProducts->firstItem() ?: 1)
+            : 1;
+        $canonicalUrl = $context['canonicalUrl'] ?? url()->current();
+
+        return self::clean([
+            '@type' => 'ItemList',
+            '@id' => rtrim($canonicalUrl, '#') . '#itemlist',
+            'name' => $context['listingName'] ?? 'Product listing',
+            'itemListElement' => $products
+                ->map(fn (Product $product, int $index) => self::clean([
+                    '@type' => 'ListItem',
+                    'position' => $firstPosition + $index,
+                    'item' => [
+                        '@type' => 'Thing',
+                        'name' => $product->name,
+                        'url' => route('products.show', $product),
+                    ],
+                ]))
+                ->all(),
         ]);
     }
 

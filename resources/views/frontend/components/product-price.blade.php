@@ -12,8 +12,10 @@
     <div class="product-card__price">
         <p class="product-card__price-main {{ ! $hasIdrPrice && ! $hasSgdPrice ? 'product-card__price-main--empty' : '' }}">
             @if($hasIdrPrice)
+                <span class="sr-only">Price starts from </span>
                 Rp {{ number_format($idrPrice, 0, ',', '.') }}
             @elseif($hasSgdPrice)
+                <span class="sr-only">Price starts from </span>
                 SGD {{ number_format($sgdPrice, 0) }}
             @else
                 {{ $emptyLabel }}
@@ -22,6 +24,7 @@
 
         @if($hasIdrPrice && $hasSgdPrice)
             <p class="product-card__price-secondary">
+                <span class="sr-only">Secondary price </span>
                 SGD {{ number_format($sgdPrice, 0) }}
             </p>
         @endif

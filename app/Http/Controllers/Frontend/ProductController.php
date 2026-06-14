@@ -12,6 +12,7 @@ use App\Support\PageSectionRegistry;
 use App\Support\ProductListingContent;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 
 class ProductController extends Controller
 {
@@ -111,7 +112,23 @@ class ProductController extends Controller
             $selectedCategories,
             $selectedVehicleTypes
         );
+        $hasUnsupportedQueryParameters = $this->hasUnsupportedQueryParameters($request);
         $filterQueryParameters = Arr::except($validQueryParameters, 'sort');
+        $resetListingUrl = route('products.index');
+        $activeFilterSummary = $this->activeFilterSummary(
+            $minPrice,
+            $maxPrice,
+            $selectedDurations,
+            $selectedDestinations,
+            $selectedCategories,
+            $selectedVehicleTypes,
+            $destinations,
+            $categories,
+            $sort,
+            $sortOptions,
+            $priceCurrency,
+            $validQueryParameters
+        );
 
         $productsQuery = Product::query()
             ->publiclyVisible()
@@ -171,8 +188,13 @@ class ProductController extends Controller
                     ->orderByDesc('products.created_at')
                     ->orderByDesc('products.id');
             })
-            ->paginate(8)
+            ->paginate(9)
             ->appends($validQueryParameters);
+        $hasHighPageEmptyState = $products->total() > 0 && $products->count() === 0;
+        $highPageRecoveryUrl = route(
+            'products.index',
+            $this->highPageRecoveryParameters($validQueryParameters)
+        );
 
         $priceRange = [
             'min' => ProductPrice::query()
@@ -197,6 +219,35 @@ class ProductController extends Controller
             count($selectedCategories),
             count($selectedVehicleTypes),
         ])->filter()->count();
+        $hasActiveListingConstraints = $activeFilterCount > 0 || $hasInvalidFilter;
+        $resultSummary = $this->resultSummary($products->total());
+        $emptyState = $this->emptyState(
+            $hasActiveListingConstraints,
+            $hasInvalidFilter,
+            $hasHighPageEmptyState,
+            $resetListingUrl,
+            $highPageRecoveryUrl
+        );
+        $seoState = $this->listingSeoState(
+            $listingContent,
+            $selectedDestinations,
+            $selectedCategories,
+            $destinations,
+            $categories,
+            $sort,
+            $minPrice,
+            $maxPrice,
+            $hasActiveListingConstraints,
+            $hasInvalidFilter,
+            $hasUnsupportedQueryParameters,
+            $hasHighPageEmptyState,
+            $products->currentPage()
+        );
+        $seoTitle = $seoState['title'];
+        $seoDescription = $seoState['description'];
+        $canonicalUrl = $seoState['canonical'];
+        $seoRobots = $seoState['robots'];
+        $structuredDataListingProducts = $products;
 
         return view(
             'frontend.products.index',
@@ -219,7 +270,20 @@ class ProductController extends Controller
                 'maxPrice',
                 'filterQueryParameters',
                 'priceCurrency',
-                'listingContent'
+                'listingContent',
+                'resetListingUrl',
+                'activeFilterSummary',
+                'hasInvalidFilter',
+                'hasActiveListingConstraints',
+                'resultSummary',
+                'emptyState',
+                'hasHighPageEmptyState',
+                'hasUnsupportedQueryParameters',
+                'seoTitle',
+                'seoDescription',
+                'canonicalUrl',
+                'seoRobots',
+                'structuredDataListingProducts'
             )
         );
     }
@@ -308,6 +372,23 @@ class ProductController extends Controller
         return $sort;
     }
 
+    private function hasUnsupportedQueryParameters(Request $request): bool
+    {
+        $allowedParameters = [
+            'category',
+            'destination',
+            'duration',
+            'vehicle_type',
+            'min_price',
+            'max_price',
+            'sort',
+            'page',
+        ];
+
+        return collect(array_keys($request->query()))
+            ->contains(fn (string $key) => ! in_array($key, $allowedParameters, true));
+    }
+
     private function listingQueryParameters(
         string $sort,
         ?int $minPrice,
@@ -346,6 +427,290 @@ class ProductController extends Controller
         }
 
         return $parameters;
+    }
+
+    private function activeFilterSummary(
+        ?int $minPrice,
+        ?int $maxPrice,
+        array $selectedDurations,
+        array $selectedDestinations,
+        array $selectedCategories,
+        array $selectedVehicleTypes,
+        $destinations,
+        $categories,
+        string $sort,
+        array $sortOptions,
+        string $priceCurrency,
+        array $validQueryParameters
+    ): array {
+        $summary = [];
+        $destinationNames = $destinations
+            ->keyBy(fn ($destination) => (string) $destination->id);
+        $categoryNames = $categories
+            ->keyBy(fn ($category) => (string) $category->id);
+
+        if ($selectedCategories) {
+            $summary[] = [
+                'label' => 'Category',
+                'value' => collect($selectedCategories)
+                    ->map(fn ($id) => $categoryNames->get($id)?->name)
+                    ->filter()
+                    ->implode(', '),
+                'remove_url' => $this->listingUrlWithout($validQueryParameters, ['category']),
+                'remove_label' => 'Remove category filter',
+            ];
+        }
+
+        if ($selectedDestinations) {
+            $summary[] = [
+                'label' => 'Destination',
+                'value' => collect($selectedDestinations)
+                    ->map(fn ($id) => $destinationNames->get($id)?->name)
+                    ->filter()
+                    ->implode(', '),
+                'remove_url' => $this->listingUrlWithout($validQueryParameters, ['destination']),
+                'remove_label' => 'Remove destination filter',
+            ];
+        }
+
+        if ($selectedDurations) {
+            $summary[] = [
+                'label' => 'Duration',
+                'value' => implode(', ', $selectedDurations),
+                'remove_url' => $this->listingUrlWithout($validQueryParameters, ['duration']),
+                'remove_label' => 'Remove duration filter',
+            ];
+        }
+
+        if ($selectedVehicleTypes) {
+            $summary[] = [
+                'label' => 'Vehicle',
+                'value' => implode(', ', $selectedVehicleTypes),
+                'remove_url' => $this->listingUrlWithout($validQueryParameters, ['vehicle_type']),
+                'remove_label' => 'Remove vehicle filter',
+            ];
+        }
+
+        if ($minPrice !== null || $maxPrice !== null) {
+            $summary[] = [
+                'label' => 'Price',
+                'value' => $this->priceRangeLabel($minPrice, $maxPrice, $priceCurrency),
+                'remove_url' => $this->listingUrlWithout($validQueryParameters, ['min_price', 'max_price']),
+                'remove_label' => 'Remove price filter',
+            ];
+        }
+
+        if ($sort !== 'newest') {
+            $summary[] = [
+                'label' => 'Sort',
+                'value' => $sortOptions[$sort] ?? $sortOptions['newest'],
+                'remove_url' => $this->listingUrlWithout($validQueryParameters, ['sort']),
+                'remove_label' => 'Reset sorting to newest',
+            ];
+        }
+
+        return collect($summary)
+            ->filter(fn ($item) => filled($item['value']))
+            ->values()
+            ->all();
+    }
+
+    private function listingUrlWithout(array $parameters, array $keys): string
+    {
+        foreach ($keys as $key) {
+            unset($parameters[$key]);
+        }
+
+        if (($parameters['sort'] ?? null) === 'newest') {
+            unset($parameters['sort']);
+        }
+
+        return route('products.index', $parameters);
+    }
+
+    private function listingSeoState(
+        array $listingContent,
+        array $selectedDestinations,
+        array $selectedCategories,
+        $destinations,
+        $categories,
+        string $sort,
+        ?int $minPrice,
+        ?int $maxPrice,
+        bool $hasActiveListingConstraints,
+        bool $hasInvalidFilter,
+        bool $hasUnsupportedQueryParameters,
+        bool $hasHighPageEmptyState,
+        int $currentPage
+    ): array {
+        $hero = $listingContent['hero'] ?? [];
+        $baseTitle = $this->plainSeoText(
+            $hero['title'] ?? null,
+            'Bintan Tour Packages'
+        );
+        $contextTitle = $this->listingContextTitle(
+            $selectedDestinations,
+            $selectedCategories,
+            $destinations,
+            $categories,
+            $sort,
+            $minPrice,
+            $maxPrice
+        );
+        $hasQueryIndexRisk = $hasActiveListingConstraints
+            || $sort !== 'newest'
+            || $hasInvalidFilter
+            || $hasUnsupportedQueryParameters;
+
+        $title = $hasInvalidFilter || $hasUnsupportedQueryParameters
+            ? 'Bintan Product Listing'
+            : ($contextTitle ?: $baseTitle);
+        $description = $contextTitle && ! $hasInvalidFilter && ! $hasUnsupportedQueryParameters
+            ? $this->plainSeoText(
+                $contextTitle . '. Browse public Bintan Prestige packages with visible destination, duration, price state, and crawlable detail links.',
+                'Browse curated Bintan tours, private transfers, activities, and travel packages with clear destination, duration, and price information.'
+            )
+            : $this->plainSeoText(
+                $hero['description'] ?? null,
+                'Browse curated Bintan tours, private transfers, activities, and travel packages with clear destination, duration, and price information.'
+            );
+        $canonicalParameters = [];
+
+        if (! $hasQueryIndexRisk && ! $hasHighPageEmptyState && $currentPage > 1) {
+            $canonicalParameters['page'] = $currentPage;
+        }
+
+        return [
+            'title' => $title,
+            'description' => $description,
+            'canonical' => route('products.index', $canonicalParameters),
+            'robots' => $hasQueryIndexRisk || $hasHighPageEmptyState
+                ? 'noindex, follow'
+                : 'index, follow',
+        ];
+    }
+
+    private function listingContextTitle(
+        array $selectedDestinations,
+        array $selectedCategories,
+        $destinations,
+        $categories,
+        string $sort,
+        ?int $minPrice,
+        ?int $maxPrice
+    ): ?string {
+        $destinationName = count($selectedDestinations) === 1
+            ? $destinations->firstWhere('id', (int) $selectedDestinations[0])?->name
+            : null;
+        $categoryName = count($selectedCategories) === 1
+            ? $categories->firstWhere('id', (int) $selectedCategories[0])?->name
+            : null;
+
+        if ($categoryName && $destinationName) {
+            return $categoryName . ' Packages in ' . $destinationName;
+        }
+
+        if ($destinationName) {
+            return 'Packages in ' . $destinationName;
+        }
+
+        if ($categoryName) {
+            return $categoryName . ' Packages in Bintan';
+        }
+
+        if ($selectedDestinations || $selectedCategories || $minPrice !== null || $maxPrice !== null || $sort !== 'newest') {
+            return 'Filtered Bintan Packages';
+        }
+
+        return null;
+    }
+
+    private function plainSeoText(?string $value, string $fallback, int $limit = 160): string
+    {
+        $text = Str::of((string) ($value ?: $fallback))
+            ->stripTags()
+            ->squish()
+            ->limit($limit, '')
+            ->toString();
+
+        return $text !== '' ? $text : $fallback;
+    }
+
+    private function priceRangeLabel(?int $minPrice, ?int $maxPrice, string $priceCurrency): string
+    {
+        $prefix = $priceCurrency === ProductPrice::CURRENCY_IDR ? 'Rp ' : $priceCurrency . ' ';
+
+        if ($minPrice !== null && $maxPrice !== null) {
+            return $prefix . number_format($minPrice, 0, ',', '.')
+                . ' - '
+                . $prefix . number_format($maxPrice, 0, ',', '.');
+        }
+
+        if ($minPrice !== null) {
+            return 'From ' . $prefix . number_format($minPrice, 0, ',', '.');
+        }
+
+        return 'Up to ' . $prefix . number_format((int) $maxPrice, 0, ',', '.');
+    }
+
+    private function resultSummary(int $total): string
+    {
+        return match ($total) {
+            0 => 'No packages found',
+            1 => '1 package found',
+            default => number_format($total) . ' packages found',
+        };
+    }
+
+    private function highPageRecoveryParameters(array $validQueryParameters): array
+    {
+        if (($validQueryParameters['sort'] ?? null) === 'newest') {
+            unset($validQueryParameters['sort']);
+        }
+
+        return $validQueryParameters;
+    }
+
+    private function emptyState(
+        bool $hasActiveListingConstraints,
+        bool $hasInvalidFilter,
+        bool $hasHighPageEmptyState,
+        string $resetListingUrl,
+        string $highPageRecoveryUrl
+    ): array {
+        if ($hasHighPageEmptyState) {
+            return [
+                'title' => 'This page is empty',
+                'description' => 'The listing has fewer pages for the current criteria. Return to the first page to continue browsing.',
+                'action' => 'Back to first page',
+                'action_url' => $highPageRecoveryUrl,
+            ];
+        }
+
+        if ($hasInvalidFilter) {
+            return [
+                'title' => 'No packages matched the selected filters',
+                'description' => 'Some filter values could not be used. Clear filters and choose from the available options.',
+                'action' => 'Clear filters',
+                'action_url' => $resetListingUrl,
+            ];
+        }
+
+        if ($hasActiveListingConstraints) {
+            return [
+                'title' => 'No packages matched the selected filters',
+                'description' => 'Try removing one or more filters to see more Bintan experiences.',
+                'action' => 'Clear filters',
+                'action_url' => $resetListingUrl,
+            ];
+        }
+
+        return [
+            'title' => 'No packages are currently available',
+            'description' => 'Published packages will appear here once they are ready for guests.',
+            'action' => 'Back to all packages',
+            'action_url' => $resetListingUrl,
+        ];
     }
 
     public function show(Product $product)

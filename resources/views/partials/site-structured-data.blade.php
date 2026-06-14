@@ -7,6 +7,9 @@
         'activeSocialMediaLinks' => $activeSocialMediaLinks ?? [],
         'siteAssets' => $siteAssets ?? collect(),
         'product' => $product ?? null,
+        'listingProducts' => $structuredDataListingProducts ?? null,
+        'listingName' => $seoTitle ?? $title ?? null,
+        'canonicalUrl' => $canonicalUrl ?? null,
     ]);
 @endphp
 

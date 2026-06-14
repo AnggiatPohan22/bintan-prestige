@@ -8,6 +8,7 @@ use App\Models\PageSection;
 use App\Models\Product;
 use App\Models\ProductImage;
 use App\Models\ProductPrice;
+use App\Models\SiteAsset;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -267,6 +268,225 @@ class ProductIndexUiTest extends TestCase
         ]);
     }
 
+    public function test_public_listing_shows_active_filter_summary_result_count_and_reset_url(): void
+    {
+        $category = Category::factory()->create([
+            'name' => 'Taxi Packages',
+        ]);
+        $destination = Destination::factory()->create([
+            'name' => 'Lagoi',
+        ]);
+        $matchingProduct = $this->createProduct([
+            'name' => 'Lagoi Taxi Package',
+            'duration' => '4 Hours',
+            'pickup_type' => 'Private Car',
+            'status' => 'published',
+        ], $category, $destination);
+        $this->createPrice($matchingProduct, ProductPrice::CURRENCY_IDR, 550000);
+        $otherProduct = $this->createProduct([
+            'name' => 'Different Package',
+            'duration' => 'Full Day',
+            'pickup_type' => 'Shared Car',
+            'status' => 'published',
+        ], $category, $destination);
+        $this->createPrice($otherProduct, ProductPrice::CURRENCY_IDR, 1250000);
+
+        $response = $this->get(route('products.index', [
+            'category' => [$category->id],
+            'destination' => [$destination->id],
+            'duration' => ['4 Hours'],
+            'vehicle_type' => ['Private Car'],
+            'min_price' => 500000,
+            'max_price' => 600000,
+            'sort' => 'price_low',
+        ]));
+
+        $response->assertOk();
+        $response->assertSee('1 package found for your next Bintan experience.');
+        $response->assertSee('Active listing state');
+        $response->assertSee('Category');
+        $response->assertSee('Taxi Packages');
+        $response->assertSee('Destination');
+        $response->assertSee('Lagoi');
+        $response->assertSee('Duration');
+        $response->assertSee('4 Hours');
+        $response->assertSee('Vehicle');
+        $response->assertSee('Private Car');
+        $response->assertSee('Price');
+        $response->assertSee('Rp 500.000 - Rp 600.000');
+        $response->assertSee('Sort');
+        $response->assertSee('Harga IDR terendah');
+        $response->assertSee('href="' . route('products.index') . '"', false);
+        $response->assertSee('Lagoi Taxi Package');
+        $response->assertDontSee('Different Package');
+        $response->assertDontSee('name="page"', false);
+    }
+
+    public function test_public_listing_empty_states_distinguish_global_and_filtered_results(): void
+    {
+        $globalEmptyResponse = $this->get(route('products.index'));
+
+        $globalEmptyResponse->assertOk();
+        $globalEmptyResponse->assertSee('No packages are currently available');
+        $globalEmptyResponse->assertSee('Published packages will appear here once they are ready for guests.');
+
+        $category = Category::factory()->create([
+            'name' => 'Empty Filter Category',
+        ]);
+        $destination = Destination::factory()->create([
+            'name' => 'Empty Filter Destination',
+        ]);
+        $product = $this->createProduct([
+            'name' => 'Visible Filter Product',
+            'status' => 'published',
+        ], $category, $destination);
+        $this->createPrice($product, ProductPrice::CURRENCY_IDR, 200000);
+
+        $filteredEmptyResponse = $this->get(route('products.index', [
+            'category' => [$category->id],
+            'min_price' => 900000,
+        ]));
+
+        $filteredEmptyResponse->assertOk();
+        $filteredEmptyResponse->assertSee('No packages matched the selected filters');
+        $filteredEmptyResponse->assertSee('Try removing one or more filters to see more Bintan experiences.');
+        $filteredEmptyResponse->assertSee('Clear filters');
+        $filteredEmptyResponse->assertDontSee('Visible Filter Product');
+    }
+
+    public function test_public_listing_high_page_empty_state_uses_first_page_recovery_url(): void
+    {
+        $category = Category::factory()->create();
+        $destination = Destination::factory()->create();
+
+        for ($i = 1; $i <= 9; $i++) {
+            $this->createProduct([
+                'name' => 'High Page Tour ' . $i,
+                'status' => 'published',
+            ], $category, $destination);
+        }
+
+        $response = $this->get(route('products.index', [
+            'page' => 99,
+        ]));
+
+        $response->assertOk();
+        $response->assertViewHas('hasHighPageEmptyState', true);
+        $response->assertSee('This page is empty');
+        $response->assertSee('The listing has fewer pages for the current criteria. Return to the first page to continue browsing.');
+        $response->assertSee('Back to first page');
+        $response->assertSee('href="' . route('products.index') . '"', false);
+        $response->assertDontSee('No packages are currently available');
+    }
+
+    public function test_public_listing_uses_nine_products_per_page_with_tenth_product_on_second_page(): void
+    {
+        $category = Category::factory()->create();
+        $destination = Destination::factory()->create();
+
+        for ($i = 1; $i <= 10; $i++) {
+            $this->createProduct([
+                'name' => 'Nine Per Page Tour ' . $i,
+                'status' => 'published',
+                'created_at' => now()->subMinutes(10 - $i),
+                'updated_at' => now()->subMinutes(10 - $i),
+            ], $category, $destination);
+        }
+
+        $firstPage = $this->get(route('products.index'));
+
+        $firstPage->assertOk();
+        $firstPage->assertSee('Showing 1-9 of 10 packages.');
+        $firstPage->assertSee('Nine Per Page Tour 10');
+
+        $firstPageProducts = $firstPage->viewData('products');
+        $this->assertSame(9, $firstPageProducts->perPage());
+        $this->assertCount(9, $firstPageProducts->getCollection());
+        $this->assertContains('Nine Per Page Tour 10', $firstPageProducts->getCollection()->pluck('name')->all());
+        $this->assertNotContains('Nine Per Page Tour 1', $firstPageProducts->getCollection()->pluck('name')->all());
+
+        $secondPage = $this->get(route('products.index', [
+            'page' => 2,
+        ]));
+
+        $secondPage->assertOk();
+        $secondPage->assertSee('Showing 10-10 of 10 packages.');
+        $secondPageProducts = $secondPage->viewData('products');
+        $this->assertCount(1, $secondPageProducts->getCollection());
+        $this->assertSame('Nine Per Page Tour 1', $secondPageProducts->getCollection()->first()->name);
+    }
+
+    public function test_product_card_fallback_image_alt_and_missing_optional_data_are_safe(): void
+    {
+        $product = $this->createProduct([
+            'name' => 'Fallback Safe Listing Tour',
+            'thumbnail' => null,
+            'short_description' => '',
+            'duration' => null,
+            'status' => 'published',
+        ]);
+        $product->load('prices', 'images');
+        $product->setRelation('category', null);
+        $product->setRelation('destination', null);
+
+        $siteAssets = collect([
+            SiteAsset::make([
+                'key' => 'default_media.product',
+                'path' => 'defaults/product.jpg',
+                'alt' => 'Default product image',
+                'is_active' => true,
+            ]),
+        ])->keyBy('key');
+
+        $card = $this->view('frontend.components.product-card', [
+            'product' => $product,
+            'variant' => 'listing',
+            'siteAssets' => $siteAssets,
+            'defaultMediaSettings' => [
+                'product' => ['fit' => 'contain'],
+            ],
+        ]);
+
+        $card->assertSee('storage/defaults/product.jpg', false);
+        $card->assertSee('alt="Fallback Safe Listing Tour"', false);
+        $card->assertSee('width="640"', false);
+        $card->assertSee('height="800"', false);
+        $card->assertSee('loading="lazy"', false);
+        $card->assertSee('decoding="async"', false);
+        $card->assertSee('style="object-fit: contain"', false);
+        $card->assertSee('Price on request');
+        $card->assertDontSee('Default product image');
+        $card->assertDontSee('product-card__category', false);
+        $card->assertDontSee('product-card__meta-dot', false);
+        $card->assertDontSee('product-card__description', false);
+        $card->assertDontSee('Rp 0');
+    }
+
+    public function test_product_listing_responsive_grid_css_contract_prevents_mobile_overflow(): void
+    {
+        $css = file_get_contents(base_path('resources/css/frontend-products.css'));
+        $gridShellCss = substr(
+            $css,
+            strpos($css, '.product-grid-shell'),
+            strpos($css, '.product-card') - strpos($css, '.product-grid-shell')
+        );
+
+        $this->assertStringContainsString('.product-grid-shell', $css);
+        $this->assertStringContainsString('@apply overflow-visible;', $css);
+        $this->assertStringContainsString('grid-template-columns: minmax(0, 1fr);', $css);
+        $this->assertStringContainsString('@media (min-width: 640px)', $css);
+        $this->assertStringContainsString('grid-template-columns: repeat(2, minmax(0, 1fr));', $css);
+        $this->assertStringContainsString('@media (min-width: 1024px)', $css);
+        $this->assertStringContainsString('grid-template-columns: repeat(3, minmax(0, 1fr));', $css);
+        $this->assertStringContainsString('align-items: stretch;', $css);
+        $this->assertStringContainsString('aspect-ratio: 4 / 5;', $css);
+        $this->assertStringContainsString('height: 100%;', $css);
+        $this->assertStringContainsString('width: 100%;', $css);
+        $this->assertStringContainsString('@media (prefers-reduced-motion: reduce)', $css);
+        $this->assertStringNotContainsString('grid-auto-flow: column;', $gridShellCss);
+        $this->assertStringNotContainsString('overflow-x-auto', $gridShellCss);
+    }
+
     public function test_product_index_renders_idr_only_and_missing_price_states_without_zero_fallbacks(): void
     {
         $category = Category::factory()->create();
@@ -426,9 +646,10 @@ class ProductIndexUiTest extends TestCase
         ]));
 
         $response->assertOk();
-        $response->assertSee('No products available');
+        $response->assertSee('No packages matched the selected filters');
         $response->assertDontSee('Valid Query Tour');
         $response->assertDontSee('Array');
+        $response->assertSee('Some query values were ignored because they are not available filter options.');
     }
 
     public function test_public_listing_pagination_preserves_valid_filters_only(): void
@@ -436,7 +657,7 @@ class ProductIndexUiTest extends TestCase
         $category = Category::factory()->create();
         $destination = Destination::factory()->create();
 
-        for ($i = 1; $i <= 9; $i++) {
+        for ($i = 1; $i <= 10; $i++) {
             $product = $this->createProduct([
                 'name' => 'Paginated Filter Tour ' . $i,
                 'status' => 'published',
@@ -463,12 +684,52 @@ class ProductIndexUiTest extends TestCase
 
         $response->assertOk();
         $response->assertSee('page=2', false);
+        $response->assertSee('Showing 1-9 of 10 packages.');
         $response->assertSee('sort=price_low', false);
         $response->assertSee('category%5B0%5D=' . $category->id, false);
         $response->assertSee('destination%5B0%5D=' . $destination->id, false);
         $response->assertSee('vehicle_type%5B0%5D=Private%20Car', false);
         $response->assertSee('min_price=100000', false);
         $response->assertDontSee('unsafe=drop-me', false);
+
+        $pageTwo = $this->get(route('products.index', [
+            'sort' => 'price_low',
+            'category' => [$category->id],
+            'destination' => [$destination->id],
+            'duration' => ['4 Hours'],
+            'vehicle_type' => ['Private Car'],
+            'min_price' => 100000,
+            'page' => 2,
+        ]));
+
+        $pageTwo->assertOk();
+        $pageTwo->assertSee('Showing 10-10 of 10 packages.');
+        $pageTwo->assertSee('Paginated Filter Tour 1');
+    }
+
+    public function test_admin_product_pagination_and_homepage_product_count_are_unchanged(): void
+    {
+        $category = Category::factory()->create();
+        $destination = Destination::factory()->create();
+
+        for ($i = 1; $i <= 13; $i++) {
+            $this->createProduct([
+                'name' => 'Shared Count Tour ' . $i,
+                'status' => 'published',
+            ], $category, $destination);
+        }
+
+        $adminResponse = $this
+            ->actingAs(User::factory()->admin()->create())
+            ->get(route('admin.products.index'));
+
+        $adminResponse->assertOk();
+        $this->assertSame(10, $adminResponse->viewData('products')->perPage());
+
+        $homeResponse = $this->get(route('home'));
+
+        $homeResponse->assertOk();
+        $this->assertCount(12, $homeResponse->viewData('homeProducts'));
     }
 
     public function test_public_listing_price_filter_uses_idr_only_and_respects_public_visibility(): void
@@ -551,7 +812,7 @@ class ProductIndexUiTest extends TestCase
         ]));
 
         $response->assertOk();
-        $response->assertSee('No products available');
+        $response->assertSee('No packages matched the selected filters');
         $response->assertDontSee('Safe Price Range Tour');
     }
 
@@ -670,6 +931,202 @@ class ProductIndexUiTest extends TestCase
             $newerProduct->name,
             $olderProduct->name,
         ]);
+    }
+
+    public function test_public_listing_accessibility_semantics_are_rendered_server_side(): void
+    {
+        $category = Category::factory()->create([
+            'name' => 'Accessible Tours',
+        ]);
+        $destination = Destination::factory()->create([
+            'name' => 'Lagoi',
+        ]);
+
+        for ($i = 1; $i <= 10; $i++) {
+            $product = $this->createProduct([
+                'name' => 'Accessible Listing Tour ' . $i,
+                'status' => 'published',
+                'created_at' => now()->subMinutes(10 - $i),
+                'updated_at' => now()->subMinutes(10 - $i),
+            ], $category, $destination);
+            $this->createPrice($product, ProductPrice::CURRENCY_IDR, 500000 + $i);
+        }
+
+        $response = $this->get(route('products.index'));
+        $html = $response->getContent();
+
+        $response->assertOk();
+        $this->assertSame(1, substr_count($html, '<h1'));
+        $this->assertStringContainsString('<h3 class="product-card__title title-card">', $html);
+        $this->assertStringNotContainsString('<h1 class="product-card', $html);
+        $this->assertStringContainsString('aria-label="Open product listing filters"', $html);
+        $this->assertStringContainsString('aria-label="Open product listing sorting options"', $html);
+        $this->assertStringContainsString('method="GET"', $html);
+        $this->assertStringContainsString('for="product-filter-min-price"', $html);
+        $this->assertStringContainsString('for="product-filter-max-price"', $html);
+        $this->assertStringContainsString('aria-label="View details for Accessible Listing Tour 10"', $html);
+        $this->assertStringContainsString('Price starts from', $html);
+        $this->assertStringContainsString('role="navigation" aria-label="Product listing pagination"', $html);
+        $this->assertStringContainsString('aria-current="page"', $html);
+        $this->assertStringContainsString('aria-label="Go to next product listing page"', $html);
+        $this->assertStringContainsString('href="' . route('products.show', Product::where('name', 'Accessible Listing Tour 10')->first()) . '"', $html);
+        $this->assertStringNotContainsString('rel="nofollow"', $html);
+    }
+
+    public function test_public_listing_active_filters_have_accessible_remove_links(): void
+    {
+        $category = Category::factory()->create([
+            'name' => 'Taxi Packages',
+        ]);
+        $destination = Destination::factory()->create([
+            'name' => 'Lagoi',
+        ]);
+        $product = $this->createProduct([
+            'name' => 'Accessible Filter Tour',
+            'duration' => '4 Hours',
+            'pickup_type' => 'Private Car',
+            'status' => 'published',
+        ], $category, $destination);
+        $this->createPrice($product, ProductPrice::CURRENCY_IDR, 550000);
+
+        $response = $this->get(route('products.index', [
+            'category' => [$category->id],
+            'destination' => [$destination->id],
+            'duration' => ['4 Hours'],
+            'vehicle_type' => ['Private Car'],
+            'min_price' => 500000,
+            'max_price' => 600000,
+            'sort' => 'price_low',
+        ]));
+
+        $response->assertOk();
+        $response->assertSee('aria-label="Remove category filter: Taxi Packages"', false);
+        $response->assertSee('aria-label="Remove destination filter: Lagoi"', false);
+        $response->assertSee('aria-label="Remove duration filter: 4 Hours"', false);
+        $response->assertSee('aria-label="Remove vehicle filter: Private Car"', false);
+        $response->assertSee('aria-label="Remove price filter: Rp 500.000 - Rp 600.000"', false);
+        $response->assertSee('aria-label="Reset sorting to newest: Harga IDR terendah"', false);
+    }
+
+    public function test_public_listing_base_and_query_metadata_policy_is_normalized(): void
+    {
+        $product = $this->createProduct([
+            'name' => 'Metadata Listing Tour',
+            'status' => 'published',
+        ]);
+        $this->createPrice($product, ProductPrice::CURRENCY_IDR, 750000);
+
+        $baseResponse = $this->get(route('products.index'));
+        $baseHtml = $baseResponse->getContent();
+
+        $baseResponse->assertOk();
+        $this->assertSame(1, substr_count($baseHtml, 'rel="canonical"'));
+        $this->assertStringContainsString('<meta name="robots" content="index, follow">', $baseHtml);
+        $this->assertStringContainsString('<link rel="canonical" href="' . route('products.index') . '">', $baseHtml);
+        $this->assertStringContainsString('<meta name="description" content="Choose curated island tours, private transfers, and activities with easy WhatsApp booking support.">', $baseHtml);
+        $this->assertStringContainsString('Explore Tours, Taxi &amp; Activities in Bintan', $baseHtml);
+
+        $sortResponse = $this->get(route('products.index', [
+            'sort' => 'price_low',
+        ]));
+        $sortHtml = $sortResponse->getContent();
+
+        $sortResponse->assertOk();
+        $this->assertSame(1, substr_count($sortHtml, 'rel="canonical"'));
+        $this->assertStringContainsString('<meta name="robots" content="noindex, follow">', $sortHtml);
+        $this->assertStringContainsString('<link rel="canonical" href="' . route('products.index') . '">', $sortHtml);
+        $this->assertStringContainsString('Filtered Bintan Packages', $sortHtml);
+
+        $invalidResponse = $this->get(route('products.index', [
+            'category' => ['<script>alert(1)</script>'],
+            'tracking' => '<script>alert(2)</script>',
+        ]));
+        $invalidHtml = $invalidResponse->getContent();
+
+        $invalidResponse->assertOk();
+        $this->assertStringContainsString('<meta name="robots" content="noindex, follow">', $invalidHtml);
+        $this->assertStringContainsString('<link rel="canonical" href="' . route('products.index') . '">', $invalidHtml);
+        $this->assertStringContainsString('Bintan Product Listing', $invalidHtml);
+        $this->assertStringNotContainsString('<script>alert(1)</script>', $invalidHtml);
+        $this->assertStringNotContainsString('<script>alert(2)</script>', $invalidHtml);
+    }
+
+    public function test_public_listing_pagination_metadata_uses_self_canonical_only_for_valid_plain_pages(): void
+    {
+        $category = Category::factory()->create();
+        $destination = Destination::factory()->create();
+
+        for ($i = 1; $i <= 10; $i++) {
+            $this->createProduct([
+                'name' => 'Canonical Page Tour ' . $i,
+                'status' => 'published',
+                'created_at' => now()->subMinutes(10 - $i),
+                'updated_at' => now()->subMinutes(10 - $i),
+            ], $category, $destination);
+        }
+
+        $pageTwoResponse = $this->get(route('products.index', [
+            'page' => 2,
+        ]));
+
+        $pageTwoResponse->assertOk();
+        $pageTwoResponse->assertSee('<meta name="robots" content="index, follow">', false);
+        $pageTwoResponse->assertSee('<link rel="canonical" href="' . route('products.index', ['page' => 2]) . '">', false);
+
+        $highPageResponse = $this->get(route('products.index', [
+            'page' => 99,
+        ]));
+
+        $highPageResponse->assertOk();
+        $highPageResponse->assertSee('<meta name="robots" content="noindex, follow">', false);
+        $highPageResponse->assertSee('<link rel="canonical" href="' . route('products.index') . '">', false);
+    }
+
+    public function test_public_listing_outputs_valid_breadcrumb_and_itemlist_schema_without_fake_product_data(): void
+    {
+        $category = Category::factory()->create();
+        $destination = Destination::factory()->create();
+        $firstProduct = $this->createProduct([
+            'name' => 'Schema Listing Tour One',
+            'status' => 'published',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ], $category, $destination);
+        $secondProduct = $this->createProduct([
+            'name' => 'Schema Listing Tour Two',
+            'status' => 'published',
+            'created_at' => now()->subMinute(),
+            'updated_at' => now()->subMinute(),
+        ], $category, $destination);
+
+        $response = $this->get(route('products.index'));
+        $graph = collect($this->structuredDataGraph($response->getContent()));
+        $itemList = $graph->firstWhere('@type', 'ItemList');
+        $breadcrumb = $graph->firstWhere('@type', 'BreadcrumbList');
+
+        $response->assertOk();
+        $this->assertNotNull($breadcrumb);
+        $this->assertNotNull($itemList);
+        $this->assertSame('Explore Tours, Taxi & Activities in Bintan', $itemList['name'] ?? null);
+        $this->assertCount(2, $itemList['itemListElement']);
+        $this->assertSame(1, $itemList['itemListElement'][0]['position']);
+        $this->assertSame($firstProduct->name, $itemList['itemListElement'][0]['item']['name']);
+        $this->assertSame(route('products.show', $firstProduct), $itemList['itemListElement'][0]['item']['url']);
+        $this->assertSame($secondProduct->name, $itemList['itemListElement'][1]['item']['name']);
+        $response->assertDontSee('"availability"', false);
+        $response->assertDontSee('"review"', false);
+        $response->assertDontSee('"aggregateRating"', false);
+    }
+
+    private function structuredDataGraph(string $html): array
+    {
+        preg_match('/<script type="application\/ld\+json">(.*?)<\/script>/s', $html, $matches);
+
+        $this->assertNotEmpty($matches[1] ?? null, 'Expected JSON-LD script to be present.');
+
+        $data = json_decode($matches[1], true, 512, JSON_THROW_ON_ERROR);
+
+        return $data['@graph'] ?? [];
     }
 
     private function createProduct(
