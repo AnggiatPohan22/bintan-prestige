@@ -192,6 +192,12 @@ class HomepageSectionMedia
                 ],
                 'gallery' => false,
             ],
+            'products.index.hero' => [
+                'display_order' => 100,
+                'legacy_images' => true,
+                'media_slots' => [],
+                'gallery' => false,
+            ],
         ];
     }
 }

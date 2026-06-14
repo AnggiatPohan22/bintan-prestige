@@ -7,6 +7,7 @@ use App\Models\Category;
 use App\Models\Destination;
 use App\Models\PageSection;
 use App\Models\Product;
+use App\Models\ProductPrice;
 use App\Models\SiteAsset;
 use App\Models\SiteSetting;
 use App\Services\GlobalSettingsService;
@@ -348,6 +349,49 @@ class HomepageCmsContentTest extends TestCase
         $response->assertSee('Module Product Name');
         $response->assertSee('Module FAQ question?');
         $response->assertSee('Module FAQ answer.');
+    }
+
+    public function test_homepage_product_cards_keep_compact_variant_contract(): void
+    {
+        $category = Category::factory()->create([
+            'name' => 'Compact Tour Category',
+            'is_active' => true,
+        ]);
+        $destination = Destination::factory()->create([
+            'name' => 'Treasure Bay',
+            'is_active' => true,
+        ]);
+        $product = Product::factory()->create([
+            'category_id' => $category->id,
+            'destination_id' => $destination->id,
+            'name' => 'Home Compact Product Card',
+            'short_description' => 'Compact homepage product card summary.',
+            'thumbnail' => 'products/home-compact-product.jpg',
+            'duration' => '4 Hours',
+            'status' => 'published',
+        ]);
+
+        ProductPrice::create([
+            'product_id' => $product->id,
+            'currency' => ProductPrice::CURRENCY_IDR,
+            'price' => 450000,
+        ]);
+
+        $response = $this->get(route('home'));
+
+        $response->assertOk();
+        $response->assertSee('class="bp-product-card"', false);
+        $response->assertSee('data-product-card', false);
+        $response->assertSee('data-category-id="' . $category->id . '"', false);
+        $response->assertSee('alt="Home Compact Product Card in Treasure Bay"', false);
+        $response->assertSee('Compact Tour Category');
+        $response->assertSee('Home Compact Product Card');
+        $response->assertSee('Compact homepage product card summary.');
+        $response->assertSee('Treasure Bay');
+        $response->assertSee('4 Hours');
+        $response->assertSee('Rp 450.000');
+        $response->assertSee('Details');
+        $response->assertDontSee('class="product-card"', false);
     }
 
     public function test_homepage_renderer_handles_complete_cms_and_module_data(): void

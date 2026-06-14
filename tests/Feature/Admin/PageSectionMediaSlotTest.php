@@ -154,6 +154,28 @@ class PageSectionMediaSlotTest extends TestCase
         $response->assertDontSee('Section gallery images');
     }
 
+    public function test_admin_can_see_legacy_image_upload_for_product_listing_hero(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $section = PageSection::create([
+            'page_key' => 'products.index',
+            'section_key' => 'products.index.hero',
+            'label' => 'Product Listing Hero',
+            'title' => 'Explore Bintan Packages',
+            'is_active' => true,
+            'sort_order' => 0,
+        ]);
+
+        $response = $this->actingAs($admin)
+            ->get(route('admin.page-sections.edit', $section));
+
+        $response->assertOk();
+        $response->assertSee('Legacy image upload');
+        $response->assertSee('Legacy mobile image upload');
+        $response->assertDontSee('Section gallery images');
+        $response->assertDontSee('No section image upload for this layout');
+    }
+
     public function test_admin_can_upload_section_frame_slot_without_updating_global_logo(): void
     {
         Storage::fake('public');

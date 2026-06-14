@@ -3,10 +3,6 @@
 @section('content')
 
 @php
-    $selectedDurations = (array) request('duration', []);
-    $selectedDestinations = (array) request('destination', []);
-    $selectedCategories = (array) request('category', []);
-    $selectedVehicleTypes = (array) request('vehicle_type', []);
     $heroPlaceholder = \App\Support\DefaultMediaAssets::asset($siteAssets ?? collect(), 'hero');
     $heroPlaceholderFit = \App\Support\DefaultMediaAssets::fit($defaultMediaSettings ?? [], 'hero');
     $productHeroBackgroundSize = match ($heroPlaceholderFit) {
@@ -14,7 +10,11 @@
         'scale-down' => 'contain',
         default => $heroPlaceholderFit,
     };
-    $productHeroBackground = $products->getCollection()->firstWhere('thumbnail_url')?->thumbnail_url ?? $heroPlaceholder?->url;
+    $listingHero = $listingContent['hero'] ?? [];
+    $listingCatalog = $listingContent['catalog'] ?? [];
+    $productHeroBackground = $listingHero['image_url']
+        ?? $products->getCollection()->firstWhere('thumbnail_url')?->thumbnail_url
+        ?? $heroPlaceholder?->url;
 @endphp
 
 <div
@@ -67,13 +67,25 @@
         <div class="product-hero__container">
 
             <div class="product-hero__content">
+                @if(! empty($listingHero['label']))
+                    <p class="product-modal__eyebrow">
+                        {{ $listingHero['label'] }}
+                    </p>
+                @endif
+
                 <h1 class="product-hero__title title-section">
-                    Explore Tours, Taxi & Activities in Bintan
+                    {{ $listingHero['title'] }}
                 </h1>
 
                 <p class="product-hero__description text-body">
-                    Choose curated island tours, private transfers, and activities with easy WhatsApp booking support.
+                    {{ $listingHero['description'] }}
                 </p>
+
+                @if(! empty($listingHero['subtitle']))
+                    <p class="product-hero__description text-body">
+                        {{ $listingHero['subtitle'] }}
+                    </p>
+                @endif
             </div>
 
         </div>
@@ -95,12 +107,18 @@
             <div class="product-toolbar">
                 <div>
                     <h2 class="product-toolbar__title title-card">
-                        Available Products
+                        {{ $listingCatalog['title'] }}
                     </h2>
 
                     <p class="product-toolbar__text text-muted">
                         {{ $products->total() }} packages available for your next Bintan experience.
                     </p>
+
+                    @if(! empty($listingCatalog['description']))
+                        <p class="product-toolbar__text text-muted">
+                            {{ $listingCatalog['description'] }}
+                        </p>
+                    @endif
                 </div>
 
                 <div class="product-actions">
@@ -160,6 +178,20 @@
 
             @endif
 
+            @if(! empty($listingCatalog['has_cta']))
+                <div class="product-empty">
+                    @if(! empty($listingCatalog['subtitle']))
+                        <h3 class="product-empty__title">
+                            {{ $listingCatalog['subtitle'] }}
+                        </h3>
+                    @endif
+
+                    <a href="{{ $listingCatalog['cta_url'] }}" class="btn btn-submit">
+                        {{ $listingCatalog['cta_text'] }}
+                    </a>
+                </div>
+            @endif
+
         </div>
     </section>
 
@@ -212,7 +244,7 @@
             <div class="product-filter">
                 <section class="product-filter__group">
                     <h4 class="product-filter__title">
-                        Rentang Harga
+                        Rentang Harga {{ $priceCurrency }}
                     </h4>
 
                     <div class="product-filter__price-grid">
@@ -221,7 +253,7 @@
                             <input
                                 type="number"
                                 name="min_price"
-                                value="{{ request('min_price') }}"
+                                value="{{ $minPrice ?? '' }}"
                                 placeholder="{{ $priceRange['min'] ? number_format($priceRange['min'], 0, ',', '.') : '0' }}"
                                 class="product-field__input"
                             >
@@ -232,7 +264,7 @@
                             <input
                                 type="number"
                                 name="max_price"
-                                value="{{ request('max_price') }}"
+                                value="{{ $maxPrice ?? '' }}"
                                 placeholder="{{ $priceRange['max'] ? number_format($priceRange['max'], 0, ',', '.') : '0' }}"
                                 class="product-field__input"
                             >
@@ -360,12 +392,12 @@
             class="product-modal__panel product-modal__panel--small"
             x-transition
         >
-            @if(request('min_price'))
-                <input type="hidden" name="min_price" value="{{ request('min_price') }}">
+            @if($minPrice !== null)
+                <input type="hidden" name="min_price" value="{{ $minPrice }}">
             @endif
 
-            @if(request('max_price'))
-                <input type="hidden" name="max_price" value="{{ request('max_price') }}">
+            @if($maxPrice !== null)
+                <input type="hidden" name="max_price" value="{{ $maxPrice }}">
             @endif
 
             @foreach($selectedDurations as $duration)
@@ -420,7 +452,7 @@
             </div>
 
             <div class="product-modal__footer">
-                <a href="{{ route('products.index', request()->except('sort', 'page')) }}" class="btn btn-outline product-modal__reset">
+                <a href="{{ route('products.index', $filterQueryParameters) }}" class="btn btn-outline product-modal__reset">
                     Reset
                 </a>
 

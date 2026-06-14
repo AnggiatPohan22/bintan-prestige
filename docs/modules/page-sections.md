@@ -51,6 +51,15 @@ Homepage keys:
 
 Product listing/detail keys also live in the registry and should not be renamed without approval.
 
+Product listing keys:
+
+- `products.index.hero`
+- `products.index.catalog`
+- `products.index.filter_modal`
+- `products.index.sort_modal`
+
+`products.index.hero` supports the existing legacy image fields for an optional public listing hero image. Listing filter, sort, query, pagination, product-card, price, and route behavior remain code-owned.
+
 ## Frontend Contract
 
 The homepage uses:
@@ -59,6 +68,11 @@ The homepage uses:
 - `App\Support\HomepageContent` for supported homepage content arrays.
 - `App\Support\PageSectionCta` for safe CTA URL normalization.
 - `App\Support\HomepageSectionMedia` for media slot definitions.
+
+The public Product Listing uses:
+
+- `App\Support\ProductListingContent` for display-ready listing hero/catalog content.
+- `App\Support\PageSectionCta` for safe listing CTA URL normalization.
 
 Blade files render prepared data. They must not query `PageSection`, `DB`, or other models directly.
 

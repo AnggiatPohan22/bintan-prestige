@@ -156,7 +156,7 @@
 
     /* PRODUCT CARD: Defines an immersive image-led package card with stable overlay content. */
     .product-card {
-        @apply relative flex min-h-[34rem] overflow-hidden rounded-[1.75rem] border bg-stone-950 shadow-xl transition duration-300 hover:-translate-y-1;
+        @apply relative flex min-h-[34rem] overflow-hidden rounded-[1.5rem] border bg-stone-950 shadow-xl transition duration-300 hover:-translate-y-1;
         border-color: rgba(200, 162, 74, 0.22);
         box-shadow: 0 28px 80px rgba(23, 19, 12, 0.16);
         scroll-snap-align: start;
@@ -205,7 +205,7 @@
 
     /* PRODUCT CATEGORY BADGE: Places category information over the image with good contrast. */
     .product-card__category {
-        @apply inline-flex w-fit max-w-full truncate rounded-lg px-3 py-1.5 text-xs font-extrabold shadow-sm;
+        @apply inline-flex w-fit max-w-full truncate rounded-md px-3 py-1.5 text-xs font-extrabold shadow-sm;
         background: var(--frontend-gold);
         color: var(--frontend-black);
     }
@@ -215,26 +215,26 @@
         @apply relative z-10 mt-auto flex w-full flex-col p-5 sm:p-6;
     }
 
-    /* PRODUCT CARD PRICE: Groups dual-currency pricing near the card title. */
+    /* PRODUCT CARD PRICE: Groups dual-currency pricing near the bottom action row. */
     .product-card__price {
-        @apply mt-4;
+        @apply min-w-0;
     }
 
     /* PRODUCT PRICE MAIN: Emphasizes IDR as the primary storefront currency. */
     .product-card__price-main {
-        @apply text-3xl font-extrabold leading-none sm:text-4xl;
+        @apply text-2xl font-extrabold leading-none sm:text-3xl;
         color: var(--frontend-white);
         text-shadow: 0 16px 38px rgba(0, 0, 0, 0.34);
     }
 
     /* PRODUCT PRICE SECONDARY: Shows SGD as the secondary currency under IDR. */
     .product-card__price-secondary {
-        @apply mt-2 text-base font-extrabold sm:text-lg;
+        @apply mt-2 text-sm font-extrabold sm:text-base;
         color: rgba(255, 255, 255, 0.78);
     }
 
     .product-card__price-main--empty {
-        @apply text-2xl leading-tight sm:text-3xl;
+        @apply text-xl leading-tight sm:text-2xl;
         color: var(--frontend-gold-soft);
     }
 
@@ -267,14 +267,9 @@
         color: var(--frontend-gold-soft);
     }
 
-    /* PRODUCT CARD FOOTER: Aligns destination, duration, and media action icons. */
-    .product-card__footer {
-        @apply mt-5 flex items-center justify-between gap-4;
-    }
-
     /* PRODUCT META: Displays destination and duration in one tidy responsive row. */
     .product-card__meta {
-        @apply flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 text-sm font-extrabold;
+        @apply mt-3 flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 text-sm font-extrabold;
         color: rgba(255, 255, 255, 0.88);
     }
 
@@ -284,24 +279,30 @@
         background: rgba(255, 255, 255, 0.56);
     }
 
+    /* PRODUCT CARD DESCRIPTION: Adds a stable two-line listing summary under the metadata. */
+    .product-card__description {
+        @apply mt-4 text-sm font-semibold leading-6;
+        color: rgba(255, 255, 255, 0.76);
+        display: -webkit-box;
+        min-height: 3rem;
+        overflow: hidden;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+    }
+
+    /* PRODUCT CARD FOOTER: Pins price and actions to the bottom of the card. */
+    .product-card__footer {
+        @apply mt-6 flex flex-col gap-4 sm:mt-7 sm:flex-row sm:items-end sm:justify-between;
+    }
+
+    /* PRODUCT CARD CONTROLS: Keeps media buttons and detail CTA grouped with touch-safe sizing. */
+    .product-card__controls {
+        @apply flex shrink-0 flex-wrap items-center gap-2;
+    }
+
     /* PRODUCT CARD ACTIONS: Groups image and video icon controls beside metadata. */
     .product-card__actions {
-        @apply flex shrink-0 translate-y-4 items-center gap-2 opacity-0;
-        transition:
-            opacity 260ms var(--frontend-ease),
-            transform 320ms var(--frontend-ease-press);
-    }
-
-    /* PRODUCT CARD ACTIONS REVEAL: Slides media icons up once the card receives attention. */
-    .product-card:hover .product-card__actions,
-    .product-card:focus-within .product-card__actions {
-        @apply translate-y-0 opacity-100;
-    }
-
-    @media (hover: none) {
-        .product-card__actions {
-            @apply translate-y-0 opacity-100;
-        }
+        @apply flex shrink-0 items-center gap-2;
     }
 
     /* PRODUCT CARD ICON BUTTON: Creates circular media controls inspired by the visual reference. */
@@ -328,6 +329,11 @@
         background: var(--frontend-gold);
         border-color: var(--frontend-gold);
         transform: translateY(-1px);
+    }
+
+    /* PRODUCT CARD CTA: Gives listing cards a clear non-nested detail action. */
+    .product-card__cta {
+        @apply min-h-11 shrink-0 px-4;
     }
 
     /* PRODUCT MODAL CLOAK: Prevents Alpine popups from flashing before JavaScript starts. */

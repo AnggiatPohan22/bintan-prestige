@@ -54,8 +54,15 @@ Current database-backed rules:
 
 Frontend implication:
 
-- Public Product listing/detail behavior is unchanged by DB-09.
-- A future frontend/backend sync step should decide whether published Products under archived/inactive parents should remain visible or be hidden by a stricter public visibility scope.
+- Public Product Listing uses `Product::publiclyVisible()` so listed Products must be published and attached to active, non-archived Category/Destination records.
+- Public Product Listing query parameters are normalized before filtering to avoid array-shaped or unsupported values widening the result set.
+- Product Listing eager loads only listing-card relations: Category, Destination, Prices, and Images.
+- Product Listing displays IDR/SGD prices from loaded `prices` data, but price range filtering and price sorting use an explicit IDR context.
+- Product Listing places missing-IDR Products after IDR-priced Products when sorting by price and keeps missing-price display as `Price on request`.
+- Product Listing treats duration as display/filter text only; deprecated duration sort query values fall back to newest.
+- Product Listing content is prepared by `ProductListingContent` from active `products.index.*` Page Sections with code fallbacks.
+- Product Listing Page Sections control intro/catalog copy, optional hero image, and optional catalog CTA only; filters, sorting, pagination, product query, and Product cards remain application-owned.
+- Public Product Detail behavior remains separate from the FRONTEND-07 listing policy.
 
 ## Homepage CMS Flow
 
