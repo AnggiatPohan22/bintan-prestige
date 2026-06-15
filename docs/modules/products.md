@@ -50,13 +50,14 @@ Prepared state:
 - Duration, meeting point, pickup, overview description, highlights, feature groups, itinerary items, notes, FAQs, add-ons, and optional section visibility are prepared before Blade.
 - WhatsApp state uses Product WhatsApp number first, then configured global/contact number; when no number exists, Product Detail WhatsApp CTAs are hidden instead of rendering a broken `wa.me` URL.
 - Metadata state prepares Product title, description, canonical URL, robots value, social share type, and image fallback from Product SEO fields and prepared media state.
-- Breadcrumb state is prepared for Product Detail, but visible breadcrumb UI remains a future frontend step.
+- Breadcrumb state is prepared for Product Detail and rendered as visible breadcrumb UI above the Product summary.
 
 Blade behavior:
 
 - `resources/views/frontend/products/show.blade.php` renders prepared display state and does not call Product queries, relation methods, global setting helpers, or media fallback helpers directly.
 - Product Detail section visibility is display-state driven; empty optional overview, feature, itinerary, note, FAQ, add-on, and WhatsApp CTA sections do not render.
-- This step does not change public visibility policy, Product Detail route shape, admin Product behavior, related products, schema markup, or listing behavior.
+- Product Detail layout renders one Product H1, visible breadcrumb, a responsive media-plus-summary area, prepared summary metadata, price state, WhatsApp CTA when available, and content sections in this order: Description, Features, Itinerary, Notes, FAQs.
+- This does not change public visibility policy, Product Detail route shape, admin Product behavior, related products, schema markup, or listing behavior.
 
 ## Public Listing CMS Content
 

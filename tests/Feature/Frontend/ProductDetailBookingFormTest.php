@@ -180,6 +180,177 @@ class ProductDetailBookingFormTest extends TestCase
         $this->assertSame(['Home', 'Products', 'Prepared State Tour'], $breadcrumbState->pluck('label')->all());
     }
 
+    public function test_product_detail_layout_renders_breadcrumb_single_h1_summary_facts_and_prepared_cta(): void
+    {
+        $category = Category::factory()->create(['name' => 'Private Tour']);
+        $destination = Destination::factory()->create(['name' => 'Trikora']);
+        $product = $this->createProduct([
+            'name' => 'Trikora Coastal Escape',
+            'status' => 'published',
+            'short_description' => 'A relaxed coastal route with private pickup.',
+            'description' => 'Full coastal overview copy.',
+            'duration' => '5 Hours',
+            'meeting_point' => 'Trikora Beach Lobby',
+            'pickup_available' => true,
+            'pickup_type' => 'Hotel Pickup',
+            'whatsapp_number' => '+62 812-3456-7890',
+        ], $category, $destination);
+
+        ProductPrice::create([
+            'product_id' => $product->id,
+            'currency' => ProductPrice::CURRENCY_IDR,
+            'price' => 640000,
+        ]);
+        ProductPrice::create([
+            'product_id' => $product->id,
+            'currency' => ProductPrice::CURRENCY_SGD,
+            'price' => 54,
+        ]);
+
+        $response = $this->get(route('products.show', $product));
+        $html = $response->getContent();
+        $whatsappState = $response->viewData('whatsappState');
+
+        $response->assertOk();
+        $this->assertSame(1, preg_match_all('/<h1\b/i', $html));
+        $response->assertSee('aria-label="Breadcrumb"', false);
+        $response->assertSeeInOrder(['Home', 'Products', 'Trikora Coastal Escape']);
+        $response->assertSee('aria-current="page"', false);
+        $response->assertSee('Private Tour');
+        $response->assertSee('Trikora');
+        $response->assertSee('A relaxed coastal route with private pickup.');
+        $response->assertSee('Duration');
+        $response->assertSee('5 Hours');
+        $response->assertSee('Meeting Point');
+        $response->assertSee('Trikora Beach Lobby');
+        $response->assertSee('Pickup');
+        $response->assertSee('Hotel Pickup');
+        $response->assertSee('Rp 640.000');
+        $response->assertSee('SGD 54');
+        $response->assertSee('href="' . $whatsappState['chat_url'] . '"', false);
+    }
+
+    public function test_product_detail_layout_sections_render_in_prepared_order(): void
+    {
+        $product = $this->createProduct([
+            'name' => 'Ordered Layout Tour',
+            'status' => 'published',
+            'description' => 'Ordered overview copy.',
+        ]);
+
+        ProductFeature::create([
+            'product_id' => $product->id,
+            'label' => 'included',
+            'value' => 'First included layout feature',
+            'sort_order' => 10,
+        ]);
+        ProductFeature::create([
+            'product_id' => $product->id,
+            'label' => 'included',
+            'value' => 'Second included layout feature',
+            'sort_order' => 20,
+        ]);
+        ProductItinerary::create([
+            'product_id' => $product->id,
+            'time' => '09:00',
+            'title' => 'First layout stop',
+            'description' => 'First layout stop description.',
+            'sort_order' => 10,
+            'start_time' => 900,
+        ]);
+        ProductItinerary::create([
+            'product_id' => $product->id,
+            'time' => '11:00',
+            'title' => 'Second layout stop',
+            'description' => 'Second layout stop description.',
+            'sort_order' => 20,
+            'start_time' => 1100,
+        ]);
+        ProductNote::create([
+            'product_id' => $product->id,
+            'title' => 'First layout note',
+            'description' => 'First note description.',
+            'sort_order' => 10,
+        ]);
+        ProductNote::create([
+            'product_id' => $product->id,
+            'title' => 'Second layout note',
+            'description' => 'Second note description.',
+            'sort_order' => 20,
+        ]);
+        ProductFaq::create([
+            'product_id' => $product->id,
+            'question' => 'First layout question?',
+            'answer' => 'First layout answer.',
+            'sort_order' => 10,
+        ]);
+        ProductFaq::create([
+            'product_id' => $product->id,
+            'question' => 'Second layout question?',
+            'answer' => 'Second layout answer.',
+            'sort_order' => 20,
+        ]);
+
+        $response = $this->get(route('products.show', $product));
+
+        $response->assertOk();
+        $response->assertSeeInOrder([
+            'Overview',
+            'Ordered overview copy.',
+            'What&#039;s Included',
+            'First included layout feature',
+            'Second included layout feature',
+            'Itinerary',
+            'First layout stop',
+            'Second layout stop',
+            'Important Notes',
+            'First layout note',
+            'Second layout note',
+            'FAQ',
+            'First layout question?',
+            'Second layout question?',
+        ], false);
+    }
+
+    public function test_product_detail_layout_hides_empty_summary_and_optional_sections_without_empty_wrappers(): void
+    {
+        $product = $this->createProduct([
+            'name' => 'Sparse Layout Tour',
+            'status' => 'published',
+            'short_description' => '',
+            'description' => '',
+            'duration' => '',
+            'meeting_point' => '',
+            'whatsapp_number' => '',
+            'pickup_available' => false,
+        ]);
+
+        $response = $this->get(route('products.show', $product));
+
+        $response->assertOk();
+        $response->assertDontSee('class="product-detail-description text-body"', false);
+        $response->assertDontSee('<span class="product-detail-meta__label">Duration</span>', false);
+        $response->assertDontSee('<span class="product-detail-meta__label">Meeting Point</span>', false);
+        $response->assertSee('<span class="product-detail-meta__label">Pickup</span>', false);
+        $response->assertDontSee('id="products-show-overview"', false);
+        $response->assertDontSee('id="products-show-features"', false);
+        $response->assertDontSee('id="products-show-itinerary"', false);
+        $response->assertDontSee('id="products-show-notes"', false);
+        $response->assertDontSee('id="products-show-faq"', false);
+        $response->assertDontSee('data-product-id="' . $product->id . '"', false);
+    }
+
+    public function test_product_detail_layout_does_not_add_gallery_lightbox_or_modal_interaction(): void
+    {
+        $contents = file_get_contents(
+            resource_path('views/frontend/products/show.blade.php')
+        );
+
+        $this->assertStringNotContainsString('lightbox', $contents);
+        $this->assertStringNotContainsString('product-media-modal', $contents);
+        $this->assertStringNotContainsString('x-on:keydown', $contents);
+    }
+
     public function test_product_detail_media_state_deduplicates_gallery_images_and_uses_default_placeholder(): void
     {
         $category = Category::factory()->create(['name' => 'Media State Category']);

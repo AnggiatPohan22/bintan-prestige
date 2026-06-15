@@ -78,7 +78,9 @@ Frontend implication:
 - Product Detail display data is prepared by `ProductDetailDisplayState` before Blade renders: price, primary image/gallery/fallback, duration, meeting point, pickup, overview, highlights, feature groups, itinerary, notes, FAQs, add-ons, WhatsApp CTA state, breadcrumb state, metadata state, and optional section flags.
 - Product Detail WhatsApp CTAs are display-state guarded: Product number is preferred, global/contact number is the fallback, and CTA buttons are omitted when no usable number exists.
 - Product Detail Blade renders prepared state only; it must not call Product query builders, relation methods, `DefaultMediaAssets`, or `BookingCtaSettings` directly.
-- Product Detail breadcrumb state is backend-prepared for future UI work, but FRONTEND-17B does not add visible breadcrumb UI, related products, or schema markup changes.
+- Product Detail renders the prepared breadcrumb state as visible breadcrumb UI above the media-plus-summary area.
+- Product Detail layout keeps one Product H1, a responsive primary media plus summary hierarchy, prepared summary facts, price/CTA placement, and optional content sections ordered as Description, Features, Itinerary, Notes, and FAQs.
+- Product Detail layout work does not add related products, gallery lightbox behavior, sticky CTA changes, or schema markup changes.
 
 ## Homepage CMS Flow
 

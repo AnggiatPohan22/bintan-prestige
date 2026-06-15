@@ -64,6 +64,24 @@
     >
         <div class="product-detail-container">
 
+            <nav class="product-breadcrumb product-detail-breadcrumb" aria-label="Breadcrumb">
+                @foreach($breadcrumbState as $item)
+                    @if(! $loop->first)
+                        <span class="product-breadcrumb__separator" aria-hidden="true">/</span>
+                    @endif
+
+                    @if($item['url'] && ! $item['current'])
+                        <a href="{{ $item['url'] }}" class="product-breadcrumb__link">
+                            {{ $item['label'] }}
+                        </a>
+                    @else
+                        <span class="product-breadcrumb__current" @if($item['current']) aria-current="page" @endif>
+                            {{ $item['label'] }}
+                        </span>
+                    @endif
+                @endforeach
+            </nav>
+
             <div class="product-detail-hero__grid">
 
                 <div
@@ -170,10 +188,19 @@
                     @endif
 
                     <div class="product-detail-meta">
-                        <div class="product-detail-meta__item">
-                            <span class="product-detail-meta__label">Duration</span>
-                            <span class="product-detail-meta__value">{{ $durationState['display'] }}</span>
-                        </div>
+                        @if($durationState['has_value'])
+                            <div class="product-detail-meta__item">
+                                <span class="product-detail-meta__label">Duration</span>
+                                <span class="product-detail-meta__value">{{ $durationState['display'] }}</span>
+                            </div>
+                        @endif
+
+                        @if($meetingPointState['has_value'])
+                            <div class="product-detail-meta__item">
+                                <span class="product-detail-meta__label">Meeting Point</span>
+                                <span class="product-detail-meta__value">{{ $meetingPointState['display'] }}</span>
+                            </div>
+                        @endif
 
                         <div class="product-detail-meta__item">
                             <span class="product-detail-meta__label">Pickup</span>
@@ -316,9 +343,9 @@
                             Itinerary
                         </h2>
 
-                        <div class="product-detail-timeline">
+                        <ol class="product-detail-timeline">
                             @foreach($itineraryItems as $itinerary)
-                                <div class="product-detail-timeline__item">
+                                <li class="product-detail-timeline__item">
                                     <div class="product-detail-timeline__time">
                                         {{ $itinerary['time'] ?: '-' }}
                                     </div>
@@ -334,9 +361,9 @@
                                             </p>
                                         @endif
                                     </div>
-                                </div>
+                                </li>
                             @endforeach
-                        </div>
+                        </ol>
                     </section>
                 @endif
 
