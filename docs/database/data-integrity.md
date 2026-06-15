@@ -142,7 +142,7 @@ Additional DB-09 verification:
 ## Remaining Risks
 
 - Product itself still uses hard delete, and product child rows still cascade when Product is deleted.
-- Public product visibility for products under archived/inactive parents remains a future policy decision.
+- Public Product Listing and Product Detail now hide Products under archived/inactive parents through the opt-in `Product::publiclyVisible()` scope.
 - Category/Destination permanent delete does not yet have granular per-module policy/gate enforcement.
 - Reassign-before-delete workflow for Category/Destination is not implemented.
 - `product_prices(currency, price)` remains deferred until price filter/sort tests exist.

@@ -713,24 +713,27 @@ class ProductController extends Controller
         ];
     }
 
-    public function show(Product $product)
+    public function show(string $product)
     {
-        abort_if(
-            $product->status !== 'published',
-            404
-        );
+        $slug = $product;
 
-        $product->load([
-            'category',
-            'destination',
-            'prices',
-            'images',
-            'highlights',
-            'features',
-            'faqs',
-            'itineraries',
-            'notes',
-        ]);
+        $product = Product::query()
+            ->publiclyVisible()
+            ->where('slug', $slug)
+            ->with([
+                'category',
+                'destination',
+                'prices',
+                'images' => fn ($query) => $query
+                    ->orderBy('sort_order')
+                    ->orderBy('id'),
+                'highlights',
+                'features',
+                'faqs',
+                'itineraries',
+                'notes',
+            ])
+            ->firstOrFail();
 
         return view(
             'frontend.products.show',

@@ -73,7 +73,8 @@ Frontend implication:
 - Product Listing active filter summaries include backend-prepared remove URLs and accessible labels; Blade only renders the prepared state.
 - Product Listing pagination uses a listing-scoped Blade pagination view so current page, previous/next, disabled states, and page anchors have Product Listing-specific accessible text.
 - Product Listing structured data stays in `StructuredDataBuilder`: BreadcrumbList reuses the existing route-aware breadcrumb behavior, and ItemList contains only public listed Product names, positions, and detail URLs.
-- Public Product Detail behavior remains separate from the FRONTEND-07 listing policy.
+- Public Product Detail now resolves its slug through `Product::publiclyVisible()`, so direct detail URLs follow the same public visibility policy as Product Listing while keeping admin Product queries unrestricted.
+- Product Detail eager loads only rendered detail relations: Category, Destination, Prices, Images, Highlights, Features, FAQs, Itineraries, and Notes. Image ordering is applied in the detail query; the other detail collections use their model relation ordering.
 
 ## Homepage CMS Flow
 

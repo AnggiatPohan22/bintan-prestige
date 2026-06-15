@@ -23,19 +23,21 @@ Products use string publication status values:
 
 `ProductFactory` defaults to `published` and provides explicit `draft()` and `published()` states for focused tests and seed/demo data.
 
-## Public Listing Visibility Policy
+## Public Product Visibility Policy
 
-The public Product Listing uses `Product::publiclyVisible()`.
+The public Product Listing and public Product Detail use `Product::publiclyVisible()`.
 
 Rules:
 
 - Product status must be `published`.
 - The related Category must be active and not archived.
 - The related Destination must be active and not archived.
-- Archiving or deactivating a Category/Destination hides related Products from the public listing without deleting Product records.
-- Admin Product queries are not changed by this public listing scope.
+- Archiving or deactivating a Category/Destination hides related Products from the public listing and direct public Product Detail URLs without deleting Product records.
+- Admin Product queries are not changed by this opt-in public scope.
 
 The Product Listing card query uses `Product::frontendListingReady()` to eager load only listing-card relations: Category, Destination, Prices, and Images.
+
+The Product Detail query resolves the route slug through `Product::publiclyVisible()`, eager loads only rendered Product Detail relations, and returns 404 for draft Products, invalid status values, inactive/archived parents, and invalid slugs.
 
 ## Public Listing CMS Content
 
@@ -194,5 +196,4 @@ Current guardrails:
 
 - Product hard delete still cascades product-owned child rows.
 - Product price range index `product_prices(currency, price)` remains deferred.
-- Public Product Detail parent-visibility behavior remains separate from the Product Listing policy and is deferred until a Product Detail step.
 - Public duration sorting requires a future approved normalized duration field or controlled duration taxonomy.
