@@ -130,14 +130,18 @@ class GlobalDefaultMediaAssetsTest extends TestCase
                 'product' => ['fit' => 'contain'],
             ],
         ]);
-        $detail = $this->view('frontend.products.show', [
-            'product' => $product,
+        $detailViewData = [
             'siteAssets' => $siteAssets,
             'defaultMediaSettings' => [
                 'product' => ['fit' => 'contain'],
             ],
             'businessIdentity' => ['brand_name' => 'Bintan Prestige'],
             'contactInformation' => [],
+        ];
+        $detail = $this->view('frontend.products.show', [
+            'product' => $product,
+            ...$detailViewData,
+            ...$this->productDetailDisplayState($product, $detailViewData),
         ]);
 
         $card->assertSee('site-assets/default_media-product/product.jpg', false);

@@ -11,13 +11,23 @@ use App\Models\ProductImage;
 use App\Models\ProductItinerary;
 use App\Models\ProductNote;
 use App\Models\ProductPrice;
+use App\Models\SiteAsset;
+use App\Models\SiteSetting;
 use App\Models\User;
+use App\Services\GlobalSettingsService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class ProductDetailBookingFormTest extends TestCase
 {
     use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        app(GlobalSettingsService::class)->forgetAll();
+    }
 
     public function test_product_detail_renders_booking_information_form_without_changing_product_core(): void
     {
@@ -113,6 +123,207 @@ class ProductDetailBookingFormTest extends TestCase
         $response->assertSee('Singapore Guest Tour');
         $response->assertSee('SGD 45');
         $response->assertDontSee('Rp 0');
+    }
+
+    public function test_product_detail_prepares_display_state_for_price_media_description_and_metadata(): void
+    {
+        $category = Category::factory()->create(['name' => 'Tour Package']);
+        $destination = Destination::factory()->create(['name' => 'Lagoi']);
+        $product = $this->createProduct([
+            'name' => 'Prepared State Tour',
+            'status' => 'published',
+            'thumbnail' => 'products/prepared-state.jpg',
+            'short_description' => 'Prepared short copy.',
+            'description' => 'Prepared overview copy.',
+            'duration' => '6 Hours',
+            'meeting_point' => 'Lagoi Bay',
+            'meta_title' => 'Prepared SEO Title',
+            'meta_description' => 'Prepared SEO description.',
+            'canonical_url' => 'https://example.test/prepared-state-tour',
+        ], $category, $destination);
+
+        ProductPrice::create([
+            'product_id' => $product->id,
+            'currency' => ProductPrice::CURRENCY_IDR,
+            'price' => 780000,
+        ]);
+        ProductPrice::create([
+            'product_id' => $product->id,
+            'currency' => ProductPrice::CURRENCY_SGD,
+            'price' => 65,
+        ]);
+
+        $response = $this->get(route('products.show', $product));
+
+        $priceState = $response->viewData('priceState');
+        $mediaState = $response->viewData('mediaState');
+        $descriptionState = $response->viewData('descriptionState');
+        $durationState = $response->viewData('durationState');
+        $meetingPointState = $response->viewData('meetingPointState');
+        $metadataState = $response->viewData('metadataState');
+        $breadcrumbState = $response->viewData('breadcrumbState');
+
+        $response->assertOk();
+        $this->assertTrue($priceState['has_idr']);
+        $this->assertTrue($priceState['has_sgd']);
+        $this->assertSame('Rp 780.000', $priceState['primary_formatted']);
+        $this->assertSame('SGD 65', $priceState['secondary_formatted']);
+        $this->assertSame('thumbnail', $mediaState['primary']['source']);
+        $this->assertSame('Prepared State Tour in Lagoi', $mediaState['primary']['alt']);
+        $this->assertSame('Prepared overview copy.', $descriptionState['plain_text']);
+        $this->assertSame('escaped_plain_text_with_line_breaks', $descriptionState['render_mode']);
+        $this->assertSame('6 Hours', $durationState['display']);
+        $this->assertSame('Lagoi Bay', $meetingPointState['display']);
+        $this->assertSame('Prepared SEO Title', $metadataState['title']);
+        $this->assertSame('Prepared SEO description.', $metadataState['description']);
+        $this->assertSame('https://example.test/prepared-state-tour', $metadataState['canonical']);
+        $this->assertSame(['Home', 'Products', 'Prepared State Tour'], $breadcrumbState->pluck('label')->all());
+    }
+
+    public function test_product_detail_media_state_deduplicates_gallery_images_and_uses_default_placeholder(): void
+    {
+        $category = Category::factory()->create(['name' => 'Media State Category']);
+        $destination = Destination::factory()->create(['name' => 'Media State Destination']);
+        $productWithGallery = $this->createProduct([
+            'name' => 'Gallery State Tour',
+            'status' => 'published',
+            'thumbnail' => null,
+        ], $category, $destination);
+
+        ProductImage::create([
+            'product_id' => $productWithGallery->id,
+            'image' => 'products/gallery-state.jpg',
+            'sort_order' => 10,
+        ]);
+        ProductImage::create([
+            'product_id' => $productWithGallery->id,
+            'image' => '/products/gallery-state.jpg',
+            'sort_order' => 20,
+        ]);
+
+        $galleryResponse = $this->get(route('products.show', $productWithGallery));
+        $galleryMediaState = $galleryResponse->viewData('mediaState');
+
+        $galleryResponse->assertOk();
+        $this->assertSame(1, $galleryMediaState['count']);
+        $this->assertSame('gallery', $galleryMediaState['primary']['source']);
+        $this->assertFalse($galleryMediaState['uses_fallback']);
+
+        SiteAsset::create([
+            'key' => 'default_media.product',
+            'label' => 'Product placeholder image',
+            'path' => 'site-assets/default_media-product/product.jpg',
+            'alt' => 'Default product placeholder',
+            'is_active' => true,
+        ]);
+        SiteSetting::create([
+            'key' => 'default_media.product.fit',
+            'label' => 'Product placeholder fit',
+            'value' => 'contain',
+            'type' => 'select',
+            'group' => 'default_media_settings',
+            'is_active' => true,
+        ]);
+
+        $productWithoutMedia = $this->createProduct([
+            'name' => 'Fallback State Tour',
+            'status' => 'published',
+            'thumbnail' => null,
+        ], $category, $destination);
+
+        $fallbackResponse = $this->get(route('products.show', $productWithoutMedia));
+        $fallbackMediaState = $fallbackResponse->viewData('mediaState');
+
+        $fallbackResponse->assertOk();
+        $this->assertSame('fallback', $fallbackMediaState['primary']['source']);
+        $this->assertTrue($fallbackMediaState['uses_fallback']);
+        $this->assertSame('contain', $fallbackMediaState['primary']['fit']);
+        $this->assertStringContainsString('site-assets/default_media-product/product.jpg', $fallbackMediaState['primary']['url']);
+    }
+
+    public function test_product_detail_whatsapp_state_uses_product_then_global_number_and_hides_when_missing(): void
+    {
+        $category = Category::factory()->create(['name' => 'WhatsApp State Category']);
+        $destination = Destination::factory()->create(['name' => 'WhatsApp State Destination']);
+        $productNumberProduct = $this->createProduct([
+            'name' => 'Product Number Tour',
+            'status' => 'published',
+            'whatsapp_number' => '+62 812-0000-1111',
+        ], $category, $destination);
+
+        $productNumberResponse = $this->get(route('products.show', $productNumberProduct));
+        $productNumberState = $productNumberResponse->viewData('whatsappState');
+
+        $productNumberResponse->assertOk();
+        $this->assertTrue($productNumberState['available']);
+        $this->assertSame('product', $productNumberState['source']);
+        $this->assertSame('6281200001111', $productNumberState['phone']);
+
+        SiteSetting::create([
+            'key' => 'contact.whatsapp_number',
+            'label' => 'WhatsApp number',
+            'value' => '+62 899-9888-777',
+            'type' => 'text',
+            'group' => 'contact_information',
+            'is_active' => true,
+        ]);
+
+        $globalNumberProduct = $this->createProduct([
+            'name' => 'Global Number Tour',
+            'status' => 'published',
+            'whatsapp_number' => '',
+        ], $category, $destination);
+
+        $globalNumberResponse = $this->get(route('products.show', $globalNumberProduct));
+        $globalNumberState = $globalNumberResponse->viewData('whatsappState');
+
+        $globalNumberResponse->assertOk();
+        $this->assertTrue($globalNumberState['available']);
+        $this->assertSame('global', $globalNumberState['source']);
+        $this->assertSame('628999888777', $globalNumberState['phone']);
+
+        SiteSetting::where('key', 'contact.whatsapp_number')->delete();
+        app(GlobalSettingsService::class)->forgetAll();
+
+        $missingNumberProduct = $this->createProduct([
+            'name' => 'Missing Number Tour',
+            'status' => 'published',
+            'whatsapp_number' => '',
+        ], $category, $destination);
+
+        $missingNumberResponse = $this->get(route('products.show', $missingNumberProduct));
+        $missingNumberState = $missingNumberResponse->viewData('whatsappState');
+
+        $missingNumberResponse->assertOk();
+        $this->assertFalse($missingNumberState['available']);
+        $this->assertSame('none', $missingNumberState['source']);
+        $this->assertNull($missingNumberState['chat_url']);
+        $missingNumberResponse->assertDontSee('data-product-id="' . $missingNumberProduct->id . '"', false);
+    }
+
+    public function test_product_detail_section_state_hides_empty_optional_sections(): void
+    {
+        $product = $this->createProduct([
+            'name' => 'Empty State Tour',
+            'status' => 'published',
+            'description' => '',
+            'whatsapp_number' => '',
+            'pickup_available' => false,
+            'pickup_note' => null,
+        ]);
+
+        $response = $this->get(route('products.show', $product));
+        $sectionState = $response->viewData('sectionState');
+
+        $response->assertOk();
+        $this->assertFalse($sectionState['has_overview']);
+        $this->assertFalse($sectionState['has_features']);
+        $this->assertFalse($sectionState['has_itineraries']);
+        $this->assertFalse($sectionState['has_notes']);
+        $this->assertFalse($sectionState['has_faqs']);
+        $this->assertFalse($sectionState['has_addons']);
+        $this->assertFalse($sectionState['has_whatsapp_cta']);
+        $response->assertDontSee('id="products-show-overview"', false);
     }
 
     public function test_product_detail_public_visibility_matches_listing_policy(): void
@@ -385,8 +596,12 @@ class ProductDetailBookingFormTest extends TestCase
 
         $this->assertStringNotContainsString('Product::', $contents);
         $this->assertStringNotContainsString('::query(', $contents);
+        $this->assertStringNotContainsString('DefaultMediaAssets::', $contents);
+        $this->assertStringNotContainsString('BookingCtaSettings::', $contents);
         $this->assertStringNotContainsString('DB::', $contents);
         $this->assertStringNotContainsString('->load(', $contents);
+        $this->assertStringNotContainsString('->where(', $contents);
+        $this->assertStringNotContainsString('->sortBy(', $contents);
         $this->assertStringNotContainsString('->images()', $contents);
         $this->assertStringNotContainsString('->features()', $contents);
         $this->assertStringNotContainsString('->itineraries()', $contents);

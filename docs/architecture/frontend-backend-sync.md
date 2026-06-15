@@ -1,6 +1,6 @@
 # Frontend Backend Sync
 
-Last updated: 2026-06-14
+Last updated: 2026-06-15
 
 ## Global Settings Flow
 
@@ -75,6 +75,10 @@ Frontend implication:
 - Product Listing structured data stays in `StructuredDataBuilder`: BreadcrumbList reuses the existing route-aware breadcrumb behavior, and ItemList contains only public listed Product names, positions, and detail URLs.
 - Public Product Detail now resolves its slug through `Product::publiclyVisible()`, so direct detail URLs follow the same public visibility policy as Product Listing while keeping admin Product queries unrestricted.
 - Product Detail eager loads only rendered detail relations: Category, Destination, Prices, Images, Highlights, Features, FAQs, Itineraries, and Notes. Image ordering is applied in the detail query; the other detail collections use their model relation ordering.
+- Product Detail display data is prepared by `ProductDetailDisplayState` before Blade renders: price, primary image/gallery/fallback, duration, meeting point, pickup, overview, highlights, feature groups, itinerary, notes, FAQs, add-ons, WhatsApp CTA state, breadcrumb state, metadata state, and optional section flags.
+- Product Detail WhatsApp CTAs are display-state guarded: Product number is preferred, global/contact number is the fallback, and CTA buttons are omitted when no usable number exists.
+- Product Detail Blade renders prepared state only; it must not call Product query builders, relation methods, `DefaultMediaAssets`, or `BookingCtaSettings` directly.
+- Product Detail breadcrumb state is backend-prepared for future UI work, but FRONTEND-17B does not add visible breadcrumb UI, related products, or schema markup changes.
 
 ## Homepage CMS Flow
 

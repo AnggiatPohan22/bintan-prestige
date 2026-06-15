@@ -8,7 +8,9 @@ use App\Models\Destination;
 use App\Models\PageSection;
 use App\Models\Product;
 use App\Models\ProductPrice;
+use App\Services\GlobalSettingsService;
 use App\Support\PageSectionRegistry;
+use App\Support\ProductDetailDisplayState;
 use App\Support\ProductListingContent;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -713,7 +715,7 @@ class ProductController extends Controller
         ];
     }
 
-    public function show(string $product)
+    public function show(string $product, GlobalSettingsService $globalSettings)
     {
         $slug = $product;
 
@@ -734,32 +736,39 @@ class ProductController extends Controller
                 'notes',
             ])
             ->firstOrFail();
+        $globalViewData = $globalSettings->viewData();
+        $displayState = ProductDetailDisplayState::make($product, $globalViewData);
+        $metadataState = $displayState['metadataState'];
 
         return view(
             'frontend.products.show',
             [
                 'product' => $product,
+                ...$displayState,
 
                 'seoTitle' =>
-                    $product->meta_title
-                    ?: $product->name,
+                    $metadataState['title'],
 
                 'seoDescription' =>
-                    $product->meta_description
-                    ?: $product->short_description,
+                    $metadataState['description'],
 
                 'seoKeywords' =>
-                    $product->meta_keywords,
+                    $metadataState['keywords'],
 
                 'canonicalUrl' =>
-                    $product->canonical_url
-                    ?: route('products.show', $product),
+                    $metadataState['canonical'],
 
                 'seoImage' =>
-                    $product->og_image_url
-                    ?: $product->thumbnail_url,
+                    $metadataState['image'],
 
-                'socialShareType' => 'product',
+                'seoImageAlt' =>
+                    $metadataState['image_alt'],
+
+                'seoRobots' =>
+                    $metadataState['robots'],
+
+                'socialShareType' =>
+                    $metadataState['social_share_type'],
             ]
         );
     }

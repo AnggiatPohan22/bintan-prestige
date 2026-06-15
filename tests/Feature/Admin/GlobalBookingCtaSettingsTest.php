@@ -111,8 +111,7 @@ class GlobalBookingCtaSettingsTest extends TestCase
             'cta_button_text' => null,
         ]);
 
-        $response = $this->view('frontend.products.show', [
-            'product' => $product,
+        $viewData = [
             'businessIdentity' => ['brand_name' => 'Bintan Prestige'],
             'contactInformation' => ['whatsapp_number' => '628999888777'],
             'bookingCtaSettings' => [
@@ -123,6 +122,12 @@ class GlobalBookingCtaSettingsTest extends TestCase
                 'product_booking_label' => 'Reserve This Package',
                 'product_message_template' => 'Hello {site_name}, I want {product_name}: {product_url}',
             ],
+        ];
+
+        $response = $this->view('frontend.products.show', [
+            'product' => $product,
+            ...$viewData,
+            ...$this->productDetailDisplayState($product, $viewData),
         ]);
 
         $response->assertSee('Ask This Package');

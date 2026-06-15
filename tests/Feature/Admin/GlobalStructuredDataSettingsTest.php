@@ -122,8 +122,7 @@ class GlobalStructuredDataSettingsTest extends TestCase
             'canonical_url' => null,
         ]);
 
-        $response = $this->view('frontend.products.show', [
-            'product' => $product,
+        $viewData = [
             'businessIdentity' => ['brand_name' => 'Bintan Prestige'],
             'contactInformation' => [],
             'seoDefaultSettings' => [
@@ -135,6 +134,12 @@ class GlobalStructuredDataSettingsTest extends TestCase
             'structuredDataSettings' => StructuredDataSettings::valuesFromSettings(collect()),
             'siteAssets' => collect(),
             'activeSocialMediaLinks' => collect(),
+        ];
+
+        $response = $this->view('frontend.products.show', [
+            'product' => $product,
+            ...$viewData,
+            ...$this->productDetailDisplayState($product, $viewData),
         ]);
 
         $response->assertSee('"@type":"BreadcrumbList"', false);

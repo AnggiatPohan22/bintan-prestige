@@ -1,6 +1,6 @@
 # Products Module
 
-Last updated: 2026-06-14
+Last updated: 2026-06-15
 
 ## Category and Destination Integrity
 
@@ -38,6 +38,25 @@ Rules:
 The Product Listing card query uses `Product::frontendListingReady()` to eager load only listing-card relations: Category, Destination, Prices, and Images.
 
 The Product Detail query resolves the route slug through `Product::publiclyVisible()`, eager loads only rendered Product Detail relations, and returns 404 for draft Products, invalid status values, inactive/archived parents, and invalid slugs.
+
+## Public Product Detail Display State
+
+`ProductController::show()` prepares Product Detail display state through `App\Support\ProductDetailDisplayState` before rendering Blade.
+
+Prepared state:
+
+- Price state uses loaded `prices`, treats only positive numeric values as displayable, prefers IDR when present, shows SGD when IDR is missing, and falls back to `Price on request` without rendering `Rp 0`.
+- Media state uses Product thumbnail first, then ordered Product gallery images, then `default_media.product`; duplicate media paths are collapsed before rendering.
+- Duration, meeting point, pickup, overview description, highlights, feature groups, itinerary items, notes, FAQs, add-ons, and optional section visibility are prepared before Blade.
+- WhatsApp state uses Product WhatsApp number first, then configured global/contact number; when no number exists, Product Detail WhatsApp CTAs are hidden instead of rendering a broken `wa.me` URL.
+- Metadata state prepares Product title, description, canonical URL, robots value, social share type, and image fallback from Product SEO fields and prepared media state.
+- Breadcrumb state is prepared for Product Detail, but visible breadcrumb UI remains a future frontend step.
+
+Blade behavior:
+
+- `resources/views/frontend/products/show.blade.php` renders prepared display state and does not call Product queries, relation methods, global setting helpers, or media fallback helpers directly.
+- Product Detail section visibility is display-state driven; empty optional overview, feature, itinerary, note, FAQ, add-on, and WhatsApp CTA sections do not render.
+- This step does not change public visibility policy, Product Detail route shape, admin Product behavior, related products, schema markup, or listing behavior.
 
 ## Public Listing CMS Content
 

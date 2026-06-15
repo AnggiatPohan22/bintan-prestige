@@ -86,8 +86,7 @@ class GlobalSeoDefaultSettingsTest extends TestCase
             'canonical_url' => 'https://example.com/custom-product',
         ]);
 
-        $response = $this->view('frontend.products.show', [
-            'product' => $product,
+        $viewData = [
             'seoTitle' => $product->meta_title ?: $product->name,
             'seoDescription' => $product->meta_description ?: $product->short_description,
             'seoKeywords' => $product->meta_keywords,
@@ -106,6 +105,12 @@ class GlobalSeoDefaultSettingsTest extends TestCase
                 'title_suffix' => 'Bintan Prestige',
                 'canonical_base_url' => 'https://bintanprestige.test',
             ],
+        ];
+
+        $response = $this->view('frontend.products.show', [
+            'product' => $product,
+            ...$viewData,
+            ...$this->productDetailDisplayState($product, $viewData),
         ]);
 
         $response->assertSee('Custom Product SEO Title | Bintan Prestige');
@@ -126,8 +131,7 @@ class GlobalSeoDefaultSettingsTest extends TestCase
             'canonical_url' => null,
         ]);
 
-        $response = $this->view('frontend.products.show', [
-            'product' => $product,
+        $viewData = [
             'seoTitle' => $product->meta_title ?: $product->name,
             'seoDescription' => $product->meta_description ?: $product->short_description,
             'seoKeywords' => $product->meta_keywords,
@@ -146,6 +150,12 @@ class GlobalSeoDefaultSettingsTest extends TestCase
                 'title_suffix' => 'Bintan Prestige',
                 'canonical_base_url' => 'https://bintanprestige.test',
             ],
+        ];
+
+        $response = $this->view('frontend.products.show', [
+            'product' => $product,
+            ...$viewData,
+            ...$this->productDetailDisplayState($product, $viewData),
         ]);
 
         $response->assertSee('Bintan Family Package | Bintan Prestige');

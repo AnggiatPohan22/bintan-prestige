@@ -2,10 +2,14 @@
     $context = $context ?? 'home';
     $label = $label ?? 'Start from';
     $emptyLabel = $emptyLabel ?? 'Price on request';
-    $idrPrice = $product->idr_price;
-    $sgdPrice = $product->sgd_price;
-    $hasIdrPrice = $idrPrice !== null;
-    $hasSgdPrice = $sgdPrice !== null;
+    $priceState = $priceState ?? null;
+    $idrPrice = $priceState['idr_amount'] ?? $product->idr_price;
+    $sgdPrice = $priceState['sgd_amount'] ?? $product->sgd_price;
+    $hasIdrPrice = $priceState['has_idr'] ?? ($idrPrice !== null);
+    $hasSgdPrice = $priceState['has_sgd'] ?? ($sgdPrice !== null);
+    $idrFormatted = $priceState['idr_formatted'] ?? ($hasIdrPrice ? 'Rp ' . number_format($idrPrice, 0, ',', '.') : null);
+    $sgdFormatted = $priceState['sgd_formatted'] ?? ($hasSgdPrice ? 'SGD ' . number_format($sgdPrice, 0) : null);
+    $secondaryFormatted = $priceState['secondary_formatted'] ?? ($hasIdrPrice && $hasSgdPrice ? $sgdFormatted : null);
 @endphp
 
 @if($context === 'listing')
@@ -13,10 +17,10 @@
         <p class="product-card__price-main {{ ! $hasIdrPrice && ! $hasSgdPrice ? 'product-card__price-main--empty' : '' }}">
             @if($hasIdrPrice)
                 <span class="sr-only">Price starts from </span>
-                Rp {{ number_format($idrPrice, 0, ',', '.') }}
+                {{ $idrFormatted }}
             @elseif($hasSgdPrice)
                 <span class="sr-only">Price starts from </span>
-                SGD {{ number_format($sgdPrice, 0) }}
+                {{ $sgdFormatted }}
             @else
                 {{ $emptyLabel }}
             @endif
@@ -25,7 +29,7 @@
         @if($hasIdrPrice && $hasSgdPrice)
             <p class="product-card__price-secondary">
                 <span class="sr-only">Secondary price </span>
-                SGD {{ number_format($sgdPrice, 0) }}
+                {{ $secondaryFormatted }}
             </p>
         @endif
     </div>
@@ -37,9 +41,9 @@
 
         <p class="product-detail-price-card__main {{ ! $hasIdrPrice && ! $hasSgdPrice ? 'product-detail-price-card__main--empty' : '' }}">
             @if($hasIdrPrice)
-                Rp {{ number_format($idrPrice, 0, ',', '.') }}
+                {{ $idrFormatted }}
             @elseif($hasSgdPrice)
-                SGD {{ number_format($sgdPrice, 0) }}
+                {{ $sgdFormatted }}
             @else
                 {{ $emptyLabel }}
             @endif
@@ -47,7 +51,7 @@
 
         @if($hasIdrPrice && $hasSgdPrice)
             <p class="product-detail-price-card__secondary">
-                SGD {{ number_format($sgdPrice, 0) }}
+                {{ $secondaryFormatted }}
             </p>
         @endif
     </div>
@@ -56,9 +60,9 @@
         <span>{{ $label }}</span>
         <strong class="{{ ! $hasIdrPrice && ! $hasSgdPrice ? 'product-detail-booking-card__price-empty' : '' }}">
             @if($hasIdrPrice)
-                Rp {{ number_format($idrPrice, 0, ',', '.') }}
+                {{ $idrFormatted }}
             @elseif($hasSgdPrice)
-                SGD {{ number_format($sgdPrice, 0) }}
+                {{ $sgdFormatted }}
             @else
                 {{ $emptyLabel }}
             @endif
@@ -67,7 +71,7 @@
 
     @if($hasIdrPrice && $hasSgdPrice)
         <p class="product-detail-booking-card__secondary-price">
-            SGD {{ number_format($sgdPrice, 0) }}
+            {{ $secondaryFormatted }}
         </p>
     @endif
 @else
@@ -75,9 +79,9 @@
         <span>{{ $label }}</span>
         <strong class="{{ ! $hasIdrPrice && ! $hasSgdPrice ? 'bp-product-card__price-empty' : '' }}">
             @if($hasIdrPrice)
-                Rp {{ number_format($idrPrice, 0, ',', '.') }}
+                {{ $idrFormatted }}
             @elseif($hasSgdPrice)
-                SGD {{ number_format($sgdPrice, 0) }}
+                {{ $sgdFormatted }}
             @else
                 {{ $emptyLabel }}
             @endif
@@ -85,7 +89,7 @@
 
         @if($hasIdrPrice && $hasSgdPrice)
             <small class="bp-product-card__price-secondary">
-                SGD {{ number_format($sgdPrice, 0) }}
+                {{ $secondaryFormatted }}
             </small>
         @endif
     </div>

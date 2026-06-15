@@ -2,79 +2,6 @@
 
 @section('content')
 
-@php
-    $bookingCtaSettings = $bookingCtaSettings ?? \App\Support\BookingCtaSettings::valuesFromSettings(collect());
-    $productPlaceholder = \App\Support\DefaultMediaAssets::asset($siteAssets ?? collect(), 'product');
-    $productPlaceholderFit = \App\Support\DefaultMediaAssets::fit($defaultMediaSettings ?? [], 'product');
-    $usesGlobalProductCta = \App\Support\BookingCtaSettings::isEnabledFor($bookingCtaSettings, 'product');
-    $productCtaContext = [
-        'site_name' => $businessIdentity['brand_name'] ?? config('app.name'),
-        'product_name' => $product->name,
-        'product_url' => route('products.show', $product),
-        'page_url' => url()->current(),
-    ];
-    $waNumber = $usesGlobalProductCta
-        ? \App\Support\BookingCtaSettings::whatsappNumber($bookingCtaSettings, $contactInformation ?? [], $product->whatsapp_number)
-        : preg_replace('/[^0-9]/', '', $product->whatsapp_number);
-
-    $waMessageText = $usesGlobalProductCta
-        ? \App\Support\BookingCtaSettings::renderMessage($bookingCtaSettings['product_message_template'] ?? '', $productCtaContext)
-        : "Hello, I want to ask about:\n\n" . $product->name . "\n" . route('products.show', $product);
-
-    $bookingMessageText = $usesGlobalProductCta
-        ? \App\Support\BookingCtaSettings::renderMessage($bookingCtaSettings['product_message_template'] ?? '', $productCtaContext)
-        : 'Hello, I want to book ' . $product->name;
-
-    $waMessage = urlencode($waMessageText);
-    $productChatLabel = $product->cta_button_text ?: ($usesGlobalProductCta ? ($bookingCtaSettings['product_chat_label'] ?? 'Chat via WhatsApp') : 'Chat via WhatsApp');
-    $productBookingLabel = $product->cta_button_text ?: ($usesGlobalProductCta ? ($bookingCtaSettings['product_booking_label'] ?? 'Book via WhatsApp') : 'Book via WhatsApp');
-    $addonOptions = $product->features
-        ->where('label', 'addon')
-        ->pluck('value')
-        ->filter()
-        ->values();
-
-    if ($product->pickup_available) {
-        $addonOptions = $addonOptions
-            ->merge([
-                $product->pickup_type ?: 'Pickup',
-                'Drop off',
-            ])
-            ->unique()
-            ->values();
-    }
-
-    $galleryImages = collect();
-
-    if ($product->thumbnail_url) {
-        $galleryImages->push([
-            'url' => $product->thumbnail_url,
-            'alt' => $product->name,
-            'is_placeholder' => false,
-        ]);
-    }
-
-    $product->images
-        ->sortBy('sort_order')
-        ->each(function ($image) use ($galleryImages, $product) {
-            $galleryImages->push([
-                'url' => asset('storage/' . $image->image),
-                'alt' => $product->name,
-                'is_placeholder' => false,
-            ]);
-        });
-
-    if ($galleryImages->isEmpty() && $productPlaceholder?->url) {
-        $galleryImages->push([
-            'url' => $productPlaceholder->url,
-            'alt' => $productPlaceholder->alt ?: 'Product placeholder image',
-            'is_placeholder' => true,
-        ]);
-    }
-
-    $galleryImages = $galleryImages->unique('url')->values();
-@endphp
-
 <div
     class="product-page product-detail-page"
     data-page-key="products.show"
@@ -83,14 +10,14 @@
         adults: 1,
         children: 0,
         addons: [],
-        waNumber: @js($waNumber),
-        baseMessage: @js($bookingMessageText),
+        waNumber: @js($whatsappState['phone']),
+        baseMessage: @js($whatsappState['booking_message']),
         productName: @js($product->name),
-        productUrl: @js(route('products.show', $product)),
-        meetingPoint: @js($product->meeting_point ?: '-'),
-        duration: @js($product->duration ?: '-'),
+        productUrl: @js($whatsappState['product_url']),
+        meetingPoint: @js($meetingPointState['display']),
+        duration: @js($durationState['display']),
         galleryIndex: 0,
-        galleryImages: @js($galleryImages),
+        galleryImages: @js($mediaState['items']),
         increment(field) {
             this[field] = Math.max(0, this[field] + 1);
         },
@@ -99,6 +26,10 @@
             this[field] = Math.max(minimum, this[field] - 1);
         },
         bookingWhatsappUrl() {
+            if (! this.waNumber) {
+                return '#';
+            }
+
             const lines = [
                 this.baseMessage,
                 '',
@@ -141,7 +72,7 @@
                     data-section-key="products.show.gallery"
                 >
                     <div class="product-detail-gallery__main">
-                        @if($galleryImages->count())
+                        @if($mediaState['has_gallery'])
                             <template x-for="(image, index) in galleryImages" :key="image.url">
                                 <img
                                     x-show="galleryIndex === index"
@@ -149,12 +80,12 @@
                                     :src="image.url"
                                     :alt="image.alt"
                                     class="product-detail-gallery__image"
-                                    :style="image.is_placeholder ? 'object-fit: {{ $productPlaceholderFit }}' : ''"
+                                    :style="image.fit ? 'object-fit: ' + image.fit : ''"
                                     decoding="async"
                                 >
                             </template>
 
-                            @if($galleryImages->count() > 1)
+                            @if($mediaState['count'] > 1)
                                 <button
                                     type="button"
                                     class="product-detail-gallery__nav product-detail-gallery__nav--previous"
@@ -186,9 +117,9 @@
                         @endif
                     </div>
 
-                    @if($galleryImages->count() > 1)
+                    @if($mediaState['count'] > 1)
                         <div class="product-detail-gallery__thumbs">
-                            @foreach($galleryImages->take(4) as $image)
+                            @foreach($mediaState['thumbnails'] as $image)
                                 <button
                                     type="button"
                                     class="product-detail-gallery__thumb"
@@ -199,7 +130,7 @@
                                     <img
                                         src="{{ $image['url'] }}"
                                         alt="{{ $image['alt'] }}"
-                                        @if($image['is_placeholder']) style="object-fit: {{ $productPlaceholderFit }}" @endif
+                                        @if($image['fit']) style="object-fit: {{ $image['fit'] }}" @endif
                                         loading="lazy"
                                         decoding="async"
                                     >
@@ -232,22 +163,22 @@
                         {{ $product->name }}
                     </h1>
 
-                    @if($product->short_description)
+                    @if($descriptionState['has_short_description'])
                         <p class="product-detail-description text-body">
-                            {{ $product->short_description }}
+                            {{ $descriptionState['short_description'] }}
                         </p>
                     @endif
 
                     <div class="product-detail-meta">
                         <div class="product-detail-meta__item">
                             <span class="product-detail-meta__label">Duration</span>
-                            <span class="product-detail-meta__value">{{ $product->duration ?: '-' }}</span>
+                            <span class="product-detail-meta__value">{{ $durationState['display'] }}</span>
                         </div>
 
                         <div class="product-detail-meta__item">
                             <span class="product-detail-meta__label">Pickup</span>
                             <span class="product-detail-meta__value">
-                                {{ $product->pickup_available ? ($product->pickup_type ?: 'Available') : 'Not included' }}
+                                {{ $pickupState['label'] }}
                             </span>
                         </div>
                     </div>
@@ -257,21 +188,24 @@
                             'product' => $product,
                             'context' => 'detail',
                             'label' => 'Start from',
+                            'priceState' => $priceState,
                         ])
 
-                        <a
-                            href="https://wa.me/{{ $waNumber }}?text={{ $waMessage }}"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            class="btn btn-whatsapp product-detail-button"
-                            data-whatsapp-tracking="product"
-                            data-tracking-label="{{ $productChatLabel }}"
-                            data-product-id="{{ $product->id }}"
-                            data-product-name="{{ $product->name }}"
-                            data-product-slug="{{ $product->slug }}"
-                        >
-                            {{ $productChatLabel }}
-                        </a>
+                        @if($whatsappState['available'])
+                            <a
+                                href="{{ $whatsappState['chat_url'] }}"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="btn btn-whatsapp product-detail-button"
+                                data-whatsapp-tracking="product"
+                                data-tracking-label="{{ $whatsappState['chat_label'] }}"
+                                data-product-id="{{ $product->id }}"
+                                data-product-name="{{ $product->name }}"
+                                data-product-slug="{{ $product->slug }}"
+                            >
+                                {{ $whatsappState['chat_label'] }}
+                            </a>
+                        @endif
 
                         @if($product->cta_title || $product->cta_description)
                             <div class="product-detail-cta-note">
@@ -290,18 +224,18 @@
                         @endif
                     </div>
 
-                    @if($product->highlights->count())
+                    @if($sectionState['has_highlights'])
                         <div class="product-detail-highlights">
-                            @foreach($product->highlights as $highlight)
+                            @foreach($highlightItems as $highlight)
                                 <div class="product-detail-highlight">
-                                    @if($highlight->icon)
-                                        <i class="fa-solid {{ $highlight->icon }} product-detail-highlight__icon"></i>
+                                    @if($highlight['icon'])
+                                        <i class="fa-solid {{ $highlight['icon'] }} product-detail-highlight__icon"></i>
                                     @else
                                         <span class="product-detail-highlight__dot"></span>
                                     @endif
 
                                     <span class="product-detail-highlight__text">
-                                        {{ $highlight->title }}
+                                        {{ $highlight['title'] }}
                                     </span>
                                 </div>
                             @endforeach
@@ -323,21 +257,23 @@
 
             <div class="product-detail-main">
 
-                <section
-                    id="products-show-overview"
-                    class="product-detail-panel"
-                    data-section-key="products.show.overview"
-                >
-                    <h2 class="product-detail-panel__title title-card">
-                        Overview
-                    </h2>
+                @if($sectionState['has_overview'])
+                    <section
+                        id="products-show-overview"
+                        class="product-detail-panel"
+                        data-section-key="products.show.overview"
+                    >
+                        <h2 class="product-detail-panel__title title-card">
+                            Overview
+                        </h2>
 
-                    <div class="product-detail-richtext text-body">
-                        {!! nl2br(e($product->description)) !!}
-                    </div>
-                </section>
+                        <div class="product-detail-richtext text-body">
+                            {!! nl2br(e($descriptionState['plain_text'])) !!}
+                        </div>
+                    </section>
+                @endif
 
-                @if($product->features->count())
+                @if($sectionState['has_features'])
                     <section
                         id="products-show-features"
                         class="product-detail-panel"
@@ -348,41 +284,29 @@
                         </h2>
 
                         <div class="product-detail-feature-grid">
-                            @foreach([
-                                'included' => 'Included',
-                                'excluded' => 'Excluded',
-                                'optional' => 'Optional',
-                                'addon' => 'Add-ons',
-                                'important' => 'Important'
-                            ] as $label => $title)
-
-                                @php
-                                    $items = $product->features->where('label', $label);
-                                @endphp
-
-                                @if($items->count())
+                            @foreach($featureGroups as $group)
+                                @if($group['items']->isNotEmpty())
                                     <div class="product-detail-feature-group">
                                         <h3 class="product-detail-feature-group__title title-card">
-                                            {{ $title }}
+                                            {{ $group['title'] }}
                                         </h3>
 
                                         <ul class="product-detail-list">
-                                            @foreach($items as $item)
+                                            @foreach($group['items'] as $item)
                                                 <li class="product-detail-list__item">
                                                     <span class="product-detail-list__marker"></span>
-                                                    <span>{{ $item->value }}</span>
+                                                    <span>{{ $item['value'] }}</span>
                                                 </li>
                                             @endforeach
                                         </ul>
                                     </div>
                                 @endif
-
                             @endforeach
                         </div>
                     </section>
                 @endif
 
-                @if($product->itineraries->count())
+                @if($sectionState['has_itineraries'])
                     <section
                         id="products-show-itinerary"
                         class="product-detail-panel"
@@ -393,20 +317,20 @@
                         </h2>
 
                         <div class="product-detail-timeline">
-                            @foreach($product->itineraries as $itinerary)
+                            @foreach($itineraryItems as $itinerary)
                                 <div class="product-detail-timeline__item">
                                     <div class="product-detail-timeline__time">
-                                        {{ $itinerary->time ?: '-' }}
+                                        {{ $itinerary['time'] ?: '-' }}
                                     </div>
 
                                     <div class="product-detail-timeline__content">
                                         <h3 class="product-detail-timeline__title title-card">
-                                            {{ $itinerary->title }}
+                                            {{ $itinerary['title'] }}
                                         </h3>
 
-                                        @if($itinerary->description)
+                                        @if($itinerary['has_description'])
                                             <p class="product-detail-timeline__text">
-                                                {{ $itinerary->description }}
+                                                {{ $itinerary['description'] }}
                                             </p>
                                         @endif
                                     </div>
@@ -416,7 +340,7 @@
                     </section>
                 @endif
 
-                @if($product->notes->count())
+                @if($sectionState['has_notes'])
                     <section
                         id="products-show-notes"
                         class="product-detail-panel"
@@ -427,16 +351,16 @@
                         </h2>
 
                         <div class="product-detail-note-list">
-                            @foreach($product->notes as $note)
+                            @foreach($noteItems as $note)
                                 <div class="product-detail-note">
-                                    @if($note->title)
+                                    @if($note['has_title'])
                                         <h3 class="product-detail-note__title title-card">
-                                            {{ $note->title }}
+                                            {{ $note['title'] }}
                                         </h3>
                                     @endif
 
                                     <p class="product-detail-note__text">
-                                        {{ $note->description }}
+                                        {{ $note['description'] }}
                                     </p>
                                 </div>
                             @endforeach
@@ -444,7 +368,7 @@
                     </section>
                 @endif
 
-                @if($product->faqs->count())
+                @if($sectionState['has_faqs'])
                     <section
                         id="products-show-faq"
                         class="product-detail-panel"
@@ -455,14 +379,14 @@
                         </h2>
 
                         <div class="product-detail-faq-list">
-                            @foreach($product->faqs as $faq)
+                            @foreach($faqItems as $faq)
                                 <details class="product-detail-faq">
                                     <summary class="product-detail-faq__question">
-                                        {{ $faq->question }}
+                                        {{ $faq['question'] }}
                                     </summary>
 
                                     <p class="product-detail-faq__answer">
-                                        {{ $faq->answer }}
+                                        {{ $faq['answer'] }}
                                     </p>
                                 </details>
                             @endforeach
@@ -490,6 +414,7 @@
                             'product' => $product,
                             'context' => 'booking',
                             'label' => 'Price from',
+                            'priceState' => $priceState,
                         ])
 
                         <label class="product-detail-booking-field">
@@ -533,15 +458,15 @@
 
                         <div class="product-detail-booking-card__row">
                             <span>Duration</span>
-                            <strong>{{ $product->duration ?: '-' }}</strong>
+                            <strong>{{ $durationState['display'] }}</strong>
                         </div>
 
                         <div class="product-detail-booking-card__row">
                             <span>Meeting Point</span>
-                            <strong>{{ $product->meeting_point ?: '-' }}</strong>
+                            <strong>{{ $meetingPointState['display'] }}</strong>
                         </div>
 
-                        @if($addonOptions->count())
+                        @if($sectionState['has_addons'])
                             <fieldset class="product-detail-booking-addons">
                                 <legend>Add-ons</legend>
                                 <p>Select extra services for your reservation.</p>
@@ -557,26 +482,28 @@
                             </fieldset>
                         @endif
 
-                        @if($product->pickup_available && $product->pickup_note)
+                        @if($pickupState['available'] && $pickupState['has_note'])
                             <p class="product-detail-booking-card__note">
-                                {{ $product->pickup_note }}
+                                {{ $pickupState['note'] }}
                             </p>
                         @endif
                     </div>
 
-                    <a
-                        x-bind:href="bookingWhatsappUrl()"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        class="btn btn-whatsapp product-detail-button"
-                        data-whatsapp-tracking="product"
-                        data-tracking-label="{{ $productBookingLabel }}"
-                        data-product-id="{{ $product->id }}"
-                        data-product-name="{{ $product->name }}"
-                        data-product-slug="{{ $product->slug }}"
-                    >
-                        {{ $productBookingLabel }}
-                    </a>
+                    @if($whatsappState['available'])
+                        <a
+                            x-bind:href="bookingWhatsappUrl()"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="btn btn-whatsapp product-detail-button"
+                            data-whatsapp-tracking="product"
+                            data-tracking-label="{{ $whatsappState['booking_label'] }}"
+                            data-product-id="{{ $product->id }}"
+                            data-product-name="{{ $product->name }}"
+                            data-product-slug="{{ $product->slug }}"
+                        >
+                            {{ $whatsappState['booking_label'] }}
+                        </a>
+                    @endif
                 </div>
             </aside>
 

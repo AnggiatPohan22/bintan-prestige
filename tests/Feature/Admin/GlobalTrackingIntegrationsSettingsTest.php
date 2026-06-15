@@ -131,12 +131,17 @@ class GlobalTrackingIntegrationsSettingsTest extends TestCase
             'cta_button_text' => 'Ask Availability',
         ]);
 
-        $response = $this->view('frontend.products.show', [
-            'product' => $product,
+        $viewData = [
             'trackingIntegrationSettings' => [
                 ...TrackingIntegrationSettings::valuesFromSettings(collect()),
                 'environment_mode' => 'all',
             ],
+        ];
+
+        $response = $this->view('frontend.products.show', [
+            'product' => $product,
+            ...$viewData,
+            ...$this->productDetailDisplayState($product, $viewData),
         ]);
 
         $response->assertSee('data-whatsapp-tracking="header"', false);
