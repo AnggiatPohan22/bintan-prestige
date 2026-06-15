@@ -10,12 +10,6 @@
         adults: 1,
         children: 0,
         addons: [],
-        waNumber: @js($whatsappState['phone']),
-        baseMessage: @js($whatsappState['booking_message']),
-        productName: @js($product->name),
-        productUrl: @js($whatsappState['product_url']),
-        meetingPoint: @js($meetingPointState['display']),
-        duration: @js($durationState['display']),
         galleryIndex: 0,
         galleryImages: @js($mediaState['items']),
         activeGalleryImage() {
@@ -39,27 +33,6 @@
         decrement(field) {
             const minimum = field === 'adults' ? 1 : 0;
             this[field] = Math.max(minimum, this[field] - 1);
-        },
-        bookingWhatsappUrl() {
-            if (! this.waNumber) {
-                return '#';
-            }
-
-            const lines = [
-                this.baseMessage,
-                '',
-                'Booking Information:',
-                `Product: ${this.productName}`,
-                `Date: ${this.bookingDate || '-'}`,
-                `Adults: ${this.adults}`,
-                `Children: ${this.children}`,
-                `Duration: ${this.duration}`,
-                `Meeting Point: ${this.meetingPoint}`,
-                `Add-ons: ${this.addons.length ? this.addons.join(', ') : '-'}`,
-                `Product URL: ${this.productUrl}`,
-            ];
-
-            return `https://wa.me/${this.waNumber}?text=${encodeURIComponent(lines.join('\n'))}`;
         },
         nextGalleryImage() {
             if (! this.galleryImages.length) return;
@@ -253,9 +226,13 @@
                                 data-product-id="{{ $product->id }}"
                                 data-product-name="{{ $product->name }}"
                                 data-product-slug="{{ $product->slug }}"
+                                aria-label="{{ $whatsappState['chat_accessible_label'] }}"
                             >
                                 {{ $whatsappState['chat_label'] }}
                             </a>
+                            <p class="product-detail-whatsapp-note">
+                                {{ $whatsappState['booking_note'] }}
+                            </p>
                         @endif
 
                         @if($product->cta_title || $product->cta_description)
@@ -459,6 +436,9 @@
                             Booking Information
                         </h3>
                     </div>
+                    <p class="product-detail-booking-card__intro">
+                        {{ $whatsappState['booking_note'] }}
+                    </p>
 
                     <div class="product-detail-booking-card__list">
                         @include('frontend.components.product-price', [
@@ -542,7 +522,7 @@
 
                     @if($whatsappState['available'])
                         <a
-                            x-bind:href="bookingWhatsappUrl()"
+                            href="{{ $whatsappState['booking_url'] }}"
                             target="_blank"
                             rel="noopener noreferrer"
                             class="btn btn-whatsapp product-detail-button"
@@ -551,6 +531,7 @@
                             data-product-id="{{ $product->id }}"
                             data-product-name="{{ $product->name }}"
                             data-product-slug="{{ $product->slug }}"
+                            aria-label="{{ $whatsappState['booking_accessible_label'] }}"
                         >
                             {{ $whatsappState['booking_label'] }}
                         </a>

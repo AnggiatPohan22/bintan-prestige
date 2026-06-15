@@ -48,7 +48,9 @@ Prepared state:
 - Price state uses loaded `prices`, treats only positive numeric values as displayable, prefers IDR when present, shows SGD when IDR is missing, and falls back to `Price on request` without rendering `Rp 0`.
 - Media state uses Product thumbnail first, then ordered Product gallery images, then `default_media.product`; duplicate media paths are collapsed before rendering.
 - Duration, meeting point, pickup, overview description, highlights, feature groups, itinerary items, notes, FAQs, add-ons, and optional section visibility are prepared before Blade.
-- WhatsApp state uses Product WhatsApp number first, then configured global/contact number; when no number exists, Product Detail WhatsApp CTAs are hidden instead of rendering a broken `wa.me` URL.
+- WhatsApp state uses Product WhatsApp number first, then configured global/contact number; malformed or missing numbers are treated as unavailable.
+- Product Detail WhatsApp state prepares chat and booking labels, accessibility labels, messages, notes, and final `wa.me` URLs before Blade renders.
+- When no usable number exists, Product Detail WhatsApp CTAs are hidden instead of rendering a broken `wa.me` URL.
 - Metadata state prepares Product title, description, canonical URL, robots value, social share type, and image fallback from Product SEO fields and prepared media state.
 - Breadcrumb state is prepared for Product Detail and rendered as visible breadcrumb UI above the Product summary.
 - Product Detail gallery media is server-first: the prepared primary image renders as normal HTML, then Alpine enhances the same image element for thumbnail navigation and previous/next controls.
@@ -59,6 +61,7 @@ Blade behavior:
 - `resources/views/frontend/products/show.blade.php` renders prepared display state and does not call Product queries, relation methods, global setting helpers, or media fallback helpers directly.
 - Product Detail section visibility is display-state driven; empty optional overview, feature, itinerary, note, FAQ, add-on, and WhatsApp CTA sections do not render.
 - Product Detail layout renders one Product H1, visible breadcrumb, a responsive media-plus-summary area, prepared summary metadata, price state, WhatsApp CTA when available, and content sections in this order: Description, Features, Itinerary, Notes, FAQs.
+- Product Detail booking CTAs are normal server-rendered anchors and do not require JavaScript to determine the phone number, message, or URL.
 - This does not change public visibility policy, Product Detail route shape, admin Product behavior, related products, schema markup, or listing behavior.
 
 ## Public Listing CMS Content

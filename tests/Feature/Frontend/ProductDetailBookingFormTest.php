@@ -79,7 +79,7 @@ class ProductDetailBookingFormTest extends TestCase
         $response->assertSee('Add-ons');
         $response->assertSee('Private Taxi');
         $response->assertSee('Hotel Pickup');
-        $response->assertSee('bookingWhatsappUrl()', false);
+        $response->assertDontSee('bookingWhatsappUrl()', false);
     }
 
     public function test_product_detail_without_price_renders_request_price_state(): void
@@ -228,6 +228,9 @@ class ProductDetailBookingFormTest extends TestCase
         $response->assertSee('Rp 640.000');
         $response->assertSee('SGD 54');
         $response->assertSee('href="' . $whatsappState['chat_url'] . '"', false);
+        $response->assertSee('href="' . $whatsappState['booking_url'] . '"', false);
+        $response->assertSee('aria-label="' . $whatsappState['chat_accessible_label'] . '"', false);
+        $response->assertSee('aria-label="' . $whatsappState['booking_accessible_label'] . '"', false);
     }
 
     public function test_product_detail_layout_sections_render_in_prepared_order(): void
@@ -419,11 +422,14 @@ class ProductDetailBookingFormTest extends TestCase
 
     public function test_product_detail_gallery_hides_controls_for_single_or_empty_media_states(): void
     {
+        $category = Category::factory()->create(['name' => 'Single Empty Gallery Category']);
+        $destination = Destination::factory()->create(['name' => 'Single Empty Gallery Destination']);
+
         $singleImageProduct = $this->createProduct([
             'name' => 'Single Image Gallery Tour',
             'status' => 'published',
             'thumbnail' => 'products/single-image-gallery.jpg',
-        ]);
+        ], $category, $destination);
 
         $singleImageResponse = $this->get(route('products.show', $singleImageProduct));
         $singleImageHtml = $singleImageResponse->getContent();
@@ -438,7 +444,7 @@ class ProductDetailBookingFormTest extends TestCase
             'name' => 'Empty Media Gallery Tour',
             'status' => 'published',
             'thumbnail' => null,
-        ]);
+        ], $category, $destination);
 
         $emptyMediaResponse = $this->get(route('products.show', $emptyMediaProduct));
         $emptyMediaHtml = $emptyMediaResponse->getContent();
@@ -583,6 +589,11 @@ class ProductDetailBookingFormTest extends TestCase
         $this->assertTrue($productNumberState['available']);
         $this->assertSame('product', $productNumberState['source']);
         $this->assertSame('6281200001111', $productNumberState['phone']);
+        $this->assertStringStartsWith('https://wa.me/6281200001111?text=', $productNumberState['chat_url']);
+        $this->assertStringStartsWith('https://wa.me/6281200001111?text=', $productNumberState['booking_url']);
+        $this->assertStringContainsString('Product: Product Number Tour', $productNumberState['booking_message']);
+        $this->assertStringContainsString('Destination: WhatsApp State Destination', $productNumberState['booking_message']);
+        $this->assertStringContainsString('Product URL: ' . route('products.show', $productNumberProduct), $productNumberState['booking_message']);
 
         SiteSetting::create([
             'key' => 'contact.whatsapp_number',
@@ -592,6 +603,7 @@ class ProductDetailBookingFormTest extends TestCase
             'group' => 'contact_information',
             'is_active' => true,
         ]);
+        app(GlobalSettingsService::class)->forgetAll();
 
         $globalNumberProduct = $this->createProduct([
             'name' => 'Global Number Tour',
@@ -607,13 +619,27 @@ class ProductDetailBookingFormTest extends TestCase
         $this->assertSame('global', $globalNumberState['source']);
         $this->assertSame('628999888777', $globalNumberState['phone']);
 
+        $malformedProductNumberProduct = $this->createProduct([
+            'name' => 'Malformed Product Number Tour',
+            'status' => 'published',
+            'whatsapp_number' => 'call me on WhatsApp',
+        ], $category, $destination);
+
+        $malformedProductNumberResponse = $this->get(route('products.show', $malformedProductNumberProduct));
+        $malformedProductNumberState = $malformedProductNumberResponse->viewData('whatsappState');
+
+        $malformedProductNumberResponse->assertOk();
+        $this->assertTrue($malformedProductNumberState['available']);
+        $this->assertSame('global', $malformedProductNumberState['source']);
+        $this->assertSame('628999888777', $malformedProductNumberState['phone']);
+
         SiteSetting::where('key', 'contact.whatsapp_number')->delete();
         app(GlobalSettingsService::class)->forgetAll();
 
         $missingNumberProduct = $this->createProduct([
-            'name' => 'Missing Number Tour',
+            'name' => 'Malformed Missing Number Tour',
             'status' => 'published',
-            'whatsapp_number' => '',
+            'whatsapp_number' => '123',
         ], $category, $destination);
 
         $missingNumberResponse = $this->get(route('products.show', $missingNumberProduct));
@@ -623,7 +649,61 @@ class ProductDetailBookingFormTest extends TestCase
         $this->assertFalse($missingNumberState['available']);
         $this->assertSame('none', $missingNumberState['source']);
         $this->assertNull($missingNumberState['chat_url']);
+        $this->assertNull($missingNumberState['booking_url']);
         $missingNumberResponse->assertDontSee('data-product-id="' . $missingNumberProduct->id . '"', false);
+    }
+
+    public function test_product_detail_whatsapp_ctas_are_server_rendered_accessible_anchors(): void
+    {
+        $category = Category::factory()->create(['name' => 'WhatsApp CTA Category']);
+        $destination = Destination::factory()->create(['name' => 'Lagoi']);
+        $product = $this->createProduct([
+            'name' => 'No JavaScript WhatsApp Tour',
+            'status' => 'published',
+            'duration' => '4 Hours',
+            'whatsapp_number' => '+62 812-4444-5555',
+        ], $category, $destination);
+
+        $response = $this->get(route('products.show', $product));
+        $html = $response->getContent();
+        $whatsappState = $response->viewData('whatsappState');
+
+        $response->assertOk();
+        $this->assertTrue($whatsappState['available']);
+        $this->assertSame('product', $whatsappState['source']);
+        $response->assertSee('href="' . $whatsappState['chat_url'] . '"', false);
+        $response->assertSee('href="' . $whatsappState['booking_url'] . '"', false);
+        $response->assertSee('target="_blank"', false);
+        $response->assertSee('rel="noopener noreferrer"', false);
+        $response->assertSee('data-whatsapp-tracking="product"', false);
+        $response->assertSee('aria-label="' . $whatsappState['chat_accessible_label'] . '"', false);
+        $response->assertSee('aria-label="' . $whatsappState['booking_accessible_label'] . '"', false);
+        $response->assertSee($whatsappState['booking_note']);
+
+        $this->assertStringContainsString('Product: No JavaScript WhatsApp Tour', $whatsappState['booking_message']);
+        $this->assertStringContainsString('Destination: Lagoi', $whatsappState['booking_message']);
+        $this->assertStringContainsString('Duration: 4 Hours', $whatsappState['booking_message']);
+        $this->assertStringContainsString('Product URL: ' . route('products.show', $product), $whatsappState['booking_message']);
+        $this->assertStringNotContainsString('confirmed', strtolower($whatsappState['booking_message']));
+        $this->assertStringNotContainsString('payment', strtolower($whatsappState['booking_message']));
+        $this->assertStringNotContainsString('checkout', strtolower($whatsappState['booking_message']));
+
+        $this->assertStringNotContainsString('bookingWhatsappUrl()', $html);
+        $this->assertStringNotContainsString('waNumber', $html);
+        $this->assertStringNotContainsString('https://wa.me/${', $html);
+        $this->assertStringNotContainsString('x-bind:href="bookingWhatsappUrl()"', $html);
+    }
+
+    public function test_product_card_does_not_require_product_detail_whatsapp_state(): void
+    {
+        $contents = file_get_contents(
+            resource_path('views/frontend/components/product-card.blade.php')
+        );
+
+        $this->assertStringContainsString('View details for', $contents);
+        $this->assertStringNotContainsString('whatsappState', $contents);
+        $this->assertStringNotContainsString('data-whatsapp-tracking', $contents);
+        $this->assertStringNotContainsString('booking_url', $contents);
     }
 
     public function test_product_detail_section_state_hides_empty_optional_sections(): void
@@ -923,6 +1003,10 @@ class ProductDetailBookingFormTest extends TestCase
         $this->assertStringNotContainsString('::query(', $contents);
         $this->assertStringNotContainsString('DefaultMediaAssets::', $contents);
         $this->assertStringNotContainsString('BookingCtaSettings::', $contents);
+        $this->assertStringNotContainsString('bookingWhatsappUrl()', $contents);
+        $this->assertStringNotContainsString('waNumber', $contents);
+        $this->assertStringNotContainsString('https://wa.me/${', $contents);
+        $this->assertStringNotContainsString('x-bind:href="bookingWhatsappUrl()"', $contents);
         $this->assertStringNotContainsString('DB::', $contents);
         $this->assertStringNotContainsString('->load(', $contents);
         $this->assertStringNotContainsString('->where(', $contents);

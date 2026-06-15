@@ -310,7 +310,9 @@ class ProductDetailDisplayState
     ): array {
         $usesGlobalProductCta = BookingCtaSettings::isEnabledFor($bookingCtaSettings, 'product');
         $productNumber = self::normalizePhone($product->whatsapp_number);
-        $globalNumber = BookingCtaSettings::whatsappNumber($bookingCtaSettings, $contactInformation);
+        $globalNumber = self::normalizePhone(
+            BookingCtaSettings::whatsappNumber($bookingCtaSettings, $contactInformation)
+        );
         $phone = $productNumber ?: $globalNumber;
         $source = $productNumber ? 'product' : ($globalNumber ? 'global' : 'none');
         $context = [
@@ -321,10 +323,10 @@ class ProductDetailDisplayState
         ];
         $chatMessage = $usesGlobalProductCta
             ? BookingCtaSettings::renderMessage($bookingCtaSettings['product_message_template'] ?? '', $context)
-            : "Hello, I want to ask about:\n\n" . $product->name . "\n" . route('products.show', $product);
+            : self::productWhatsappMessage($product, 'ask');
         $bookingMessage = $usesGlobalProductCta
             ? BookingCtaSettings::renderMessage($bookingCtaSettings['product_message_template'] ?? '', $context)
-            : 'Hello, I want to book ' . $product->name;
+            : self::productWhatsappMessage($product, 'booking');
 
         return [
             'available' => $phone !== '',
@@ -332,9 +334,13 @@ class ProductDetailDisplayState
             'source' => $source,
             'chat_label' => $product->cta_button_text ?: ($usesGlobalProductCta ? ($bookingCtaSettings['product_chat_label'] ?? 'Chat via WhatsApp') : 'Chat via WhatsApp'),
             'booking_label' => $product->cta_button_text ?: ($usesGlobalProductCta ? ($bookingCtaSettings['product_booking_label'] ?? 'Book via WhatsApp') : 'Book via WhatsApp'),
+            'chat_accessible_label' => 'Chat via WhatsApp about ' . $product->name,
+            'booking_accessible_label' => 'Ask about booking ' . $product->name . ' via WhatsApp',
+            'booking_note' => 'Our team will confirm availability and booking details on WhatsApp.',
             'chat_message' => $chatMessage,
             'booking_message' => $bookingMessage,
             'chat_url' => $phone !== '' ? self::whatsappUrl($phone, $chatMessage) : null,
+            'booking_url' => $phone !== '' ? self::whatsappUrl($phone, $bookingMessage) : null,
             'product_url' => route('products.show', $product),
         ];
     }
@@ -399,12 +405,46 @@ class ProductDetailDisplayState
 
     private static function normalizePhone(?string $phone): string
     {
-        return preg_replace('/\D+/', '', $phone ?? '') ?: '';
+        $normalized = preg_replace('/\D+/', '', $phone ?? '') ?: '';
+
+        return strlen($normalized) >= 8 ? $normalized : '';
     }
 
     private static function whatsappUrl(string $phone, string $message): string
     {
         return 'https://wa.me/' . $phone . ($message !== '' ? '?text=' . urlencode($message) : '');
+    }
+
+    private static function productWhatsappMessage(Product $product, string $intent): string
+    {
+        $intro = $intent === 'booking'
+            ? 'Hello, I want to ask about booking details for:'
+            : 'Hello, I want to ask about:';
+
+        return implode("\n", [
+            $intro,
+            '',
+            ...self::productWhatsappContextLines($product),
+        ]);
+    }
+
+    private static function productWhatsappContextLines(Product $product): array
+    {
+        $lines = [
+            'Product: ' . $product->name,
+        ];
+
+        if ($product->destination?->name) {
+            $lines[] = 'Destination: ' . $product->destination->name;
+        }
+
+        if (filled($product->duration)) {
+            $lines[] = 'Duration: ' . trim((string) $product->duration);
+        }
+
+        $lines[] = 'Product URL: ' . route('products.show', $product);
+
+        return $lines;
     }
 
     private static function displayText(?string $value): ?string

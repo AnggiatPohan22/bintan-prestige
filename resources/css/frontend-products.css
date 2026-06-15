@@ -1073,6 +1073,11 @@
         @apply mt-5 w-full;
     }
 
+    /* PRODUCT DETAIL WHATSAPP NOTE: Clarifies that booking details are handled by the team in WhatsApp. */
+    .product-detail-whatsapp-note {
+        @apply mt-3 text-sm font-semibold leading-6 text-slate-500;
+    }
+
     /* PRODUCT DETAIL CTA NOTE: Adds optional booking helper copy below the main button. */
     .product-detail-cta-note {
         @apply mt-4 rounded-lg border border-slate-200 bg-white p-4 text-sm leading-6 text-slate-600;
@@ -1284,6 +1289,11 @@
     /* PRODUCT DETAIL BOOKING TITLE: Styles the sidebar heading. */
     .product-detail-booking-card__title {
         @apply text-2xl font-extrabold text-slate-950;
+    }
+
+    /* PRODUCT DETAIL BOOKING INTRO: Explains the WhatsApp inquiry flow without creating a checkout promise. */
+    .product-detail-booking-card__intro {
+        @apply mt-4 text-sm font-semibold leading-6 text-slate-500;
     }
 
     /* PRODUCT DETAIL BOOKING LIST: Spaces booking facts inside the sidebar card. */
