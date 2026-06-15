@@ -80,11 +80,14 @@ Frontend implication:
 - Product Detail WhatsApp CTAs are display-state guarded: Product number is preferred, global/contact number is the fallback, malformed short/non-numeric numbers are treated as unavailable, and CTA buttons are omitted when no usable number exists.
 - Product Detail display state prepares both chat and booking WhatsApp URLs, labels, accessibility labels, messages, and helper notes; Blade renders normal anchors and does not construct `wa.me` URLs with JavaScript.
 - Product Detail Blade renders prepared state only; it must not call Product query builders, relation methods, `DefaultMediaAssets`, or `BookingCtaSettings` directly.
+- Product Detail metadata and social tags use the shared frontend layout metadata partials fed by `ProductDetailDisplayState`; no Product Detail Blade metadata system is duplicated.
+- Product Detail JSON-LD is rendered through `StructuredDataBuilder` from prepared page context: Product schema uses actual Product content, Offer entries use only positive actual IDR/SGD prices, BreadcrumbList follows the visible breadcrumb state, and FAQPage includes only visible FAQs with non-empty answers.
+- Product Detail schema excludes fake availability, ratings, reviews, SKU, GTIN, stock, zero-price offers, and currency conversion.
 - Product Detail renders the prepared breadcrumb state as visible breadcrumb UI above the media-plus-summary area.
 - Product Detail layout keeps one Product H1, a responsive primary media plus summary hierarchy, prepared summary facts, price/CTA placement, and optional content sections ordered as Description, Features, Itinerary, Notes, and FAQs.
 - Product Detail gallery renders the backend-prepared primary media server-side and uses Alpine only as progressive enhancement for thumbnail, counter, and previous/next active-image updates.
 - Product Detail gallery thumbnails are controls, not links, and render only for multi-image media state; fallback-only or single-image states keep the primary frame without gallery controls.
-- Product Detail layout work does not add related products, gallery lightbox behavior, sticky CTA changes, or schema markup changes.
+- Product Detail layout work does not add related products, gallery lightbox behavior, sticky CTA changes, sitemap changes, or robots.txt changes.
 
 ## Homepage CMS Flow
 

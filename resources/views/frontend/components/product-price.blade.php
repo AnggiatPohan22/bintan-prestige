@@ -10,16 +10,18 @@
     $idrFormatted = $priceState['idr_formatted'] ?? ($hasIdrPrice ? 'Rp ' . number_format($idrPrice, 0, ',', '.') : null);
     $sgdFormatted = $priceState['sgd_formatted'] ?? ($hasSgdPrice ? 'SGD ' . number_format($sgdPrice, 0) : null);
     $secondaryFormatted = $priceState['secondary_formatted'] ?? ($hasIdrPrice && $hasSgdPrice ? $sgdFormatted : null);
+    $idrAccessibleLabel = 'Indonesian Rupiah';
+    $sgdAccessibleLabel = 'Singapore Dollar';
 @endphp
 
 @if($context === 'listing')
     <div class="product-card__price">
         <p class="product-card__price-main {{ ! $hasIdrPrice && ! $hasSgdPrice ? 'product-card__price-main--empty' : '' }}">
             @if($hasIdrPrice)
-                <span class="sr-only">Price starts from </span>
+                <span class="sr-only">Price starts from {{ $idrAccessibleLabel }} </span>
                 {{ $idrFormatted }}
             @elseif($hasSgdPrice)
-                <span class="sr-only">Price starts from </span>
+                <span class="sr-only">Price starts from {{ $sgdAccessibleLabel }} </span>
                 {{ $sgdFormatted }}
             @else
                 {{ $emptyLabel }}
@@ -28,7 +30,7 @@
 
         @if($hasIdrPrice && $hasSgdPrice)
             <p class="product-card__price-secondary">
-                <span class="sr-only">Secondary price </span>
+                <span class="sr-only">Secondary price {{ $sgdAccessibleLabel }} </span>
                 {{ $secondaryFormatted }}
             </p>
         @endif
@@ -41,8 +43,10 @@
 
         <p class="product-detail-price-card__main {{ ! $hasIdrPrice && ! $hasSgdPrice ? 'product-detail-price-card__main--empty' : '' }}">
             @if($hasIdrPrice)
+                <span class="sr-only">{{ $label }} {{ $idrAccessibleLabel }} </span>
                 {{ $idrFormatted }}
             @elseif($hasSgdPrice)
+                <span class="sr-only">{{ $label }} {{ $sgdAccessibleLabel }} </span>
                 {{ $sgdFormatted }}
             @else
                 {{ $emptyLabel }}
@@ -51,6 +55,7 @@
 
         @if($hasIdrPrice && $hasSgdPrice)
             <p class="product-detail-price-card__secondary">
+                <span class="sr-only">Secondary price {{ $sgdAccessibleLabel }} </span>
                 {{ $secondaryFormatted }}
             </p>
         @endif
@@ -60,8 +65,10 @@
         <span>{{ $label }}</span>
         <strong class="{{ ! $hasIdrPrice && ! $hasSgdPrice ? 'product-detail-booking-card__price-empty' : '' }}">
             @if($hasIdrPrice)
+                <span class="sr-only">{{ $label }} {{ $idrAccessibleLabel }} </span>
                 {{ $idrFormatted }}
             @elseif($hasSgdPrice)
+                <span class="sr-only">{{ $label }} {{ $sgdAccessibleLabel }} </span>
                 {{ $sgdFormatted }}
             @else
                 {{ $emptyLabel }}
@@ -71,6 +78,7 @@
 
     @if($hasIdrPrice && $hasSgdPrice)
         <p class="product-detail-booking-card__secondary-price">
+            <span class="sr-only">Secondary price {{ $sgdAccessibleLabel }} </span>
             {{ $secondaryFormatted }}
         </p>
     @endif
@@ -79,8 +87,10 @@
         <span>{{ $label }}</span>
         <strong class="{{ ! $hasIdrPrice && ! $hasSgdPrice ? 'bp-product-card__price-empty' : '' }}">
             @if($hasIdrPrice)
+                <span class="sr-only">{{ $label }} {{ $idrAccessibleLabel }} </span>
                 {{ $idrFormatted }}
             @elseif($hasSgdPrice)
+                <span class="sr-only">{{ $label }} {{ $sgdAccessibleLabel }} </span>
                 {{ $sgdFormatted }}
             @else
                 {{ $emptyLabel }}
@@ -89,6 +99,7 @@
 
         @if($hasIdrPrice && $hasSgdPrice)
             <small class="bp-product-card__price-secondary">
+                <span class="sr-only">Secondary price {{ $sgdAccessibleLabel }} </span>
                 {{ $secondaryFormatted }}
             </small>
         @endif

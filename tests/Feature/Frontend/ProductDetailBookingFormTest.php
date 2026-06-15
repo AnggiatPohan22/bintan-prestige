@@ -852,6 +852,153 @@ class ProductDetailBookingFormTest extends TestCase
         $this->assertSame(route('products.show', $product), $metadataState['canonical']);
     }
 
+    public function test_product_detail_renders_accessible_metadata_and_semantic_controls(): void
+    {
+        $product = $this->createProduct([
+            'name' => 'Accessible SEO Tour',
+            'status' => 'published',
+            'thumbnail' => 'products/accessible-seo-primary.jpg',
+            'short_description' => 'Accessible SEO summary.',
+            'meta_title' => 'Accessible SEO Tour Meta',
+            'meta_description' => 'Plain accessible SEO meta description.',
+            'whatsapp_number' => '+62 812-3456-7890',
+        ]);
+
+        ProductImage::create([
+            'product_id' => $product->id,
+            'image' => 'products/accessible-seo-second.jpg',
+            'sort_order' => 10,
+        ]);
+        ProductPrice::create([
+            'product_id' => $product->id,
+            'currency' => ProductPrice::CURRENCY_IDR,
+            'price' => 1250000,
+        ]);
+
+        $response = $this->get(route('products.show', $product));
+        $html = $response->getContent();
+
+        $response->assertOk();
+        $this->assertSame(1, preg_match_all('/<h1\b/i', $html));
+        $this->assertStringContainsString('<title>', $html);
+        $response->assertSee('Accessible SEO Tour Meta', false);
+        $response->assertSee('<meta name="description" content="Plain accessible SEO meta description.">', false);
+        $response->assertSee('<link rel="canonical" href="' . route('products.show', $product) . '">', false);
+        $response->assertSee('<meta name="robots" content="index, follow">', false);
+        $response->assertSee('<meta property="og:type" content="product">', false);
+        $response->assertSee('<nav class="product-breadcrumb product-detail-breadcrumb" aria-label="Breadcrumb">', false);
+        $response->assertSee('<ol class="product-breadcrumb__list">', false);
+        $response->assertSee('aria-current="page"', false);
+        $response->assertSee('aria-label="Previous image of Accessible SEO Tour"', false);
+        $response->assertSee('aria-label="Next image of Accessible SEO Tour"', false);
+        $response->assertSee('aria-label="View image 1 of Accessible SEO Tour"', false);
+        $response->assertSee('aria-pressed="true"', false);
+        $response->assertSee('aria-label="Chat via WhatsApp about Accessible SEO Tour"', false);
+        $response->assertSee('<span class="sr-only">Start from Indonesian Rupiah </span>', false);
+    }
+
+    public function test_product_detail_outputs_valid_schema_from_actual_product_data_only(): void
+    {
+        $category = Category::factory()->create(['name' => 'Schema Tour Category']);
+        $destination = Destination::factory()->create(['name' => 'Schema Destination']);
+        $product = $this->createProduct([
+            'name' => 'Schema Detail Tour',
+            'status' => 'published',
+            'thumbnail' => 'products/schema-detail-primary.jpg',
+            'short_description' => 'Schema detail summary.',
+        ], $category, $destination);
+
+        ProductPrice::create([
+            'product_id' => $product->id,
+            'currency' => ProductPrice::CURRENCY_IDR,
+            'price' => 1250000,
+        ]);
+        ProductPrice::create([
+            'product_id' => $product->id,
+            'currency' => ProductPrice::CURRENCY_SGD,
+            'price' => 85,
+        ]);
+        ProductFaq::create([
+            'product_id' => $product->id,
+            'question' => 'Is this schema FAQ visible?',
+            'answer' => 'Yes, this answer is visible on the page.',
+            'sort_order' => 10,
+        ]);
+        ProductFaq::create([
+            'product_id' => $product->id,
+            'question' => 'Question without schema answer?',
+            'answer' => '   ',
+            'sort_order' => 20,
+        ]);
+
+        $response = $this->get(route('products.show', $product));
+        $html = $response->getContent();
+        $graph = collect($this->structuredDataGraph($html));
+        $productSchema = $graph->firstWhere('@type', 'Product');
+        $breadcrumbSchema = $graph->firstWhere('@type', 'BreadcrumbList');
+        $faqSchema = $graph->firstWhere('@type', 'FAQPage');
+        $offers = collect($productSchema['offers'] ?? [])->sortBy('priceCurrency')->values();
+
+        $response->assertOk();
+        $this->assertNotNull($productSchema);
+        $this->assertSame('Schema Detail Tour', $productSchema['name']);
+        $this->assertSame('Schema detail summary.', $productSchema['description']);
+        $this->assertSame(route('products.show', $product), $productSchema['url']);
+        $this->assertSame('Schema Tour Category', $productSchema['category']);
+        $this->assertContains($product->thumbnail_url, $productSchema['image']);
+        $this->assertCount(2, $offers);
+        $this->assertSame('IDR', $offers[0]['priceCurrency']);
+        $this->assertEquals(1250000, $offers[0]['price']);
+        $this->assertSame('SGD', $offers[1]['priceCurrency']);
+        $this->assertEquals(85, $offers[1]['price']);
+        $this->assertArrayNotHasKey('availability', $offers[0]);
+        $this->assertArrayNotHasKey('availability', $offers[1]);
+        $this->assertNotNull($breadcrumbSchema);
+        $this->assertSame([1, 2, 3], collect($breadcrumbSchema['itemListElement'])->pluck('position')->all());
+        $this->assertSame(route('products.show', $product), $breadcrumbSchema['itemListElement'][2]['item']);
+        $this->assertNotNull($faqSchema);
+        $this->assertCount(1, $faqSchema['mainEntity']);
+        $this->assertSame('Is this schema FAQ visible?', $faqSchema['mainEntity'][0]['name']);
+        $this->assertSame('Yes, this answer is visible on the page.', $faqSchema['mainEntity'][0]['acceptedAnswer']['text']);
+        $this->assertStringNotContainsString('"availability"', $html);
+        $this->assertStringNotContainsString('"aggregateRating"', $html);
+        $this->assertStringNotContainsString('"review"', $html);
+        $this->assertStringNotContainsString('"sku"', $html);
+        $this->assertStringNotContainsString('"gtin"', $html);
+    }
+
+    public function test_product_detail_schema_omits_zero_offer_and_faqpage_when_data_is_missing(): void
+    {
+        $product = $this->createProduct([
+            'name' => 'No Offer Schema Tour',
+            'status' => 'published',
+            'short_description' => 'No offer schema summary.',
+        ]);
+
+        ProductPrice::create([
+            'product_id' => $product->id,
+            'currency' => ProductPrice::CURRENCY_IDR,
+            'price' => 0,
+        ]);
+        ProductFaq::create([
+            'product_id' => $product->id,
+            'question' => 'Visible question without answer?',
+            'answer' => '',
+            'sort_order' => 10,
+        ]);
+
+        $response = $this->get(route('products.show', $product));
+        $graph = collect($this->structuredDataGraph($response->getContent()));
+        $productSchema = $graph->firstWhere('@type', 'Product');
+
+        $response->assertOk();
+        $this->assertNotNull($productSchema);
+        $this->assertArrayNotHasKey('offers', $productSchema);
+        $this->assertNull($graph->firstWhere('@type', 'FAQPage'));
+        $response->assertDontSee('"price":0', false);
+        $response->assertDontSee('"priceCurrency":"IDR"', false);
+    }
+
     public function test_product_detail_section_state_hides_empty_optional_sections(): void
     {
         $product = $this->createProduct([
@@ -1241,5 +1388,16 @@ class ProductDetailBookingFormTest extends TestCase
         $this->assertNotEmpty($matches, 'The Product Detail gallery primary image tag was not rendered.');
 
         return $matches[0];
+    }
+
+    private function structuredDataGraph(string $html): array
+    {
+        preg_match('/<script type="application\/ld\+json">(.*?)<\/script>/s', $html, $matches);
+
+        $this->assertNotEmpty($matches[1] ?? null, 'Expected JSON-LD script to be present.');
+
+        $data = json_decode($matches[1], true, 512, JSON_THROW_ON_ERROR);
+
+        return $data['@graph'] ?? [];
     }
 }

@@ -53,21 +53,25 @@
         <div class="product-detail-container">
 
             <nav class="product-breadcrumb product-detail-breadcrumb" aria-label="Breadcrumb">
-                @foreach($breadcrumbState as $item)
-                    @if(! $loop->first)
-                        <span class="product-breadcrumb__separator" aria-hidden="true">/</span>
-                    @endif
+                <ol class="product-breadcrumb__list">
+                    @foreach($breadcrumbState as $item)
+                        <li class="product-breadcrumb__item">
+                            @if(! $loop->first)
+                                <span class="product-breadcrumb__separator" aria-hidden="true">/</span>
+                            @endif
 
-                    @if($item['url'] && ! $item['current'])
-                        <a href="{{ $item['url'] }}" class="product-breadcrumb__link">
-                            {{ $item['label'] }}
-                        </a>
-                    @else
-                        <span class="product-breadcrumb__current" @if($item['current']) aria-current="page" @endif>
-                            {{ $item['label'] }}
-                        </span>
-                    @endif
-                @endforeach
+                            @if($item['url'] && ! $item['current'])
+                                <a href="{{ $item['url'] }}" class="product-breadcrumb__link">
+                                    {{ $item['label'] }}
+                                </a>
+                            @else
+                                <span class="product-breadcrumb__current" @if($item['current']) aria-current="page" @endif>
+                                    {{ $item['label'] }}
+                                </span>
+                            @endif
+                        </li>
+                    @endforeach
+                </ol>
             </nav>
 
             <div class="product-detail-hero__grid">
@@ -96,7 +100,7 @@
                                 <button
                                     type="button"
                                     class="product-detail-gallery__nav product-detail-gallery__nav--previous"
-                                    aria-label="Previous product image"
+                                    aria-label="Previous image of {{ $product->name }}"
                                     x-on:click="previousGalleryImage()"
                                 >
                                     <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -107,7 +111,7 @@
                                 <button
                                     type="button"
                                     class="product-detail-gallery__nav product-detail-gallery__nav--next"
-                                    aria-label="Next product image"
+                                    aria-label="Next image of {{ $product->name }}"
                                     x-on:click="nextGalleryImage()"
                                 >
                                     <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -235,17 +239,17 @@
                             </p>
                         @endif
 
-                        @if($product->cta_title || $product->cta_description)
+                        @if($ctaState['has_content'])
                             <div class="product-detail-cta-note">
-                                @if($product->cta_title)
+                                @if($ctaState['has_title'])
                                     <p class="product-detail-cta-note__title">
-                                        {{ $product->cta_title }}
+                                        {{ $ctaState['title'] }}
                                     </p>
                                 @endif
 
-                                @if($product->cta_description)
+                                @if($ctaState['has_description'])
                                     <p class="product-detail-cta-note__text">
-                                        {{ $product->cta_description }}
+                                        {{ $ctaState['description'] }}
                                     </p>
                                 @endif
                             </div>
@@ -346,15 +350,20 @@
 
                         <ol class="product-detail-timeline">
                             @foreach($itineraryItems as $itinerary)
-                                <li class="product-detail-timeline__item">
-                                    <div class="product-detail-timeline__time">
-                                        {{ $itinerary['time'] ?: '-' }}
-                                    </div>
+                                <li class="product-detail-timeline__item @if(! $itinerary['has_time']) product-detail-timeline__item--no-time @endif">
+                                    @if($itinerary['has_time'])
+                                        <div class="product-detail-timeline__time">
+                                            <span class="sr-only">Itinerary time: </span>
+                                            {{ $itinerary['time'] }}
+                                        </div>
+                                    @endif
 
                                     <div class="product-detail-timeline__content">
-                                        <h3 class="product-detail-timeline__title title-card">
-                                            {{ $itinerary['title'] }}
-                                        </h3>
+                                        @if($itinerary['has_title'])
+                                            <h3 class="product-detail-timeline__title title-card">
+                                                {{ $itinerary['title'] }}
+                                            </h3>
+                                        @endif
 
                                         @if($itinerary['has_description'])
                                             <p class="product-detail-timeline__text">
@@ -387,9 +396,11 @@
                                         </h3>
                                     @endif
 
-                                    <p class="product-detail-note__text">
-                                        {{ $note['description'] }}
-                                    </p>
+                                    @if($note['has_description'])
+                                        <p class="product-detail-note__text">
+                                            {{ $note['description'] }}
+                                        </p>
+                                    @endif
                                 </div>
                             @endforeach
                         </div>
@@ -413,9 +424,11 @@
                                         {{ $faq['question'] }}
                                     </summary>
 
-                                    <p class="product-detail-faq__answer">
-                                        {{ $faq['answer'] }}
-                                    </p>
+                                    @if($faq['has_answer'])
+                                        <p class="product-detail-faq__answer">
+                                            {{ $faq['answer'] }}
+                                        </p>
+                                    @endif
                                 </details>
                             @endforeach
                         </div>
@@ -436,9 +449,11 @@
                             Booking Information
                         </h3>
                     </div>
-                    <p class="product-detail-booking-card__intro">
-                        {{ $whatsappState['booking_note'] }}
-                    </p>
+                    @if($whatsappState['available'])
+                        <p class="product-detail-booking-card__intro">
+                            {{ $whatsappState['booking_note'] }}
+                        </p>
+                    @endif
 
                     <div class="product-detail-booking-card__list">
                         @include('frontend.components.product-price', [
@@ -487,15 +502,19 @@
                             </div>
                         </div>
 
-                        <div class="product-detail-booking-card__row">
-                            <span>Duration</span>
-                            <strong>{{ $durationState['display'] }}</strong>
-                        </div>
+                        @if($durationState['has_value'])
+                            <div class="product-detail-booking-card__row">
+                                <span>Duration</span>
+                                <strong>{{ $durationState['display'] }}</strong>
+                            </div>
+                        @endif
 
-                        <div class="product-detail-booking-card__row">
-                            <span>Meeting Point</span>
-                            <strong>{{ $meetingPointState['display'] }}</strong>
-                        </div>
+                        @if($meetingPointState['has_value'])
+                            <div class="product-detail-booking-card__row">
+                                <span>Meeting Point</span>
+                                <strong>{{ $meetingPointState['display'] }}</strong>
+                            </div>
+                        @endif
 
                         @if($sectionState['has_addons'])
                             <fieldset class="product-detail-booking-addons">

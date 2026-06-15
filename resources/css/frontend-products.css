@@ -9,7 +9,8 @@
 
     .product-page a:focus-visible,
     .product-page button:focus-visible,
-    .product-page input:focus-visible {
+    .product-page input:focus-visible,
+    .product-page summary:focus-visible {
         outline: 2px solid var(--frontend-gold);
         outline-offset: 3px;
     }
@@ -83,7 +84,15 @@
 
     /* PRODUCT BREADCRUMB: Shows the visitor where they are in the product catalog. */
     .product-breadcrumb {
-        @apply mb-5 flex flex-wrap items-center gap-2 text-sm font-semibold text-slate-500;
+        @apply mb-5 text-sm font-semibold text-slate-500;
+    }
+
+    .product-breadcrumb__list {
+        @apply flex flex-wrap items-center gap-2;
+    }
+
+    .product-breadcrumb__item {
+        @apply flex min-w-0 items-center gap-2;
     }
 
     /* PRODUCT BREADCRUMB LINK: Makes parent breadcrumb items look clickable. */
@@ -1194,6 +1203,10 @@
     /* PRODUCT DETAIL TIMELINE ITEM: Aligns itinerary time and description columns. */
     .product-detail-timeline__item {
         @apply grid gap-3 sm:grid-cols-[7rem_1fr];
+    }
+
+    .product-detail-timeline__item--no-time {
+        @apply sm:grid-cols-1;
     }
 
     /* PRODUCT DETAIL TIMELINE TIME: Highlights the itinerary time slot. */
