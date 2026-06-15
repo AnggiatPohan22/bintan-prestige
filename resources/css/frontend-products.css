@@ -890,7 +890,7 @@
 
     /* PRODUCT DETAIL GALLERY: Groups the main product image and thumbnails. */
     .product-detail-gallery {
-        @apply space-y-3;
+        @apply min-w-0 space-y-3;
     }
 
     /* PRODUCT DETAIL MAIN IMAGE: Provides a stable frame for the primary tour image. */
@@ -901,7 +901,7 @@
 
     /* PRODUCT DETAIL IMAGE: Makes the primary image fill its frame cleanly. */
     .product-detail-gallery__image {
-        @apply absolute inset-0 h-full w-full object-cover;
+        @apply absolute inset-0 h-full w-full object-cover transition-opacity duration-200 motion-reduce:transition-none;
         max-width: none;
     }
 
@@ -912,12 +912,13 @@
 
     /* PRODUCT DETAIL THUMBNAILS: Creates a neat thumbnail row under the main image. */
     .product-detail-gallery__thumbs {
-        @apply grid max-w-2xl grid-cols-4 gap-3;
+        @apply flex max-w-full gap-3 overflow-x-auto pb-1;
+        scrollbar-width: thin;
     }
 
     /* PRODUCT DETAIL THUMBNAIL: Keeps thumbnail images consistent and clickable-looking. */
     .product-detail-gallery__thumb {
-        @apply aspect-[4/3] w-full overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm transition;
+        @apply h-20 w-24 flex-none overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm transition motion-reduce:transition-none sm:h-24 sm:w-32;
     }
 
     .product-detail-gallery__thumb img {
@@ -927,7 +928,8 @@
 
     .product-detail-gallery__thumb:hover,
     .product-detail-gallery__thumb:focus-visible,
-    .product-detail-gallery__thumb.is-active {
+    .product-detail-gallery__thumb.is-active,
+    .product-detail-gallery__thumb[aria-pressed="true"] {
         border-color: var(--frontend-gold);
         box-shadow: 0 16px 36px rgba(23, 19, 12, 0.12);
         transform: translateY(-1px);
@@ -935,7 +937,7 @@
 
     /* PRODUCT DETAIL GALLERY NAV: Moves the large gallery image without turning thumbnails into a slider. */
     .product-detail-gallery__nav {
-        @apply absolute top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full transition;
+        @apply absolute top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full transition motion-reduce:transition-none;
         background: rgba(255, 255, 255, 0.92);
         color: var(--frontend-black);
         box-shadow: 0 18px 38px rgba(0, 0, 0, 0.18);
@@ -954,6 +956,17 @@
     .product-detail-gallery__nav:focus-visible {
         background: var(--frontend-gold);
         transform: translateY(-50%) scale(1.04);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .product-detail-gallery__thumb:hover,
+        .product-detail-gallery__thumb:focus-visible,
+        .product-detail-gallery__thumb.is-active,
+        .product-detail-gallery__thumb[aria-pressed="true"],
+        .product-detail-gallery__nav:hover,
+        .product-detail-gallery__nav:focus-visible {
+            transform: none;
+        }
     }
 
     .product-detail-gallery__nav--previous {

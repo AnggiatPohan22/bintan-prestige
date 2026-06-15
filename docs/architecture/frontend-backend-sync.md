@@ -80,6 +80,8 @@ Frontend implication:
 - Product Detail Blade renders prepared state only; it must not call Product query builders, relation methods, `DefaultMediaAssets`, or `BookingCtaSettings` directly.
 - Product Detail renders the prepared breadcrumb state as visible breadcrumb UI above the media-plus-summary area.
 - Product Detail layout keeps one Product H1, a responsive primary media plus summary hierarchy, prepared summary facts, price/CTA placement, and optional content sections ordered as Description, Features, Itinerary, Notes, and FAQs.
+- Product Detail gallery renders the backend-prepared primary media server-side and uses Alpine only as progressive enhancement for thumbnail, counter, and previous/next active-image updates.
+- Product Detail gallery thumbnails are controls, not links, and render only for multi-image media state; fallback-only or single-image states keep the primary frame without gallery controls.
 - Product Detail layout work does not add related products, gallery lightbox behavior, sticky CTA changes, or schema markup changes.
 
 ## Homepage CMS Flow

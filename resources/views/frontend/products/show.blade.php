@@ -18,6 +18,21 @@
         duration: @js($durationState['display']),
         galleryIndex: 0,
         galleryImages: @js($mediaState['items']),
+        activeGalleryImage() {
+            return this.galleryImages[this.galleryIndex] || null;
+        },
+        activeGalleryStyle() {
+            const image = this.activeGalleryImage();
+
+            return image && image.fit ? `object-fit: ${image.fit}` : '';
+        },
+        selectGalleryImage(index) {
+            if (index < 0 || index >= this.galleryImages.length) {
+                return;
+            }
+
+            this.galleryIndex = index;
+        },
         increment(field) {
             this[field] = Math.max(0, this[field] + 1);
         },
@@ -48,11 +63,11 @@
         },
         nextGalleryImage() {
             if (! this.galleryImages.length) return;
-            this.galleryIndex = (this.galleryIndex + 1) % this.galleryImages.length;
+            this.selectGalleryImage((this.galleryIndex + 1) % this.galleryImages.length);
         },
         previousGalleryImage() {
             if (! this.galleryImages.length) return;
-            this.galleryIndex = (this.galleryIndex - 1 + this.galleryImages.length) % this.galleryImages.length;
+            this.selectGalleryImage((this.galleryIndex - 1 + this.galleryImages.length) % this.galleryImages.length);
         },
     }"
 >
@@ -90,18 +105,19 @@
                     data-section-key="products.show.gallery"
                 >
                     <div class="product-detail-gallery__main">
-                        @if($mediaState['has_gallery'])
-                            <template x-for="(image, index) in galleryImages" :key="image.url">
-                                <img
-                                    x-show="galleryIndex === index"
-                                    x-transition.opacity
-                                    :src="image.url"
-                                    :alt="image.alt"
-                                    class="product-detail-gallery__image"
-                                    :style="image.fit ? 'object-fit: ' + image.fit : ''"
-                                    decoding="async"
-                                >
-                            </template>
+                        @if($mediaState['has_gallery'] && $mediaState['primary'])
+                            <img
+                                src="{{ $mediaState['primary']['url'] }}"
+                                alt="{{ $mediaState['primary']['alt'] }}"
+                                class="product-detail-gallery__image"
+                                width="1200"
+                                height="900"
+                                @if($mediaState['primary']['fit']) style="object-fit: {{ $mediaState['primary']['fit'] }}" @endif
+                                x-bind:src="activeGalleryImage() ? activeGalleryImage().url : @js($mediaState['primary']['url'])"
+                                x-bind:alt="activeGalleryImage() ? activeGalleryImage().alt : @js($mediaState['primary']['alt'])"
+                                x-bind:style="activeGalleryStyle()"
+                                decoding="async"
+                            >
 
                             @if($mediaState['count'] > 1)
                                 <button
@@ -126,7 +142,9 @@
                                     </svg>
                                 </button>
 
-                                <div class="product-detail-gallery__count" x-text="(galleryIndex + 1) + ' / ' + galleryImages.length"></div>
+                                <div class="product-detail-gallery__count" aria-live="polite" aria-atomic="true">
+                                    <span x-text="(galleryIndex + 1) + ' / ' + galleryImages.length">1 / {{ $mediaState['count'] }}</span>
+                                </div>
                             @endif
                         @else
                             <div class="product-detail-gallery__placeholder">
@@ -140,14 +158,20 @@
                             @foreach($mediaState['thumbnails'] as $image)
                                 <button
                                     type="button"
-                                    class="product-detail-gallery__thumb"
+                                    class="product-detail-gallery__thumb @if($loop->first) is-active @endif"
                                     :class="{ 'is-active': galleryIndex === {{ $loop->index }} }"
-                                    x-on:click="galleryIndex = {{ $loop->index }}"
-                                    aria-label="Show product image {{ $loop->iteration }}"
+                                    aria-pressed="{{ $loop->first ? 'true' : 'false' }}"
+                                    x-bind:aria-pressed="galleryIndex === {{ $loop->index }} ? 'true' : 'false'"
+                                    x-bind:aria-current="galleryIndex === {{ $loop->index }} ? 'true' : null"
+                                    x-on:click="selectGalleryImage({{ $loop->index }})"
+                                    aria-label="View image {{ $loop->iteration }} of {{ $product->name }}"
                                 >
                                     <img
                                         src="{{ $image['url'] }}"
-                                        alt="{{ $image['alt'] }}"
+                                        alt=""
+                                        aria-hidden="true"
+                                        width="240"
+                                        height="180"
                                         @if($image['fit']) style="object-fit: {{ $image['fit'] }}" @endif
                                         loading="lazy"
                                         decoding="async"

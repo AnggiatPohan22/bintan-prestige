@@ -351,6 +351,160 @@ class ProductDetailBookingFormTest extends TestCase
         $this->assertStringNotContainsString('x-on:keydown', $contents);
     }
 
+    public function test_product_detail_gallery_renders_server_first_primary_image_without_javascript_dependency(): void
+    {
+        $destination = Destination::factory()->create(['name' => 'Lagoi']);
+        $product = $this->createProduct([
+            'name' => 'Server First Gallery Tour',
+            'status' => 'published',
+            'thumbnail' => 'products/server-first-primary.jpg',
+        ], null, $destination);
+
+        ProductImage::create([
+            'product_id' => $product->id,
+            'image' => 'products/server-first-gallery.jpg',
+            'sort_order' => 10,
+        ]);
+
+        $response = $this->get(route('products.show', $product));
+        $html = $response->getContent();
+        $primaryImageTag = $this->galleryPrimaryImageTag($html);
+
+        $response->assertOk();
+        $this->assertStringNotContainsString('<template x-for="(image, index) in galleryImages"', $html);
+        $this->assertStringContainsString('src="' . $product->thumbnail_url . '"', $primaryImageTag);
+        $this->assertStringContainsString('alt="Server First Gallery Tour in Lagoi"', $primaryImageTag);
+        $this->assertStringContainsString('width="1200"', $primaryImageTag);
+        $this->assertStringContainsString('height="900"', $primaryImageTag);
+        $this->assertStringContainsString('x-bind:src=', $primaryImageTag);
+        $this->assertStringContainsString('x-bind:alt=', $primaryImageTag);
+        $this->assertStringNotContainsString('loading="lazy"', $primaryImageTag);
+    }
+
+    public function test_product_detail_gallery_thumbnails_counter_and_accessible_active_state_render_for_multiple_images(): void
+    {
+        $product = $this->createProduct([
+            'name' => 'Accessible Gallery Tour',
+            'status' => 'published',
+            'thumbnail' => 'products/accessible-gallery-primary.jpg',
+        ]);
+
+        ProductImage::create([
+            'product_id' => $product->id,
+            'image' => 'products/accessible-gallery-second.jpg',
+            'sort_order' => 10,
+        ]);
+        ProductImage::create([
+            'product_id' => $product->id,
+            'image' => 'products/accessible-gallery-third.jpg',
+            'sort_order' => 20,
+        ]);
+
+        $response = $this->get(route('products.show', $product));
+        $html = $response->getContent();
+
+        $response->assertOk();
+        $this->assertSame(3, preg_match_all('/<button[^>]*class="product-detail-gallery__thumb/i', $html));
+        $response->assertSee('aria-label="View image 1 of Accessible Gallery Tour"', false);
+        $response->assertSee('aria-label="View image 2 of Accessible Gallery Tour"', false);
+        $response->assertSee('aria-label="View image 3 of Accessible Gallery Tour"', false);
+        $response->assertSee('aria-pressed="true"', false);
+        $response->assertSee('x-bind:aria-pressed=', false);
+        $response->assertSee('x-on:click="selectGalleryImage(1)"', false);
+        $response->assertSee('aria-live="polite"', false);
+        $response->assertSee('1 / 3');
+        $response->assertSee('loading="lazy"', false);
+        $this->assertStringNotContainsString('<a class="product-detail-gallery__thumb', $html);
+    }
+
+    public function test_product_detail_gallery_hides_controls_for_single_or_empty_media_states(): void
+    {
+        $singleImageProduct = $this->createProduct([
+            'name' => 'Single Image Gallery Tour',
+            'status' => 'published',
+            'thumbnail' => 'products/single-image-gallery.jpg',
+        ]);
+
+        $singleImageResponse = $this->get(route('products.show', $singleImageProduct));
+        $singleImageHtml = $singleImageResponse->getContent();
+
+        $singleImageResponse->assertOk();
+        $this->assertStringContainsString('src="' . $singleImageProduct->thumbnail_url . '"', $this->galleryPrimaryImageTag($singleImageHtml));
+        $this->assertStringNotContainsString('product-detail-gallery__thumbs', $singleImageHtml);
+        $this->assertStringNotContainsString('product-detail-gallery__count', $singleImageHtml);
+        $this->assertStringNotContainsString('product-detail-gallery__nav', $singleImageHtml);
+
+        $emptyMediaProduct = $this->createProduct([
+            'name' => 'Empty Media Gallery Tour',
+            'status' => 'published',
+            'thumbnail' => null,
+        ]);
+
+        $emptyMediaResponse = $this->get(route('products.show', $emptyMediaProduct));
+        $emptyMediaHtml = $emptyMediaResponse->getContent();
+
+        $emptyMediaResponse->assertOk();
+        $this->assertStringContainsString('product-detail-gallery__placeholder', $emptyMediaHtml);
+        $this->assertStringContainsString('No Image', $emptyMediaHtml);
+        $this->assertStringNotContainsString('product-detail-gallery__thumbs', $emptyMediaHtml);
+        $this->assertStringNotContainsString('product-detail-gallery__count', $emptyMediaHtml);
+    }
+
+    public function test_product_detail_gallery_uses_ordered_gallery_primary_when_thumbnail_absent_and_does_not_count_fallback_controls(): void
+    {
+        $category = Category::factory()->create(['name' => 'Gallery Primary Category']);
+        $destination = Destination::factory()->create(['name' => 'Gallery Primary Destination']);
+        $productWithGallery = $this->createProduct([
+            'name' => 'Ordered Gallery Primary Tour',
+            'status' => 'published',
+            'thumbnail' => null,
+        ], $category, $destination);
+
+        ProductImage::create([
+            'product_id' => $productWithGallery->id,
+            'image' => 'products/ordered-gallery-second.jpg',
+            'sort_order' => 20,
+        ]);
+        ProductImage::create([
+            'product_id' => $productWithGallery->id,
+            'image' => 'products/ordered-gallery-first.jpg',
+            'sort_order' => 10,
+        ]);
+
+        $galleryResponse = $this->get(route('products.show', $productWithGallery));
+        $galleryMediaState = $galleryResponse->viewData('mediaState');
+
+        $galleryResponse->assertOk();
+        $this->assertSame('gallery', $galleryMediaState['primary']['source']);
+        $this->assertStringContainsString('products/ordered-gallery-first.jpg', $galleryMediaState['primary']['url']);
+        $this->assertStringContainsString('products/ordered-gallery-first.jpg', $this->galleryPrimaryImageTag($galleryResponse->getContent()));
+
+        SiteAsset::create([
+            'key' => 'default_media.product',
+            'label' => 'Product placeholder image',
+            'path' => 'site-assets/default_media-product/product.jpg',
+            'alt' => 'Default product placeholder',
+            'is_active' => true,
+        ]);
+
+        $fallbackProduct = $this->createProduct([
+            'name' => 'Fallback Gallery Control Tour',
+            'status' => 'published',
+            'thumbnail' => null,
+        ], $category, $destination);
+
+        $fallbackResponse = $this->get(route('products.show', $fallbackProduct));
+        $fallbackHtml = $fallbackResponse->getContent();
+        $fallbackMediaState = $fallbackResponse->viewData('mediaState');
+
+        $fallbackResponse->assertOk();
+        $this->assertTrue($fallbackMediaState['uses_fallback']);
+        $this->assertSame(1, $fallbackMediaState['count']);
+        $this->assertStringContainsString('site-assets/default_media-product/product.jpg', $this->galleryPrimaryImageTag($fallbackHtml));
+        $this->assertStringNotContainsString('product-detail-gallery__thumbs', $fallbackHtml);
+        $this->assertStringNotContainsString('product-detail-gallery__count', $fallbackHtml);
+    }
+
     public function test_product_detail_media_state_deduplicates_gallery_images_and_uses_default_placeholder(): void
     {
         $category = Category::factory()->create(['name' => 'Media State Category']);
@@ -848,5 +1002,14 @@ class ProductDetailBookingFormTest extends TestCase
             'destination_id' => $destination->id,
             ...$attributes,
         ]);
+    }
+
+    private function galleryPrimaryImageTag(string $html): string
+    {
+        preg_match('/<img\s+[^>]*class="product-detail-gallery__image"[^>]*>/i', $html, $matches);
+
+        $this->assertNotEmpty($matches, 'The Product Detail gallery primary image tag was not rendered.');
+
+        return $matches[0];
     }
 }

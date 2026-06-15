@@ -51,6 +51,8 @@ Prepared state:
 - WhatsApp state uses Product WhatsApp number first, then configured global/contact number; when no number exists, Product Detail WhatsApp CTAs are hidden instead of rendering a broken `wa.me` URL.
 - Metadata state prepares Product title, description, canonical URL, robots value, social share type, and image fallback from Product SEO fields and prepared media state.
 - Breadcrumb state is prepared for Product Detail and rendered as visible breadcrumb UI above the Product summary.
+- Product Detail gallery media is server-first: the prepared primary image renders as normal HTML, then Alpine enhances the same image element for thumbnail navigation and previous/next controls.
+- Gallery thumbnails render only when more than one prepared media item exists, use button controls with accessible labels and active state, and keep non-primary media lazy-loaded.
 
 Blade behavior:
 
