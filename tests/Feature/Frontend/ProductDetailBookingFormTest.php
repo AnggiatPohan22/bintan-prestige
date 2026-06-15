@@ -174,6 +174,7 @@ class ProductDetailBookingFormTest extends TestCase
         $this->assertSame('escaped_plain_text_with_line_breaks', $descriptionState['render_mode']);
         $this->assertSame('6 Hours', $durationState['display']);
         $this->assertSame('Lagoi Bay', $meetingPointState['display']);
+        $this->assertFalse($response->viewData('ctaState')['has_content']);
         $this->assertSame('Prepared SEO Title', $metadataState['title']);
         $this->assertSame('Prepared SEO description.', $metadataState['description']);
         $this->assertSame('https://example.test/prepared-state-tour', $metadataState['canonical']);
@@ -334,6 +335,8 @@ class ProductDetailBookingFormTest extends TestCase
         $response->assertDontSee('class="product-detail-description text-body"', false);
         $response->assertDontSee('<span class="product-detail-meta__label">Duration</span>', false);
         $response->assertDontSee('<span class="product-detail-meta__label">Meeting Point</span>', false);
+        $response->assertDontSee('<div class="product-detail-booking-card__row">', false);
+        $response->assertDontSee('product-detail-booking-card__intro', false);
         $response->assertSee('<span class="product-detail-meta__label">Pickup</span>', false);
         $response->assertDontSee('id="products-show-overview"', false);
         $response->assertDontSee('id="products-show-features"', false);
@@ -704,6 +707,149 @@ class ProductDetailBookingFormTest extends TestCase
         $this->assertStringNotContainsString('whatsappState', $contents);
         $this->assertStringNotContainsString('data-whatsapp-tracking', $contents);
         $this->assertStringNotContainsString('booking_url', $contents);
+    }
+
+    public function test_product_detail_filters_malformed_optional_rows_and_preserves_partial_content(): void
+    {
+        $category = Category::factory()->create(['name' => 'Malformed Optional Category']);
+        $destination = Destination::factory()->create(['name' => 'Malformed Optional Destination']);
+        $product = $this->createProduct([
+            'name' => 'Malformed Optional Tour',
+            'status' => 'published',
+            'description' => '   ',
+            'short_description' => '   ',
+            'duration' => '   ',
+            'meeting_point' => '   ',
+            'cta_title' => '   ',
+            'cta_description' => '   ',
+            'whatsapp_number' => '',
+            'pickup_available' => false,
+        ], $category, $destination);
+
+        ProductFeature::create([
+            'product_id' => $product->id,
+            'label' => 'included',
+            'value' => '   ',
+            'sort_order' => 10,
+        ]);
+        ProductFeature::create([
+            'product_id' => $product->id,
+            'label' => 'included',
+            'value' => 'Clean included feature',
+            'sort_order' => 20,
+        ]);
+        ProductItinerary::create([
+            'product_id' => $product->id,
+            'time' => '   ',
+            'title' => '   ',
+            'description' => 'Description-only itinerary item',
+            'sort_order' => 10,
+            'start_time' => 900,
+        ]);
+        ProductItinerary::create([
+            'product_id' => $product->id,
+            'time' => '25:99',
+            'title' => 'Invalid clock itinerary item',
+            'description' => 'Invalid clock-shaped time should not render.',
+            'sort_order' => 15,
+            'start_time' => 950,
+        ]);
+        ProductItinerary::create([
+            'product_id' => $product->id,
+            'time' => '   ',
+            'title' => '   ',
+            'description' => '   ',
+            'sort_order' => 20,
+            'start_time' => 1000,
+        ]);
+        ProductNote::create([
+            'product_id' => $product->id,
+            'title' => '   ',
+            'description' => 'Description-only note',
+            'sort_order' => 10,
+        ]);
+        ProductNote::create([
+            'product_id' => $product->id,
+            'title' => '   ',
+            'description' => '   ',
+            'sort_order' => 20,
+        ]);
+        ProductFaq::create([
+            'product_id' => $product->id,
+            'question' => 'Question without answer?',
+            'answer' => '   ',
+            'sort_order' => 10,
+        ]);
+        ProductFaq::create([
+            'product_id' => $product->id,
+            'question' => '   ',
+            'answer' => 'Answer without question should not render.',
+            'sort_order' => 20,
+        ]);
+
+        $response = $this->get(route('products.show', $product));
+        $html = $response->getContent();
+        $featureGroups = $response->viewData('featureGroups');
+        $itineraryItems = $response->viewData('itineraryItems');
+        $noteItems = $response->viewData('noteItems');
+        $faqItems = $response->viewData('faqItems');
+        $sectionState = $response->viewData('sectionState');
+
+        $response->assertOk();
+        $this->assertFalse($sectionState['has_overview']);
+        $this->assertTrue($sectionState['has_features']);
+        $this->assertTrue($sectionState['has_itineraries']);
+        $this->assertTrue($sectionState['has_notes']);
+        $this->assertTrue($sectionState['has_faqs']);
+        $this->assertSame(['Clean included feature'], $featureGroups->firstWhere('label', 'included')['items']->pluck('value')->all());
+        $this->assertCount(2, $itineraryItems);
+        $this->assertFalse($itineraryItems->first()['has_time']);
+        $this->assertFalse($itineraryItems->first()['has_title']);
+        $this->assertSame('Description-only itinerary item', $itineraryItems->first()['description']);
+        $this->assertFalse($itineraryItems->last()['has_time']);
+        $this->assertSame('Invalid clock itinerary item', $itineraryItems->last()['title']);
+        $this->assertCount(1, $noteItems);
+        $this->assertFalse($noteItems->first()['has_title']);
+        $this->assertSame('Description-only note', $noteItems->first()['description']);
+        $this->assertCount(1, $faqItems);
+        $this->assertSame('Question without answer?', $faqItems->first()['question']);
+        $this->assertFalse($faqItems->first()['has_answer']);
+        $response->assertSee('Clean included feature');
+        $response->assertSee('Description-only itinerary item');
+        $response->assertSee('Invalid clock itinerary item');
+        $response->assertSee('Description-only note');
+        $response->assertSee('Question without answer?');
+        $response->assertDontSee('25:99');
+        $response->assertDontSee('Answer without question should not render.');
+        $response->assertDontSee('product-detail-timeline__time', false);
+        $response->assertDontSee('product-detail-faq__answer', false);
+        $response->assertDontSee('product-detail-cta-note', false);
+        $this->assertSame(1, preg_match_all('/<li class="product-detail-list__item">/', $html));
+        $this->assertSame(2, preg_match_all('/<li class="[^"]*\bproduct-detail-timeline__item--no-time\b[^"]*">/', $html));
+        $this->assertSame(1, preg_match_all('/<details class="product-detail-faq">/', $html));
+    }
+
+    public function test_product_detail_metadata_uses_safe_fallbacks_for_whitespace_values(): void
+    {
+        $product = $this->createProduct([
+            'name' => 'Whitespace Metadata Tour',
+            'status' => 'published',
+            'short_description' => '   ',
+            'description' => '   ',
+            'meta_title' => '   ',
+            'meta_description' => '   ',
+            'meta_keywords' => '   ',
+            'canonical_url' => '   ',
+        ]);
+
+        $response = $this->get(route('products.show', $product));
+        $metadataState = $response->viewData('metadataState');
+
+        $response->assertOk();
+        $this->assertSame('Whitespace Metadata Tour', $metadataState['title']);
+        $this->assertSame('Plan your Bintan experience with Bintan Prestige.', $metadataState['description']);
+        $this->assertNull($metadataState['keywords']);
+        $this->assertSame(route('products.show', $product), $metadataState['canonical']);
     }
 
     public function test_product_detail_section_state_hides_empty_optional_sections(): void

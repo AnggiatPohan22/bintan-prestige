@@ -20,12 +20,14 @@ class ProductDetailDisplayState
         $mediaState = self::mediaState($product, $siteAssets, $defaultMediaSettings);
         $descriptionState = self::descriptionState($product);
         $featureState = self::featureState($product);
+        $highlightItems = self::highlightItems($product);
         $itineraryItems = self::itineraryItems($product);
         $noteItems = self::noteItems($product);
         $faqItems = self::faqItems($product);
         $durationState = self::simpleTextState($product->duration, 'Duration');
         $meetingPointState = self::simpleTextState($product->meeting_point, 'Meeting Point');
         $pickupState = self::pickupState($product);
+        $ctaState = self::ctaState($product);
         $whatsappState = self::whatsappState(
             $product,
             $businessIdentity,
@@ -37,7 +39,7 @@ class ProductDetailDisplayState
 
         $sectionState = [
             'has_gallery' => $mediaState['has_gallery'],
-            'has_highlights' => $product->highlights->isNotEmpty(),
+            'has_highlights' => $highlightItems->isNotEmpty(),
             'has_overview' => $descriptionState['has_description'],
             'has_features' => $featureState['groups']->contains(fn (array $group) => $group['items']->isNotEmpty()),
             'has_itineraries' => $itineraryItems->isNotEmpty(),
@@ -53,8 +55,9 @@ class ProductDetailDisplayState
             'durationState' => $durationState,
             'meetingPointState' => $meetingPointState,
             'pickupState' => $pickupState,
+            'ctaState' => $ctaState,
             'descriptionState' => $descriptionState,
-            'highlightItems' => self::highlightItems($product),
+            'highlightItems' => $highlightItems,
             'featureGroups' => $featureState['groups'],
             'addonOptions' => $featureState['addons'],
             'itineraryItems' => $itineraryItems,
@@ -206,25 +209,32 @@ class ProductDetailDisplayState
                 'title' => $title,
                 'items' => $product->features
                     ->where('label', $label)
-                    ->map(fn ($feature) => [
-                        'id' => $feature->id,
-                        'value' => $feature->value,
-                        'sort_order' => $feature->sort_order,
-                    ])
+                    ->map(function ($feature) {
+                        $value = self::displayText($feature->value);
+
+                        return [
+                            'id' => $feature->id,
+                            'value' => $value,
+                            'has_value' => $value !== null,
+                            'sort_order' => $feature->sort_order,
+                        ];
+                    })
+                    ->filter(fn (array $feature) => $feature['has_value'])
                     ->values(),
             ])
             ->values();
 
         $addons = $product->features
             ->where('label', 'addon')
-            ->pluck('value')
+            ->map(fn ($feature) => self::displayText($feature->value))
             ->filter()
-            ->values();
+            ->values()
+            ->toBase();
 
         if ($product->pickup_available) {
             $addons = $addons
                 ->merge([
-                    $product->pickup_type ?: 'Pickup',
+                    self::displayText($product->pickup_type) ?: 'Pickup',
                     'Drop off',
                 ])
                 ->filter()
@@ -241,64 +251,132 @@ class ProductDetailDisplayState
     private static function highlightItems(Product $product): Collection
     {
         return $product->highlights
-            ->map(fn ($highlight) => [
-                'id' => $highlight->id,
-                'icon' => $highlight->icon,
-                'title' => $highlight->title,
-                'sort_order' => $highlight->sort_order,
-            ])
+            ->map(function ($highlight) {
+                $title = self::displayText($highlight->title);
+
+                return [
+                    'id' => $highlight->id,
+                    'icon' => self::displayText($highlight->icon),
+                    'title' => $title,
+                    'has_title' => $title !== null,
+                    'sort_order' => $highlight->sort_order,
+                ];
+            })
+            ->filter(fn (array $highlight) => $highlight['has_title'])
             ->values();
     }
 
     private static function itineraryItems(Product $product): Collection
     {
         return $product->itineraries
-            ->map(fn ($itinerary) => [
-                'id' => $itinerary->id,
-                'time' => self::displayText($itinerary->time),
-                'has_time' => filled($itinerary->time),
-                'start_time_raw' => $itinerary->start_time,
-                'title' => $itinerary->title,
-                'description' => self::displayText($itinerary->description),
-                'has_description' => filled($itinerary->description),
-                'sort_order' => $itinerary->sort_order,
-            ])
+            ->map(function ($itinerary) {
+                $time = self::itineraryTimeText($itinerary->time);
+                $title = self::displayText($itinerary->title);
+                $description = self::displayText($itinerary->description);
+
+                return [
+                    'id' => $itinerary->id,
+                    'time' => $time,
+                    'has_time' => $time !== null,
+                    'start_time_raw' => $itinerary->start_time,
+                    'title' => $title,
+                    'has_title' => $title !== null,
+                    'description' => $description,
+                    'has_description' => $description !== null,
+                    'has_content' => $title !== null || $description !== null,
+                    'sort_order' => $itinerary->sort_order,
+                ];
+            })
+            ->filter(fn (array $itinerary) => $itinerary['has_content'])
             ->values();
     }
 
     private static function noteItems(Product $product): Collection
     {
         return $product->notes
-            ->map(fn ($note) => [
-                'id' => $note->id,
-                'title' => self::displayText($note->title),
-                'has_title' => filled($note->title),
-                'description' => $note->description,
-                'sort_order' => $note->sort_order,
-            ])
+            ->map(function ($note) {
+                $title = self::displayText($note->title);
+                $description = self::displayText($note->description);
+
+                return [
+                    'id' => $note->id,
+                    'title' => $title,
+                    'has_title' => $title !== null,
+                    'description' => $description,
+                    'has_description' => $description !== null,
+                    'has_content' => $title !== null || $description !== null,
+                    'sort_order' => $note->sort_order,
+                ];
+            })
+            ->filter(fn (array $note) => $note['has_content'])
             ->values();
     }
 
     private static function faqItems(Product $product): Collection
     {
         return $product->faqs
-            ->map(fn ($faq) => [
-                'id' => $faq->id,
-                'question' => $faq->question,
-                'answer' => $faq->answer,
-                'sort_order' => $faq->sort_order,
-            ])
+            ->map(function ($faq) {
+                $question = self::displayText($faq->question);
+                $answer = self::displayText($faq->answer);
+
+                return [
+                    'id' => $faq->id,
+                    'question' => $question,
+                    'has_question' => $question !== null,
+                    'answer' => $answer,
+                    'has_answer' => $answer !== null,
+                    'sort_order' => $faq->sort_order,
+                ];
+            })
+            ->filter(fn (array $faq) => $faq['has_question'])
             ->values();
     }
 
     private static function pickupState(Product $product): array
     {
+        $type = self::displayText($product->pickup_type);
+        $note = self::displayText($product->pickup_note);
+
         return [
             'available' => (bool) $product->pickup_available,
-            'type' => $product->pickup_type,
-            'label' => $product->pickup_available ? ($product->pickup_type ?: 'Available') : 'Not included',
-            'note' => self::displayText($product->pickup_note),
-            'has_note' => filled($product->pickup_note),
+            'type' => $type,
+            'label' => $product->pickup_available ? ($type ?: 'Available') : 'Not included',
+            'note' => $note,
+            'has_note' => $note !== null,
+        ];
+    }
+
+    private static function itineraryTimeText(?string $value): ?string
+    {
+        $display = self::displayText($value);
+
+        if ($display === null) {
+            return null;
+        }
+
+        if (preg_match('/^(\d{1,2}):(\d{2})$/', $display, $matches) === 1) {
+            $hour = (int) $matches[1];
+            $minute = (int) $matches[2];
+
+            if ($hour > 23 || $minute > 59) {
+                return null;
+            }
+        }
+
+        return $display;
+    }
+
+    private static function ctaState(Product $product): array
+    {
+        $title = self::displayText($product->cta_title);
+        $description = self::displayText($product->cta_description);
+
+        return [
+            'title' => $title,
+            'description' => $description,
+            'has_title' => $title !== null,
+            'has_description' => $description !== null,
+            'has_content' => $title !== null || $description !== null,
         ];
     }
 
@@ -356,18 +434,24 @@ class ProductDetailDisplayState
 
     private static function metadataState(Product $product, array $descriptionState, array $mediaState): array
     {
-        $description = $product->meta_description
-            ?: $product->short_description
+        $metaTitle = self::displayText($product->meta_title);
+        $metaDescription = self::displayText($product->meta_description);
+        $shortDescription = self::displayText($product->short_description);
+        $canonicalUrl = self::displayText($product->canonical_url);
+        $keywords = self::displayText($product->meta_keywords);
+        $ogImage = self::displayText($product->og_image);
+        $description = $metaDescription
+            ?: $shortDescription
             ?: ($descriptionState['excerpt'] ?: 'Plan your Bintan experience with Bintan Prestige.');
         $primaryImage = $mediaState['primary'] ?? null;
 
         return [
-            'title' => $product->meta_title ?: $product->name,
+            'title' => $metaTitle ?: $product->name,
             'description' => $description,
-            'keywords' => $product->meta_keywords,
-            'canonical' => $product->canonical_url ?: route('products.show', $product),
+            'keywords' => $keywords,
+            'canonical' => $canonicalUrl ?: route('products.show', $product),
             'robots' => 'index, follow',
-            'image' => $product->og_image_url ?: ($primaryImage['url'] ?? null),
+            'image' => $ogImage ? $product->og_image_url : ($primaryImage['url'] ?? null),
             'image_alt' => $primaryImage['alt'] ?? $product->name,
             'social_share_type' => 'product',
         ];
