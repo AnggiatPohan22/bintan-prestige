@@ -31,18 +31,21 @@ class UpdateProductRequest
 
             'idr_price' => [
                 'required',
-                'numeric'
+                'numeric',
+                'min:0'
             ],
 
             'sgd_price' => [
                 'required',
-                'numeric'
+                'numeric',
+                'min:0'
             ],
 
             'thumbnail' => [
                 'nullable',
                 'image',
                 'mimes:jpg,jpeg,png,webp',
+                'extensions:jpg,jpeg,png,webp',
                 'max:2048'
             ],
 
@@ -54,6 +57,7 @@ class UpdateProductRequest
             'gallery.*' => [
                 'image',
                 'mimes:jpg,jpeg,png,webp',
+                'extensions:jpg,jpeg,png,webp',
                 'max:2048',
             ],
 

@@ -1,0 +1,7 @@
+@import "./frontend-theme.css";
+@import "./frontend-home.css";
+@import "./frontend-products.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;

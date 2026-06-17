@@ -1,4 +1,25 @@
-<div class=" border-slate-200 bg-white p-5 shadow-sm">
+<div class="admin-card">
+    <div class="admin-card-header">
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+                <h3 class="text-lg font-extrabold text-slate-900">
+                    Product FAQs
+                </h3>
+
+                <p class="mt-1 text-sm leading-6 text-slate-500">
+                    Manage common guest questions for this product.
+                </p>
+            </div>
+
+            @if(isset($product) && $product->exists)
+                <span class="admin-badge-info w-fit">
+                    {{ $product->faqs->count() }} item(s)
+                </span>
+            @endif
+        </div>
+    </div>
+
+    <div class="admin-card-body">
 
     @if(!isset($product) || !$product->exists)
 
@@ -18,46 +39,55 @@
         <form
             method="POST"
             action="{{ route('admin.products.faqs.store', $product) }}"
-            class="rounded-2xl border border-slate-200 bg-slate-50 p-4"
+            class="admin-form-card space-y-5"
             data-preserve-scroll
         >
             @csrf
 
-            <div class="grid grid-cols-1 md:grid-cols-12 gap-3">
+            <div>
+                <h4 class="text-base font-extrabold text-slate-900">
+                    Add FAQ
+                </h4>
+                <p class="mt-1 text-sm text-slate-500">
+                    Add short answers guests can scan before booking.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 gap-5 lg:grid-cols-12">
 
                 <div class="md:col-span-7">
-                    <label class="form-label">Question</label>
+                    <label class="admin-form-label">Question</label>
                     <input
                         type="text"
                         name="question"
-                        class="form-input"
+                        class="admin-input"
                         placeholder="Example: Is hotel pickup included?"
                         required
                     >
                 </div>
 
-                <div class="md:col-span-2">
-                    <label class="form-label">Sort</label>
+                <div class="md:col-span-5 lg:col-span-2">
+                    <label class="admin-form-label">Sort</label>
                     <input
                         type="number"
                         name="sort_order"
-                        class="form-input"
+                        class="admin-input"
                         value="0"
                     >
                 </div>
 
-                <div class="md:col-span-3 flex items-end">
-                    <button type="submit" class="btn-primary w-full">
+                <div class="md:col-span-12 lg:col-span-3 flex items-end">
+                    <button type="submit" class="admin-btn-primary w-full">
                         Add FAQ
                     </button>
                 </div>
 
                 <div class="md:col-span-12">
-                    <label class="form-label">Answer</label>
+                    <label class="admin-form-label">Answer</label>
                     <textarea
                         name="answer"
                         rows="2"
-                        class="form-textarea resize-y min-h-[80px]"
+                        class="admin-textarea min-h-[96px]"
                         placeholder="Example: Yes, hotel pickup is included."
                         required
                     ></textarea>
@@ -66,7 +96,7 @@
             </div>
         </form>
 
-        <div class="my-5 flex items-center justify-between">
+        <div class="my-6 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <h3 class="font-semibold text-slate-800">
                 FAQ List
             </h3>
@@ -81,9 +111,9 @@
 
             @forelse($product->faqs as $faq)
 
-            <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm hover:shadow-md transition">
+            <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
 
-                <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+                <div class="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
 
                     <div class="flex-1 min-w-0">
                         <div class="flex items-center gap-2 mb-2">
@@ -104,7 +134,7 @@
                     <div class="flex shrink-0 flex-col gap-2 sm:flex-row">
                         <button
                             type="button"
-                            class="btn-secondary"
+                            class="admin-btn-secondary w-full sm:w-auto"
                             data-modal-open="edit-faq-{{ $faq->id }}"
                         >
                             Edit
@@ -120,7 +150,7 @@
 
                             <button
                                 type="submit"
-                                class="rounded-xl border border-red-200 px-4 py-2 text-sm font-semibold text-red-600 hover:bg-red-50 transition"
+                                class="admin-btn-danger w-full sm:w-auto"
                                 onclick="return confirm('Delete FAQ?')"
                             >
                                 Delete
@@ -158,46 +188,46 @@
                                 @method('PUT')
 
                                 <div>
-                                    <label class="form-label">Question</label>
+                                    <label class="admin-form-label">Question</label>
                                     <input
                                         type="text"
                                         name="question"
                                         value="{{ $faq->question }}"
-                                        class="form-input"
+                                        class="admin-input"
                                         required
                                     >
                                 </div>
 
                                 <div>
-                                    <label class="form-label">Answer</label>
+                                    <label class="admin-form-label">Answer</label>
                                     <textarea
                                         name="answer"
                                         rows="4"
-                                        class="form-textarea"
+                                        class="admin-textarea"
                                         required
                                     >{{ $faq->answer }}</textarea>
                                 </div>
 
                                 <div>
-                                    <label class="form-label">Sort Order</label>
+                                    <label class="admin-form-label">Sort Order</label>
                                     <input
                                         type="number"
                                         name="sort_order"
                                         value="{{ $faq->sort_order }}"
-                                        class="form-input"
+                                        class="admin-input"
                                     >
                                 </div>
 
-                                <div class="flex justify-end gap-3">
+                                <div class="flex flex-col gap-3 sm:flex-row sm:justify-end">
                                     <button
                                         type="button"
-                                        class="btn-secondary"
+                                        class="admin-btn-secondary"
                                         data-modal-close
                                     >
                                         Cancel
                                     </button>
 
-                                    <button type="submit" class="btn-primary">
+                                    <button type="submit" class="admin-btn-primary">
                                         Save Changes
                                     </button>
                                 </div>
@@ -211,10 +241,8 @@
 
         @empty
 
-            <div class="rounded-2xl border border-dashed border-slate-300 bg-slate-50 py-8 text-center">
-                <p class="text-sm text-slate-400">
-                    No FAQ yet.
-                </p>
+            <div class="admin-empty-state">
+                No FAQ yet.
             </div>
 
         @endforelse
@@ -223,4 +251,5 @@
 
     @endif
 
+    </div>
 </div>

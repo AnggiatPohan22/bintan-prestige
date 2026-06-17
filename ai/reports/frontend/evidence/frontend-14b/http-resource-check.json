@@ -1,0 +1,60 @@
+{
+    "generated_at":  "2026-06-14T18:30:16.9424269+08:00",
+    "method":  "HEAD checks for stylesheet/script/img/icon resources on /products",
+    "checks":  [
+                   {
+                       "url":  "http://127.0.0.1:8000/storage/site-assets/sitefavicon/733ef60f-e8a0-4143-8568-3853c235a0b3.png",
+                       "status":  200,
+                       "content_type":  "image/png",
+                       "scope":  "local"
+                   },
+                   {
+                       "url":  "http://[::1]:5173/resources/css/frontend.css",
+                       "status":  200,
+                       "content_type":  "text/javascript",
+                       "scope":  "local"
+                   },
+                   {
+                       "url":  "http://[::1]:5173/@vite/client",
+                       "status":  200,
+                       "content_type":  "text/javascript",
+                       "scope":  "local"
+                   },
+                   {
+                       "url":  "http://[::1]:5173/resources/js/app.js",
+                       "status":  200,
+                       "content_type":  "text/javascript",
+                       "scope":  "local"
+                   },
+                   {
+                       "url":  "http://127.0.0.1:8000/storage/site-assets/sitelogodark/4d14e2c8-531b-424d-8942-fa425c916348.png",
+                       "status":  200,
+                       "content_type":  "image/png",
+                       "scope":  "local"
+                   },
+                   {
+                       "url":  "http://127.0.0.1:8000/storage/products/43ecd83a-4db2-4559-9077-c67fe8d9bcf8.webp",
+                       "status":  200,
+                       "content_type":  "image/webp",
+                       "scope":  "local"
+                   },
+                   {
+                       "url":  "http://127.0.0.1:8000/storage/products/acd991ea-fbc0-4de2-ba9f-4b6730250373.webp",
+                       "status":  200,
+                       "content_type":  "image/webp",
+                       "scope":  "local"
+                   },
+                   {
+                       "url":  "http://127.0.0.1:8000/storage/site-assets/default-mediasection/f35f8a73-d9ae-4dc5-bfa7-c2a2db65b95e.jpg",
+                       "status":  200,
+                       "content_type":  "image/jpeg",
+                       "scope":  "local"
+                   },
+                   {
+                       "url":  "http://127.0.0.1:8000/storage/site-assets/sitelogolight/c14c2959-c573-4b5e-96d9-2de38222fa76.png",
+                       "status":  200,
+                       "content_type":  "image/png",
+                       "scope":  "local"
+                   }
+               ]
+}

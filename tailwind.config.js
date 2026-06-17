@@ -12,7 +12,15 @@ export default {
     theme: {
         extend: {
             fontFamily: {
-                sans: ['Figtree', ...defaultTheme.fontFamily.sans],
+                title: ['Forum', 'Georgia', 'Times New Roman', 'serif'],
+                body: ['Montserrat', ...defaultTheme.fontFamily.sans],
+                sans: ['Montserrat', ...defaultTheme.fontFamily.sans],
+            },
+            fontSize: {
+                'frontend-hero': ['clamp(3.5rem, 10vw, 9.75rem)', { lineHeight: '0.92', letterSpacing: '0' }],
+                'frontend-section': ['clamp(2rem, 4vw, 3.25rem)', { lineHeight: '1.08', letterSpacing: '0' }],
+                'frontend-card': ['clamp(1.125rem, 1.8vw, 1.5rem)', { lineHeight: '1.2', letterSpacing: '0' }],
+                'frontend-body': ['1rem', { lineHeight: '1.75', letterSpacing: '0' }],
             },
         },
     },

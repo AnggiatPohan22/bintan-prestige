@@ -234,6 +234,36 @@ class Product extends Model
     }
     // End of scopes published products
 
+    // Scope public listing visibility without changing admin queries
+    public function scopePubliclyVisible($query)
+    {
+        return $query
+            ->published()
+            ->whereHas('category', function ($categoryQuery) {
+                $categoryQuery
+                    ->whereNull('categories.deleted_at')
+                    ->where('is_active', true);
+            })
+            ->whereHas('destination', function ($destinationQuery) {
+                $destinationQuery
+                    ->whereNull('destinations.deleted_at')
+                    ->where('is_active', true);
+            });
+    }
+    // End of scope public listing visibility
+
+    // Scope for frontend listing cards with only relations used by the card
+    public function scopeFrontendListingReady($query)
+    {
+        return $query->with([
+            'category',
+            'destination',
+            'prices',
+            'images',
+        ]);
+    }
+    // End of scope for frontend listing card eager loading
+
     // Scope for frontend ready products with eager loading
     public function scopeFrontendReady($query)
     {

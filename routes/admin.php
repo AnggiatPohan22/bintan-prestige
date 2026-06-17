@@ -3,15 +3,19 @@
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DestinationController;
+use App\Http\Controllers\Admin\FaqController;
+use App\Http\Controllers\Admin\PageSectionController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\ProductFaqController;
 use App\Http\Controllers\Admin\ProductFeatureController;
 use App\Http\Controllers\Admin\ProductHighlightController;
 use App\Http\Controllers\Admin\ProductItineraryController;
 use App\Http\Controllers\Admin\ProductNoteController;
+use App\Http\Controllers\Admin\SiteSettingController;
+use App\Http\Controllers\Admin\UserManagementController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware(['auth'])
+Route::middleware(['auth', 'admin'])
     ->prefix('admin')
     ->name('admin.')
     ->group(function () {
@@ -25,6 +29,107 @@ Route::middleware(['auth'])
             DashboardController::class,
             'index'
         ])->name('dashboard');
+
+        Route::middleware('can:manage-users')
+            ->prefix('users')
+            ->name('users.')
+            ->group(function () {
+                Route::get('/', [UserManagementController::class, 'index'])
+                    ->name('index');
+
+                Route::get('/create', [UserManagementController::class, 'create'])
+                    ->name('create');
+
+                Route::post('/', [UserManagementController::class, 'store'])
+                    ->name('store');
+
+                Route::get('/{user}/edit', [UserManagementController::class, 'edit'])
+                    ->name('edit');
+
+                Route::put('/{user}', [UserManagementController::class, 'update'])
+                    ->name('update');
+
+                Route::patch('/{user}/deactivate', [UserManagementController::class, 'deactivate'])
+                    ->name('deactivate');
+            });
+
+        Route::get('settings/global-assets', [SiteSettingController::class, 'edit'])
+            ->name('settings.global-assets.edit');
+
+        Route::put('settings/global-assets/site-logo', [SiteSettingController::class, 'update'])
+            ->name('settings.global-assets.site-logo.update');
+
+        Route::delete('settings/global-assets/site-logo/{variant}', [SiteSettingController::class, 'destroyLogo'])
+            ->name('settings.global-assets.site-logo.destroy');
+
+        Route::put('settings/global-assets/favicon', [SiteSettingController::class, 'updateFavicon'])
+            ->name('settings.global-assets.favicon.update');
+
+        Route::delete('settings/global-assets/favicon', [SiteSettingController::class, 'destroyFavicon'])
+            ->name('settings.global-assets.favicon.destroy');
+
+        Route::put('settings/global-assets/brand-colors', [SiteSettingController::class, 'updateBrandColors'])
+            ->name('settings.global-assets.brand-colors.update');
+
+        Route::put('settings/global-assets/social-share-image', [SiteSettingController::class, 'updateSocialShareImage'])
+            ->name('settings.global-assets.social-share-image.update');
+
+        Route::delete('settings/global-assets/social-share-image', [SiteSettingController::class, 'destroySocialShareImage'])
+            ->name('settings.global-assets.social-share-image.destroy');
+
+        Route::put('settings/global-assets/business-identity', [SiteSettingController::class, 'updateBusinessIdentity'])
+            ->name('settings.global-assets.business-identity.update');
+
+        Route::put('settings/global-assets/contact-information', [SiteSettingController::class, 'updateContactInformation'])
+            ->name('settings.global-assets.contact-information.update');
+
+        Route::put('settings/global-assets/social-media-links', [SiteSettingController::class, 'updateSocialMediaLinks'])
+            ->name('settings.global-assets.social-media-links.update');
+
+        Route::put('settings/global-assets/navigation-settings', [SiteSettingController::class, 'updateNavigationSettings'])
+            ->name('settings.global-assets.navigation-settings.update');
+
+        Route::put('settings/global-assets/footer-settings', [SiteSettingController::class, 'updateFooterSettings'])
+            ->name('settings.global-assets.footer-settings.update');
+
+        Route::put('settings/global-assets/seo-default', [SiteSettingController::class, 'updateSeoDefaultSettings'])
+            ->name('settings.global-assets.seo-default.update');
+
+        Route::delete('settings/global-assets/seo-default/og-image', [SiteSettingController::class, 'destroySeoDefaultOgImage'])
+            ->name('settings.global-assets.seo-default.og-image.destroy');
+
+        Route::put('settings/global-assets/tracking-integrations', [SiteSettingController::class, 'updateTrackingIntegrations'])
+            ->name('settings.global-assets.tracking-integrations.update');
+
+        Route::put('settings/global-assets/booking-cta', [SiteSettingController::class, 'updateBookingCtaSettings'])
+            ->name('settings.global-assets.booking-cta.update');
+
+        Route::put('settings/global-assets/default-media', [SiteSettingController::class, 'updateDefaultMediaAssets'])
+            ->name('settings.global-assets.default-media.update');
+
+        Route::delete('settings/global-assets/default-media/{variant}', [SiteSettingController::class, 'destroyDefaultMediaAsset'])
+            ->name('settings.global-assets.default-media.destroy');
+
+        Route::put('settings/global-assets/structured-data', [SiteSettingController::class, 'updateStructuredDataSettings'])
+            ->name('settings.global-assets.structured-data.update');
+
+        Route::get('page-sections', [PageSectionController::class, 'index'])
+            ->name('page-sections.index');
+
+        Route::get('page-sections/sections', [PageSectionController::class, 'sections'])
+            ->name('page-sections.sections');
+
+        Route::get('page-sections/{pageSection}/edit', [PageSectionController::class, 'edit'])
+            ->name('page-sections.edit');
+
+        Route::put('page-sections/{pageSection}', [PageSectionController::class, 'update'])
+            ->name('page-sections.update');
+
+        Route::delete('page-section-media/{media}', [PageSectionController::class, 'destroyMedia'])
+            ->name('page-sections.media.destroy');
+
+        Route::resource('faqs', FaqController::class)
+            ->except(['show']);
 
         /*
         |--------------------------------------------------------------------------

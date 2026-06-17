@@ -1,0 +1,96 @@
+{
+    "generated_at":  "2026-06-14T18:30:54.4626193+08:00",
+    "method":  "curl.exe localhost time_total, not production benchmark",
+    "results":  [
+                    {
+                        "path":  "/products",
+                        "run":  1,
+                        "status":  "200",
+                        "seconds":  0.797008
+                    },
+                    {
+                        "path":  "/products",
+                        "run":  2,
+                        "status":  "200",
+                        "seconds":  0.821182
+                    },
+                    {
+                        "path":  "/products",
+                        "run":  3,
+                        "status":  "200",
+                        "seconds":  0.804818
+                    },
+                    {
+                        "path":  "/products?page=2",
+                        "run":  1,
+                        "status":  "200",
+                        "seconds":  0.796074
+                    },
+                    {
+                        "path":  "/products?page=2",
+                        "run":  2,
+                        "status":  "200",
+                        "seconds":  0.797294
+                    },
+                    {
+                        "path":  "/products?page=2",
+                        "run":  3,
+                        "status":  "200",
+                        "seconds":  0.832217
+                    },
+                    {
+                        "path":  "/products?category%5B%5D=2",
+                        "run":  1,
+                        "status":  "200",
+                        "seconds":  0.81999
+                    },
+                    {
+                        "path":  "/products?category%5B%5D=2",
+                        "run":  2,
+                        "status":  "200",
+                        "seconds":  0.749504
+                    },
+                    {
+                        "path":  "/products?category%5B%5D=2",
+                        "run":  3,
+                        "status":  "200",
+                        "seconds":  0.774373
+                    },
+                    {
+                        "path":  "/products?sort=price_low",
+                        "run":  1,
+                        "status":  "200",
+                        "seconds":  0.796462
+                    },
+                    {
+                        "path":  "/products?sort=price_low",
+                        "run":  2,
+                        "status":  "200",
+                        "seconds":  0.811667
+                    },
+                    {
+                        "path":  "/products?sort=price_low",
+                        "run":  3,
+                        "status":  "200",
+                        "seconds":  0.834959
+                    },
+                    {
+                        "path":  "/products?min_price=999999999",
+                        "run":  1,
+                        "status":  "200",
+                        "seconds":  0.74156
+                    },
+                    {
+                        "path":  "/products?min_price=999999999",
+                        "run":  2,
+                        "status":  "200",
+                        "seconds":  0.755204
+                    },
+                    {
+                        "path":  "/products?min_price=999999999",
+                        "run":  3,
+                        "status":  "200",
+                        "seconds":  0.750767
+                    }
+                ]
+}

@@ -11,21 +11,26 @@
     />
     <title>{{ config('app.name') }}</title>
 
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-</head>
-<body class="bg-gray-100">
+    @include('partials.site-favicon')
 
-<div class="flex min-h-screen">
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+    @include('partials.site-brand-colors')
+</head>
+<body class="admin-body">
+
+<div class="admin-shell">
 
     {{-- Sidebar --}}
     @include('backend.partials.sidebar')
 
-    <div class="flex-1">
+    <div class="admin-shell__workspace">
 
         {{-- Navbar --}}
         @include('backend.partials.navbar')
 
-        <main class="p-6">
+        <main class="admin-shell__main">
+            <div class="admin-shell__content">
             
             {{-- Flash Alert --}}
             <x-flash-alert />
@@ -34,6 +39,8 @@
             <x-confirm-modal />
 
             @yield('content')
+
+            </div>
         </main>
 
     </div>

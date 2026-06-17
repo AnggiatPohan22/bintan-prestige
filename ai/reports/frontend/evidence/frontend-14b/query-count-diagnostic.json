@@ -1,0 +1,162 @@
+{
+    "generated_at": "2026-06-14T10:26:13+00:00",
+    "method": "temporary feature test with DB query log",
+    "dataset": {
+        "public_products": 13,
+        "first_product": "Diagnostic Tour 01"
+    },
+    "measurements": [
+        {
+            "label": "base_1_product",
+            "url": "http://localhost/products",
+            "product_count": 1,
+            "query_count": 18,
+            "duplicate_patterns": {
+                "select count(*) as \"aggregate\" from \"products\" where \"status\" = ? and exists (select * from \"categories\" where \"products\".\"category_id\" = \"categories\".\"id\" and \"categories\".\"deleted_at\" is null and \"is_active\" = ?) and exists (select * from \"destinations\" where \"products\".\"destination_id\" = \"destinations\".\"id\" and \"destinations\".\"deleted_at\" is null and \"is_active\" = ?)": 2,
+                "select * from \"page_sections\" where \"page_key\" = ? and \"section_key\" in (?, ?, ?, ?) and \"is_active\" = ?": 1,
+                "select * from \"categories\" where \"is_active\" = ? and \"categories\".\"deleted_at\" is null order by \"name\" asc": 1,
+                "select * from \"destinations\" where \"is_active\" = ? and \"destinations\".\"deleted_at\" is null order by \"name\" asc": 1,
+                "select distinct \"duration\" from \"products\" where \"status\" = ? and exists (select * from \"categories\" where \"products\".\"category_id\" = \"categories\".\"id\" and \"categories\".\"deleted_at\" is null and \"is_active\" = ?) and exists (select * from \"destinations\" where \"products\".\"destination_id\" = \"destinations\".\"id\" and \"destinations\".\"deleted_at\" is null and \"is_active\" = ?) and \"duration\" is not null and \"duration\" != ? order by \"duration\" asc": 1,
+                "select distinct \"pickup_type\" from \"products\" where \"status\" = ? and exists (select * from \"categories\" where \"products\".\"category_id\" = \"categories\".\"id\" and \"categories\".\"deleted_at\" is null and \"is_active\" = ?) and exists (select * from \"destinations\" where \"products\".\"destination_id\" = \"destinations\".\"id\" and \"destinations\".\"deleted_at\" is null and \"is_active\" = ?) and \"pickup_type\" is not null and \"pickup_type\" != ? order by \"pickup_type\" asc": 1
+            },
+            "contains_product_relation_eager_loads": [
+                "select \"products\".*, (select min(\"product_prices\".\"price\") from \"product_prices\" where \"products\".\"id\" = \"product_prices\".\"product_id\" and \"currency\" = ?) as \"idr_price_sort\" from \"products\" where \"status\" = ? and exists (select * from \"categories\" where \"products\".\"category_id\" = \"categories\".\"id\" and \"categories\".\"deleted_at\" is null and \"is_active\" = ?) and exists (select * from \"destinations\" where \"products\".\"destination_id\" = \"destinations\".\"id\" and \"destinations\".\"deleted_at\" is null and \"is_active\" = ?) order by \"products\".\"created_at\" desc, \"products\".\"id\" desc limit 9 offset 0",
+                "select * from \"product_prices\" where \"product_prices\".\"product_id\" in (1)",
+                "select * from \"product_images\" where \"product_images\".\"product_id\" in (1)",
+                "select min(\"price\") as \"aggregate\" from \"product_prices\" where \"currency\" = ? and exists (select * from \"products\" where \"product_prices\".\"product_id\" = \"products\".\"id\" and \"status\" = ? and exists (select * from \"categories\" where \"products\".\"category_id\" = \"categories\".\"id\" and \"categories\".\"deleted_at\" is null and \"is_active\" = ?) and exists (select * from \"destinations\" where \"products\".\"destination_id\" = \"destinations\".\"id\" and \"destinations\".\"deleted_at\" is null and \"is_active\" = ?))",
+                "select max(\"price\") as \"aggregate\" from \"product_prices\" where \"currency\" = ? and exists (select * from \"products\" where \"product_prices\".\"product_id\" = \"products\".\"id\" and \"status\" = ? and exists (select * from \"categories\" where \"products\".\"category_id\" = \"categories\".\"id\" and \"categories\".\"deleted_at\" is null and \"is_active\" = ?) and exists (select * from \"destinations\" where \"products\".\"destination_id\" = \"destinations\".\"id\" and \"destinations\".\"deleted_at\" is null and \"is_active\" = ?))"
+            ]
+        },
+        {
+            "label": "base_9_products_first_page",
+            "url": "http://localhost/products",
+            "product_count": 13,
+            "query_count": 14,
+            "duplicate_patterns": {
+                "select count(*) as \"aggregate\" from \"products\" where \"status\" = ? and exists (select * from \"categories\" where \"products\".\"category_id\" = \"categories\".\"id\" and \"categories\".\"deleted_at\" is null and \"is_active\" = ?) and exists (select * from \"destinations\" where \"products\".\"destination_id\" = \"destinations\".\"id\" and \"destinations\".\"deleted_at\" is null and \"is_active\" = ?)": 2,
+                "select * from \"page_sections\" where \"page_key\" = ? and \"section_key\" in (?, ?, ?, ?) and \"is_active\" = ?": 1,
+                "select * from \"categories\" where \"is_active\" = ? and \"categories\".\"deleted_at\" is null order by \"name\" asc": 1,
+                "select * from \"destinations\" where \"is_active\" = ? and \"destinations\".\"deleted_at\" is null order by \"name\" asc": 1,
+                "select distinct \"duration\" from \"products\" where \"status\" = ? and exists (select * from \"categories\" where \"products\".\"category_id\" = \"categories\".\"id\" and \"categories\".\"deleted_at\" is null and \"is_active\" = ?) and exists (select * from \"destinations\" where \"products\".\"destination_id\" = \"destinations\".\"id\" and \"destinations\".\"deleted_at\" is null and \"is_active\" = ?) and \"duration\" is not null and \"duration\" != ? order by \"duration\" asc": 1,
+                "select distinct \"pickup_type\" from \"products\" where \"status\" = ? and exists (select * from \"categories\" where \"products\".\"category_id\" = \"categories\".\"id\" and \"categories\".\"deleted_at\" is null and \"is_active\" = ?) and exists (select * from \"destinations\" where \"products\".\"destination_id\" = \"destinations\".\"id\" and \"destinations\".\"deleted_at\" is null and \"is_active\" = ?) and \"pickup_type\" is not null and \"pickup_type\" != ? order by \"pickup_type\" asc": 1
+            },
+            "contains_product_relation_eager_loads": [
+                "select \"products\".*, (select min(\"product_prices\".\"price\") from \"product_prices\" where \"products\".\"id\" = \"product_prices\".\"product_id\" and \"currency\" = ?) as \"idr_price_sort\" from \"products\" where \"status\" = ? and exists (select * from \"categories\" where \"products\".\"category_id\" = \"categories\".\"id\" and \"categories\".\"deleted_at\" is null and \"is_active\" = ?) and exists (select * from \"destinations\" where \"products\".\"destination_id\" = \"destinations\".\"id\" and \"destinations\".\"deleted_at\" is null and \"is_active\" = ?) order by \"products\".\"created_at\" desc, \"products\".\"id\" desc limit 9 offset 0",
+                "select * from \"product_prices\" where \"product_prices\".\"product_id\" in (1, 6, 7, 8, 9, 10, 11, 12, 13)",
+                "select * from \"product_images\" where \"product_images\".\"product_id\" in (1, 6, 7, 8, 9, 10, 11, 12, 13)",
+                "select min(\"price\") as \"aggregate\" from \"product_prices\" where \"currency\" = ? and exists (select * from \"products\" where \"product_prices\".\"product_id\" = \"products\".\"id\" and \"status\" = ? and exists (select * from \"categories\" where \"products\".\"category_id\" = \"categories\".\"id\" and \"categories\".\"deleted_at\" is null and \"is_active\" = ?) and exists (select * from \"destinations\" where \"products\".\"destination_id\" = \"destinations\".\"id\" and \"destinations\".\"deleted_at\" is null and \"is_active\" = ?))",
+                "select max(\"price\") as \"aggregate\" from \"product_prices\" where \"currency\" = ? and exists (select * from \"products\" where \"product_prices\".\"product_id\" = \"products\".\"id\" and \"status\" = ? and exists (select * from \"categories\" where \"products\".\"category_id\" = \"categories\".\"id\" and \"categories\".\"deleted_at\" is null and \"is_active\" = ?) and exists (select * from \"destinations\" where \"products\".\"destination_id\" = \"destinations\".\"id\" and \"destinations\".\"deleted_at\" is null and \"is_active\" = ?))"
+            ]
+        },
+        {
+            "label": "page_2",
+            "url": "http://localhost/products?page=2",
+            "product_count": 13,
+            "query_count": 14,
+            "duplicate_patterns": {
+                "select count(*) as \"aggregate\" from \"products\" where \"status\" = ? and exists (select * from \"categories\" where \"products\".\"category_id\" = \"categories\".\"id\" and \"categories\".\"deleted_at\" is null and \"is_active\" = ?) and exists (select * from \"destinations\" where \"products\".\"destination_id\" = \"destinations\".\"id\" and \"destinations\".\"deleted_at\" is null and \"is_active\" = ?)": 2,
+                "select * from \"page_sections\" where \"page_key\" = ? and \"section_key\" in (?, ?, ?, ?) and \"is_active\" = ?": 1,
+                "select * from \"categories\" where \"is_active\" = ? and \"categories\".\"deleted_at\" is null order by \"name\" asc": 1,
+                "select * from \"destinations\" where \"is_active\" = ? and \"destinations\".\"deleted_at\" is null order by \"name\" asc": 1,
+                "select distinct \"duration\" from \"products\" where \"status\" = ? and exists (select * from \"categories\" where \"products\".\"category_id\" = \"categories\".\"id\" and \"categories\".\"deleted_at\" is null and \"is_active\" = ?) and exists (select * from \"destinations\" where \"products\".\"destination_id\" = \"destinations\".\"id\" and \"destinations\".\"deleted_at\" is null and \"is_active\" = ?) and \"duration\" is not null and \"duration\" != ? order by \"duration\" asc": 1,
+                "select distinct \"pickup_type\" from \"products\" where \"status\" = ? and exists (select * from \"categories\" where \"products\".\"category_id\" = \"categories\".\"id\" and \"categories\".\"deleted_at\" is null and \"is_active\" = ?) and exists (select * from \"destinations\" where \"products\".\"destination_id\" = \"destinations\".\"id\" and \"destinations\".\"deleted_at\" is null and \"is_active\" = ?) and \"pickup_type\" is not null and \"pickup_type\" != ? order by \"pickup_type\" asc": 1
+            },
+            "contains_product_relation_eager_loads": [
+                "select \"products\".*, (select min(\"product_prices\".\"price\") from \"product_prices\" where \"products\".\"id\" = \"product_prices\".\"product_id\" and \"currency\" = ?) as \"idr_price_sort\" from \"products\" where \"status\" = ? and exists (select * from \"categories\" where \"products\".\"category_id\" = \"categories\".\"id\" and \"categories\".\"deleted_at\" is null and \"is_active\" = ?) and exists (select * from \"destinations\" where \"products\".\"destination_id\" = \"destinations\".\"id\" and \"destinations\".\"deleted_at\" is null and \"is_active\" = ?) order by \"products\".\"created_at\" desc, \"products\".\"id\" desc limit 9 offset 9",
+                "select * from \"product_prices\" where \"product_prices\".\"product_id\" in (2, 3, 4, 5)",
+                "select * from \"product_images\" where \"product_images\".\"product_id\" in (2, 3, 4, 5)",
+                "select min(\"price\") as \"aggregate\" from \"product_prices\" where \"currency\" = ? and exists (select * from \"products\" where \"product_prices\".\"product_id\" = \"products\".\"id\" and \"status\" = ? and exists (select * from \"categories\" where \"products\".\"category_id\" = \"categories\".\"id\" and \"categories\".\"deleted_at\" is null and \"is_active\" = ?) and exists (select * from \"destinations\" where \"products\".\"destination_id\" = \"destinations\".\"id\" and \"destinations\".\"deleted_at\" is null and \"is_active\" = ?))",
+                "select max(\"price\") as \"aggregate\" from \"product_prices\" where \"currency\" = ? and exists (select * from \"products\" where \"product_prices\".\"product_id\" = \"products\".\"id\" and \"status\" = ? and exists (select * from \"categories\" where \"products\".\"category_id\" = \"categories\".\"id\" and \"categories\".\"deleted_at\" is null and \"is_active\" = ?) and exists (select * from \"destinations\" where \"products\".\"destination_id\" = \"destinations\".\"id\" and \"destinations\".\"deleted_at\" is null and \"is_active\" = ?))"
+            ]
+        },
+        {
+            "label": "category_filter",
+            "url": "http://localhost/products?category%5B0%5D=1",
+            "product_count": 13,
+            "query_count": 14,
+            "duplicate_patterns": {
+                "select count(*) as \"aggregate\" from \"products\" where \"status\" = ? and exists (select * from \"categories\" where \"products\".\"category_id\" = \"categories\".\"id\" and \"categories\".\"deleted_at\" is null and \"is_active\" = ?) and exists (select * from \"destinations\" where \"products\".\"destination_id\" = \"destinations\".\"id\" and \"destinations\".\"deleted_at\" is null and \"is_active\" = ?) and \"category_id\" in (?)": 2,
+                "select * from \"page_sections\" where \"page_key\" = ? and \"section_key\" in (?, ?, ?, ?) and \"is_active\" = ?": 1,
+                "select * from \"categories\" where \"is_active\" = ? and \"categories\".\"deleted_at\" is null order by \"name\" asc": 1,
+                "select * from \"destinations\" where \"is_active\" = ? and \"destinations\".\"deleted_at\" is null order by \"name\" asc": 1,
+                "select distinct \"duration\" from \"products\" where \"status\" = ? and exists (select * from \"categories\" where \"products\".\"category_id\" = \"categories\".\"id\" and \"categories\".\"deleted_at\" is null and \"is_active\" = ?) and exists (select * from \"destinations\" where \"products\".\"destination_id\" = \"destinations\".\"id\" and \"destinations\".\"deleted_at\" is null and \"is_active\" = ?) and \"duration\" is not null and \"duration\" != ? order by \"duration\" asc": 1,
+                "select distinct \"pickup_type\" from \"products\" where \"status\" = ? and exists (select * from \"categories\" where \"products\".\"category_id\" = \"categories\".\"id\" and \"categories\".\"deleted_at\" is null and \"is_active\" = ?) and exists (select * from \"destinations\" where \"products\".\"destination_id\" = \"destinations\".\"id\" and \"destinations\".\"deleted_at\" is null and \"is_active\" = ?) and \"pickup_type\" is not null and \"pickup_type\" != ? order by \"pickup_type\" asc": 1
+            },
+            "contains_product_relation_eager_loads": [
+                "select \"products\".*, (select min(\"product_prices\".\"price\") from \"product_prices\" where \"products\".\"id\" = \"product_prices\".\"product_id\" and \"currency\" = ?) as \"idr_price_sort\" from \"products\" where \"status\" = ? and exists (select * from \"categories\" where \"products\".\"category_id\" = \"categories\".\"id\" and \"categories\".\"deleted_at\" is null and \"is_active\" = ?) and exists (select * from \"destinations\" where \"products\".\"destination_id\" = \"destinations\".\"id\" and \"destinations\".\"deleted_at\" is null and \"is_active\" = ?) and \"category_id\" in (?) order by \"products\".\"created_at\" desc, \"products\".\"id\" desc limit 9 offset 0",
+                "select * from \"product_prices\" where \"product_prices\".\"product_id\" in (1, 2, 4, 6, 8, 10, 12)",
+                "select * from \"product_images\" where \"product_images\".\"product_id\" in (1, 2, 4, 6, 8, 10, 12)",
+                "select min(\"price\") as \"aggregate\" from \"product_prices\" where \"currency\" = ? and exists (select * from \"products\" where \"product_prices\".\"product_id\" = \"products\".\"id\" and \"status\" = ? and exists (select * from \"categories\" where \"products\".\"category_id\" = \"categories\".\"id\" and \"categories\".\"deleted_at\" is null and \"is_active\" = ?) and exists (select * from \"destinations\" where \"products\".\"destination_id\" = \"destinations\".\"id\" and \"destinations\".\"deleted_at\" is null and \"is_active\" = ?))",
+                "select max(\"price\") as \"aggregate\" from \"product_prices\" where \"currency\" = ? and exists (select * from \"products\" where \"product_prices\".\"product_id\" = \"products\".\"id\" and \"status\" = ? and exists (select * from \"categories\" where \"products\".\"category_id\" = \"categories\".\"id\" and \"categories\".\"deleted_at\" is null and \"is_active\" = ?) and exists (select * from \"destinations\" where \"products\".\"destination_id\" = \"destinations\".\"id\" and \"destinations\".\"deleted_at\" is null and \"is_active\" = ?))"
+            ]
+        },
+        {
+            "label": "unsupported_search_parameter",
+            "url": "http://localhost/products?search=diagnostic",
+            "product_count": 13,
+            "query_count": 14,
+            "duplicate_patterns": {
+                "select count(*) as \"aggregate\" from \"products\" where \"status\" = ? and exists (select * from \"categories\" where \"products\".\"category_id\" = \"categories\".\"id\" and \"categories\".\"deleted_at\" is null and \"is_active\" = ?) and exists (select * from \"destinations\" where \"products\".\"destination_id\" = \"destinations\".\"id\" and \"destinations\".\"deleted_at\" is null and \"is_active\" = ?)": 2,
+                "select * from \"page_sections\" where \"page_key\" = ? and \"section_key\" in (?, ?, ?, ?) and \"is_active\" = ?": 1,
+                "select * from \"categories\" where \"is_active\" = ? and \"categories\".\"deleted_at\" is null order by \"name\" asc": 1,
+                "select * from \"destinations\" where \"is_active\" = ? and \"destinations\".\"deleted_at\" is null order by \"name\" asc": 1,
+                "select distinct \"duration\" from \"products\" where \"status\" = ? and exists (select * from \"categories\" where \"products\".\"category_id\" = \"categories\".\"id\" and \"categories\".\"deleted_at\" is null and \"is_active\" = ?) and exists (select * from \"destinations\" where \"products\".\"destination_id\" = \"destinations\".\"id\" and \"destinations\".\"deleted_at\" is null and \"is_active\" = ?) and \"duration\" is not null and \"duration\" != ? order by \"duration\" asc": 1,
+                "select distinct \"pickup_type\" from \"products\" where \"status\" = ? and exists (select * from \"categories\" where \"products\".\"category_id\" = \"categories\".\"id\" and \"categories\".\"deleted_at\" is null and \"is_active\" = ?) and exists (select * from \"destinations\" where \"products\".\"destination_id\" = \"destinations\".\"id\" and \"destinations\".\"deleted_at\" is null and \"is_active\" = ?) and \"pickup_type\" is not null and \"pickup_type\" != ? order by \"pickup_type\" asc": 1
+            },
+            "contains_product_relation_eager_loads": [
+                "select \"products\".*, (select min(\"product_prices\".\"price\") from \"product_prices\" where \"products\".\"id\" = \"product_prices\".\"product_id\" and \"currency\" = ?) as \"idr_price_sort\" from \"products\" where \"status\" = ? and exists (select * from \"categories\" where \"products\".\"category_id\" = \"categories\".\"id\" and \"categories\".\"deleted_at\" is null and \"is_active\" = ?) and exists (select * from \"destinations\" where \"products\".\"destination_id\" = \"destinations\".\"id\" and \"destinations\".\"deleted_at\" is null and \"is_active\" = ?) order by \"products\".\"created_at\" desc, \"products\".\"id\" desc limit 9 offset 0",
+                "select * from \"product_prices\" where \"product_prices\".\"product_id\" in (1, 6, 7, 8, 9, 10, 11, 12, 13)",
+                "select * from \"product_images\" where \"product_images\".\"product_id\" in (1, 6, 7, 8, 9, 10, 11, 12, 13)",
+                "select min(\"price\") as \"aggregate\" from \"product_prices\" where \"currency\" = ? and exists (select * from \"products\" where \"product_prices\".\"product_id\" = \"products\".\"id\" and \"status\" = ? and exists (select * from \"categories\" where \"products\".\"category_id\" = \"categories\".\"id\" and \"categories\".\"deleted_at\" is null and \"is_active\" = ?) and exists (select * from \"destinations\" where \"products\".\"destination_id\" = \"destinations\".\"id\" and \"destinations\".\"deleted_at\" is null and \"is_active\" = ?))",
+                "select max(\"price\") as \"aggregate\" from \"product_prices\" where \"currency\" = ? and exists (select * from \"products\" where \"product_prices\".\"product_id\" = \"products\".\"id\" and \"status\" = ? and exists (select * from \"categories\" where \"products\".\"category_id\" = \"categories\".\"id\" and \"categories\".\"deleted_at\" is null and \"is_active\" = ?) and exists (select * from \"destinations\" where \"products\".\"destination_id\" = \"destinations\".\"id\" and \"destinations\".\"deleted_at\" is null and \"is_active\" = ?))"
+            ]
+        },
+        {
+            "label": "price_sort_low",
+            "url": "http://localhost/products?sort=price_low",
+            "product_count": 13,
+            "query_count": 14,
+            "duplicate_patterns": {
+                "select count(*) as \"aggregate\" from \"products\" where \"status\" = ? and exists (select * from \"categories\" where \"products\".\"category_id\" = \"categories\".\"id\" and \"categories\".\"deleted_at\" is null and \"is_active\" = ?) and exists (select * from \"destinations\" where \"products\".\"destination_id\" = \"destinations\".\"id\" and \"destinations\".\"deleted_at\" is null and \"is_active\" = ?)": 2,
+                "select * from \"page_sections\" where \"page_key\" = ? and \"section_key\" in (?, ?, ?, ?) and \"is_active\" = ?": 1,
+                "select * from \"categories\" where \"is_active\" = ? and \"categories\".\"deleted_at\" is null order by \"name\" asc": 1,
+                "select * from \"destinations\" where \"is_active\" = ? and \"destinations\".\"deleted_at\" is null order by \"name\" asc": 1,
+                "select distinct \"duration\" from \"products\" where \"status\" = ? and exists (select * from \"categories\" where \"products\".\"category_id\" = \"categories\".\"id\" and \"categories\".\"deleted_at\" is null and \"is_active\" = ?) and exists (select * from \"destinations\" where \"products\".\"destination_id\" = \"destinations\".\"id\" and \"destinations\".\"deleted_at\" is null and \"is_active\" = ?) and \"duration\" is not null and \"duration\" != ? order by \"duration\" asc": 1,
+                "select distinct \"pickup_type\" from \"products\" where \"status\" = ? and exists (select * from \"categories\" where \"products\".\"category_id\" = \"categories\".\"id\" and \"categories\".\"deleted_at\" is null and \"is_active\" = ?) and exists (select * from \"destinations\" where \"products\".\"destination_id\" = \"destinations\".\"id\" and \"destinations\".\"deleted_at\" is null and \"is_active\" = ?) and \"pickup_type\" is not null and \"pickup_type\" != ? order by \"pickup_type\" asc": 1
+            },
+            "contains_product_relation_eager_loads": [
+                "select \"products\".*, (select min(\"product_prices\".\"price\") from \"product_prices\" where \"products\".\"id\" = \"product_prices\".\"product_id\" and \"currency\" = ?) as \"idr_price_sort\" from \"products\" where \"status\" = ? and exists (select * from \"categories\" where \"products\".\"category_id\" = \"categories\".\"id\" and \"categories\".\"deleted_at\" is null and \"is_active\" = ?) and exists (select * from \"destinations\" where \"products\".\"destination_id\" = \"destinations\".\"id\" and \"destinations\".\"deleted_at\" is null and \"is_active\" = ?) order by CASE WHEN idr_price_sort IS NULL THEN 1 ELSE 0 END, \"idr_price_sort\" asc, \"products\".\"created_at\" desc, \"products\".\"id\" desc limit 9 offset 0",
+                "select * from \"product_prices\" where \"product_prices\".\"product_id\" in (1, 2, 3, 4, 5, 6, 7, 8, 9)",
+                "select * from \"product_images\" where \"product_images\".\"product_id\" in (1, 2, 3, 4, 5, 6, 7, 8, 9)",
+                "select min(\"price\") as \"aggregate\" from \"product_prices\" where \"currency\" = ? and exists (select * from \"products\" where \"product_prices\".\"product_id\" = \"products\".\"id\" and \"status\" = ? and exists (select * from \"categories\" where \"products\".\"category_id\" = \"categories\".\"id\" and \"categories\".\"deleted_at\" is null and \"is_active\" = ?) and exists (select * from \"destinations\" where \"products\".\"destination_id\" = \"destinations\".\"id\" and \"destinations\".\"deleted_at\" is null and \"is_active\" = ?))",
+                "select max(\"price\") as \"aggregate\" from \"product_prices\" where \"currency\" = ? and exists (select * from \"products\" where \"product_prices\".\"product_id\" = \"products\".\"id\" and \"status\" = ? and exists (select * from \"categories\" where \"products\".\"category_id\" = \"categories\".\"id\" and \"categories\".\"deleted_at\" is null and \"is_active\" = ?) and exists (select * from \"destinations\" where \"products\".\"destination_id\" = \"destinations\".\"id\" and \"destinations\".\"deleted_at\" is null and \"is_active\" = ?))"
+            ]
+        },
+        {
+            "label": "empty_high_min_price",
+            "url": "http://localhost/products?min_price=999999999",
+            "product_count": 13,
+            "query_count": 9,
+            "duplicate_patterns": {
+                "select count(*) as \"aggregate\" from \"products\" where \"status\" = ? and exists (select * from \"categories\" where \"products\".\"category_id\" = \"categories\".\"id\" and \"categories\".\"deleted_at\" is null and \"is_active\" = ?) and exists (select * from \"destinations\" where \"products\".\"destination_id\" = \"destinations\".\"id\" and \"destinations\".\"deleted_at\" is null and \"is_active\" = ?) and exists (select * from \"product_prices\" where \"products\".\"id\" = \"product_prices\".\"product_id\" and \"currency\" = ? and \"price\" >= ?)": 2,
+                "select * from \"page_sections\" where \"page_key\" = ? and \"section_key\" in (?, ?, ?, ?) and \"is_active\" = ?": 1,
+                "select * from \"categories\" where \"is_active\" = ? and \"categories\".\"deleted_at\" is null order by \"name\" asc": 1,
+                "select * from \"destinations\" where \"is_active\" = ? and \"destinations\".\"deleted_at\" is null order by \"name\" asc": 1,
+                "select distinct \"duration\" from \"products\" where \"status\" = ? and exists (select * from \"categories\" where \"products\".\"category_id\" = \"categories\".\"id\" and \"categories\".\"deleted_at\" is null and \"is_active\" = ?) and exists (select * from \"destinations\" where \"products\".\"destination_id\" = \"destinations\".\"id\" and \"destinations\".\"deleted_at\" is null and \"is_active\" = ?) and \"duration\" is not null and \"duration\" != ? order by \"duration\" asc": 1,
+                "select distinct \"pickup_type\" from \"products\" where \"status\" = ? and exists (select * from \"categories\" where \"products\".\"category_id\" = \"categories\".\"id\" and \"categories\".\"deleted_at\" is null and \"is_active\" = ?) and exists (select * from \"destinations\" where \"products\".\"destination_id\" = \"destinations\".\"id\" and \"destinations\".\"deleted_at\" is null and \"is_active\" = ?) and \"pickup_type\" is not null and \"pickup_type\" != ? order by \"pickup_type\" asc": 1
+            },
+            "contains_product_relation_eager_loads": [
+                "select count(*) as \"aggregate\" from \"products\" where \"status\" = ? and exists (select * from \"categories\" where \"products\".\"category_id\" = \"categories\".\"id\" and \"categories\".\"deleted_at\" is null and \"is_active\" = ?) and exists (select * from \"destinations\" where \"products\".\"destination_id\" = \"destinations\".\"id\" and \"destinations\".\"deleted_at\" is null and \"is_active\" = ?) and exists (select * from \"product_prices\" where \"products\".\"id\" = \"product_prices\".\"product_id\" and \"currency\" = ? and \"price\" >= ?)",
+                "select count(*) as \"aggregate\" from \"products\" where \"status\" = ? and exists (select * from \"categories\" where \"products\".\"category_id\" = \"categories\".\"id\" and \"categories\".\"deleted_at\" is null and \"is_active\" = ?) and exists (select * from \"destinations\" where \"products\".\"destination_id\" = \"destinations\".\"id\" and \"destinations\".\"deleted_at\" is null and \"is_active\" = ?) and exists (select * from \"product_prices\" where \"products\".\"id\" = \"product_prices\".\"product_id\" and \"currency\" = ? and \"price\" >= ?)",
+                "select min(\"price\") as \"aggregate\" from \"product_prices\" where \"currency\" = ? and exists (select * from \"products\" where \"product_prices\".\"product_id\" = \"products\".\"id\" and \"status\" = ? and exists (select * from \"categories\" where \"products\".\"category_id\" = \"categories\".\"id\" and \"categories\".\"deleted_at\" is null and \"is_active\" = ?) and exists (select * from \"destinations\" where \"products\".\"destination_id\" = \"destinations\".\"id\" and \"destinations\".\"deleted_at\" is null and \"is_active\" = ?))",
+                "select max(\"price\") as \"aggregate\" from \"product_prices\" where \"currency\" = ? and exists (select * from \"products\" where \"product_prices\".\"product_id\" = \"products\".\"id\" and \"status\" = ? and exists (select * from \"categories\" where \"products\".\"category_id\" = \"categories\".\"id\" and \"categories\".\"deleted_at\" is null and \"is_active\" = ?) and exists (select * from \"destinations\" where \"products\".\"destination_id\" = \"destinations\".\"id\" and \"destinations\".\"deleted_at\" is null and \"is_active\" = ?))"
+            ]
+        }
+    ],
+    "n_plus_one_assessment": {
+        "base_1_product_query_count": 18,
+        "base_9_products_first_page_query_count": 14,
+        "query_count_delta": -4,
+        "indication": "No linear per-product query growth observed"
+    }
+}

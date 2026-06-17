@@ -7,71 +7,534 @@
     $errorClass = 'border-red-500 bg-red-50 focus:border-red-500 focus:ring-red-100 shadow-md shadow-red-100';
 @endphp
 
-<div class="bg-white rounded-xl shadow p-6">
+<div class="admin-page">
 
-    <div class="flex items-center justify-between mb-6">
+    <div class="admin-page-header">
+        <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
 
-        <div>
-            <h1 class="text-2xl font-bold">
-                {{ isset($product)
-                    ? 'Edit Product'
-                    : 'Create Product' }}
-            </h1>
+            <div>
+                <h1 class="admin-page-title">
+                    {{ isset($product)
+                        ? 'Edit Product'
+                        : 'Create Product' }}
+                </h1>
 
-            <p class="text-gray-500 text-sm mt-1">
-                {{ isset($product)
-                    ? 'Update product information'
-                    : 'Create a new product' }}
-            </p>
+                <p class="admin-page-subtitle">
+                    {{ isset($product)
+                        ? 'Update product information'
+                        : 'Create a new product' }}
+                </p>
+            </div>
+
+            <a href="{{ route('admin.products.index') }}"
+               class="admin-btn-secondary w-full sm:w-auto">
+                Back
+            </a>
+
         </div>
-
-        <a href="{{ route('admin.products.index') }}"
-           class="px-4 py-2 border rounded-lg hover:bg-gray-100 transition">
-            Cancel
-        </a>
-
     </div>
 
-    <form
-    action="{{ isset($product)
-        ? route('admin.products.update', $product)
-        : route('admin.products.store') }}"
-    method="POST"
-    enctype="multipart/form-data"
->
+    <div class="admin-form-card">
+        <form
+            action="{{ isset($product)
+                ? route('admin.products.update', $product)
+                : route('admin.products.store') }}"
+            method="POST"
+            enctype="multipart/form-data"
+        >
 
-    @csrf
+        @csrf
 
-    @isset($product)
-        @method('PUT')
-    @endisset
+        @isset($product)
+            @method('PUT')
+        @endisset
 
-    <div class="space-y-5">
+        <div class="space-y-6">
 
         {{-- PRODUCT INFO --}}
         <details
             id="product-info-section"
             open
-            class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden"
+            class="admin-card"
             data-product-accordion
         >
 
             <summary
-                class="cursor-pointer px-6 py-5 font-semibold text-slate-800 bg-slate-50 border-b"
+                class="cursor-pointer border-b border-slate-100 bg-slate-50 px-6 py-5"
             >
-                Product Information
+                <span class="block text-lg font-extrabold text-slate-900">
+                    Basic Information
+                </span>
+                <span class="mt-1 block text-sm leading-6 text-slate-500">
+                    Manage the primary product identity, booking context, and publishing state.
+                </span>
             </summary>
 
-            <div class="p-6">
+            <div class="admin-card-body space-y-8">
 
-                {{-- Product Info --}}
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <section>
+                    <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
+                        <div>
+                            <label class="admin-form-label">
+                                Product Name
+                                <span class="text-red-500">*</span>
+                            </label>
 
-                    @include(
-                    'backend.products.partials.products'
-                    )
+                            <input
+                                type="text"
+                                name="name"
+                                value="{{ old('name', $product->name ?? '') }}"
+                                placeholder="Enter product name"
+                                class="admin-input {{ $errors->has('name') ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : '' }}"
+                            >
 
-                </div>
+                            @error('name')
+                                <p class="form-error">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label class="admin-form-label">Slug</label>
+
+                            <input
+                                type="text"
+                                name="slug"
+                                value="{{ old('slug', $product->slug ?? '') }}"
+                                placeholder="Auto generate if empty"
+                                class="admin-input"
+                            >
+
+                            <p class="mt-2 text-xs text-slate-400">
+                                Optional. Leave empty to auto-generate from product name.
+                            </p>
+                        </div>
+
+                        <div>
+                            <label class="admin-form-label">
+                                Category
+                                <span class="text-red-500">*</span>
+                            </label>
+
+                            <select
+                                name="category_id"
+                                class="admin-select {{ $errors->has('category_id') ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : '' }}"
+                            >
+                                <option value="">Select Category</option>
+
+                                @foreach($categories as $category)
+                                    <option value="{{ $category->id }}"
+                                        @selected(old('category_id', $product->category_id ?? '') == $category->id)>
+                                        {{ $category->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="admin-form-label">
+                                Destination
+                                <span class="text-red-500">*</span>
+                            </label>
+
+                            <select
+                                name="destination_id"
+                                class="admin-select {{ $errors->has('destination_id') ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : '' }}"
+                            >
+                                <option value="">Select Destination</option>
+
+                                @foreach($destinations as $destination)
+                                    <option value="{{ $destination->id }}"
+                                        @selected(old('destination_id', $product->destination_id ?? '') == $destination->id)>
+                                        {{ $destination->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="admin-form-label">
+                                WhatsApp Number
+                                <span class="text-red-500">*</span>
+                            </label>
+
+                            <input
+                                type="text"
+                                name="whatsapp_number"
+                                value="{{ old('whatsapp_number', $product->whatsapp_number ?? '') }}"
+                                placeholder="628xxxxxxxx"
+                                class="admin-input {{ $errors->has('whatsapp_number') ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : '' }}"
+                            >
+
+                            <p class="mt-2 text-xs text-slate-400">
+                                Used for the booking CTA on the product page.
+                            </p>
+
+                            @error('whatsapp_number')
+                                <p class="form-error">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label class="admin-form-label">
+                                Duration
+                                <span class="text-red-500">*</span>
+                            </label>
+
+                            <input
+                                type="text"
+                                name="duration"
+                                value="{{ old('duration', $product->duration ?? '') }}"
+                                placeholder="Example: 3 hours / Full day"
+                                class="admin-input {{ $errors->has('duration') ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : '' }}"
+                            >
+
+                            <p class="mt-2 text-xs text-slate-400">
+                                Example: 3 hours, Half day, or Full day.
+                            </p>
+
+                            @error('duration')
+                                <p class="form-error">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div class="md:col-span-2">
+                            <label class="admin-form-label">
+                                Meeting Point
+                                <span class="text-red-500">*</span>
+                            </label>
+
+                            <input
+                                type="text"
+                                name="meeting_point"
+                                value="{{ old('meeting_point', $product->meeting_point ?? '') }}"
+                                placeholder="Enter meeting point"
+                                class="admin-input {{ $errors->has('meeting_point') ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : '' }}"
+                            >
+
+                            @error('meeting_point')
+                                <p class="form-error">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div class="md:col-span-2">
+                            <label class="admin-form-label">
+                                Short Description
+                                <span class="text-red-500">*</span>
+                            </label>
+
+                            <textarea
+                                name="short_description"
+                                rows="4"
+                                placeholder="Input short description"
+                                class="admin-textarea {{ $errors->has('short_description') ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : '' }}"
+                            >{{ old('short_description', $product->short_description ?? '') }}</textarea>
+
+                            @error('short_description')
+                                <p class="form-error">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div class="md:col-span-2">
+                            <label class="admin-form-label">
+                                Description
+                                <span class="text-red-500">*</span>
+                            </label>
+
+                            <textarea
+                                name="description"
+                                rows="5"
+                                class="admin-textarea {{ $errors->has('description') ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : '' }}"
+                                placeholder="Enter product description"
+                            >{{ old('description', $product->description ?? '') }}</textarea>
+
+                            @error('description')
+                                <p class="form-error">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label class="admin-form-label">
+                                Status
+                                <span class="text-red-500">*</span>
+                            </label>
+
+                            <select
+                                name="status"
+                                class="admin-select {{ $errors->has('status') ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : '' }}"
+                            >
+                                <option value="draft"
+                                    @selected(old('status', $product->status ?? 'draft') == 'draft')>
+                                    Draft
+                                </option>
+
+                                <option value="published"
+                                    @selected(old('status', $product->status ?? '') == 'published')>
+                                    Published
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="rounded-xl border border-slate-200 p-4 shadow-sm">
+                            <div class="flex items-center justify-between gap-4">
+                                <div>
+                                    <h4 class="font-semibold text-slate-700">
+                                        Featured Product
+                                    </h4>
+
+                                    <p class="text-sm text-slate-500">
+                                        Show on featured section.
+                                    </p>
+                                </div>
+
+                                <label class="inline-flex cursor-pointer">
+                                    <input
+                                        type="hidden"
+                                        name="is_featured"
+                                        value="0"
+                                    >
+
+                                    <input
+                                        type="checkbox"
+                                        name="is_featured"
+                                        value="1"
+                                        class="sr-only peer"
+                                        {{ old('is_featured', $product->is_featured ?? false) ? 'checked' : '' }}
+                                    >
+
+                                    <div class="relative h-6 w-12 rounded-full bg-slate-300
+                                        peer peer-checked:bg-indigo-600
+                                        after:absolute after:left-[2px]
+                                        after:top-[2px]
+                                        after:h-5 after:w-5
+                                        after:rounded-full after:bg-white
+                                        after:transition-all after:content-['']
+                                        peer-checked:after:translate-x-full">
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="admin-card">
+                    <div class="admin-card-header">
+                        <h3 class="text-lg font-extrabold text-slate-900">
+                            Pricing
+                        </h3>
+
+                        <p class="mt-1 text-sm leading-6 text-slate-500">
+                            Set product prices for local and international markets.
+                        </p>
+                    </div>
+
+                    <div class="admin-card-body grid grid-cols-1 gap-5 md:grid-cols-2">
+                        {{-- IDR Price --}}
+                        <div>
+                            <label class="admin-form-label">
+                                IDR Price
+                                <span class="text-red-500">*</span>
+                            </label>
+
+                            <input type="number"
+                                name="idr_price"
+                                value="{{ old(
+                                    'idr_price',
+                                    $product->idr_price ?? ''
+                                ) }}"
+                                placeholder="500000"
+                                class="admin-input {{ $errors->has('idr_price') ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : '' }}">
+
+                            <p class="mt-2 text-xs text-slate-400">
+                                Main local market price.
+                            </p>
+
+                            @error('idr_price')
+                                <p class="form-error">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        {{-- SGD Price --}}
+                        <div>
+                            <label class="admin-form-label">
+                                SGD Price
+                                <span class="text-red-500">*</span>
+                            </label>
+
+                            <input type="number"
+                                name="sgd_price"
+                                value="{{ old(
+                                    'sgd_price',
+                                    $product->sgd_price ?? ''
+                                ) }}"
+                                class="admin-input {{ $errors->has('sgd_price') ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : '' }}">
+
+                            <p class="mt-2 text-xs text-slate-400">
+                                Singapore/international market price.
+                            </p>
+
+                            @error('sgd_price')
+                                <p class="form-error">{{ $message }}</p>
+                            @enderror
+                        </div>
+                    </div>
+                </section>
+
+                <section class="admin-card">
+                    <div class="admin-card-header">
+                        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                            <div>
+                                <h3 class="text-lg font-extrabold text-slate-900">
+                                    Thumbnail Image
+                                </h3>
+
+                                <p class="mt-1 text-sm leading-6 text-slate-500">
+                                    Used as the main product card image.
+                                </p>
+                            </div>
+
+                            <span class="admin-badge-info w-fit">
+                                JPG, PNG, WEBP
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="admin-card-body">
+                        <div class="grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1fr)_220px]">
+                            <div>
+                                <label class="admin-form-label">
+                                    Thumbnail
+                                </label>
+
+                                <input type="file"
+                                    name="thumbnail"
+                                    class="admin-input {{ $errors->has('thumbnail') ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : '' }}">
+
+                                @error('thumbnail')
+                                    <p class="form-error">{{ $message }}</p>
+                                @enderror
+
+                                <div class="mt-3 space-y-1 text-xs leading-5 text-slate-400">
+                                    <p>Recommended size: 1200x800px or larger.</p>
+                                    <p>Leave thumbnail empty to auto-use first gallery image.</p>
+                                </div>
+                            </div>
+
+                            <div>
+                                @if(isset($product) && $product->thumbnail)
+                                    <div class="rounded-2xl border border-slate-200 bg-slate-50 p-3">
+                                        <img src="{{ asset('storage/'.$product->thumbnail) }}"
+                                            class="aspect-[3/2] w-full rounded-xl border border-slate-200 object-cover shadow-sm">
+
+                                        <button
+                                            type="submit"
+                                            form="delete-product-thumbnail"
+                                            class="mt-3 w-full rounded-lg border border-red-200 px-4 py-2 text-sm font-semibold text-red-600 hover:bg-red-50"
+                                            onclick="return confirm('Remove current thumbnail?')"
+                                        >
+                                            Remove Thumbnail
+                                        </button>
+                                    </div>
+                                @else
+                                    <div class="flex aspect-[3/2] w-full items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-slate-50 text-sm font-semibold text-slate-400">
+                                        No thumbnail
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="admin-card">
+                    <div class="admin-card-header">
+                        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                            <div>
+                                <h3 class="text-lg font-extrabold text-slate-900">
+                                    Product Gallery
+                                </h3>
+
+                                <p class="mt-1 text-sm leading-6 text-slate-500">
+                                    Upload supporting images for the product detail page.
+                                </p>
+                            </div>
+
+                            <span class="admin-badge-info w-fit">
+                                Max 10 images
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="admin-card-body space-y-6">
+                        <div>
+                            <label class="admin-form-label">
+                                Gallery Images
+                            </label>
+
+                            <input
+                                type="file"
+                                name="gallery[]"
+                                multiple
+                                class="admin-input">
+
+                            <div class="mt-3 space-y-1 text-xs leading-5 text-slate-400">
+                                <p>Maximum 10 gallery images.</p>
+                                <p>Recommended format: JPG, PNG, WEBP.</p>
+                                <p>Recommended size: 1200x800px or larger.</p>
+                            </div>
+                        </div>
+
+                        @if(isset($product) && $product->images->count())
+                            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                                @foreach($product->images as $image)
+                                    <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+                                        <img
+                                            src="{{ asset(
+                                                'storage/' .
+                                                $image->image
+                                            ) }}"
+                                            class="aspect-[16/9] w-full object-cover">
+
+                                        <div class="space-y-3 p-4">
+                                            <div>
+                                                <span class="text-xs font-semibold text-slate-400">
+                                                    Sort: {{ $image->sort_order ?? 0 }}
+                                                </span>
+                                            </div>
+
+                                            <div class="flex flex-col gap-2">
+                                                @if(($product->thumbnail ?? null) === $image->image)
+                                                    <div class="admin-btn-success w-full px-3 py-2">
+                                                        Current Thumbnail
+                                                    </div>
+                                                @else
+                                                    <button
+                                                        type="submit"
+                                                        form="set-thumbnail-{{ $image->id }}"
+                                                        class="admin-btn-soft w-full px-3 py-2"
+                                                    >
+                                                        Set as Thumbnail
+                                                    </button>
+                                                @endif
+
+                                                <button
+                                                    type="submit"
+                                                    form="delete-gallery-image-{{ $image->id }}"
+                                                    class="admin-btn-danger w-full px-3 py-2"
+                                                    onclick="return confirm('Delete this gallery image?')"
+                                                >
+                                                    Delete Image
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @else
+                            <div class="admin-empty-state">
+                                No gallery images yet.
+                            </div>
+                        @endif
+                    </div>
+                </section>
 
             </div>
 
@@ -80,12 +543,12 @@
 
         {{-- ACTION BUTTON --}}
         <div
-            class="pt-5 border-t flex items-center gap-3"
+            class="flex flex-col gap-3 border-t border-slate-100 pt-5 sm:flex-row sm:items-center"
         >
 
             <button
                 type="submit"
-                class="btn-primary"
+                class="admin-btn-primary w-full sm:w-auto"
             >
                 {{ isset($product)
                     ? 'Update Product'
@@ -94,7 +557,7 @@
 
             <a
                 href="{{ route('admin.products.index') }}"
-                class="btn-secondary"
+                class="admin-btn-secondary w-full sm:w-auto"
             >
                 Cancel
             </a>
@@ -103,7 +566,8 @@
 
     </div>
 
-    </form>
+        </form>
+    </div>
 
     @if(isset($product) && $product->exists)
         @foreach($product->images as $image)
@@ -223,17 +687,19 @@
                 ->count();
         @endphp
 
-        <div class="mt-8 border-t border-slate-200 pt-6">
-            <h2 class="text-xl font-bold text-slate-800">
-                Product Detail Content
-            </h2>
+        <div class="admin-card">
+            <div class="admin-card-header">
+                <h2 class="text-xl font-extrabold text-slate-900">
+                    Product Detail Content
+                </h2>
 
-            <p class="mt-1 text-sm text-slate-500">
-                Manage highlights, features, FAQs, itineraries, and notes for this product.
-            </p>
+                <p class="mt-1 text-sm text-slate-500">
+                    Manage highlights, features, FAQs, itineraries, and notes for this product.
+                </p>
+            </div>
         </div>
 
-        <div class="mt-6 grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
+        <div class="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
             <div class="rounded-2xl border border-slate-200 bg-slate-50 p-5">
                 <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                     <div>
@@ -401,7 +867,7 @@
                             Save these settings separately from the main product information.
                         </p>
 
-                        <button type="submit" class="btn-primary">
+                        <button type="submit" class="admin-btn-primary w-full sm:w-auto">
                             Save Search & Booking
                         </button>
                     </div>
@@ -411,7 +877,7 @@
 
     @else
 
-        <div class="mt-6 rounded-2xl border border-amber-200 bg-amber-50 p-5 shadow-sm">
+        <div class="rounded-2xl border border-amber-200 bg-amber-50 p-5 shadow-sm">
             <h2 class="font-semibold text-amber-800">
                 Save product first
             </h2>

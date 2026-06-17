@@ -1,58 +1,81 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Bintan Prestige
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Website Tour & Travel berbasis Laravel untuk mengelola dan menampilkan paket wisata, transport, destinasi, dan booking experience Bintan Prestige.
 
-## About Laravel
+## Branch Develop
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+Branch `develop` digunakan untuk pengembangan fitur terbaru sebelum masuk ke branch utama. Semua update berikutnya diarahkan ke `origin/develop` agar tidak mengganggu core yang sudah stabil di `main`.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Update Terbaru di Develop
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### Backend
 
-## Learning Laravel
+- Admin dashboard untuk pengelolaan produk, kategori, destinasi, dan konten pendukung.
+- CRUD produk dengan relasi kategori, destinasi, harga, gambar, thumbnail, highlight, fitur, itinerary, note, FAQ, dan CTA booking.
+- Toggle status publish dan featured product.
+- Soft delete, restore, dan force delete untuk kategori dan destinasi.
+- Struktur service layer untuk pengelolaan produk dan konten turunannya.
+- Route admin terpisah di `routes/admin.php`.
+- Route frontend terpisah di `routes/frontend.php`.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+### Frontend
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+- Homepage luxury travel dengan identitas visual Black & Gold.
+- Header frontend reusable dengan mode transparan, efek blur soft gold saat scroll, button `Plan Trip`, dan icon arrow modern.
+- Footer frontend reusable untuk semua halaman public.
+- Homepage section:
+  - Hero fullscreen dengan background dinamis yang siap dihubungkan ke upload backend.
+  - Floating booking/search form.
+  - Featured products.
+  - Categories.
+  - Destinations.
+  - Why Choose Us.
+  - FAQ preview.
+  - WhatsApp CTA.
+- Product listing responsive dengan 4 cards desktop, swipe horizontal di mobile, pagination, breadcrumb, filter modal, dan sort modal.
+- Product detail page dengan gallery, price/CTA, highlights, overview, features, itinerary, notes, FAQ, dan sticky booking card.
+- CSS frontend dipisah dari admin melalui `resources/css/frontend.css` agar halaman public tidak ikut load style admin.
+- JavaScript frontend dipisah di `resources/js/frontend.js` untuk behavior header dan pengembangan interaksi frontend berikutnya.
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+## Tech Stack
 
-## Agentic Development
+- Laravel 13
+- Blade
+- Tailwind CSS
+- Alpine.js
+- Vite
+- MySQL
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+## Development
+
+Install dependency:
 
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+composer install
+npm install
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+Build asset:
 
-## Contributing
+```bash
+npm run build
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Run development asset server:
 
-## Code of Conduct
+```bash
+npm run dev
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Run Laravel server:
 
-## Security Vulnerabilities
+```bash
+php artisan serve
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## Branch Workflow
 
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+1. Kerjakan update di branch `develop`.
+2. Commit perubahan dengan pesan yang jelas.
+3. Push ke `origin develop`.
+4. Merge ke `main` hanya jika fitur sudah stabil dan siap dipakai.
