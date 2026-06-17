@@ -1,33 +1,39 @@
-# Bintan Prestige CMS - AI Agent Master Rules
+# Bintan Prestige CMS — AI Agent Master Rules
 
-This project is an existing Laravel + TailwindCSS CMS for Bintan Prestige, a travel, taxi, hotel, activity, and destination website.
+This file is the master rule for all AI agents working on this project,
+including Claude, Codex, Qwen, Gemini, Cursor, and any local AI assistant.
 
-This file is the master rule for all AI agents working on this project, including Codex, Qwen, Claude, Gemini, Cursor, and any local AI assistant.
-
-The AI must protect the existing project, follow Laravel conventions, improve the CMS safely, update documentation, and never rewrite the project without explicit approval.
-
----
-
-## 1. Project Identity
-
-Project Name: Bintan Prestige CMS
-Stack: Laravel + TailwindCSS + MySQL
-Architecture: Laravel MVC
-Frontend: Public travel website
-Backend: Admin dashboard / CMS
-Primary Goal: Build a scalable CMS where backend data controls frontend content.
+Read this file first. Then read **only** the skill files relevant to your task.
+Do not read all skill files at once — use the Skill Map in Section 3.
 
 ---
 
-## 2. Master Priority Order
+## 1. Project Identity & Goal
 
-When there is conflict between instructions, follow this order:
+**Project:** Bintan Prestige CMS
+**Stack:** Laravel 13.8 | PHP 8.3 | Tailwind CSS | Alpine.js | MySQL
+**Architecture:** Laravel MVC with Service Layer and Support Classes
 
-1. User's latest explicit instruction
-2. This AGENTS.md master rule
-3. ai/guidelines/*
-4. ai/skills/*
-5. docs/*
+**Ultimate Goal:**
+Build a WordPress-like CMS where the complete website — pages, navigation,
+layout, content blocks, and appearance — is fully managed from one admin
+dashboard. No hardcoded frontend content. Backend controls everything.
+
+**Current Phase:** Phase 2 — Full Website Builder
+Building the page module, block editor, menu manager, media library,
+and template system so any page can be created and styled from admin.
+
+---
+
+## 2. Authority Order
+
+When instructions conflict, follow this order:
+
+1. Owner's latest explicit instruction
+2. This AGENTS.md
+3. `ai/guidelines/*`
+4. `ai/skills/*`
+5. `docs/*`
 6. Existing code structure
 7. Laravel official conventions
 
@@ -35,478 +41,201 @@ Never ignore existing working features.
 
 ---
 
-## 3. Required AI Knowledge Files
+## 3. Skill Map — Load Only What the Task Needs
 
-Before making meaningful changes, the AI must inspect relevant files from:
+Before working, read this file + the skill(s) below that match your task.
+**Do not load all skills.** One or two files per task is enough.
 
-* ai/guidelines/
-* ai/skills/
-* docs/
-* app/
-* routes/
-* resources/views/
-* database/
+| Task Type | Read These Skill Files |
+|-----------|----------------------|
+| Frontend / Blade / UI | `frontend-skill.md` + `uiux-skill.md` |
+| Backend / Controller / Service | `backend-skill.md` |
+| Database / Migration / Model | `database-architecture-skill.md` |
+| Security fix or audit | `security-skill.md` |
+| SEO / Schema / Sitemap | `seo-ai-discovery-skill.md` |
+| Page Builder / Blocks | `page-builder-skill.md` + `cms-architect-skill.md` |
+| Pages module (About, Contact, etc.) | `page-module-skill.md` + `backend-skill.md` |
+| Menu / Navigation | `menu-manager-skill.md` + `backend-skill.md` |
+| Media Library | `media-library-skill.md` |
+| Performance / Cache | `performance-skill.md` |
+| Testing / QA | `testing-qa-skill.md` |
+| Documentation | `documentation-skill.md` |
+| Design / Brand / Tokens | `design-system-skill.md` + `uiux-skill.md` |
+| Admin Dashboard | `admin-dashboard-skill.md` |
+| Product / Tour / Activity | `product-management-skill.md` |
+| Travel Business Logic | `travel-business-skill.md` |
+| Component Library | `component-library-skill.md` |
 
-The AI must use the correct skill depending on the task.
-
-Examples:
-
-* Frontend task: read frontend-skill.md, uiux-skill.md, design-system-skill.md
-* Backend task: read backend-skill.md, cms-architect-skill.md, database-architecture-skill.md
-* Security task: read security-skill.md
-* SEO task: read seo-ai-discovery-skill.md
-* Performance task: read performance-skill.md
-* QA task: read testing-qa-skill.md
-* Documentation task: read documentation-skill.md
-
----
-
-## 4. Critical Safety Rules
-
-* Do not delete existing features.
-* Do not remove working logic.
-* Do not rewrite the full project.
-* Do not change database schema unless approved.
-* Do not modify existing migrations unless approved.
-* Do not rename routes, controllers, models, variables, tables, or columns unless approved.
-* Do not replace existing backend logic without analysis.
-* Do not hardcode data if database data already exists.
-* Do not break frontend/backend sync.
-* Do not remove existing documentation.
-* Do not remove existing UI sections without approval.
-* Do not remove existing product modules.
-* Do not create a page builder automatically unless explicitly requested.
-* Work section by section, not full-project rewrite.
+> Skill files live in: `ai/skills/`
+> Guidelines live in: `ai/guidelines/`
+> Detail rules are in those files. This file is the constitution, not the manual.
 
 ---
 
-## 5. Required Workflow Before Editing
+## 4. CMS Architecture Phases
 
-Before editing code, the AI must provide:
+**Phase 1 — COMPLETE ✅**
+Backend data syncs to frontend.
+Products, categories, destinations, bookings, page sections, global settings (13 modules), user roles, site assets.
 
-1. Task understanding
-2. Existing structure analysis
-3. Files that will be changed
-4. Files that will only be read
-5. Database impact
-6. Route impact
-7. Frontend impact
-8. Backend impact
-9. Security impact
-10. Documentation impact
-11. Rollback note
+**Phase 2 — CURRENT 🔨**
+Full website builder from admin dashboard. Goal: WordPress-like control.
+- Generic Pages module (About, Contact, Privacy, etc.)
+- Block editor (Hero, Text, Image, Gallery, CTA, Products, FAQ blocks)
+- Menu manager (header, footer, mobile navigation)
+- Media library (central asset manager)
+- Template system (page templates selectable from admin)
+- Preview/draft mode
 
-If the task is small, the AI may summarize this briefly, but it must still understand the impact.
-
----
-
-## 6. Laravel MVC Rules
-
-The project must follow Laravel MVC structure.
-
-Rules:
-
-* Controllers handle request flow.
-* Models handle relationships, casts, scopes, and domain data.
-* Form Requests handle validation when validation becomes large or reusable.
-* Policies/Gates handle authorization.
-* Views render prepared data only.
-* Services may be used for reusable business logic.
-* Blade files must not contain database queries.
-* JavaScript must not process heavy business data.
-* Routes must stay clean and readable.
-* Existing Laravel conventions must be preserved.
-
-Preferred structure:
-
-* app/Models
-* app/Http/Controllers/Admin
-* app/Http/Controllers/Frontend
-* app/Http/Requests
-* app/Policies
-* app/Services
-* resources/views/admin
-* resources/views/frontend
-* resources/views/components
-* routes/web.php
-* database/migrations
-* database/seeders
+**Phase 3 — FUTURE (when explicitly requested)**
+Visual drag-and-drop builder with live preview and inline editing.
 
 ---
 
-## 7. Laravel Boost / AI Workflow Rules
+## 5. Protected Existing Modules
 
-When Laravel Boost or a Laravel-aware AI tool is available, the AI must use it to inspect:
+Do not rebuild these from zero. Extend them safely only:
 
-* Laravel version
-* Routes
-* Models
-* Controllers
-* Views
-* Database schema
-* Logs
-* Installed packages
-* Official Laravel documentation
-
-The AI must not guess Laravel syntax when official Laravel docs or Laravel Boost inspection can verify the correct approach.
+- Products, Categories, Destinations (with soft delete + restore)
+- Product: Prices, Images, Features, FAQs, Itineraries, Notes, Highlights
+- Bookings + Booking Items
+- Page Sections + Page Section Media
+- General FAQs
+- Global Settings (13 modules)
+- Site Assets, Site Settings
+- User Management (is_admin, admin_role, admin_status)
 
 ---
 
-## 8. Backend Data Processing Rules
+## 6. CMS Module Pattern
 
-All heavy data processing must happen in the backend.
+Every new module must follow this sequence:
 
-Frontend should only receive clean, display-ready data.
-
-Rules:
-
-* Use Eloquent relationships.
-* Use eager loading to avoid N+1 queries.
-* Use pagination for large lists.
-* Use backend filtering/searching.
-* Prepare product prices in backend.
-* Prepare SEO meta in backend.
-* Prepare frontend sections in backend.
-* Prepare schema JSON-LD in backend.
-* Do not fetch all records then filter in frontend.
-* Do not put business logic in Blade.
-* Do not duplicate query logic across controllers.
+1. Migration (new table or column)
+2. Model + relationships
+3. Form Request (validation)
+4. Controller — Admin CRUD
+5. Service (business logic, when needed)
+6. Admin Blade views
+7. Frontend rendering (Blade component or section)
+8. SEO handling (meta, schema)
+9. Security check (auth, policy, validation)
+10. Documentation update
+11. Tests
 
 ---
 
-## 9. Frontend UI Rules
+## 7. Laravel MVC Rules
 
-Public frontend must follow the Bintan Prestige luxury travel style.
-
-Rules:
-
-* Use TailwindCSS only.
-* Use reusable Blade components.
-* Use mobile-first responsive design.
-* Use premium spacing and clean visual hierarchy.
-* Use optimized images.
-* Use smooth but lightweight animations.
-* Avoid heavy JavaScript.
-* Avoid generic AI-looking UI.
-* Use semantic HTML.
-* Use consistent buttons, cards, badges, and section headings.
-
-Frontend style:
-
-* Luxury
-* Clean
-* Premium
-* Modern
-* Stylish
-* Travel-focused
+- Controllers handle request flow only
+- Models handle relationships, casts, scopes, domain data
+- Form Requests handle validation (when large or reusable)
+- Policies handle authorization
+- Views render prepared data only — no queries in Blade
+- Services handle reusable business logic
+- JavaScript must not process heavy business data
+- Support classes prepare display-ready data for Blade
 
 ---
 
-## 10. Admin Dashboard Rules
+## 8. Critical Safety Rules
 
-Admin dashboard must be clean, modern, and easy to use.
+**Never do these without explicit approval:**
+- Delete existing features or UI sections
+- Rewrite the full project or any full module
+- Change database schema or existing migrations
+- Rename routes, controllers, models, tables, or columns
+- Replace existing backend logic without analysis
+- Remove existing documentation
+- Install new packages
+- Change authentication or authorization logic
 
-Rules:
-
-* Keep frontend and admin design separated.
-* Admin uses modern SaaS dashboard style.
-* Forms must be clear and readable.
-* Use validation messages.
-* Use status badges.
-* Use filters/search where needed.
-* Use pagination for listing pages.
-* Use confirmation for destructive actions.
-* Use compact cards for repeatable product data.
-* Admin dashboard should control frontend content where possible.
-
-Important:
-
-The admin dashboard may become a frontend builder/page builder in the future, but AI must not build this automatically unless the user explicitly requests it.
+**Always do these:**
+- Inspect existing files before editing
+- List files that will change before changing them
+- Hardcode nothing — use CMS data
+- Work section by section
+- Keep commits focused on one concern
 
 ---
 
-## 11. CMS Architecture Rules
+## 9. Approval Required Before Acting
 
-Every CMS module should follow this pattern:
+Ask for explicit approval before:
 
-1. Database table
-2. Model
-3. Relationship
-4. Controller
-5. Validation
-6. Admin UI
-7. Frontend rendering
-8. SEO handling
-9. Security check
-10. Documentation
-11. Testing checklist
+- Any database schema change (new table, new column, index)
+- Editing existing migrations
+- Renaming anything (route, controller, model, view, column)
+- Removing any feature, page, or UI section
+- Installing new Composer or NPM packages
+- Changing auth or security-sensitive logic
+- Moving or deleting existing documentation
 
-Existing modules must be protected:
-
-* Products
-* Categories
-* Destinations
-* Product Prices
-* Product Images
-* Product Features
-* Product FAQs
-* Product Itineraries
-* Product Notes
-* Page Sections
-
-Do not rebuild existing modules from zero.
+Write the plan first. Wait for approval. Then implement.
 
 ---
 
-## 12. Security Rules
+## 10. Required Workflow Before Every Edit
 
-Security is mandatory.
-
-The AI must check for:
-
-* Exposed .env
-* Exposed APP_KEY
-* Exposed database credentials
-* Exposed API keys or tokens
-* APP_DEBUG=true in production
-* Unprotected admin routes
-* Missing CSRF protection
-* Unsafe file upload
-* Raw SQL with user input
-* XSS risk
-* Missing validation
-* Missing authorization
-* Suspicious functions such as eval, shell_exec, exec, system, passthru, or unsafe base64_decode usage
-* Hidden admin routes
-* Backdoor-like logic
-* Public executable upload paths
-
-Rules:
-
-* Never commit secrets.
-* Never hardcode credentials.
-* Validate all input.
-* Escape output by default.
-* Protect admin routes with auth middleware.
-* Use authorization for sensitive actions.
-* Use safe upload validation.
-* Rotate any exposed secret immediately.
+1. Read AGENTS.md (this file) ← already done
+2. Read the relevant skill file(s) from the Skill Map above
+3. Inspect existing files affected by the task
+4. List files that will change
+5. Describe the plan briefly
+6. Confirm with owner if schema or breaking change is involved
+7. Implement in small steps
+8. Report using the format below
 
 ---
 
-## 13. SEO & AI Discovery Rules
+## 11. Report Format
 
-Every public page should support:
+Use this after every completed task. Keep it short — use the template:
 
-* Meta title
-* Meta description
-* Canonical URL
-* Open Graph
-* Twitter/X card
-* Robots meta
-* Sitemap inclusion
-* Clean slug
-* Breadcrumb
-* H1/H2 structure
-* Image alt text
-* Internal linking
-* JSON-LD schema where relevant
+```
+## Task: [name]
 
-AI discovery readiness:
+### Changed
+- `path/to/file.php` — what changed
 
-* Important content must be visible in HTML.
-* Avoid hiding critical content behind JavaScript only.
-* Use clear headings.
-* Use FAQ answer blocks.
-* Use destination-specific content.
-* Use product-specific detail pages.
-* Use business credibility signals.
-* Maintain robots.txt and sitemap.xml.
-* Do not create spam or thin AI-generated pages.
+### Impact
+- DB: none | migration added: [name]
+- Routes: none | added: [route]
+- Frontend: none | [section] now shows [X]
+- Security: none | validated via [FormRequest/Policy]
+
+### Rollback
+`git revert [hash]` or [manual step]
+
+### Next
+[recommended next task]
+```
 
 ---
 
-## 14. Performance Rules
+## 12. Git Workflow
 
-Frontend performance:
+- Check current branch before starting
+- Create a feature branch for each task
+- Keep commits focused and small
+- Do not mix unrelated changes in one commit
+- Always document rollback steps
 
-* Optimize images.
-* Use WebP where possible.
-* Use lazy loading for below-the-fold images.
-* Avoid layout shift.
-* Avoid oversized JavaScript.
-* Use lightweight animations.
-* Keep DOM clean.
-
-Backend performance:
-
-* Avoid N+1 queries.
-* Use eager loading.
-* Use indexes where appropriate.
-* Use pagination.
-* Cache stable public content where appropriate.
-* Avoid repeated queries inside Blade.
-* Use production optimization commands when deploying.
-
-Target:
-
-* Public pages should feel fast on mobile.
-* Admin pages should not feel slow or confusing.
-* Images should load smoothly without layout jump.
+**Branch naming:**
+- `feature/[feature-name]`
+- `docs/[doc-update-name]`
+- `fix/[issue-description]`
+- `refactor/[area-name]`
 
 ---
 
-## 15. Testing & QA Rules
+## 13. Final Principle
 
-Before launch or major merge, the AI must check:
+Improve this project safely, incrementally, and transparently.
 
-* Database structure
-* Relationships
-* CRUD flow
-* Validation
-* Authorization
-* Upload handling
-* Frontend rendering
-* Responsive layout
-* SEO meta
-* Schema
-* Sitemap
-* Robots.txt
-* Performance risks
-* Security risks
-* Documentation completeness
+**The goal is to build a complete WordPress-like CMS where any part of
+the website — pages, blocks, navigation, layout, content, and appearance —
+can be created and managed entirely from the admin dashboard.**
 
-Final QA report should include score:
-
-* Database: /100
-* Backend: /100
-* Frontend: /100
-* Security: /100
-* SEO: /100
-* Performance: /100
-* Documentation: /100
-* Launch Readiness: /100
-
----
-
-## 16. Documentation Rules
-
-Documentation must be updated after every meaningful change.
-
-Do not delete existing docs.
-
-If old docs exist:
-
-* Keep them.
-* Move them to docs/_legacy/ only with approval.
-* Or create an index that marks them as legacy.
-* Extract relevant information into new canonical docs.
-* Never overwrite docs without checking existing content.
-
-Recommended docs structure:
-
-docs/
-- README.md
-- _legacy/
-- architecture/
-- database/
-- modules/
-- frontend/
-- admin/
-- security/
-- performance/
-- seo/
-- qa/
-- changelog/
-
-Every documentation update should include:
-
-* What changed
-* Why changed
-* Files changed
-* Database impact
-* Route impact
-* Frontend impact
-* Backend impact
-* Security impact
-* Testing result
-* Rollback note
-
----
-
-## 17. Report Rules
-
-After finishing a task, the AI must provide a report:
-
-* Summary
-* Files changed
-* Files created
-* Files deleted, if any
-* Database impact
-* Route impact
-* Frontend impact
-* Backend impact
-* Security impact
-* Performance impact
-* SEO impact
-* Documentation updated
-* Testing performed
-* Remaining risks
-* Recommended next step
-
-If no file should be changed, the AI must say so clearly.
-
----
-
-## 18. Approval Required
-
-The AI must ask for explicit approval before:
-
-* Changing database schema
-* Editing existing migrations
-* Dropping tables or columns
-* Renaming routes
-* Renaming controllers
-* Renaming models
-* Removing features
-* Rebuilding UI from zero
-* Replacing existing logic
-* Adding page builder functionality
-* Installing new packages
-* Changing authentication logic
-* Changing deployment configuration
-* Modifying security-sensitive files
-* Moving or deleting existing docs
-
----
-
-## 19. Git Safety Rules
-
-Before major work:
-
-* Check current branch.
-* Recommend creating a feature branch.
-* Avoid mixing unrelated changes.
-* Keep commits focused.
-* Do not overwrite uncommitted work.
-* Do not delete files without explaining why.
-* Document rollback steps.
-
-Recommended branch naming:
-
-* feature/ai-foundation
-* feature/docs-restructure
-* feature/security-baseline
-* feature/performance-baseline
-* feature/seo-ai-discovery
-* feature/qa-launch-audit
-
----
-
-## 20. Final Principle
-
-The AI must improve the project safely, incrementally, and transparently.
-
-The goal is not to rewrite Bintan Prestige CMS.
-
-The goal is to make the existing Laravel CMS cleaner, safer, faster, more scalable, better documented, and easier to develop.
+Build toward this goal section by section, without breaking what already works.
+Every task should leave the project in a better state than it was found.
