@@ -89,6 +89,7 @@ Frontend implication:
 - Product Detail gallery thumbnails are controls, not links, and render only for multi-image media state; fallback-only or single-image states keep the primary frame without gallery controls.
 - Product Detail layout work does not add related products, gallery lightbox behavior, sticky CTA changes, sitemap changes, or robots.txt changes.
 - Category/Destination display-state preparation lives in `CategoryDestinationDisplayState` for future clean entity surfaces. It prepares active entity lookup, public-visible Product query context, product count from the paginator total, filter/reset parameters, breadcrumbs, empty-state type, Category text-first media strategy, Destination media/fallback state, and metadata-ready values without adding routes, final SEO, schema, or Blade layout.
+- Product Listing renders a prepared Category/Destination context layout for single valid Category or Destination filters, reusing the existing Product grid, Product Card, filters, sorting, pagination, and empty-state surfaces without adding clean entity routes or final SEO/schema behavior.
 
 ## Homepage CMS Flow
 

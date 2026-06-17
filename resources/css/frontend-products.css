@@ -117,6 +117,66 @@
         color: var(--frontend-charcoal);
     }
 
+    /* PRODUCT ENTITY: Provides a clean Category/Destination context header without changing listing routes. */
+    .product-entity {
+        @apply mb-8 rounded-lg border bg-white p-5 shadow-sm sm:p-7 lg:p-8;
+        border-color: rgba(200, 162, 74, 0.18);
+        background:
+            linear-gradient(135deg, rgba(251, 247, 237, 0.88), rgba(255, 255, 255, 0.98) 48%, rgba(248, 250, 252, 0.94)),
+            #ffffff;
+        box-shadow: 0 24px 70px rgba(23, 19, 12, 0.08);
+    }
+
+    .product-entity__breadcrumb {
+        @apply mb-6;
+    }
+
+    .product-entity__layout {
+        @apply grid gap-6;
+    }
+
+    .product-entity__layout--media {
+        @apply lg:grid-cols-[minmax(0,1fr)_minmax(18rem,26rem)] lg:items-center;
+    }
+
+    .product-entity__content {
+        @apply min-w-0;
+    }
+
+    .product-entity__eyebrow {
+        @apply text-xs font-extrabold uppercase;
+        color: #8a681a;
+    }
+
+    .product-entity__title {
+        @apply mt-2 max-w-4xl text-3xl font-extrabold leading-tight text-slate-950 sm:text-4xl lg:text-5xl;
+        overflow-wrap: anywhere;
+    }
+
+    .product-entity__description {
+        @apply mt-4 max-w-3xl whitespace-pre-line text-base font-semibold leading-7 text-slate-600 sm:text-lg;
+    }
+
+    .product-entity__meta {
+        @apply mt-6 flex flex-wrap gap-2;
+    }
+
+    .product-entity__meta span {
+        @apply inline-flex min-h-9 max-w-full items-center rounded-md border px-3 py-1.5 text-xs font-extrabold;
+        background: rgba(255, 255, 255, 0.78);
+        border-color: rgba(200, 162, 74, 0.24);
+        color: var(--frontend-charcoal);
+    }
+
+    .product-entity__media {
+        @apply relative aspect-[4/3] min-h-56 overflow-hidden rounded-lg bg-slate-100 shadow-sm ring-1 ring-amber-100 sm:min-h-64 lg:min-h-72;
+    }
+
+    .product-entity__media img {
+        @apply absolute inset-0 h-full w-full object-cover;
+        max-width: none;
+    }
+
     /* PRODUCT ACTIONS: Groups filter and sort controls beside the toolbar heading. */
     .product-actions {
         @apply flex flex-wrap gap-3;

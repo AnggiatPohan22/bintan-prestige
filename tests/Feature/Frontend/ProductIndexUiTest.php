@@ -215,13 +215,18 @@ class ProductIndexUiTest extends TestCase
 
     public function test_product_listing_blade_does_not_query_page_sections_directly(): void
     {
-        $contents = file_get_contents(
-            resource_path('views/frontend/products/index.blade.php')
-        );
+        $files = [
+            resource_path('views/frontend/products/index.blade.php'),
+            resource_path('views/frontend/products/partials/entity-context.blade.php'),
+        ];
 
-        $this->assertStringNotContainsString('PageSection::', $contents);
-        $this->assertStringNotContainsString('::query(', $contents);
-        $this->assertStringNotContainsString('DB::', $contents);
+        foreach ($files as $file) {
+            $contents = file_get_contents($file);
+
+            $this->assertStringNotContainsString('PageSection::', $contents, $file);
+            $this->assertStringNotContainsString('::query(', $contents, $file);
+            $this->assertStringNotContainsString('DB::', $contents, $file);
+        }
     }
 
     public function test_product_listing_card_uses_consolidated_hierarchy_actions_and_media_contract(): void
@@ -322,6 +327,207 @@ class ProductIndexUiTest extends TestCase
         $response->assertDontSee('name="page"', false);
     }
 
+    public function test_public_listing_single_category_context_renders_entity_layout_and_keeps_product_grid_contract(): void
+    {
+        $category = Category::factory()->create([
+            'name' => 'Island Tours',
+            'slug' => 'island-tours',
+            'description' => 'Curated island routes with local assistance.',
+        ]);
+        $otherCategory = Category::factory()->create([
+            'name' => 'Taxi Transfers',
+            'slug' => 'taxi-transfers',
+        ]);
+        $destination = Destination::factory()->create([
+            'name' => 'Lagoi Bay',
+            'slug' => 'lagoi-bay-category-context',
+        ]);
+        $inactiveDestination = Destination::factory()->create([
+            'name' => 'Inactive Category Context Destination',
+            'slug' => 'inactive-category-context-destination',
+            'is_active' => false,
+        ]);
+
+        $visibleProduct = $this->createProduct([
+            'name' => 'Category Context Visible Tour',
+            'status' => 'published',
+        ], $category, $destination);
+        $this->createProduct([
+            'name' => 'Category Context Draft Tour',
+            'status' => 'draft',
+        ], $category, $destination);
+        $this->createProduct([
+            'name' => 'Category Context Inactive Destination Tour',
+            'status' => 'published',
+        ], $category, $inactiveDestination);
+        $this->createProduct([
+            'name' => 'Category Context Other Category Tour',
+            'status' => 'published',
+        ], $otherCategory, $destination);
+
+        $response = $this->get(route('products.index', [
+            'category' => [$category->id],
+        ]));
+        $html = $response->getContent();
+
+        $response->assertOk();
+        $response->assertViewHas('entityContext');
+        $this->assertSame('category', $response->viewData('entityContext')['entity']['type']);
+        $this->assertSame(1, $response->viewData('entityContext')['productCount']);
+        $this->assertSame(1, substr_count($html, '<h1'));
+        $response->assertSee('data-entity-type="category"', false);
+        $response->assertSee('Island Tours');
+        $response->assertSee('Curated island routes with local assistance.');
+        $response->assertSee('1 package');
+        $response->assertSee('class="product-grid"', false);
+        $response->assertSee('class="product-card"', false);
+        $response->assertSee('Category Context Visible Tour');
+        $response->assertSee(route('products.show', $visibleProduct), false);
+        $response->assertDontSee('Category Context Draft Tour');
+        $response->assertDontSee('Category Context Inactive Destination Tour');
+        $response->assertDontSee('Category Context Other Category Tour');
+        $response->assertDontSee('id="product-filter-category-' . $category->id . '"', false);
+        $response->assertSee('name="category[]" value="' . $category->id . '"', false);
+        $response->assertSee('href="' . route('products.index', ['category' => [$category->id]]) . '"', false);
+    }
+
+    public function test_public_listing_single_destination_context_renders_media_layout_and_hides_redundant_destination_filter(): void
+    {
+        $category = Category::factory()->create([
+            'name' => 'Adventure Tours',
+            'slug' => 'adventure-tours-destination-context',
+        ]);
+        $inactiveCategory = Category::factory()->create([
+            'name' => 'Inactive Destination Context Category',
+            'slug' => 'inactive-destination-context-category',
+            'is_active' => false,
+        ]);
+        $destination = Destination::factory()->create([
+            'name' => 'Treasure Bay',
+            'slug' => 'treasure-bay',
+            'description' => 'Waterfront resort area with family activities.',
+            'image' => 'destinations/treasure-bay.jpg',
+        ]);
+        $otherDestination = Destination::factory()->create([
+            'name' => 'Trikora Coast',
+            'slug' => 'trikora-coast-destination-context',
+        ]);
+
+        $visibleProduct = $this->createProduct([
+            'name' => 'Destination Context Visible Tour',
+            'status' => 'published',
+        ], $category, $destination);
+        $this->createProduct([
+            'name' => 'Destination Context Draft Tour',
+            'status' => 'draft',
+        ], $category, $destination);
+        $this->createProduct([
+            'name' => 'Destination Context Inactive Category Tour',
+            'status' => 'published',
+        ], $inactiveCategory, $destination);
+        $this->createProduct([
+            'name' => 'Destination Context Other Destination Tour',
+            'status' => 'published',
+        ], $category, $otherDestination);
+
+        $response = $this->get(route('products.index', [
+            'destination' => [$destination->id],
+        ]));
+        $html = $response->getContent();
+
+        $response->assertOk();
+        $response->assertViewHas('entityContext');
+        $this->assertSame('destination', $response->viewData('entityContext')['entity']['type']);
+        $this->assertSame(1, $response->viewData('entityContext')['productCount']);
+        $this->assertSame(1, substr_count($html, '<h1'));
+        $response->assertSee('data-entity-type="destination"', false);
+        $response->assertSee('Treasure Bay');
+        $response->assertSee('Waterfront resort area with family activities.');
+        $response->assertSee('storage/destinations/treasure-bay.jpg', false);
+        $response->assertSee('alt="Treasure Bay destination image"', false);
+        $response->assertSee('Destination Context Visible Tour');
+        $response->assertSee(route('products.show', $visibleProduct), false);
+        $response->assertDontSee('Destination Context Draft Tour');
+        $response->assertDontSee('Destination Context Inactive Category Tour');
+        $response->assertDontSee('Destination Context Other Destination Tour');
+        $response->assertDontSee('id="product-filter-destination-' . $destination->id . '"', false);
+        $response->assertSee('name="destination[]" value="' . $destination->id . '"', false);
+        $response->assertSee('href="' . route('products.index', ['destination' => [$destination->id]]) . '"', false);
+    }
+
+    public function test_public_listing_destination_context_uses_fallback_media_and_entity_empty_state(): void
+    {
+        $destination = Destination::factory()->create([
+            'name' => 'Empty Destination Context',
+            'slug' => 'empty-destination-context',
+            'description' => '',
+            'image' => null,
+        ]);
+
+        SiteAsset::create([
+            'key' => 'default_media.destination',
+            'label' => 'Destination fallback',
+            'path' => 'defaults/destination.jpg',
+            'alt' => 'Default destination image',
+            'is_active' => true,
+        ]);
+
+        $response = $this->get(route('products.index', [
+            'destination' => [$destination->id],
+        ]));
+
+        $response->assertOk();
+        $response->assertSee('Empty Destination Context');
+        $response->assertSee('storage/defaults/destination.jpg', false);
+        $response->assertSee('Default destination image');
+        $response->assertSee('No packages are currently available for this destination');
+        $response->assertSee('This destination is active, but there are no public packages available yet.');
+        $response->assertSee('href="' . route('products.index', ['destination' => [$destination->id]]) . '"', false);
+        $response->assertDontSee('product-card', false);
+    }
+
+    public function test_public_listing_category_context_uses_entity_empty_high_page_and_non_redundant_filter_state(): void
+    {
+        $category = Category::factory()->create([
+            'name' => 'Empty Category Context',
+            'slug' => 'empty-category-context',
+            'description' => '',
+        ]);
+
+        $emptyResponse = $this->get(route('products.index', [
+            'category' => [$category->id],
+        ]));
+
+        $emptyResponse->assertOk();
+        $emptyResponse->assertSee('No packages are currently available for this category');
+        $emptyResponse->assertSee('This category is active, but there are no public packages available yet.');
+        $emptyResponse->assertDontSee('id="product-filter-category-' . $category->id . '"', false);
+
+        $destination = Destination::factory()->create([
+            'name' => 'Paged Category Destination',
+            'slug' => 'paged-category-destination',
+        ]);
+
+        for ($i = 1; $i <= 10; $i++) {
+            $this->createProduct([
+                'name' => 'Category Context Page Tour ' . $i,
+                'status' => 'published',
+            ], $category, $destination);
+        }
+
+        $highPageResponse = $this->get(route('products.index', [
+            'category' => [$category->id],
+            'page' => 3,
+        ]));
+
+        $highPageResponse->assertOk();
+        $highPageResponse->assertSee('This page does not have any packages');
+        $highPageResponse->assertSee('The current category context has fewer pages for the selected criteria.');
+        $highPageResponse->assertSee('Back to first page');
+        $highPageResponse->assertSee('href="' . route('products.index', ['category' => [$category->id]]) . '"', false);
+        $highPageResponse->assertDontSee('name="page"', false);
+    }
+
     public function test_public_listing_empty_states_distinguish_global_and_filtered_results(): void
     {
         $globalEmptyResponse = $this->get(route('products.index'));
@@ -349,8 +555,8 @@ class ProductIndexUiTest extends TestCase
 
         $filteredEmptyResponse->assertOk();
         $filteredEmptyResponse->assertSee('No packages matched the selected filters');
-        $filteredEmptyResponse->assertSee('Try removing one or more filters to see more Bintan experiences.');
-        $filteredEmptyResponse->assertSee('Clear filters');
+        $filteredEmptyResponse->assertSee('Try removing one or more filters while keeping this category context.');
+        $filteredEmptyResponse->assertSee('Reset filters');
         $filteredEmptyResponse->assertDontSee('Visible Filter Product');
     }
 

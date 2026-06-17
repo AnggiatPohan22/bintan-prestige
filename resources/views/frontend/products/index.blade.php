@@ -56,53 +56,61 @@
     x-on:keydown.arrow-right.window="if (mediaOpen) nextProductMedia()"
     x-on:keydown.arrow-left.window="if (mediaOpen) previousProductMedia()"
 >
-    <section
-        id="products-index-hero"
-        class="product-hero"
-        data-section-key="products.index.hero"
-        @if($productHeroBackground)
-            style="--product-hero-image: url('{{ $productHeroBackground }}'); --product-hero-media-fit: {{ $productHeroBackgroundSize }}"
-        @endif
-    >
-        <div class="product-hero__container">
+    @unless($entityContext ?? null)
+        <section
+            id="products-index-hero"
+            class="product-hero"
+            data-section-key="products.index.hero"
+            @if($productHeroBackground)
+                style="--product-hero-image: url('{{ $productHeroBackground }}'); --product-hero-media-fit: {{ $productHeroBackgroundSize }}"
+            @endif
+        >
+            <div class="product-hero__container">
 
-            <div class="product-hero__content">
-                @if(! empty($listingHero['label']))
-                    <p class="product-modal__eyebrow">
-                        {{ $listingHero['label'] }}
-                    </p>
-                @endif
+                <div class="product-hero__content">
+                    @if(! empty($listingHero['label']))
+                        <p class="product-modal__eyebrow">
+                            {{ $listingHero['label'] }}
+                        </p>
+                    @endif
 
-                <h1 class="product-hero__title title-section">
-                    {{ $listingHero['title'] }}
-                </h1>
+                    <h1 class="product-hero__title title-section">
+                        {{ $listingHero['title'] }}
+                    </h1>
 
-                <p class="product-hero__description text-body">
-                    {{ $listingHero['description'] }}
-                </p>
-
-                @if(! empty($listingHero['subtitle']))
                     <p class="product-hero__description text-body">
-                        {{ $listingHero['subtitle'] }}
+                        {{ $listingHero['description'] }}
                     </p>
-                @endif
-            </div>
 
-        </div>
-    </section>
+                    @if(! empty($listingHero['subtitle']))
+                        <p class="product-hero__description text-body">
+                            {{ $listingHero['subtitle'] }}
+                        </p>
+                    @endif
+                </div>
+
+            </div>
+        </section>
+    @endunless
 
     <section id="products-index-catalog" class="product-section" data-section-key="products.index.catalog">
         <div class="product-container">
 
-            <nav class="product-breadcrumb" aria-label="Breadcrumb">
-                <a href="{{ route('home') }}" class="product-breadcrumb__link">
-                    Home
-                </a>
-                <span class="product-breadcrumb__separator" aria-hidden="true">/</span>
-                <span class="product-breadcrumb__current">
-                    Products
-                </span>
-            </nav>
+            @if($entityContext ?? null)
+                @include('frontend.products.partials.entity-context', [
+                    'entityContext' => $entityContext,
+                ])
+            @else
+                <nav class="product-breadcrumb" aria-label="Breadcrumb">
+                    <a href="{{ route('home') }}" class="product-breadcrumb__link">
+                        Home
+                    </a>
+                    <span class="product-breadcrumb__separator" aria-hidden="true">/</span>
+                    <span class="product-breadcrumb__current">
+                        Products
+                    </span>
+                </nav>
+            @endif
 
             <div class="product-toolbar">
                 <div>
@@ -303,6 +311,14 @@
         >
             <input type="hidden" name="sort" value="{{ $sort }}">
 
+            @if(($entityContext['entity']['type'] ?? null) === 'category')
+                <input type="hidden" name="category[]" value="{{ $entityContext['entity']['id'] }}">
+            @endif
+
+            @if(($entityContext['entity']['type'] ?? null) === 'destination')
+                <input type="hidden" name="destination[]" value="{{ $entityContext['entity']['id'] }}">
+            @endif
+
             <div class="product-modal__header">
                 <div>
                     <p class="product-modal__eyebrow">
@@ -385,47 +401,51 @@
                     </div>
                 </fieldset>
 
-                <fieldset class="product-filter__group">
-                    <legend class="product-filter__title">
-                        Destinations
-                    </legend>
+                @if(($entityContext['entity']['type'] ?? null) !== 'destination')
+                    <fieldset class="product-filter__group">
+                        <legend class="product-filter__title">
+                            Destinations
+                        </legend>
 
-                    <div class="product-filter__options">
-                        @foreach($destinations as $destination)
-                            <label class="product-check" for="product-filter-destination-{{ $destination->id }}">
-                                <input
-                                    id="product-filter-destination-{{ $destination->id }}"
-                                    type="checkbox"
-                                    name="destination[]"
-                                    value="{{ $destination->id }}"
-                                    @checked(in_array((string) $destination->id, $selectedDestinations))
-                                >
-                                <span>{{ $destination->name }}</span>
-                            </label>
-                        @endforeach
-                    </div>
-                </fieldset>
+                        <div class="product-filter__options">
+                            @foreach($destinations as $destination)
+                                <label class="product-check" for="product-filter-destination-{{ $destination->id }}">
+                                    <input
+                                        id="product-filter-destination-{{ $destination->id }}"
+                                        type="checkbox"
+                                        name="destination[]"
+                                        value="{{ $destination->id }}"
+                                        @checked(in_array((string) $destination->id, $selectedDestinations))
+                                    >
+                                    <span>{{ $destination->name }}</span>
+                                </label>
+                            @endforeach
+                        </div>
+                    </fieldset>
+                @endif
 
-                <fieldset class="product-filter__group">
-                    <legend class="product-filter__title">
-                        Jenis Tour
-                    </legend>
+                @if(($entityContext['entity']['type'] ?? null) !== 'category')
+                    <fieldset class="product-filter__group">
+                        <legend class="product-filter__title">
+                            Jenis Tour
+                        </legend>
 
-                    <div class="product-filter__options">
-                        @foreach($categories as $category)
-                            <label class="product-check" for="product-filter-category-{{ $category->id }}">
-                                <input
-                                    id="product-filter-category-{{ $category->id }}"
-                                    type="checkbox"
-                                    name="category[]"
-                                    value="{{ $category->id }}"
-                                    @checked(in_array((string) $category->id, $selectedCategories))
-                                >
-                                <span>{{ $category->name }}</span>
-                            </label>
-                        @endforeach
-                    </div>
-                </fieldset>
+                        <div class="product-filter__options">
+                            @foreach($categories as $category)
+                                <label class="product-check" for="product-filter-category-{{ $category->id }}">
+                                    <input
+                                        id="product-filter-category-{{ $category->id }}"
+                                        type="checkbox"
+                                        name="category[]"
+                                        value="{{ $category->id }}"
+                                        @checked(in_array((string) $category->id, $selectedCategories))
+                                    >
+                                    <span>{{ $category->name }}</span>
+                                </label>
+                            @endforeach
+                        </div>
+                    </fieldset>
+                @endif
 
                 <fieldset class="product-filter__group">
                     <legend class="product-filter__title">

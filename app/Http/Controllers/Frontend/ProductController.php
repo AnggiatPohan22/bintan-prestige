@@ -9,6 +9,7 @@ use App\Models\PageSection;
 use App\Models\Product;
 use App\Models\ProductPrice;
 use App\Services\GlobalSettingsService;
+use App\Support\CategoryDestinationDisplayState;
 use App\Support\PageSectionRegistry;
 use App\Support\ProductDetailDisplayState;
 use App\Support\ProductListingContent;
@@ -18,7 +19,7 @@ use Illuminate\Support\Str;
 
 class ProductController extends Controller
 {
-    public function index(Request $request)
+    public function index(Request $request, GlobalSettingsService $globalSettings)
     {
         $priceCurrency = ProductPrice::CURRENCY_IDR;
 
@@ -117,6 +118,12 @@ class ProductController extends Controller
         $hasUnsupportedQueryParameters = $this->hasUnsupportedQueryParameters($request);
         $filterQueryParameters = Arr::except($validQueryParameters, 'sort');
         $resetListingUrl = route('products.index');
+        $categoryContext = count($selectedCategories) === 1 && count($selectedDestinations) === 0
+            ? $categories->firstWhere('id', (int) $selectedCategories[0])
+            : null;
+        $destinationContext = count($selectedDestinations) === 1 && count($selectedCategories) === 0
+            ? $destinations->firstWhere('id', (int) $selectedDestinations[0])
+            : null;
         $activeFilterSummary = $this->activeFilterSummary(
             $minPrice,
             $maxPrice,
@@ -230,6 +237,57 @@ class ProductController extends Controller
             $resetListingUrl,
             $highPageRecoveryUrl
         );
+        $entityContext = null;
+
+        if ($categoryContext) {
+            $activeFilterSummary = $this->summaryWithoutFixedEntity($activeFilterSummary, 'Category');
+            $activeFilterCount = max(0, $activeFilterCount - 1);
+            $entityContext = CategoryDestinationDisplayState::category(
+                $categoryContext,
+                $products,
+                [
+                    'query' => $validQueryParameters,
+                    'selected' => [
+                        'durations' => $selectedDurations,
+                        'destinations' => $selectedDestinations,
+                        'categories' => $selectedCategories,
+                        'vehicleTypes' => $selectedVehicleTypes,
+                        'minPrice' => $minPrice,
+                        'maxPrice' => $maxPrice,
+                    ],
+                    'summary' => $activeFilterSummary,
+                ],
+                $sort
+            );
+            $resetListingUrl = $entityContext['resetUrl'];
+            $emptyState = $this->listingEmptyStateFromEntity($entityContext, $emptyState);
+        } elseif ($destinationContext) {
+            $activeFilterSummary = $this->summaryWithoutFixedEntity($activeFilterSummary, 'Destination');
+            $activeFilterCount = max(0, $activeFilterCount - 1);
+            $globalViewData = $globalSettings->viewData();
+            $entityContext = CategoryDestinationDisplayState::destination(
+                $destinationContext,
+                $products,
+                $globalViewData['siteAssets'] ?? collect(),
+                $globalViewData['defaultMediaSettings'] ?? [],
+                [
+                    'query' => $validQueryParameters,
+                    'selected' => [
+                        'durations' => $selectedDurations,
+                        'destinations' => $selectedDestinations,
+                        'categories' => $selectedCategories,
+                        'vehicleTypes' => $selectedVehicleTypes,
+                        'minPrice' => $minPrice,
+                        'maxPrice' => $maxPrice,
+                    ],
+                    'summary' => $activeFilterSummary,
+                ],
+                $sort
+            );
+            $resetListingUrl = $entityContext['resetUrl'];
+            $emptyState = $this->listingEmptyStateFromEntity($entityContext, $emptyState);
+        }
+
         $seoState = $this->listingSeoState(
             $listingContent,
             $selectedDestinations,
@@ -281,6 +339,7 @@ class ProductController extends Controller
                 'emptyState',
                 'hasHighPageEmptyState',
                 'hasUnsupportedQueryParameters',
+                'entityContext',
                 'seoTitle',
                 'seoDescription',
                 'canonicalUrl',
@@ -528,6 +587,43 @@ class ProductController extends Controller
         }
 
         return route('products.index', $parameters);
+    }
+
+    private function summaryWithoutFixedEntity(array $summary, string $fixedLabel): array
+    {
+        return collect($summary)
+            ->reject(fn (array $item) => ($item['label'] ?? null) === $fixedLabel)
+            ->values()
+            ->all();
+    }
+
+    private function listingEmptyStateFromEntity(array $entityContext, array $fallback): array
+    {
+        $state = $entityContext['emptyState'] ?? [];
+
+        if (($state['type'] ?? null) === 'has_results') {
+            return $fallback;
+        }
+
+        $type = $state['type'] ?? null;
+        $entityType = $entityContext['entity']['type'] ?? 'category';
+
+        return [
+            'title' => $state['title'] ?? $fallback['title'],
+            'description' => match ($type) {
+                'entity_empty' => $entityType === 'destination'
+                    ? 'This destination is active, but there are no public packages available yet.'
+                    : 'This category is active, but there are no public packages available yet.',
+                'filtered_empty' => 'Try removing one or more filters while keeping this ' . $entityType . ' context.',
+                'high_page_empty' => 'The current ' . $entityType . ' context has fewer pages for the selected criteria.',
+                default => $fallback['description'],
+            },
+            'action' => match ($type) {
+                'high_page_empty' => 'Back to first page',
+                default => 'Reset filters',
+            },
+            'action_url' => $state['action_url'] ?? $entityContext['resetUrl'] ?? $fallback['action_url'],
+        ];
     }
 
     private function listingSeoState(
