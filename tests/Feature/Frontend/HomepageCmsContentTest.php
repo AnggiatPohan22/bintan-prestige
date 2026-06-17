@@ -394,6 +394,94 @@ class HomepageCmsContentTest extends TestCase
         $response->assertDontSee('class="product-card"', false);
     }
 
+    public function test_homepage_products_use_public_visibility_and_listing_card_relations(): void
+    {
+        $activeCategory = Category::factory()->create([
+            'name' => 'Visible Homepage Category',
+            'slug' => 'visible-homepage-category',
+        ]);
+        $inactiveCategory = Category::factory()->create([
+            'name' => 'Dormant Homepage Category',
+            'slug' => 'dormant-homepage-category',
+            'is_active' => false,
+        ]);
+        $archivedCategory = Category::factory()->create([
+            'name' => 'Archived Homepage Category',
+            'slug' => 'archived-homepage-category',
+        ]);
+        $activeDestination = Destination::factory()->create([
+            'name' => 'Visible Homepage Destination',
+            'slug' => 'visible-homepage-destination',
+        ]);
+        $inactiveDestination = Destination::factory()->create([
+            'name' => 'Dormant Homepage Destination',
+            'slug' => 'dormant-homepage-destination',
+            'is_active' => false,
+        ]);
+
+        $visibleProduct = Product::factory()->create([
+            'category_id' => $activeCategory->id,
+            'destination_id' => $activeDestination->id,
+            'name' => 'Visible Homepage Public Tour',
+            'status' => 'published',
+        ]);
+
+        Product::factory()->create([
+            'category_id' => $inactiveCategory->id,
+            'destination_id' => $activeDestination->id,
+            'name' => 'Dormant Parent Homepage Tour',
+            'status' => 'published',
+        ]);
+
+        Product::factory()->create([
+            'category_id' => $archivedCategory->id,
+            'destination_id' => $activeDestination->id,
+            'name' => 'Archived Parent Homepage Tour',
+            'status' => 'published',
+        ]);
+
+        Product::factory()->create([
+            'category_id' => $activeCategory->id,
+            'destination_id' => $inactiveDestination->id,
+            'name' => 'Dormant Destination Homepage Tour',
+            'status' => 'published',
+        ]);
+
+        Product::factory()->create([
+            'category_id' => $activeCategory->id,
+            'destination_id' => $activeDestination->id,
+            'name' => 'Draft Homepage Public Tour',
+            'status' => 'draft',
+        ]);
+
+        $archivedCategory->delete();
+
+        $response = $this->get(route('home'));
+
+        $response->assertOk();
+        $response->assertSee('Visible Homepage Public Tour');
+        $response->assertSee('Visible Homepage Category');
+        $response->assertDontSee('Dormant Parent Homepage Tour');
+        $response->assertDontSee('Archived Parent Homepage Tour');
+        $response->assertDontSee('Dormant Destination Homepage Tour');
+        $response->assertDontSee('Draft Homepage Public Tour');
+        $response->assertDontSee('Dormant Homepage Category');
+        $response->assertDontSee('Archived Homepage Category');
+
+        $homeProducts = $response->viewData('homeProducts');
+        $listedProduct = $homeProducts->firstWhere('id', $visibleProduct->id);
+
+        $this->assertNotNull($listedProduct);
+        $this->assertTrue($listedProduct->relationLoaded('category'));
+        $this->assertTrue($listedProduct->relationLoaded('destination'));
+        $this->assertTrue($listedProduct->relationLoaded('prices'));
+        $this->assertTrue($listedProduct->relationLoaded('images'));
+        $this->assertFalse($listedProduct->relationLoaded('faqs'));
+        $this->assertFalse($listedProduct->relationLoaded('itineraries'));
+        $this->assertFalse($listedProduct->relationLoaded('notes'));
+        $this->assertFalse($listedProduct->relationLoaded('features'));
+    }
+
     public function test_homepage_renderer_handles_complete_cms_and_module_data(): void
     {
         foreach ($this->homeSections() as $sectionKey => $sortOrder) {

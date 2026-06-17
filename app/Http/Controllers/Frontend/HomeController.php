@@ -41,9 +41,8 @@ class HomeController extends Controller
             ->get();
 
         $homeProducts = Product::query()
-            ->published()
-            ->frontendReady()
-            ->with(['category', 'destination', 'images'])
+            ->publiclyVisible()
+            ->frontendListingReady()
             ->latest()
             ->take(12)
             ->get();

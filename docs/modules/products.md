@@ -25,7 +25,7 @@ Products use string publication status values:
 
 ## Public Product Visibility Policy
 
-The public Product Listing and public Product Detail use `Product::publiclyVisible()`.
+The public Product Listing, public Product Detail, and homepage Product cards use `Product::publiclyVisible()`.
 
 Rules:
 
@@ -35,7 +35,7 @@ Rules:
 - Archiving or deactivating a Category/Destination hides related Products from the public listing and direct public Product Detail URLs without deleting Product records.
 - Admin Product queries are not changed by this opt-in public scope.
 
-The Product Listing card query uses `Product::frontendListingReady()` to eager load only listing-card relations: Category, Destination, Prices, and Images.
+The Product Listing card query and homepage Product card query use `Product::frontendListingReady()` to eager load only listing-card relations: Category, Destination, Prices, and Images.
 
 The Product Detail query resolves the route slug through `Product::publiclyVisible()`, eager loads only rendered Product Detail relations, and returns 404 for draft Products, invalid status values, inactive/archived parents, and invalid slugs.
 

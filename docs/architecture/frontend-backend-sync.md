@@ -103,7 +103,7 @@ Flow:
 Homepage data sources:
 
 - Page Sections: section copy, CTA fields, section media, controlled `extra_data`.
-- Products: published Product module records and reusable product cards.
+- Products: public-visible Product module records and reusable product cards.
 - Categories: active Category module records for search/filter controls and product tabs.
 - Destinations: active Destination module records for search/filter controls and homepage destination cards.
 - FAQs: active FAQ module records with PageSection fallback items when empty.
