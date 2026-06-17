@@ -648,6 +648,11 @@ class HomepageCmsContentTest extends TestCase
             'slug' => 'tour-packages',
             'is_active' => true,
         ]);
+        $inactiveCategory = Category::create([
+            'name' => 'Inactive Destination Count Category',
+            'slug' => 'inactive-destination-count-category',
+            'is_active' => false,
+        ]);
 
         $activeDestination = Destination::create([
             'name' => 'Lagoi Bay',
@@ -657,7 +662,7 @@ class HomepageCmsContentTest extends TestCase
             'is_active' => true,
         ]);
 
-        Destination::create([
+        $inactiveDestination = Destination::create([
             'name' => 'Inactive Destination',
             'slug' => 'inactive-destination',
             'is_active' => false,
@@ -677,6 +682,34 @@ class HomepageCmsContentTest extends TestCase
             'status' => 'published',
         ]);
 
+        Product::factory()->create([
+            'category_id' => $category->id,
+            'destination_id' => $activeDestination->id,
+            'name' => 'Lagoi Draft Tour',
+            'status' => 'draft',
+        ]);
+
+        Product::factory()->create([
+            'category_id' => $inactiveCategory->id,
+            'destination_id' => $activeDestination->id,
+            'name' => 'Lagoi Inactive Category Tour',
+            'status' => 'published',
+        ]);
+
+        Product::factory()->create([
+            'category_id' => $category->id,
+            'destination_id' => $deletedDestination->id,
+            'name' => 'Deleted Destination Product',
+            'status' => 'published',
+        ]);
+
+        Product::factory()->create([
+            'category_id' => $category->id,
+            'destination_id' => $inactiveDestination->id,
+            'name' => 'Inactive Destination Product',
+            'status' => 'published',
+        ]);
+
         $response = $this->get(route('home'));
 
         $response->assertOk();
@@ -686,6 +719,10 @@ class HomepageCmsContentTest extends TestCase
         $response->assertSee('storage/destinations/lagoi-bay.jpg', false);
         $response->assertSee('destination%5B0%5D=' . $activeDestination->id, false);
         $response->assertSee('01 Package');
+        $response->assertDontSee('Lagoi Draft Tour');
+        $response->assertDontSee('Lagoi Inactive Category Tour');
+        $response->assertDontSee('Deleted Destination Product');
+        $response->assertDontSee('Inactive Destination Product');
         $response->assertDontSee('Inactive Destination');
         $response->assertDontSee('Deleted Destination');
     }

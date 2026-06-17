@@ -64,7 +64,7 @@ class HomeController extends Controller
         $destinations = Destination::query()
             ->where('is_active', true)
             ->withCount([
-                'products' => fn ($query) => $query->published()
+                'products' => fn ($query) => $query->publiclyVisible()
             ])
             ->orderBy('name')
             ->get();

@@ -1,6 +1,6 @@
 # Frontend Backend Sync
 
-Last updated: 2026-06-15
+Last updated: 2026-06-17
 
 ## Global Settings Flow
 
@@ -105,7 +105,7 @@ Homepage data sources:
 - Page Sections: section copy, CTA fields, section media, controlled `extra_data`.
 - Products: public-visible Product module records and reusable product cards.
 - Categories: active Category module records for search/filter controls and product tabs.
-- Destinations: active Destination module records for search/filter controls and homepage destination cards.
+- Destinations: active Destination module records for search/filter controls and homepage destination cards with public-visible Product counts.
 - FAQs: active FAQ module records with PageSection fallback items when empty.
 - Reviews/Testimonials: static fallback source until a dedicated module is approved.
 - Global Settings: site assets, default media, business/contact data, footer settings, and WhatsApp CTA fallback.

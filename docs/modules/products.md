@@ -1,6 +1,6 @@
 # Products Module
 
-Last updated: 2026-06-15
+Last updated: 2026-06-17
 
 ## Category and Destination Integrity
 
@@ -33,6 +33,7 @@ Rules:
 - The related Category must be active and not archived.
 - The related Destination must be active and not archived.
 - Archiving or deactivating a Category/Destination hides related Products from the public listing and direct public Product Detail URLs without deleting Product records.
+- Homepage Destination card package counts use the same public visibility policy, so draft Products and Products with inactive/archived parents are not counted.
 - Admin Product queries are not changed by this opt-in public scope.
 
 The Product Listing card query and homepage Product card query use `Product::frontendListingReady()` to eager load only listing-card relations: Category, Destination, Prices, and Images.
