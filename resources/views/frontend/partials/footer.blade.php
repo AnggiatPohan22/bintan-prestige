@@ -13,11 +13,13 @@
     $footerCtaVisual = $footerCtaSection?->mediaSlot('frame', 'main_visual');
     $footerCtaPlaceholder = \App\Support\DefaultMediaAssets::asset($siteAssets ?? collect(), 'section');
     $footerCtaPlaceholderFit = \App\Support\DefaultMediaAssets::fit($defaultMediaSettings ?? [], 'section');
+    $footerCtaButtonLabel = filled($footerCtaSection?->button_text) ? $footerCtaSection->button_text : $footerCtaLabel;
+    $footerCtaButtonUrl = \App\Support\PageSectionCta::safeUrl($footerCtaSection?->button_url, $footerWhatsappUrl);
 @endphp
 
 <footer class="bp-footer" aria-labelledby="footer-title">
     @if($footerSettings['show_cta'] ?? true)
-    <section class="bp-footer-cta" id="whatsapp-cta" aria-labelledby="footer-cta-title">
+    <section class="bp-footer-cta" id="whatsapp-cta" data-section-key="home.footer_cta" aria-labelledby="footer-cta-title">
         <div class="bp-footer-cta__content">
             <span class="bp-footer-cta__label">
                 {{ $footerCtaSection?->label ?? 'Explore Tour' }}
@@ -32,14 +34,14 @@
             </p>
 
             <a
-                href="{{ $footerWhatsappUrl }}"
+                href="{{ $footerCtaButtonUrl }}"
                 target="_blank"
                 rel="noopener noreferrer"
                 class="btn btn-whatsapp bp-footer-cta__button"
                 data-whatsapp-tracking="footer"
-                data-tracking-label="{{ $footerCtaLabel }}"
+                data-tracking-label="{{ $footerCtaButtonLabel }}"
             >
-                <span>{{ $footerCtaLabel }}</span>
+                <span>{{ $footerCtaButtonLabel }}</span>
                 <svg class="bp-footer-cta__button-icon" viewBox="0 0 24 24" aria-hidden="true">
                     <path d="M7 17L17 7"></path>
                     <path d="M9 7h8v8"></path>

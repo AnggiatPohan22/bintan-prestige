@@ -406,18 +406,18 @@ If old docs exist:
 Recommended docs structure:
 
 docs/
-├── README.md
-├── _legacy/
-├── architecture/
-├── database/
-├── modules/
-├── frontend/
-├── admin/
-├── security/
-├── performance/
-├── seo/
-├── qa/
-└── changelog/
+- README.md
+- _legacy/
+- architecture/
+- database/
+- modules/
+- frontend/
+- admin/
+- security/
+- performance/
+- seo/
+- qa/
+- changelog/
 
 Every documentation update should include:
 

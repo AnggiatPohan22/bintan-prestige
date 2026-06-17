@@ -156,7 +156,7 @@ class SiteSettingController extends Controller
     {
         $validated = $request->validate([
             'logos' => ['nullable', 'array'],
-            'logos.*' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+            'logos.*' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'extensions:jpg,jpeg,png,webp', 'max:2048'],
             'logo_alts' => ['nullable', 'array'],
             'logo_alts.*' => ['nullable', 'string', 'max:255'],
         ]);
@@ -179,7 +179,8 @@ class SiteSettingController extends Controller
             if ($alt !== null) {
                 SiteAsset::query()
                     ->where('key', $variant['key'])
-                    ->update(['alt' => $alt]);
+                    ->first()
+                    ?->update(['alt' => $alt]);
             }
         }
 
@@ -210,7 +211,7 @@ class SiteSettingController extends Controller
     public function updateFavicon(Request $request)
     {
         $validated = $request->validate([
-            'favicon' => ['required', 'file', 'mimes:ico,png,svg,webp,jpg,jpeg', 'max:1024'],
+            'favicon' => ['required', 'file', 'mimes:ico,png,svg,webp,jpg,jpeg', 'extensions:ico,png,svg,webp,jpg,jpeg', 'max:1024'],
             'favicon_alt' => ['nullable', 'string', 'max:255'],
         ]);
 
@@ -281,7 +282,7 @@ class SiteSettingController extends Controller
     public function updateSocialShareImage(Request $request)
     {
         $validated = $request->validate([
-            'social_share_image' => ['required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
+            'social_share_image' => ['required', 'image', 'mimes:jpg,jpeg,png,webp', 'extensions:jpg,jpeg,png,webp', 'max:4096'],
             'social_share_image_alt' => ['nullable', 'string', 'max:255'],
         ]);
 
@@ -649,7 +650,7 @@ class SiteSettingController extends Controller
             };
         }
 
-        $rules['seo_default_og_image'] = ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'];
+        $rules['seo_default_og_image'] = ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'extensions:jpg,jpeg,png,webp', 'max:4096'];
 
         $validated = $request->validate($rules);
         $settings = $validated['seo_default'] ?? [];
@@ -679,7 +680,8 @@ class SiteSettingController extends Controller
         } elseif (array_key_exists('og_image_alt', $settings)) {
             SiteAsset::query()
                 ->where('key', SeoDefaultSettings::OG_IMAGE_KEY)
-                ->update(['alt' => $settings['og_image_alt']]);
+                ->first()
+                ?->update(['alt' => $settings['og_image_alt']]);
         }
 
         return redirect()
@@ -790,7 +792,7 @@ class SiteSettingController extends Controller
     {
         $validated = $request->validate([
             'default_media' => ['nullable', 'array'],
-            'default_media.*' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
+            'default_media.*' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'extensions:jpg,jpeg,png,webp', 'max:4096'],
             'default_media_alts' => ['nullable', 'array'],
             'default_media_alts.*' => ['nullable', 'string', 'max:255'],
             'default_media_fits' => ['nullable', 'array'],
@@ -829,7 +831,8 @@ class SiteSettingController extends Controller
             if ($alt !== null) {
                 SiteAsset::query()
                     ->where('key', $variant['key'])
-                    ->update(['alt' => $alt]);
+                    ->first()
+                    ?->update(['alt' => $alt]);
             }
         }
 

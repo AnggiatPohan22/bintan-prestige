@@ -1,70 +1,72 @@
 @php
-    $section = $sections['home.about_journey'] ?? null;
+    $homepageContent = $homepageContent ?? \App\Support\HomepageContent::fromSections(collect($sections ?? []));
+    $sectionContent = ($homepageContent ?? [])['sections']['home.about_journey'] ?? [];
+    $section = $sectionContent['model'] ?? null;
     $mainVisual = $section?->mediaSlot('frame', 'main_visual');
     $secondaryVisual = $section?->mediaSlot('frame', 'secondary_visual');
     $sectionPlaceholder = \App\Support\DefaultMediaAssets::asset($siteAssets ?? collect(), 'section');
     $sectionPlaceholderFit = \App\Support\DefaultMediaAssets::fit($defaultMediaSettings ?? [], 'section');
+    $buttonUrl = $sectionContent['button_url'] ?? route('products.index');
+    $journeyContent = ($homepageContent ?? [])['about_journey'] ?? [];
+    $journeyFeatures = collect($journeyContent['features'] ?? []);
 @endphp
 
 <section class="bp-journey-section" id="home-about-journey" data-section-key="home.about_journey" aria-labelledby="journey-title">
     <div class="home-container bp-journey-section__grid">
         <div class="bp-journey-content">
             <span class="bp-journey-label">
-                {{ $section?->label ?? 'Dream Your Next Trip' }}
+                {{ $sectionContent['label'] ?? 'Dream Your Next Trip' }}
             </span>
 
             <h2 id="journey-title" class="bp-journey-title title-section">
-                {{ $section?->title ?? 'Discover When Even You Want To Go' }}
+                {{ $sectionContent['title'] ?? 'Discover When Even You Want To Go' }}
             </h2>
 
             <p class="bp-journey-text text-muted">
-                {{ $section?->description ?? 'Are you tired of the typical tourist destinations and looking to step out of your comfort zone? Adventure travel may be the perfect solution for you! Here are four.' }}
+                {{ $sectionContent['description'] ?? 'Are you tired of the typical tourist destinations and looking to step out of your comfort zone? Adventure travel may be the perfect solution for you! Here are four.' }}
             </p>
 
-            <div class="bp-journey-features">
-                <article class="bp-journey-feature">
-                    <span class="bp-journey-feature__icon" aria-hidden="true">
-                        <svg viewBox="0 0 24 24">
-                            <path d="M12 3l7 4v5c0 4.3-2.9 8.3-7 9.4-4.1-1.1-7-5.1-7-9.4V7l7-4z"></path>
-                            <path d="M9 12l2 2 4-5"></path>
-                        </svg>
-                    </span>
+            @if($journeyFeatures->isNotEmpty())
+                <div class="bp-journey-features">
+                    @foreach($journeyFeatures as $feature)
+                        @continue(! filled($feature['title'] ?? null) && ! filled($feature['text'] ?? null))
+                        <article class="bp-journey-feature">
+                            <span class="bp-journey-feature__icon" aria-hidden="true">
+                                @if(($feature['icon'] ?? 'shield') === 'support')
+                                    <svg viewBox="0 0 24 24">
+                                        <path d="M4 12a8 8 0 0 1 16 0"></path>
+                                        <path d="M6 12v5a2 2 0 0 0 2 2h2"></path>
+                                        <path d="M18 12v5a2 2 0 0 1-2 2h-2"></path>
+                                        <path d="M10 19h4"></path>
+                                    </svg>
+                                @else
+                                    <svg viewBox="0 0 24 24">
+                                        <path d="M12 3l7 4v5c0 4.3-2.9 8.3-7 9.4-4.1-1.1-7-5.1-7-9.4V7l7-4z"></path>
+                                        <path d="M9 12l2 2 4-5"></path>
+                                    </svg>
+                                @endif
+                            </span>
 
-                    <div>
-                        <h3 class="bp-journey-feature__title title-card">
-                            Best Travel Agency
-                        </h3>
+                            <div>
+                                @if(filled($feature['title'] ?? null))
+                                    <h3 class="bp-journey-feature__title title-card">
+                                        {{ $feature['title'] }}
+                                    </h3>
+                                @endif
 
-                        <p class="bp-journey-feature__text text-muted">
-                            Thoughtfully arranged Bintan travel experiences for guests who want comfort, quality, and reliable service.
-                        </p>
-                    </div>
-                </article>
+                                @if(filled($feature['text'] ?? null))
+                                    <p class="bp-journey-feature__text text-muted">
+                                        {{ $feature['text'] }}
+                                    </p>
+                                @endif
+                            </div>
+                        </article>
+                    @endforeach
+                </div>
+            @endif
 
-                <article class="bp-journey-feature">
-                    <span class="bp-journey-feature__icon" aria-hidden="true">
-                        <svg viewBox="0 0 24 24">
-                            <path d="M4 12a8 8 0 0 1 16 0"></path>
-                            <path d="M6 12v5a2 2 0 0 0 2 2h2"></path>
-                            <path d="M18 12v5a2 2 0 0 1-2 2h-2"></path>
-                            <path d="M10 19h4"></path>
-                        </svg>
-                    </span>
-
-                    <div>
-                        <h3 class="bp-journey-feature__title title-card">
-                            Secure Journey With Us
-                        </h3>
-
-                        <p class="bp-journey-feature__text text-muted">
-                            Travel with confidence through organized transfers, curated tours, and clear guest support.
-                        </p>
-                    </div>
-                </article>
-            </div>
-
-            <a href="{{ $section?->button_url ?: route('products.index') }}" class="btn btn-primary btn-lg bp-journey-cta">
-                {{ $section?->button_text ?? 'BOOK YOUR TRIP' }}
+            <a href="{{ $buttonUrl }}" class="btn btn-primary btn-lg bp-journey-cta">
+                {{ $sectionContent['button_text'] ?? 'BOOK YOUR TRIP' }}
                 <svg class="bp-journey-cta__icon" viewBox="0 0 24 24" aria-hidden="true">
                     <path d="M7 17L17 7"></path>
                     <path d="M9 7h8v8"></path>

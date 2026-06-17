@@ -1,8 +1,11 @@
 @php
-    $section = $sections['home.popular_tour'] ?? null;
+    $homepageContent = $homepageContent ?? \App\Support\HomepageContent::fromSections(collect($sections ?? []));
+    $sectionContent = ($homepageContent ?? [])['sections']['home.popular_tour'] ?? [];
+    $section = $sectionContent['model'] ?? null;
     $siteLogo = $siteAssets['site.logo'] ?? null;
     $sectionPlaceholder = \App\Support\DefaultMediaAssets::asset($siteAssets ?? collect(), 'section');
     $sectionPlaceholderFit = \App\Support\DefaultMediaAssets::fit($defaultMediaSettings ?? [], 'section');
+    $buttonUrl = $sectionContent['button_url'] ?? route('products.index');
     $popularTourMedia = [
         'left_wide' => $section?->mediaSlot('frame', 'left_wide'),
         'left_small' => $section?->mediaSlot('frame', 'left_small'),
@@ -41,19 +44,19 @@
             </div>
 
             <span class="bp-popular-tour__label">
-                {{ $section?->label ?? 'Most Popular Tour' }}
+                {{ $sectionContent['label'] ?? 'Most Popular Tour' }}
             </span>
 
             <h2 id="popular-tour-title" class="bp-popular-tour__title title-section">
-                {{ $section?->title ?? "Let's Discover Bintan With Our Excellent Trips" }}
+                {{ $sectionContent['title'] ?? "Let's Discover Bintan With Our Excellent Trips" }}
             </h2>
 
             <p class="bp-popular-tour__text text-muted">
-                {{ $section?->description ?? "Whether you're looking for a private island escape, resort transfer, family-friendly activity, or curated Bintan journey, Bintan Prestige provides thoughtfully arranged travel experiences with comfort, quality, and local insight." }}
+                {{ $sectionContent['description'] ?? "Whether you're looking for a private island escape, resort transfer, family-friendly activity, or curated Bintan journey, Bintan Prestige provides thoughtfully arranged travel experiences with comfort, quality, and local insight." }}
             </p>
 
-            <a href="{{ $section?->button_url ?: route('products.index') }}" class="btn btn-primary bp-popular-tour__button">
-                <span>{{ $section?->button_text ?? 'TAKE A TOUR' }}</span>
+            <a href="{{ $buttonUrl }}" class="btn btn-primary bp-popular-tour__button">
+                <span>{{ $sectionContent['button_text'] ?? 'TAKE A TOUR' }}</span>
                 <svg class="bp-popular-tour__button-icon" viewBox="0 0 24 24" aria-hidden="true">
                     <path d="M7 17L17 7"></path>
                     <path d="M9 7h8v8"></path>

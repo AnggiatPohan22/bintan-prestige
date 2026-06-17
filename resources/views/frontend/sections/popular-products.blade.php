@@ -1,16 +1,18 @@
 @php
-    $section = $sections['home.popular_products_intro'] ?? null;
+    $homepageContent = $homepageContent ?? \App\Support\HomepageContent::fromSections(collect($sections ?? []));
+    $section = ($homepageContent ?? [])['sections']['home.popular_products_intro'] ?? [];
+    $sectionContent = ($homepageContent ?? [])['popular_products'] ?? [];
 @endphp
 
 <section class="bp-product-section" id="home-popular-products" data-section-key="home.popular_products_intro" aria-labelledby="popular-products-title">
     <div class="home-container">
         <div class="bp-product-section__header">
             <span class="bp-product-section__label">
-                {{ $section?->label ?? 'Most Popular Tour Packages' }}
+                {{ $section['label'] ?? 'Most Popular Tour Packages' }}
             </span>
 
             <h2 id="popular-products-title" class="bp-product-section__title title-section">
-                {{ $section?->title ?? 'Something Amazing Waiting For You' }}
+                {{ $section['title'] ?? 'Something Amazing Waiting For You' }}
             </h2>
         </div>
 
@@ -38,8 +40,8 @@
             </div>
 
             <div class="bp-product-actions">
-                <a href="{{ route('products.index') }}" class="btn btn-primary bp-product-view-all">
-                   <span> View All Package </span>
+                <a href="{{ $sectionContent['view_all_url'] ?? route('products.index') }}" class="btn btn-primary bp-product-view-all">
+                   <span>{{ $sectionContent['view_all_text'] ?? 'View All Package' }}</span>
                     <svg class="bp-product-view-all__icon" viewBox="0 0 24 24" aria-hidden="true">
                         <path d="M7 17L17 7"></path>
                         <path d="M9 7h8v8"></path>
@@ -87,12 +89,14 @@
         @else
             <div class="product-empty">
                 <h3 class="product-empty__title">
-                    Products coming soon
+                    {{ $sectionContent['empty_title'] ?? 'Products coming soon' }}
                 </h3>
 
-                <p class="product-empty__text">
-                    Published tour packages will appear here.
-                </p>
+                @if(filled($sectionContent['empty_text'] ?? null))
+                    <p class="product-empty__text">
+                        {{ $sectionContent['empty_text'] }}
+                    </p>
+                @endif
             </div>
         @endif
     </div>

@@ -17,7 +17,7 @@ class GlobalStructuredDataSettingsTest extends TestCase
 
     public function test_admin_can_manage_structured_data_settings_from_global_assets(): void
     {
-        $admin = User::factory()->create();
+        $admin = User::factory()->admin()->create();
 
         $response = $this->actingAs($admin)
             ->put(route('admin.settings.global-assets.structured-data.update'), [
@@ -61,7 +61,7 @@ class GlobalStructuredDataSettingsTest extends TestCase
 
     public function test_structured_data_tab_only_shows_structured_data_form(): void
     {
-        $admin = User::factory()->create();
+        $admin = User::factory()->admin()->create();
 
         $response = $this->actingAs($admin)
             ->get(route('admin.settings.global-assets.edit', ['tab' => 'structured-data']));
@@ -122,8 +122,7 @@ class GlobalStructuredDataSettingsTest extends TestCase
             'canonical_url' => null,
         ]);
 
-        $response = $this->view('frontend.products.show', [
-            'product' => $product,
+        $viewData = [
             'businessIdentity' => ['brand_name' => 'Bintan Prestige'],
             'contactInformation' => [],
             'seoDefaultSettings' => [
@@ -135,6 +134,12 @@ class GlobalStructuredDataSettingsTest extends TestCase
             'structuredDataSettings' => StructuredDataSettings::valuesFromSettings(collect()),
             'siteAssets' => collect(),
             'activeSocialMediaLinks' => collect(),
+        ];
+
+        $response = $this->view('frontend.products.show', [
+            'product' => $product,
+            ...$viewData,
+            ...$this->productDetailDisplayState($product, $viewData),
         ]);
 
         $response->assertSee('"@type":"BreadcrumbList"', false);

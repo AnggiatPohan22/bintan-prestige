@@ -5,7 +5,13 @@ const productGridSelector = '[data-product-grid]';
 const sectionSliderSelector = '[data-section-slider]';
 const sectionSlideSelector = '[data-section-slide]';
 const whatsappTrackingSelector = '[data-whatsapp-tracking]';
+const mobileNavSelector = '[data-mobile-nav]';
+const mobileNavToggleSelector = '[data-mobile-nav-toggle]';
+const mobileNavPanelSelector = '[data-mobile-nav-panel]';
+const mobileNavCloseSelector = '[data-mobile-nav-close]';
+const mobileNavLinkSelector = '[data-mobile-nav-link]';
 const scrolledClass = 'frontend-header--scrolled';
+const navOpenClass = 'frontend-body--nav-open';
 const scrollThreshold = 24;
 
 /**
@@ -49,6 +55,71 @@ export function initFrontendHeader() {
         },
         { passive: true }
     );
+}
+
+/**
+ * Initializes the mobile navigation drawer using the same server-rendered
+ * navigation links as the desktop header.
+ */
+export function initMobileNavigation() {
+    document.querySelectorAll(mobileNavSelector).forEach((navRoot) => {
+        const toggle = navRoot.querySelector(mobileNavToggleSelector);
+        const panel = navRoot.querySelector(mobileNavPanelSelector);
+        const closeButtons = Array.from(navRoot.querySelectorAll(mobileNavCloseSelector));
+        const links = Array.from(navRoot.querySelectorAll(mobileNavLinkSelector));
+        const desktopQuery = window.matchMedia('(min-width: 768px)');
+
+        if (!toggle || !panel) {
+            return;
+        }
+
+        const focusFirstPanelControl = () => {
+            const focusTarget = panel.querySelector(mobileNavCloseSelector)
+                || panel.querySelector(mobileNavLinkSelector);
+
+            focusTarget?.focus();
+        };
+
+        const setOpen = (isOpen, returnFocus = true) => {
+            panel.hidden = !isOpen;
+            toggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+            document.body.classList.toggle(navOpenClass, isOpen);
+
+            if (isOpen) {
+                window.requestAnimationFrame(focusFirstPanelControl);
+            } else if (returnFocus) {
+                toggle.focus();
+            }
+        };
+
+        toggle.addEventListener('click', () => {
+            setOpen(panel.hidden);
+        });
+
+        closeButtons.forEach((button) => {
+            button.addEventListener('click', () => {
+                setOpen(false);
+            });
+        });
+
+        links.forEach((link) => {
+            link.addEventListener('click', () => {
+                setOpen(false, false);
+            });
+        });
+
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape' && !panel.hidden) {
+                setOpen(false);
+            }
+        });
+
+        desktopQuery.addEventListener?.('change', (event) => {
+            if (event.matches && !panel.hidden) {
+                setOpen(false, false);
+            }
+        });
+    });
 }
 
 /**
@@ -360,6 +431,7 @@ export function initWhatsappCtaTracking() {
  */
 export function initFrontend() {
     initFrontendHeader();
+    initMobileNavigation();
     initDynamicHeroBackground();
     initPackageCarousels();
     initProductFilters();

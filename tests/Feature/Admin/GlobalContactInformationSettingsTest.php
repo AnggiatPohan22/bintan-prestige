@@ -13,7 +13,7 @@ class GlobalContactInformationSettingsTest extends TestCase
 
     public function test_admin_can_manage_contact_information_from_global_assets_settings(): void
     {
-        $admin = User::factory()->create();
+        $admin = User::factory()->admin()->create();
 
         $response = $this->actingAs($admin)
             ->put(route('admin.settings.global-assets.contact-information.update'), [
@@ -49,7 +49,7 @@ class GlobalContactInformationSettingsTest extends TestCase
 
     public function test_contact_information_tab_only_shows_contact_form(): void
     {
-        $admin = User::factory()->create();
+        $admin = User::factory()->admin()->create();
 
         $response = $this->actingAs($admin)
             ->get(route('admin.settings.global-assets.edit', ['tab' => 'contact-information']));

@@ -14,7 +14,7 @@ class GlobalNavigationSettingsTest extends TestCase
 
     public function test_admin_can_manage_header_navigation_from_global_assets_settings(): void
     {
-        $admin = User::factory()->create();
+        $admin = User::factory()->admin()->create();
 
         $response = $this->actingAs($admin)
             ->put(route('admin.settings.global-assets.navigation-settings.update'), [
@@ -98,7 +98,7 @@ class GlobalNavigationSettingsTest extends TestCase
 
     public function test_navigation_settings_tab_only_shows_navigation_form(): void
     {
-        $admin = User::factory()->create();
+        $admin = User::factory()->admin()->create();
 
         $response = $this->actingAs($admin)
             ->get(route('admin.settings.global-assets.edit', ['tab' => 'navigation-settings']));
@@ -166,6 +166,13 @@ class GlobalNavigationSettingsTest extends TestCase
         $response->assertSee('Experiences');
         $response->assertSee('Private Trip');
         $response->assertSee('frontend-nav__dropdown');
+        $response->assertSee('data-mobile-nav', false);
+        $response->assertSee('data-mobile-nav-toggle', false);
+        $response->assertSee('aria-controls="frontend-mobile-menu"', false);
+        $response->assertSee('aria-expanded="false"', false);
+        $response->assertSee('id="frontend-mobile-menu"', false);
+        $response->assertSee('data-mobile-nav-panel', false);
+        $response->assertSee('frontend-mobile-nav__children');
         $response->assertSee('href="http://localhost/experiences"', false);
         $response->assertSee('Reserve Trip');
         $response->assertSee('href="http://localhost/#reserve"', false);

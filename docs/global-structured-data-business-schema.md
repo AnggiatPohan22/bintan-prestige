@@ -467,7 +467,6 @@ url
 category
 brand
 offers
-additionalProperty
 ```
 
 Fallback data Product Schema:
@@ -478,28 +477,33 @@ description:
 2. product.short_description
 
 image:
-1. product.og_image_url
-2. product.thumbnail_url
+1. prepared Product Detail media state, excluding placeholder/fallback-only media
+2. product og_image jika tersedia
+3. product thumbnail jika tersedia
 
 url:
-1. product.canonical_url
-2. route products.show
+1. prepared Product Detail canonical URL
+2. product canonical_url
+3. route products.show
 
 category:
 1. product.category.name
 
 brand:
-1. reference ke #business
+1. Bintan Prestige / site brand reference
 
 offers:
-1. product IDR price jika ada
-2. product SGD price jika IDR kosong
-
-additionalProperty:
-1. product.duration
-2. product.destination.name
-3. product.meeting_point
+1. actual positive IDR price jika ada
+2. actual positive SGD price jika ada
+3. dua currency dirender sebagai dua Offer terpisah
+4. tidak ada Offer jika harga kosong, nol, atau tidak valid
 ```
+
+Product / Tour schema tidak merender fake availability, fake rating, fake review, SKU, GTIN, stock, booking status, price conversion, atau zero-price Offer.
+
+FAQPage schema untuk Product Detail dirender hanya dari FAQ yang benar-benar tampil di halaman dan memiliki question serta answer yang tidak kosong.
+
+BreadcrumbList schema untuk Product Detail mengikuti prepared visible breadcrumb state agar JSON-LD sama dengan breadcrumb yang terlihat.
 
 ## Hubungan Dengan SEO Default
 

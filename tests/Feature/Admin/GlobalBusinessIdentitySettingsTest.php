@@ -13,7 +13,7 @@ class GlobalBusinessIdentitySettingsTest extends TestCase
 
     public function test_admin_can_manage_business_identity_from_global_assets_settings(): void
     {
-        $admin = User::factory()->create();
+        $admin = User::factory()->admin()->create();
 
         $response = $this->actingAs($admin)
             ->put(route('admin.settings.global-assets.business-identity.update'), [
@@ -49,7 +49,7 @@ class GlobalBusinessIdentitySettingsTest extends TestCase
 
     public function test_business_identity_tab_only_shows_identity_form(): void
     {
-        $admin = User::factory()->create();
+        $admin = User::factory()->admin()->create();
 
         $response = $this->actingAs($admin)
             ->get(route('admin.settings.global-assets.edit', ['tab' => 'business-identity']));

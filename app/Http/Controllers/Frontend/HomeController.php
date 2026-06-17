@@ -8,26 +8,30 @@ use App\Models\Destination;
 use App\Models\Faq;
 use App\Models\PageSection;
 use App\Models\Product;
-use App\Models\SiteAsset;
+use App\Services\GlobalSettingsService;
+use App\Support\HomepageContent;
+use App\Support\PageSectionRegistry;
 
 class HomeController extends Controller
 {
-    public function index()
+    public function index(GlobalSettingsService $globalSettings)
     {
         $heroBackgroundUrl = null;
 
+        $homepageSectionKeys = collect(PageSectionRegistry::sections()['home'] ?? [])
+            ->pluck('section_key')
+            ->all();
+
         $sections = PageSection::query()
             ->where('page_key', 'home')
+            ->whereIn('section_key', $homepageSectionKeys)
             ->where('is_active', true)
             ->with('media')
             ->orderBy('sort_order')
             ->get()
             ->keyBy('section_key');
 
-        $siteAssets = SiteAsset::query()
-            ->where('is_active', true)
-            ->get()
-            ->keyBy('key');
+        $siteAssets = $globalSettings->siteAssets();
 
         $faqs = Faq::query()
             ->active()
@@ -36,19 +40,9 @@ class HomeController extends Controller
             ->take(6)
             ->get();
 
-        $featuredProducts = Product::query()
-            ->published()
-            ->frontendReady()
-            ->with(['category', 'destination', 'images'])
-            ->where('is_featured', true)
-            ->latest()
-            ->take(6)
-            ->get();
-
         $homeProducts = Product::query()
-            ->published()
-            ->frontendReady()
-            ->with(['category', 'destination', 'images'])
+            ->publiclyVisible()
+            ->frontendListingReady()
             ->latest()
             ->take(12)
             ->get();
@@ -70,21 +64,27 @@ class HomeController extends Controller
         $destinations = Destination::query()
             ->where('is_active', true)
             ->withCount([
-                'products' => fn ($query) => $query->published()
+                'products' => fn ($query) => $query->publiclyVisible()
             ])
             ->orderBy('name')
             ->get();
 
+        $homepageContent = HomepageContent::fromSections($sections);
+        $homeDestinations = HomepageContent::destinationCards($destinations);
+        $homeFaqItems = HomepageContent::faqItems($faqs, $homepageContent);
+
         return view(
             'frontend.home',
             compact(
-                'featuredProducts',
                 'homeProducts',
                 'homeProductCategories',
                 'categories',
                 'destinations',
+                'homeDestinations',
+                'homeFaqItems',
                 'heroBackgroundUrl',
                 'sections',
+                'homepageContent',
                 'siteAssets',
                 'faqs'
             )

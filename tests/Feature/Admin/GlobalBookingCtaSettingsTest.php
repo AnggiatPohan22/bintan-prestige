@@ -16,7 +16,7 @@ class GlobalBookingCtaSettingsTest extends TestCase
 
     public function test_admin_can_manage_booking_cta_settings_from_global_assets(): void
     {
-        $admin = User::factory()->create();
+        $admin = User::factory()->admin()->create();
 
         $response = $this->actingAs($admin)
             ->put(route('admin.settings.global-assets.booking-cta.update'), [
@@ -57,7 +57,7 @@ class GlobalBookingCtaSettingsTest extends TestCase
 
     public function test_booking_cta_tab_only_shows_booking_cta_form(): void
     {
-        $admin = User::factory()->create();
+        $admin = User::factory()->admin()->create();
 
         $response = $this->actingAs($admin)
             ->get(route('admin.settings.global-assets.edit', ['tab' => 'booking-cta']));
@@ -111,8 +111,7 @@ class GlobalBookingCtaSettingsTest extends TestCase
             'cta_button_text' => null,
         ]);
 
-        $response = $this->view('frontend.products.show', [
-            'product' => $product,
+        $viewData = [
             'businessIdentity' => ['brand_name' => 'Bintan Prestige'],
             'contactInformation' => ['whatsapp_number' => '628999888777'],
             'bookingCtaSettings' => [
@@ -123,6 +122,12 @@ class GlobalBookingCtaSettingsTest extends TestCase
                 'product_booking_label' => 'Reserve This Package',
                 'product_message_template' => 'Hello {site_name}, I want {product_name}: {product_url}',
             ],
+        ];
+
+        $response = $this->view('frontend.products.show', [
+            'product' => $product,
+            ...$viewData,
+            ...$this->productDetailDisplayState($product, $viewData),
         ]);
 
         $response->assertSee('Ask This Package');

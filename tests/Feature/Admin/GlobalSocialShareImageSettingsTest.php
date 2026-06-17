@@ -17,7 +17,7 @@ class GlobalSocialShareImageSettingsTest extends TestCase
     {
         Storage::fake('public');
 
-        $admin = User::factory()->create();
+        $admin = User::factory()->admin()->create();
 
         $response = $this->actingAs($admin)
             ->put(route('admin.settings.global-assets.social-share-image.update'), [
@@ -53,7 +53,7 @@ class GlobalSocialShareImageSettingsTest extends TestCase
 
     public function test_social_share_image_tab_only_shows_share_image_form(): void
     {
-        $admin = User::factory()->create();
+        $admin = User::factory()->admin()->create();
 
         $response = $this->actingAs($admin)
             ->get(route('admin.settings.global-assets.edit', ['tab' => 'social-share-image']));

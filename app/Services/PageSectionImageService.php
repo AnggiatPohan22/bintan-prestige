@@ -9,9 +9,19 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 
 class PageSectionImageService
 {
+    private const ALLOWED_EXTENSIONS = [
+        'jpg',
+        'jpeg',
+        'png',
+        'webp',
+        'ico',
+        'svg',
+    ];
+
     public function storeUploadedImage(UploadedFile $file, PageSection $section, ?string $oldPath = null): string
     {
         $this->deleteIfLocalPageSectionImage($oldPath);
@@ -144,9 +154,26 @@ class PageSectionImageService
 
     protected function storeFile(UploadedFile $file, string $folder): string
     {
-        $extension = strtolower($file->extension() ?: $file->guessExtension() ?: 'jpg');
+        $extension = $this->safeExtension($file);
 
         return $file->storeAs($folder, Str::uuid() . '.' . $extension, 'public');
+    }
+
+    protected function safeExtension(UploadedFile $file): string
+    {
+        $clientExtension = strtolower($file->getClientOriginalExtension() ?: '');
+        $extension = strtolower($file->extension() ?: $file->guessExtension() ?: $clientExtension);
+
+        if (
+            ($clientExtension !== '' && ! in_array($clientExtension, self::ALLOWED_EXTENSIONS, true))
+            || ! in_array($extension, self::ALLOWED_EXTENSIONS, true)
+        ) {
+            throw ValidationException::withMessages([
+                'file' => 'Unsupported upload extension.',
+            ]);
+        }
+
+        return $extension;
     }
 
     private function supportsMediaDisplayOptions(): bool

@@ -504,7 +504,7 @@
 
     /* BP PRODUCT CARD: Creates a white card with stable height and premium border shadow. */
     .bp-product-card {
-        @apply flex h-full flex-col overflow-hidden rounded-[1.35rem] border bg-white shadow-sm;
+        @apply flex h-full min-h-[27rem] flex-col overflow-hidden rounded-[1.25rem] border bg-white shadow-sm;
         border-color: var(--frontend-border);
         box-shadow: var(--frontend-shadow);
         transition:
@@ -522,7 +522,7 @@
 
     /* BP PRODUCT CARD IMAGE: Locks the top image frame so uploads cannot stretch the card. */
     .bp-product-card__image {
-        @apply relative block h-[180px] overflow-hidden bg-stone-100 focus:outline-none;
+        @apply relative block h-[180px] overflow-hidden bg-stone-100 focus:outline-none sm:h-[196px];
     }
 
     /* BP PRODUCT CARD IMAGE MEDIA: Crops product imagery cleanly inside the fixed frame. */
@@ -562,9 +562,21 @@
         @apply text-xl leading-tight;
         color: var(--frontend-charcoal);
         display: -webkit-box;
+        min-height: 3.25rem;
         overflow: hidden;
         -webkit-box-orient: vertical;
         -webkit-line-clamp: 2;
+    }
+
+    .bp-product-card__title a {
+        @apply transition;
+        color: inherit;
+        text-decoration: none;
+    }
+
+    .bp-product-card__title a:hover,
+    .bp-product-card__title a:focus-visible {
+        color: #8a681a;
     }
 
     /* BP PRODUCT CARD DESCRIPTION: Adds optional short description without uneven card growth. */
@@ -580,7 +592,7 @@
 
     /* BP PRODUCT CARD META: Displays destination and duration in a compact row. */
     .bp-product-card__meta {
-        @apply mt-4 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs font-bold;
+        @apply mt-4 flex min-h-5 flex-wrap items-center gap-x-2 gap-y-1 text-xs font-bold;
         color: var(--frontend-gray);
     }
 
@@ -613,9 +625,19 @@
         color: var(--frontend-charcoal);
     }
 
+    .bp-product-card__price-empty {
+        @apply leading-tight;
+        color: #8a681a;
+    }
+
+    .bp-product-card__price-secondary {
+        @apply mt-1 block text-xs font-extrabold;
+        color: var(--frontend-gray);
+    }
+
     /* BP PRODUCT CARD BUTTON: Keeps the detail button compact inside card footer. */
     .bp-product-card__button {
-        @apply shrink-0;
+        @apply min-h-11 shrink-0 px-4;
     }
 
     /* CAROUSEL ACTIONS: Groups the view-all CTA and carousel arrows for responsive headers. */
