@@ -145,7 +145,7 @@
                         <h3>{{ $block['title'] }}</h3>
 
                         @if($blockType === 'quick_links')
-                            @foreach($footerSettings['quick_links'] ?? [] as $link)
+                            @foreach((! empty($footerQuickLinks) ? $footerQuickLinks : ($footerSettings['quick_links'] ?? [])) as $link)
                                 @php
                                     $linkUrl = \App\Support\FooterSettings::resolveUrl($link['url'] ?? '#');
                                     $isExternal = (bool) ($link['is_external'] ?? false);
@@ -169,7 +169,7 @@
                             </a>
                             <span>{{ $openingHours }}</span>
                         @elseif($blockType === 'utility_links')
-                            @foreach($footerSettings['utility_links'] ?? [] as $link)
+                            @foreach((! empty($footerUtilityLinks) ? $footerUtilityLinks : ($footerSettings['utility_links'] ?? [])) as $link)
                                 @php
                                     $linkUrl = \App\Support\FooterSettings::resolveUrl($link['url'] ?? '#');
                                     $isExternal = (bool) ($link['is_external'] ?? false);
