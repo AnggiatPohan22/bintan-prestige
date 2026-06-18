@@ -12,6 +12,8 @@ class DatabaseSeeder extends Seeder
             TravelSeeder::class,
             HomePageSectionSeeder::class,
             FaqSeeder::class,
+            MenuSeeder::class,
+            PageTemplateSeeder::class,
         ]);
     }
 }

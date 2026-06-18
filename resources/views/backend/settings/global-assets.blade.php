@@ -482,7 +482,19 @@
                 @method('PUT')
 
                 <h2 class="text-lg font-bold text-slate-800">Header Navigation</h2>
-                <p class="mt-1 text-sm text-slate-500">Manage public header menu items and the main header action without editing frontend Blade.</p>
+                <p class="mt-1 text-sm text-slate-500">Controls the header’s appearance — CTA, sticky behavior, and menu colors.</p>
+
+                <div class="mt-4 flex items-start gap-3 rounded-xl border border-indigo-200 bg-indigo-50 p-4">
+                    <i class="fa-solid fa-circle-info mt-0.5 text-indigo-500"></i>
+                    <div class="text-sm">
+                        <p class="font-semibold text-indigo-800">Menu links are managed in the Menu Manager.</p>
+                        <p class="mt-1 text-indigo-700">
+                            These settings control appearance only. To add, edit, reorder, or set link types for
+                            header items, use
+                            <a href="{{ route('admin.menus.index') }}" class="font-semibold underline">Menu Manager &rarr;</a>
+                        </p>
+                    </div>
+                </div>
 
                 @php
                     $navigationBasicFields = collect($navigationFields)->reject(fn ($field) => $field['type'] === 'color');
@@ -562,92 +574,6 @@
                         </div>
                     </details>
 
-                @php
-                    $navigationItems = old('navigation_items', $navigationSettings['items'] ?? []);
-                    if (empty($navigationItems)) {
-                        $navigationItems = [['label' => '', 'url' => '', 'is_external' => false, 'children' => []]];
-                    }
-                @endphp
-
-                    <details class="rounded-xl border border-slate-200 bg-white">
-                        <summary class="cursor-pointer list-none rounded-xl px-4 py-4 text-base font-bold text-slate-800 transition hover:bg-slate-50">
-                            Menu Items
-                        </summary>
-
-                        <div class="border-t border-slate-200 bg-slate-50 p-4">
-                    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                        <div>
-                            <h3 class="text-base font-bold text-slate-800">Menu Items</h3>
-                            <p class="mt-1 text-sm text-slate-500">Only rows with label and URL will render. Use Move Up or Move Down to reorder menus.</p>
-                        </div>
-                        <button type="button" data-add-navigation-item class="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700">Add Menu</button>
-                    </div>
-
-                    <div class="mt-4 space-y-3" data-navigation-items-list>
-                        @foreach($navigationItems as $index => $item)
-                            @php
-                                $children = $item['children'] ?? [];
-                            @endphp
-
-                            <div class="rounded-xl border border-slate-200 bg-slate-50 p-4" data-navigation-item-row>
-                                <div class="grid grid-cols-1 gap-3 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)_150px_220px]">
-                                    <div>
-                                        <label class="form-label">Label</label>
-                                        <input type="text" name="navigation_items[{{ $index }}][label]" data-field="label" value="{{ $item['label'] ?? '' }}" class="{{ $inputClass }}" placeholder="Packages">
-                                        @error("navigation_items.$index.label") <p class="form-error">{{ $message }}</p> @enderror
-                                    </div>
-                                    <div>
-                                        <label class="form-label">URL</label>
-                                        <input type="text" name="navigation_items[{{ $index }}][url]" data-field="url" value="{{ $item['url'] ?? '' }}" class="{{ $inputClass }}" placeholder="/products">
-                                        @error("navigation_items.$index.url") <p class="form-error">{{ $message }}</p> @enderror
-                                    </div>
-                                    <label class="flex items-center gap-2 pt-8 text-sm font-semibold text-slate-700">
-                                        <input type="checkbox" name="navigation_items[{{ $index }}][is_external]" data-field="is_external" value="1" @checked((bool) ($item['is_external'] ?? false)) class="h-5 w-5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500">
-                                        Open in new tab
-                                    </label>
-                                    <div class="flex flex-wrap items-end gap-2">
-                                        <button type="button" data-move-navigation-item="up" class="rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-600 transition hover:bg-white">Move Up</button>
-                                        <button type="button" data-move-navigation-item="down" class="rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-600 transition hover:bg-white">Move Down</button>
-                                        <button type="button" data-remove-navigation-item class="rounded-lg border border-red-200 px-3 py-2 text-xs font-semibold text-red-600 transition hover:bg-red-50">Remove</button>
-                                    </div>
-                                </div>
-
-                                <div class="mt-4 rounded-xl border border-slate-200 bg-white p-4">
-                                    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                                        <div>
-                                            <h4 class="text-sm font-bold text-slate-800">Dropdown Items</h4>
-                                            <p class="mt-1 text-xs text-slate-500">Optional submenu shown under this menu item.</p>
-                                        </div>
-                                        <button type="button" data-add-navigation-child class="rounded-lg border border-emerald-200 px-3 py-2 text-xs font-semibold text-emerald-700 transition hover:bg-emerald-50">Add Dropdown</button>
-                                    </div>
-
-                                    <div class="mt-3 space-y-3" data-navigation-children-list>
-                                        @foreach($children as $childIndex => $child)
-                                            <div class="grid grid-cols-1 gap-3 rounded-lg border border-slate-200 bg-slate-50 p-3 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)_150px_auto]" data-navigation-child-row>
-                                                <div>
-                                                    <label class="form-label">Dropdown label</label>
-                                                    <input type="text" name="navigation_items[{{ $index }}][children][{{ $childIndex }}][label]" data-child-field="label" value="{{ $child['label'] ?? '' }}" class="{{ $inputClass }}" placeholder="Private Trip">
-                                                </div>
-                                                <div>
-                                                    <label class="form-label">Dropdown URL</label>
-                                                    <input type="text" name="navigation_items[{{ $index }}][children][{{ $childIndex }}][url]" data-child-field="url" value="{{ $child['url'] ?? '' }}" class="{{ $inputClass }}" placeholder="/products/private-trip">
-                                                </div>
-                                                <label class="flex items-center gap-2 pt-8 text-sm font-semibold text-slate-700">
-                                                    <input type="checkbox" name="navigation_items[{{ $index }}][children][{{ $childIndex }}][is_external]" data-child-field="is_external" value="1" @checked((bool) ($child['is_external'] ?? false)) class="h-5 w-5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500">
-                                                    New tab
-                                                </label>
-                                                <div class="flex items-end">
-                                                    <button type="button" data-remove-navigation-child class="w-full rounded-lg border border-red-200 px-3 py-2 text-xs font-semibold text-red-600 transition hover:bg-red-50">Remove</button>
-                                                </div>
-                                            </div>
-                                        @endforeach
-                                    </div>
-                                </div>
-                            </div>
-                        @endforeach
-                    </div>
-                        </div>
-                    </details>
                 </div>
 
                 <div class="mt-5 flex items-center gap-3 border-t border-slate-200 pt-5">
@@ -655,64 +581,8 @@
                 </div>
             </form>
 
-            <template data-navigation-item-template>
-                <div class="rounded-xl border border-slate-200 bg-slate-50 p-4" data-navigation-item-row>
-                    <div class="grid grid-cols-1 gap-3 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)_150px_220px]">
-                        <div>
-                            <label class="form-label">Label</label>
-                            <input type="text" data-field="label" class="{{ $inputClass }}" placeholder="Packages">
-                        </div>
-                        <div>
-                            <label class="form-label">URL</label>
-                            <input type="text" data-field="url" class="{{ $inputClass }}" placeholder="/products">
-                        </div>
-                        <label class="flex items-center gap-2 pt-8 text-sm font-semibold text-slate-700">
-                            <input type="checkbox" data-field="is_external" value="1" class="h-5 w-5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500">
-                            Open in new tab
-                        </label>
-                        <div class="flex flex-wrap items-end gap-2">
-                            <button type="button" data-move-navigation-item="up" class="rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-600 transition hover:bg-white">Move Up</button>
-                            <button type="button" data-move-navigation-item="down" class="rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-600 transition hover:bg-white">Move Down</button>
-                            <button type="button" data-remove-navigation-item class="rounded-lg border border-red-200 px-3 py-2 text-xs font-semibold text-red-600 transition hover:bg-red-50">Remove</button>
-                        </div>
-                    </div>
-
-                    <div class="mt-4 rounded-xl border border-slate-200 bg-white p-4">
-                        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                            <div>
-                                <h4 class="text-sm font-bold text-slate-800">Dropdown Items</h4>
-                                <p class="mt-1 text-xs text-slate-500">Optional submenu shown under this menu item.</p>
-                            </div>
-                            <button type="button" data-add-navigation-child class="rounded-lg border border-emerald-200 px-3 py-2 text-xs font-semibold text-emerald-700 transition hover:bg-emerald-50">Add Dropdown</button>
-                        </div>
-                        <div class="mt-3 space-y-3" data-navigation-children-list></div>
-                    </div>
-                </div>
-            </template>
-
-            <template data-navigation-child-template>
-                <div class="grid grid-cols-1 gap-3 rounded-lg border border-slate-200 bg-slate-50 p-3 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)_150px_auto]" data-navigation-child-row>
-                    <div>
-                        <label class="form-label">Dropdown label</label>
-                        <input type="text" data-child-field="label" class="{{ $inputClass }}" placeholder="Private Trip">
-                    </div>
-                    <div>
-                        <label class="form-label">Dropdown URL</label>
-                        <input type="text" data-child-field="url" class="{{ $inputClass }}" placeholder="/products/private-trip">
-                    </div>
-                    <label class="flex items-center gap-2 pt-8 text-sm font-semibold text-slate-700">
-                        <input type="checkbox" data-child-field="is_external" value="1" class="h-5 w-5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500">
-                        New tab
-                    </label>
-                    <div class="flex items-end">
-                        <button type="button" data-remove-navigation-child class="w-full rounded-lg border border-red-200 px-3 py-2 text-xs font-semibold text-red-600 transition hover:bg-red-50">Remove</button>
-                    </div>
-                </div>
-            </template>
-
             <script>
                 (function () {
-                    const listSelector = '[data-navigation-items-list]';
                     const accordionSelector = '[data-navigation-accordion] details';
 
                     document.querySelectorAll(accordionSelector).forEach(function (accordion) {
@@ -728,88 +598,6 @@
                             });
                         });
                     });
-
-                    function reindexNavigationItems() {
-                        const list = document.querySelector('[data-navigation-items-list]');
-                        if (!list) {
-                            return;
-                        }
-
-                        list.querySelectorAll('[data-navigation-item-row]').forEach(function (row, index) {
-                            row.querySelectorAll('[data-field]').forEach(function (input) {
-                                input.name = `navigation_items[${index}][${input.dataset.field}]`;
-                            });
-
-                            row.querySelectorAll('[data-navigation-child-row]').forEach(function (childRow, childIndex) {
-                                childRow.querySelectorAll('[data-child-field]').forEach(function (input) {
-                                    input.name = `navigation_items[${index}][children][${childIndex}][${input.dataset.childField}]`;
-                                });
-                            });
-                        });
-                    }
-
-                    document.addEventListener('click', function (event) {
-                        if (event.target.matches('[data-add-navigation-item]')) {
-                            const list = document.querySelector(listSelector);
-                            const template = document.querySelector('[data-navigation-item-template]');
-                            const row = template.content.firstElementChild.cloneNode(true);
-
-                            list.appendChild(row);
-                            reindexNavigationItems();
-                        }
-
-                        if (event.target.matches('[data-add-navigation-child]')) {
-                            const row = event.target.closest('[data-navigation-item-row]');
-                            const childrenList = row.querySelector('[data-navigation-children-list]');
-                            const template = document.querySelector('[data-navigation-child-template]');
-                            const child = template.content.firstElementChild.cloneNode(true);
-
-                            childrenList.appendChild(child);
-                            reindexNavigationItems();
-                        }
-
-                        if (event.target.matches('[data-move-navigation-item]')) {
-                            const row = event.target.closest('[data-navigation-item-row]');
-                            const direction = event.target.dataset.moveNavigationItem;
-
-                            if (direction === 'up' && row.previousElementSibling) {
-                                row.parentNode.insertBefore(row, row.previousElementSibling);
-                            }
-
-                            if (direction === 'down' && row.nextElementSibling) {
-                                row.parentNode.insertBefore(row.nextElementSibling, row);
-                            }
-
-                            reindexNavigationItems();
-                        }
-
-                        if (event.target.matches('[data-remove-navigation-child]')) {
-                            event.target.closest('[data-navigation-child-row]').remove();
-                            reindexNavigationItems();
-                        }
-
-                        if (event.target.matches('[data-remove-navigation-item]')) {
-                            const row = event.target.closest('[data-navigation-item-row]');
-                            const list = document.querySelector(listSelector);
-
-                            if (list.querySelectorAll('[data-navigation-item-row]').length > 1) {
-                                row.remove();
-                            } else {
-                                row.querySelectorAll('input').forEach(function (input) {
-                                    if (input.type === 'checkbox') {
-                                        input.checked = false;
-                                    } else {
-                                        input.value = '';
-                                    }
-                                });
-                                row.querySelector('[data-navigation-children-list]').innerHTML = '';
-                            }
-
-                            reindexNavigationItems();
-                        }
-                    });
-
-                    reindexNavigationItems();
                 })();
             </script>
         @endif
@@ -821,6 +609,18 @@
 
                 <h2 class="text-lg font-bold text-slate-800">Footer Settings</h2>
                 <p class="mt-1 text-sm text-slate-500">Manage footer-specific display settings and menus while contact and social data stay global.</p>
+
+                <div class="mt-4 flex items-start gap-3 rounded-xl border border-indigo-200 bg-indigo-50 p-4">
+                    <i class="fa-solid fa-circle-info mt-0.5 text-indigo-500"></i>
+                    <div class="text-sm">
+                        <p class="font-semibold text-indigo-800">Footer links are managed in the Menu Manager.</p>
+                        <p class="mt-1 text-indigo-700">
+                            These settings control footer display, logo, and layout blocks only. Manage the
+                            <strong>Quick Links</strong> and <strong>Utility Links</strong> in
+                            <a href="{{ route('admin.menus.index') }}" class="font-semibold underline">Menu Manager &rarr;</a>
+                        </p>
+                    </div>
+                </div>
 
                 <div class="mt-5 space-y-3" data-footer-accordion>
                     <details class="rounded-xl border border-slate-200 bg-white" open>
@@ -869,8 +669,6 @@
                     </details>
 
                     @php
-                        $footerQuickLinks = old('footer_quick_links', $footerSettings['quick_links'] ?? []);
-                        $footerUtilityLinks = old('footer_utility_links', $footerSettings['utility_links'] ?? []);
                         $footerLayoutBlocks = old('footer_layout_blocks', $footerSettings['layout_blocks'] ?? []);
                         $footerBlockTypes = \App\Support\FooterSettings::blockTypes();
                         $footerWidthOptions = \App\Support\FooterSettings::widthOptions();
@@ -942,75 +740,12 @@
                         </div>
                     </details>
 
-                    @foreach([
-                        ['key' => 'quick', 'title' => 'Quick Links', 'description' => 'Primary footer menu links.', 'list' => $footerQuickLinks, 'input' => 'footer_quick_links'],
-                        ['key' => 'utility', 'title' => 'Utility Links', 'description' => 'Secondary footer links such as policy, FAQ, and blog.', 'list' => $footerUtilityLinks, 'input' => 'footer_utility_links'],
-                    ] as $menuGroup)
-                        <details class="rounded-xl border border-slate-200 bg-white">
-                            <summary class="cursor-pointer list-none rounded-xl px-4 py-4 text-base font-bold text-slate-800 transition hover:bg-slate-50">
-                                {{ $menuGroup['title'] }}
-                            </summary>
-
-                            <div class="border-t border-slate-200 bg-slate-50 p-4">
-                                <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                                    <p class="text-sm text-slate-500">{{ $menuGroup['description'] }}</p>
-                                    <button type="button" data-add-footer-link="{{ $menuGroup['key'] }}" class="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700">Add Link</button>
-                                </div>
-
-                                <div class="mt-4 space-y-3" data-footer-links-list="{{ $menuGroup['key'] }}">
-                                    @foreach($menuGroup['list'] as $index => $link)
-                                        <div class="grid grid-cols-1 gap-3 rounded-xl border border-slate-200 bg-white p-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)_150px_220px]" data-footer-link-row>
-                                            <div>
-                                                <label class="form-label">Label</label>
-                                                <input type="text" name="{{ $menuGroup['input'] }}[{{ $index }}][label]" data-field="label" value="{{ $link['label'] ?? '' }}" class="{{ $inputClass }}" placeholder="Packages">
-                                            </div>
-                                            <div>
-                                                <label class="form-label">URL</label>
-                                                <input type="text" name="{{ $menuGroup['input'] }}[{{ $index }}][url]" data-field="url" value="{{ $link['url'] ?? '' }}" class="{{ $inputClass }}" placeholder="/products">
-                                            </div>
-                                            <label class="flex items-center gap-2 pt-8 text-sm font-semibold text-slate-700">
-                                                <input type="checkbox" name="{{ $menuGroup['input'] }}[{{ $index }}][is_external]" data-field="is_external" value="1" @checked((bool) ($link['is_external'] ?? false)) class="h-5 w-5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500">
-                                                Open in new tab
-                                            </label>
-                                            <div class="flex flex-wrap items-end gap-2">
-                                                <button type="button" data-move-footer-link="up" class="rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-600 transition hover:bg-slate-50">Move Up</button>
-                                                <button type="button" data-move-footer-link="down" class="rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-600 transition hover:bg-slate-50">Move Down</button>
-                                                <button type="button" data-remove-footer-link class="rounded-lg border border-red-200 px-3 py-2 text-xs font-semibold text-red-600 transition hover:bg-red-50">Remove</button>
-                                            </div>
-                                        </div>
-                                    @endforeach
-                                </div>
-                            </div>
-                        </details>
-                    @endforeach
                 </div>
 
                 <div class="mt-5 flex items-center gap-3 border-t border-slate-200 pt-5">
                     <button type="submit" class="btn-primary">Save Footer Settings</button>
                 </div>
             </form>
-
-            <template data-footer-link-template>
-                <div class="grid grid-cols-1 gap-3 rounded-xl border border-slate-200 bg-white p-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)_150px_220px]" data-footer-link-row>
-                    <div>
-                        <label class="form-label">Label</label>
-                        <input type="text" data-field="label" class="{{ $inputClass }}" placeholder="Packages">
-                    </div>
-                    <div>
-                        <label class="form-label">URL</label>
-                        <input type="text" data-field="url" class="{{ $inputClass }}" placeholder="/products">
-                    </div>
-                    <label class="flex items-center gap-2 pt-8 text-sm font-semibold text-slate-700">
-                        <input type="checkbox" data-field="is_external" value="1" class="h-5 w-5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500">
-                        Open in new tab
-                    </label>
-                    <div class="flex flex-wrap items-end gap-2">
-                        <button type="button" data-move-footer-link="up" class="rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-600 transition hover:bg-slate-50">Move Up</button>
-                        <button type="button" data-move-footer-link="down" class="rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-600 transition hover:bg-slate-50">Move Down</button>
-                        <button type="button" data-remove-footer-link class="rounded-lg border border-red-200 px-3 py-2 text-xs font-semibold text-red-600 transition hover:bg-red-50">Remove</button>
-                    </div>
-                </div>
-            </template>
 
             <template data-footer-block-template>
                 <div class="rounded-xl border border-slate-200 bg-white p-4" data-footer-block-row>
@@ -1061,11 +796,6 @@
 
             <script>
                 (function () {
-                    const inputNames = {
-                        quick: 'footer_quick_links',
-                        utility: 'footer_utility_links',
-                    };
-
                     function reindexFooterBlocks() {
                         const list = document.querySelector('[data-footer-blocks-list]');
 
@@ -1136,20 +866,6 @@
                         });
                     });
 
-                    function reindexFooterLinks(group) {
-                        const list = document.querySelector(`[data-footer-links-list="${group}"]`);
-
-                        if (!list) {
-                            return;
-                        }
-
-                        list.querySelectorAll('[data-footer-link-row]').forEach(function (row, index) {
-                            row.querySelectorAll('[data-field]').forEach(function (input) {
-                                input.name = `${inputNames[group]}[${index}][${input.dataset.field}]`;
-                            });
-                        });
-                    }
-
                     document.addEventListener('click', function (event) {
                         if (event.target.matches('[data-add-footer-block]')) {
                             const list = document.querySelector('[data-footer-blocks-list]');
@@ -1193,53 +909,6 @@
 
                             reindexFooterBlocks();
                         }
-
-                        if (event.target.matches('[data-add-footer-link]')) {
-                            const group = event.target.dataset.addFooterLink;
-                            const list = document.querySelector(`[data-footer-links-list="${group}"]`);
-                            const template = document.querySelector('[data-footer-link-template]');
-                            const row = template.content.firstElementChild.cloneNode(true);
-
-                            list.appendChild(row);
-                            reindexFooterLinks(group);
-                        }
-
-                        if (event.target.matches('[data-move-footer-link]')) {
-                            const row = event.target.closest('[data-footer-link-row]');
-                            const list = row.closest('[data-footer-links-list]');
-                            const group = list.dataset.footerLinksList;
-                            const direction = event.target.dataset.moveFooterLink;
-
-                            if (direction === 'up' && row.previousElementSibling) {
-                                row.parentNode.insertBefore(row, row.previousElementSibling);
-                            }
-
-                            if (direction === 'down' && row.nextElementSibling) {
-                                row.parentNode.insertBefore(row.nextElementSibling, row);
-                            }
-
-                            reindexFooterLinks(group);
-                        }
-
-                        if (event.target.matches('[data-remove-footer-link]')) {
-                            const row = event.target.closest('[data-footer-link-row]');
-                            const list = row.closest('[data-footer-links-list]');
-                            const group = list.dataset.footerLinksList;
-
-                            if (list.querySelectorAll('[data-footer-link-row]').length > 1) {
-                                row.remove();
-                            } else {
-                                row.querySelectorAll('input').forEach(function (input) {
-                                    if (input.type === 'checkbox') {
-                                        input.checked = false;
-                                    } else {
-                                        input.value = '';
-                                    }
-                                });
-                            }
-
-                            reindexFooterLinks(group);
-                        }
                     });
 
                     document.addEventListener('change', function (event) {
@@ -1248,7 +917,6 @@
                         }
                     });
 
-                    Object.keys(inputNames).forEach(reindexFooterLinks);
                     reindexFooterBlocks();
                 })();
             </script>

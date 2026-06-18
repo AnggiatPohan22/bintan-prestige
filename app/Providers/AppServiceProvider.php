@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Services\GlobalSettingsService;
+use App\Services\MenuService;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
@@ -67,6 +68,25 @@ class AppServiceProvider extends ServiceProvider
                 $globalSettings = $resolveGlobalSettings();
                 $view->with('socialMediaLinks', $globalSettings['socialMediaLinks']);
                 $view->with('activeSocialMediaLinks', $globalSettings['activeSocialMediaLinks']);
+            }
+
+            // Menu Manager trees (single source of truth for header/footer links).
+            // Empty arrays fall back to the legacy Global Assets settings in the views.
+            $menuService = null;
+            $resolveMenu = function (string $location) use (&$menuService): array {
+                $menuService ??= app(MenuService::class);
+
+                return $menuService->tree($location);
+            };
+
+            foreach ([
+                'headerMenu'         => 'header',
+                'footerQuickLinks'   => 'footer_quick',
+                'footerUtilityLinks' => 'footer_utility',
+            ] as $key => $location) {
+                if (! array_key_exists($key, $viewData)) {
+                    $view->with($key, $resolveMenu($location));
+                }
             }
         });
     }

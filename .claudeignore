@@ -1,0 +1,69 @@
+Read AGENTS.md first.
+
+Task: Create a .claudeignore file in the project root.
+
+This file tells Claude Code which files and folders to never read or index.
+Do NOT modify any existing code. This is a new file only.
+
+Create `.claudeignore` with exactly this content:
+
+# ============================================
+# .claudeignore — Bintan Prestige CMS
+# Claude Code: skip these files and folders
+# ============================================
+
+# PHP & JS dependencies
+vendor/
+node_modules/
+
+# Compiled & built assets
+public/build/
+public/hot/
+public/fonts-manifest.dev.json
+
+# Runtime, cache & logs
+storage/logs/
+storage/framework/cache/
+storage/framework/sessions/
+storage/framework/views/
+storage/app/public/
+
+# Historical AI reports (50+ files — read manually if needed)
+ai/reports/
+
+# User-uploaded files (not source code)
+public/uploads/
+public/storage/
+
+# IDE and editor config
+.idea/
+.vscode/
+.cursor/
+.nova/
+.zed/
+_ide_helper.php
+.phpactor.json
+
+# Environment & secrets
+.env
+.env.*
+auth.json
+
+# Git internals
+.git/
+
+# PHP test cache
+.phpunit.cache/
+.phpunit.result.cache
+
+# Temp files
+*.log
+Thumbs.db
+.DS_Store
+
+After creating the file, confirm:
+1. File is saved at project root (.claudeignore)
+2. List the top 3 folders that will now be skipped
+3. Confirm ai/skills/ and ai/guidelines/ are NOT ignored (Claude still needs to read these)
+
+Report using AGENTS.md §11 format.

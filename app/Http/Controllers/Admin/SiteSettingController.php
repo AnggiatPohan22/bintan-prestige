@@ -479,20 +479,11 @@ class SiteSettingController extends Controller
             })
             ->all();
 
-        $validated = $request->validate([
-            ...$navigationSettingRules,
-            'navigation_items' => ['nullable', 'array'],
-            'navigation_items.*.label' => ['nullable', 'string', 'max:80'],
-            'navigation_items.*.url' => ['nullable', 'string', 'max:500'],
-            'navigation_items.*.is_external' => ['nullable', 'boolean'],
-            'navigation_items.*.children' => ['nullable', 'array'],
-            'navigation_items.*.children.*.label' => ['nullable', 'string', 'max:80'],
-            'navigation_items.*.children.*.url' => ['nullable', 'string', 'max:500'],
-            'navigation_items.*.children.*.is_external' => ['nullable', 'boolean'],
-        ]);
+        // Menu links are managed exclusively in the Menu Manager. This form only
+        // controls appearance (CTA, sticky, colors) and never reads/writes link items.
+        $validated = $request->validate($navigationSettingRules);
 
         $settings = $validated['navigation_settings'] ?? [];
-        $items = NavigationSettings::normalizeItems($validated['navigation_items'] ?? []);
 
         foreach (NavigationSettings::fields() as $field) {
             SiteSetting::updateOrCreate(
@@ -508,17 +499,6 @@ class SiteSettingController extends Controller
                 ]
             );
         }
-
-        SiteSetting::updateOrCreate(
-            ['key' => NavigationSettings::ITEMS_KEY],
-            [
-                'label' => 'Header navigation items',
-                'value' => json_encode($items !== [] ? $items : NavigationSettings::defaultItems()),
-                'type' => 'json',
-                'group' => NavigationSettings::GROUP,
-                'is_active' => true,
-            ]
-        );
 
         return redirect()
             ->route('admin.settings.global-assets.edit', ['tab' => 'navigation-settings'])
@@ -545,16 +525,10 @@ class SiteSettingController extends Controller
             })
             ->all();
 
+        // Footer menu links are managed exclusively in the Menu Manager. This form
+        // only controls footer display, logo, and layout blocks.
         $validated = $request->validate([
             ...$footerSettingRules,
-            'footer_quick_links' => ['nullable', 'array'],
-            'footer_quick_links.*.label' => ['nullable', 'string', 'max:80'],
-            'footer_quick_links.*.url' => ['nullable', 'string', 'max:500'],
-            'footer_quick_links.*.is_external' => ['nullable', 'boolean'],
-            'footer_utility_links' => ['nullable', 'array'],
-            'footer_utility_links.*.label' => ['nullable', 'string', 'max:80'],
-            'footer_utility_links.*.url' => ['nullable', 'string', 'max:500'],
-            'footer_utility_links.*.is_external' => ['nullable', 'boolean'],
             'footer_layout_blocks' => ['nullable', 'array'],
             'footer_layout_blocks.*.type' => ['nullable', 'string', 'in:' . implode(',', array_keys(FooterSettings::blockTypes()))],
             'footer_layout_blocks.*.title' => ['nullable', 'string', 'max:80'],
@@ -566,8 +540,6 @@ class SiteSettingController extends Controller
         ]);
 
         $settings = $validated['footer_settings'] ?? [];
-        $quickLinks = FooterSettings::normalizeLinks($validated['footer_quick_links'] ?? []);
-        $utilityLinks = FooterSettings::normalizeLinks($validated['footer_utility_links'] ?? []);
         $layoutBlocks = FooterSettings::normalizeLayoutBlocks($validated['footer_layout_blocks'] ?? []);
 
         if (FooterSettings::layoutWidthTotal($layoutBlocks) > 3) {
@@ -591,28 +563,6 @@ class SiteSettingController extends Controller
                 ]
             );
         }
-
-        SiteSetting::updateOrCreate(
-            ['key' => FooterSettings::QUICK_LINKS_KEY],
-            [
-                'label' => 'Footer quick links',
-                'value' => json_encode($quickLinks !== [] ? $quickLinks : FooterSettings::defaultQuickLinks()),
-                'type' => 'json',
-                'group' => FooterSettings::GROUP,
-                'is_active' => true,
-            ]
-        );
-
-        SiteSetting::updateOrCreate(
-            ['key' => FooterSettings::UTILITY_LINKS_KEY],
-            [
-                'label' => 'Footer utility links',
-                'value' => json_encode($utilityLinks !== [] ? $utilityLinks : FooterSettings::defaultUtilityLinks()),
-                'type' => 'json',
-                'group' => FooterSettings::GROUP,
-                'is_active' => true,
-            ]
-        );
 
         SiteSetting::updateOrCreate(
             ['key' => FooterSettings::LAYOUT_BLOCKS_KEY],

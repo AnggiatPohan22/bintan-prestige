@@ -97,6 +97,30 @@
                 Content
             </p>
 
+            <a href="{{ route('admin.pages.index') }}"
+               class="group admin-sidebar__link {{ request()->routeIs('admin.pages.*') ? 'admin-sidebar__link--active' : '' }}">
+                <span class="admin-sidebar__icon">
+                    <i class="fa-solid fa-file-lines" aria-hidden="true"></i>
+                </span>
+                <span>Pages</span>
+            </a>
+
+            <a href="{{ route('admin.menus.index') }}"
+               class="group admin-sidebar__link {{ request()->routeIs('admin.menus.*') || request()->routeIs('admin.menu-items.*') ? 'admin-sidebar__link--active' : '' }}">
+                <span class="admin-sidebar__icon">
+                    <i class="fa-solid fa-bars-staggered" aria-hidden="true"></i>
+                </span>
+                <span>Menus</span>
+            </a>
+
+            <a href="{{ route('admin.media.index') }}"
+               class="group admin-sidebar__link {{ request()->routeIs('admin.media.*') ? 'admin-sidebar__link--active' : '' }}">
+                <span class="admin-sidebar__icon">
+                    <i class="fa-solid fa-photo-film" aria-hidden="true"></i>
+                </span>
+                <span>Media Library</span>
+            </a>
+
             <a href="{{ route('admin.faqs.index') }}"
                class="group admin-sidebar__link {{ request()->routeIs('admin.faqs.*') ? 'admin-sidebar__link--active' : '' }}">
                 <span class="admin-sidebar__icon">

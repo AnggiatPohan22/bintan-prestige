@@ -4,6 +4,11 @@ use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DestinationController;
 use App\Http\Controllers\Admin\FaqController;
+use App\Http\Controllers\Admin\MediaController;
+use App\Http\Controllers\Admin\MenuController;
+use App\Http\Controllers\Admin\MenuItemController;
+use App\Http\Controllers\Admin\PageBlockController;
+use App\Http\Controllers\Admin\PageController;
 use App\Http\Controllers\Admin\PageSectionController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\ProductFaqController;
@@ -13,6 +18,7 @@ use App\Http\Controllers\Admin\ProductItineraryController;
 use App\Http\Controllers\Admin\ProductNoteController;
 use App\Http\Controllers\Admin\SiteSettingController;
 use App\Http\Controllers\Admin\UserManagementController;
+use App\Http\Controllers\Frontend\PageController as FrontendPageController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', 'admin'])
@@ -29,6 +35,16 @@ Route::middleware(['auth', 'admin'])
             DashboardController::class,
             'index'
         ])->name('dashboard');
+
+        Route::post('media/upload-quick', [MediaController::class, 'uploadQuick'])
+            ->name('media.upload-quick');
+
+        Route::post('media/upload-batch', [MediaController::class, 'uploadBatch'])
+            ->name('media.upload-batch');
+
+        Route::resource('media', MediaController::class)
+            ->only(['index', 'store', 'update', 'destroy'])
+            ->parameters(['media' => 'media']);
 
         Route::middleware('can:manage-users')
             ->prefix('users')
@@ -127,6 +143,56 @@ Route::middleware(['auth', 'admin'])
 
         Route::delete('page-section-media/{media}', [PageSectionController::class, 'destroyMedia'])
             ->name('page-sections.media.destroy');
+
+        /*
+        |--------------------------------------------------------------------------
+        | Pages
+        |--------------------------------------------------------------------------
+        */
+        Route::post('pages/reorder', [PageController::class, 'reorder'])
+            ->name('pages.reorder');
+
+        Route::get('pages/{page}/preview', [FrontendPageController::class, 'preview'])
+            ->name('pages.preview');
+
+        Route::resource('pages', PageController::class)
+            ->except(['show']);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Page Blocks
+        |--------------------------------------------------------------------------
+        */
+        Route::prefix('pages/{page}/blocks')
+            ->name('page-blocks.')
+            ->group(function () {
+                Route::post('/', [PageBlockController::class, 'store'])->name('store');
+                Route::put('{block}', [PageBlockController::class, 'update'])->name('update');
+                Route::delete('{block}', [PageBlockController::class, 'destroy'])->name('destroy');
+                Route::post('reorder', [PageBlockController::class, 'reorder'])->name('reorder');
+                Route::post('{block}/toggle-visible', [PageBlockController::class, 'toggleVisible'])->name('toggle-visible');
+            });
+
+        /*
+        |--------------------------------------------------------------------------
+        | Menus (Menu Manager) — link structure for header/footer
+        |--------------------------------------------------------------------------
+        */
+        Route::get('menus', [MenuController::class, 'index'])
+            ->name('menus.index');
+
+        Route::get('menus/{menu}/edit', [MenuController::class, 'edit'])
+            ->name('menus.edit');
+
+        Route::prefix('menus/{menu}/items')
+            ->name('menu-items.')
+            ->group(function () {
+                Route::post('/', [MenuItemController::class, 'store'])->name('store');
+                Route::put('{item}', [MenuItemController::class, 'update'])->name('update');
+                Route::delete('{item}', [MenuItemController::class, 'destroy'])->name('destroy');
+                Route::post('reorder', [MenuItemController::class, 'reorder'])->name('reorder');
+                Route::post('{item}/toggle-active', [MenuItemController::class, 'toggleActive'])->name('toggle-active');
+            });
 
         Route::resource('faqs', FaqController::class)
             ->except(['show']);

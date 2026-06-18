@@ -47,6 +47,8 @@
 
 </div>
 
+@stack('scripts')
+
 <script>
 let confirmUrl = null;
 
