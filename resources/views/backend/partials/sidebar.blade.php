@@ -94,6 +94,18 @@
             @endcan
 
             <p class="admin-sidebar__section-label">
+                Appearance
+            </p>
+
+            <a href="{{ route('admin.themes.index') }}"
+               class="group admin-sidebar__link {{ request()->routeIs('admin.themes.*') ? 'admin-sidebar__link--active' : '' }}">
+                <span class="admin-sidebar__icon">
+                    <i class="fa-solid fa-palette" aria-hidden="true"></i>
+                </span>
+                <span>Themes</span>
+            </a>
+
+            <p class="admin-sidebar__section-label">
                 Content
             </p>
 

@@ -1,0 +1,44 @@
+{
+    "name": "Bintan Prestige Luxury",
+    "slug": "bintan-prestige-luxury",
+    "version": "1.0.0",
+    "author": "Bintan Prestige",
+    "description": "The default luxury theme for Bintan Prestige. Black, gold, and white. Cinzel headings, Montserrat body type. Designed for premium travel experiences.",
+    "screenshot": "screenshot.png",
+    "sort_order": 0,
+    "widget_areas": {
+        "footer-col-1":  { "label": "Footer Column 1",  "description": "First column in the footer widget zone" },
+        "footer-col-2":  { "label": "Footer Column 2",  "description": "Second column in the footer widget zone" },
+        "footer-col-3":  { "label": "Footer Column 3",  "description": "Third column in the footer widget zone" },
+        "before-footer": { "label": "Before Footer",    "description": "Full-width zone above the footer bar" }
+    },
+    "customization_schema": {
+        "colors": {
+            "label": "Colors",
+            "tokens": [
+                { "key": "--frontend-gold",                "label": "Brand Gold",              "type": "color", "default": "#B8924A" },
+                { "key": "--frontend-black",               "label": "Primary Dark",             "type": "color", "default": "#1a1a1a" },
+                { "key": "--frontend-brand-accent",        "label": "Accent Gold",              "type": "color", "default": "#c4a44a" },
+                { "key": "--frontend-white",               "label": "Card Background",          "type": "color", "default": "#ffffff" },
+                { "key": "--frontend-gold-pale",           "label": "Gold Pale Surface",        "type": "color", "default": "#faf6ef" },
+                { "key": "--frontend-surface-body",        "label": "Page Background",          "type": "color", "default": "#f9f9f9" },
+                { "key": "--frontend-surface-dark",        "label": "Dark Section Background",  "type": "color", "default": "#111111" },
+                { "key": "--frontend-text-title",          "label": "Heading Text",             "type": "color", "default": "#1a1a1a" },
+                { "key": "--frontend-text-body",           "label": "Body Text",                "type": "color", "default": "#3d3d3d" },
+                { "key": "--frontend-text-muted",          "label": "Muted Text",               "type": "color", "default": "#888888" },
+                { "key": "--frontend-text-link",           "label": "Link Color",               "type": "color", "default": "#B8924A" },
+                { "key": "--frontend-button-primary-bg",   "label": "Primary Button Background","type": "color", "default": "#B8924A" },
+                { "key": "--frontend-button-primary-text", "label": "Primary Button Text",      "type": "color", "default": "#ffffff" },
+                { "key": "--frontend-button-cta-bg",       "label": "CTA Button Background",    "type": "color", "default": "#c4a44a" },
+                { "key": "--frontend-button-cta-text",     "label": "CTA Button Text",          "type": "color", "default": "#ffffff" }
+            ]
+        },
+        "typography": {
+            "label": "Typography",
+            "tokens": [
+                { "key": "--frontend-font-heading", "label": "Heading Font",   "type": "text", "default": "Forum, Georgia, serif" },
+                { "key": "--frontend-font-body",    "label": "Body Font",      "type": "text", "default": "Montserrat, system-ui, sans-serif" }
+            ]
+        }
+    }
+}

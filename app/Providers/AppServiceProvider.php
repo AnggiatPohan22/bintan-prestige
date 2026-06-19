@@ -8,8 +8,11 @@ use App\Models\Menu;
 use App\Models\MenuItem;
 use App\Models\Page;
 use App\Models\Product;
+use App\Models\Theme;
+use App\Models\Widget;
 use App\Services\GlobalSettingsService;
 use App\Services\MenuService;
+use App\Services\ThemeService;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
@@ -22,6 +25,7 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->singleton(GlobalSettingsService::class);
+        $this->app->singleton(ThemeService::class);
     }
 
     /**
@@ -40,6 +44,14 @@ class AppServiceProvider extends ServiceProvider
 
         Category::restored($forgetMenus);
         Destination::restored($forgetMenus);
+
+        $forgetTheme = fn () => app(ThemeService::class)->forget();
+
+        Theme::saved($forgetTheme);
+        Theme::deleted($forgetTheme);
+
+        Widget::saved($forgetTheme);
+        Widget::deleted($forgetTheme);
 
         View::composer([
             'frontend.partials.header',

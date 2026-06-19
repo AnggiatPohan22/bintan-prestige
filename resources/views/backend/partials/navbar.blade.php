@@ -8,6 +8,7 @@
         request()->routeIs('admin.faqs.*') => 'FAQs',
         request()->routeIs('admin.categories.*') => 'Categories',
         request()->routeIs('admin.destinations.*') => 'Destinations',
+        request()->routeIs('admin.themes.*') => 'Themes',
         default => 'Admin Dashboard',
     };
     $pageEyebrow = str($routeName)

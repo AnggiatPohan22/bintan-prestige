@@ -17,7 +17,9 @@ use App\Http\Controllers\Admin\ProductHighlightController;
 use App\Http\Controllers\Admin\ProductItineraryController;
 use App\Http\Controllers\Admin\ProductNoteController;
 use App\Http\Controllers\Admin\SiteSettingController;
+use App\Http\Controllers\Admin\ThemeController;
 use App\Http\Controllers\Admin\UserManagementController;
+use App\Http\Controllers\Admin\WidgetController;
 use App\Http\Controllers\Frontend\PageController as FrontendPageController;
 use Illuminate\Support\Facades\Route;
 
@@ -146,6 +148,46 @@ Route::middleware(['auth', 'admin'])
 
         Route::delete('page-section-media/{media}', [PageSectionController::class, 'destroyMedia'])
             ->name('page-sections.media.destroy');
+
+        /*
+        |--------------------------------------------------------------------------
+        | Themes (Phase 3)
+        |--------------------------------------------------------------------------
+        */
+        Route::get('themes', [ThemeController::class, 'index'])
+            ->name('themes.index');
+
+        Route::post('themes/scan', [ThemeController::class, 'scan'])
+            ->name('themes.scan');
+
+        Route::patch('themes/{theme}/activate', [ThemeController::class, 'activate'])
+            ->name('themes.activate');
+
+        Route::get('themes/{theme}/customize', [ThemeController::class, 'customize'])
+            ->name('themes.customize');
+
+        Route::put('themes/{theme}/customization', [ThemeController::class, 'updateCustomization'])
+            ->name('themes.customization.update');
+
+        Route::delete('themes/{theme}/customization', [ThemeController::class, 'resetCustomization'])
+            ->name('themes.customization.destroy');
+
+        /*
+        |--------------------------------------------------------------------------
+        | Widget Manager (Phase 3 — STEP 4)
+        |--------------------------------------------------------------------------
+        */
+        Route::prefix('themes/{theme}/widgets')
+            ->name('themes.widgets.')
+            ->group(function () {
+                Route::get('/', [WidgetController::class, 'index'])->name('index');
+                Route::get('/create', [WidgetController::class, 'create'])->name('create');
+                Route::post('/', [WidgetController::class, 'store'])->name('store');
+                Route::get('{widget}/edit', [WidgetController::class, 'edit'])->name('edit');
+                Route::put('{widget}', [WidgetController::class, 'update'])->name('update');
+                Route::delete('{widget}', [WidgetController::class, 'destroy'])->name('destroy');
+                Route::post('{widget}/toggle-visible', [WidgetController::class, 'toggleVisible'])->name('toggle-visible');
+            });
 
         /*
         |--------------------------------------------------------------------------

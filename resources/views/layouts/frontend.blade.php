@@ -2,6 +2,7 @@
     $seoDefaults = $seoDefaultSettings ?? [];
     $baseTitle = $seoTitle ?? $title ?? $seoDefaults['meta_title'] ?? ($businessIdentity['brand_name'] ?? config('app.name'));
     $documentTitle = \App\Support\SeoDefaultSettings::titleWithSuffix($baseTitle, $seoDefaults);
+    $themeService = app(\App\Services\ThemeService::class);
 @endphp
 
 <!DOCTYPE html>
@@ -30,19 +31,30 @@
     ])
 
     @include('partials.site-brand-colors')
+
+    @php($themeTokens = $themeService->getTokenOverrides())
+    @if($themeTokens)
+        <style>
+            :root {
+                @foreach($themeTokens as $cssVar => $value)
+                    {{ $cssVar }}: {{ $value }};
+                @endforeach
+            }
+        </style>
+    @endif
 </head>
 
 <body class="frontend-body">
 
     @include('partials.tracking-body-start')
 
-    @include('frontend.partials.header')
+    @include(app(\App\Services\ThemeService::class)->resolvePartial('header'))
 
     <main class="frontend-main">
         @yield('content')
     </main>
 
-    @include('frontend.partials.footer')
+    @include(app(\App\Services\ThemeService::class)->resolvePartial('footer'))
 
     @include('partials.tracking-body-end')
 
