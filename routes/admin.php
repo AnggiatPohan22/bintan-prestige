@@ -33,7 +33,7 @@ Route::middleware(['auth', 'admin'])
         */
         Route::get('/dashboard', [
             DashboardController::class,
-            'index'
+            'index',
         ])->name('dashboard');
 
         Route::post('media/upload-quick', [MediaController::class, 'uploadQuick'])
@@ -41,6 +41,9 @@ Route::middleware(['auth', 'admin'])
 
         Route::post('media/upload-batch', [MediaController::class, 'uploadBatch'])
             ->name('media.upload-batch');
+
+        Route::delete('media/orphans', [MediaController::class, 'purgeOrphans'])
+            ->name('media.orphans.destroy');
 
         Route::resource('media', MediaController::class)
             ->only(['index', 'store', 'update', 'destroy'])

@@ -5,6 +5,7 @@ namespace App\Support;
 class SeoDefaultSettings
 {
     public const GROUP = 'seo_default_settings';
+
     public const OG_IMAGE_KEY = 'seo.default.og_image';
 
     public static function fields(): array
@@ -54,7 +55,13 @@ class SeoDefaultSettings
     public static function canonicalUrl(?string $explicitCanonical, array $settings): string
     {
         if ($explicitCanonical) {
-            return $explicitCanonical;
+            if (str_starts_with($explicitCanonical, 'http://') || str_starts_with($explicitCanonical, 'https://')) {
+                return $explicitCanonical;
+            }
+
+            $baseUrl = trim($settings['canonical_base_url'] ?? '') ?: url('/');
+
+            return rtrim($baseUrl, '/').'/'.ltrim($explicitCanonical, '/');
         }
 
         $baseUrl = trim($settings['canonical_base_url'] ?? '');
@@ -63,7 +70,7 @@ class SeoDefaultSettings
             return url()->current();
         }
 
-        return rtrim($baseUrl, '/') . '/' . ltrim(request()->path(), '/');
+        return rtrim($baseUrl, '/').'/'.ltrim(request()->path(), '/');
     }
 
     public static function titleWithSuffix(string $title, array $settings): string
@@ -76,6 +83,6 @@ class SeoDefaultSettings
 
         $separator = trim($settings['title_separator'] ?? '|') ?: '|';
 
-        return trim($title . ' ' . $separator . ' ' . $suffix);
+        return trim($title.' '.$separator.' '.$suffix);
     }
 }

@@ -5,8 +5,8 @@ namespace Tests\Feature\Frontend;
 use App\Models\Category;
 use App\Models\Destination;
 use App\Models\Product;
-use App\Models\ProductFeature;
 use App\Models\ProductFaq;
+use App\Models\ProductFeature;
 use App\Models\ProductImage;
 use App\Models\ProductItinerary;
 use App\Models\ProductNote;
@@ -228,10 +228,10 @@ class ProductDetailBookingFormTest extends TestCase
         $response->assertSee('Hotel Pickup');
         $response->assertSee('Rp 640.000');
         $response->assertSee('SGD 54');
-        $response->assertSee('href="' . $whatsappState['chat_url'] . '"', false);
-        $response->assertSee('href="' . $whatsappState['booking_url'] . '"', false);
-        $response->assertSee('aria-label="' . $whatsappState['chat_accessible_label'] . '"', false);
-        $response->assertSee('aria-label="' . $whatsappState['booking_accessible_label'] . '"', false);
+        $response->assertSee('href="'.$whatsappState['chat_url'].'"', false);
+        $response->assertSee('href="'.$whatsappState['booking_url'].'"', false);
+        $response->assertSee('aria-label="'.$whatsappState['chat_accessible_label'].'"', false);
+        $response->assertSee('aria-label="'.$whatsappState['booking_accessible_label'].'"', false);
     }
 
     public function test_product_detail_layout_sections_render_in_prepared_order(): void
@@ -343,7 +343,7 @@ class ProductDetailBookingFormTest extends TestCase
         $response->assertDontSee('id="products-show-itinerary"', false);
         $response->assertDontSee('id="products-show-notes"', false);
         $response->assertDontSee('id="products-show-faq"', false);
-        $response->assertDontSee('data-product-id="' . $product->id . '"', false);
+        $response->assertDontSee('data-product-id="'.$product->id.'"', false);
     }
 
     public function test_product_detail_layout_does_not_add_gallery_lightbox_or_modal_interaction(): void
@@ -378,7 +378,7 @@ class ProductDetailBookingFormTest extends TestCase
 
         $response->assertOk();
         $this->assertStringNotContainsString('<template x-for="(image, index) in galleryImages"', $html);
-        $this->assertStringContainsString('src="' . $product->thumbnail_url . '"', $primaryImageTag);
+        $this->assertStringContainsString('src="'.$product->thumbnail_url.'"', $primaryImageTag);
         $this->assertStringContainsString('alt="Server First Gallery Tour in Lagoi"', $primaryImageTag);
         $this->assertStringContainsString('width="1200"', $primaryImageTag);
         $this->assertStringContainsString('height="900"', $primaryImageTag);
@@ -438,7 +438,7 @@ class ProductDetailBookingFormTest extends TestCase
         $singleImageHtml = $singleImageResponse->getContent();
 
         $singleImageResponse->assertOk();
-        $this->assertStringContainsString('src="' . $singleImageProduct->thumbnail_url . '"', $this->galleryPrimaryImageTag($singleImageHtml));
+        $this->assertStringContainsString('src="'.$singleImageProduct->thumbnail_url.'"', $this->galleryPrimaryImageTag($singleImageHtml));
         $this->assertStringNotContainsString('product-detail-gallery__thumbs', $singleImageHtml);
         $this->assertStringNotContainsString('product-detail-gallery__count', $singleImageHtml);
         $this->assertStringNotContainsString('product-detail-gallery__nav', $singleImageHtml);
@@ -596,7 +596,7 @@ class ProductDetailBookingFormTest extends TestCase
         $this->assertStringStartsWith('https://wa.me/6281200001111?text=', $productNumberState['booking_url']);
         $this->assertStringContainsString('Product: Product Number Tour', $productNumberState['booking_message']);
         $this->assertStringContainsString('Destination: WhatsApp State Destination', $productNumberState['booking_message']);
-        $this->assertStringContainsString('Product URL: ' . route('products.show', $productNumberProduct), $productNumberState['booking_message']);
+        $this->assertStringContainsString('Product URL: '.route('products.show', $productNumberProduct), $productNumberState['booking_message']);
 
         SiteSetting::create([
             'key' => 'contact.whatsapp_number',
@@ -653,7 +653,7 @@ class ProductDetailBookingFormTest extends TestCase
         $this->assertSame('none', $missingNumberState['source']);
         $this->assertNull($missingNumberState['chat_url']);
         $this->assertNull($missingNumberState['booking_url']);
-        $missingNumberResponse->assertDontSee('data-product-id="' . $missingNumberProduct->id . '"', false);
+        $missingNumberResponse->assertDontSee('data-product-id="'.$missingNumberProduct->id.'"', false);
     }
 
     public function test_product_detail_whatsapp_ctas_are_server_rendered_accessible_anchors(): void
@@ -674,19 +674,19 @@ class ProductDetailBookingFormTest extends TestCase
         $response->assertOk();
         $this->assertTrue($whatsappState['available']);
         $this->assertSame('product', $whatsappState['source']);
-        $response->assertSee('href="' . $whatsappState['chat_url'] . '"', false);
-        $response->assertSee('href="' . $whatsappState['booking_url'] . '"', false);
+        $response->assertSee('href="'.$whatsappState['chat_url'].'"', false);
+        $response->assertSee('href="'.$whatsappState['booking_url'].'"', false);
         $response->assertSee('target="_blank"', false);
         $response->assertSee('rel="noopener noreferrer"', false);
         $response->assertSee('data-whatsapp-tracking="product"', false);
-        $response->assertSee('aria-label="' . $whatsappState['chat_accessible_label'] . '"', false);
-        $response->assertSee('aria-label="' . $whatsappState['booking_accessible_label'] . '"', false);
+        $response->assertSee('aria-label="'.$whatsappState['chat_accessible_label'].'"', false);
+        $response->assertSee('aria-label="'.$whatsappState['booking_accessible_label'].'"', false);
         $response->assertSee($whatsappState['booking_note']);
 
         $this->assertStringContainsString('Product: No JavaScript WhatsApp Tour', $whatsappState['booking_message']);
         $this->assertStringContainsString('Destination: Lagoi', $whatsappState['booking_message']);
         $this->assertStringContainsString('Duration: 4 Hours', $whatsappState['booking_message']);
-        $this->assertStringContainsString('Product URL: ' . route('products.show', $product), $whatsappState['booking_message']);
+        $this->assertStringContainsString('Product URL: '.route('products.show', $product), $whatsappState['booking_message']);
         $this->assertStringNotContainsString('confirmed', strtolower($whatsappState['booking_message']));
         $this->assertStringNotContainsString('payment', strtolower($whatsappState['booking_message']));
         $this->assertStringNotContainsString('checkout', strtolower($whatsappState['booking_message']));
@@ -883,7 +883,7 @@ class ProductDetailBookingFormTest extends TestCase
         $this->assertStringContainsString('<title>', $html);
         $response->assertSee('Accessible SEO Tour Meta', false);
         $response->assertSee('<meta name="description" content="Plain accessible SEO meta description.">', false);
-        $response->assertSee('<link rel="canonical" href="' . route('products.show', $product) . '">', false);
+        $response->assertSee('<link rel="canonical" href="'.route('products.show', $product).'">', false);
         $response->assertSee('<meta name="robots" content="index, follow">', false);
         $response->assertSee('<meta property="og:type" content="product">', false);
         $response->assertSee('<nav class="product-breadcrumb product-detail-breadcrumb" aria-label="Breadcrumb">', false);
@@ -1363,7 +1363,9 @@ class ProductDetailBookingFormTest extends TestCase
         $this->get(route('products.show', $product))
             ->assertOk();
 
-        $this->assertLessThanOrEqual(20, $queryCount);
+        // One bulk menu lookup is expected on a cold cache. The previous
+        // per-location composer implementation added three separate queries.
+        $this->assertLessThanOrEqual(21, $queryCount);
     }
 
     private function createProduct(

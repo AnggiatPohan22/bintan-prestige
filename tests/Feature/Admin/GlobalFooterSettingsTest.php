@@ -15,6 +15,29 @@ class GlobalFooterSettingsTest extends TestCase
     public function test_admin_can_manage_footer_settings_from_global_assets_settings(): void
     {
         $admin = User::factory()->admin()->create();
+        $legacyQuickLinks = [
+            ['label' => 'Legacy Packages', 'url' => '/products', 'is_external' => false],
+        ];
+        $legacyUtilityLinks = [
+            ['label' => 'Legacy Privacy', 'url' => '/privacy', 'is_external' => false],
+        ];
+
+        SiteSetting::create([
+            'key' => FooterSettings::QUICK_LINKS_KEY,
+            'label' => 'Legacy footer quick links',
+            'value' => json_encode($legacyQuickLinks),
+            'type' => 'json',
+            'group' => FooterSettings::GROUP,
+            'is_active' => true,
+        ]);
+        SiteSetting::create([
+            'key' => FooterSettings::UTILITY_LINKS_KEY,
+            'label' => 'Legacy footer utility links',
+            'value' => json_encode($legacyUtilityLinks),
+            'type' => 'json',
+            'group' => FooterSettings::GROUP,
+            'is_active' => true,
+        ]);
 
         $response = $this->actingAs($admin)
             ->put(route('admin.settings.global-assets.footer-settings.update'), [
@@ -90,9 +113,12 @@ class GlobalFooterSettingsTest extends TestCase
             ->where('key', FooterSettings::QUICK_LINKS_KEY)
             ->value('value'), true);
 
-        $this->assertCount(2, $quickLinks);
-        $this->assertSame('Instagram', $quickLinks[1]['label']);
-        $this->assertTrue($quickLinks[1]['is_external']);
+        $utilityLinks = json_decode(SiteSetting::query()
+            ->where('key', FooterSettings::UTILITY_LINKS_KEY)
+            ->value('value'), true);
+
+        $this->assertSame($legacyQuickLinks, $quickLinks);
+        $this->assertSame($legacyUtilityLinks, $utilityLinks);
 
         $layoutBlocks = json_decode(SiteSetting::query()
             ->where('key', FooterSettings::LAYOUT_BLOCKS_KEY)
@@ -117,6 +143,10 @@ class GlobalFooterSettingsTest extends TestCase
         $response->assertSee('Footer logo source');
         $response->assertSee('Quick Links');
         $response->assertSee('Utility Links');
+        $response->assertSee('Footer links are managed in the Menu Manager.');
+        $response->assertSee(route('admin.menus.index'), false);
+        $response->assertDontSee('data-add-footer-link', false);
+        $response->assertDontSee('data-footer-links-list', false);
         $response->assertSee('Layout Blocks');
         $response->assertSee('Maps embed URL');
         $response->assertSee('Show social links');

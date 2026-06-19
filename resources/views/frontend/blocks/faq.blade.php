@@ -1,17 +1,6 @@
 @php
-    use App\Models\Faq;
-
-    $data   = $block->data ?? [];
-    $source = $data['source'] ?? 'inline';
-
-    if ($source === 'ids' && ! empty($data['faq_ids'])) {
-        $ids   = is_array($data['faq_ids']) ? $data['faq_ids'] : explode(',', $data['faq_ids']);
-        $items = Faq::whereIn('id', $ids)->where('is_active', true)->get()
-            ->map(fn ($f) => ['question' => $f->question, 'answer' => $f->answer])
-            ->toArray();
-    } else {
-        $items = array_filter($data['items'] ?? [], fn ($i) => ! empty($i['question']));
-    }
+    $data    = $block->data ?? [];
+    $items   = $block->resolvedFaqItems ?? [];
     $bg      = $data['background'] ?? [];
     $bgStyle = '';
     if (! empty($bg['color'])) $bgStyle .= 'background-color:' . e($bg['color']) . ';';
@@ -22,16 +11,18 @@
 @endphp
 
 @if(count($items))
-<section class="py-16" style="{{ $bgStyle }}">
-    <div class="mx-auto max-w-3xl px-6">
+<section class="py-12 sm:py-16" style="{{ $bgStyle }}" aria-label="Frequently asked questions">
+    <div class="mx-auto max-w-3xl px-4 sm:px-6">
         <div class="space-y-4" x-data="{ open: null }">
             @foreach($items as $i => $item)
                 <div class="rounded-xl border border-slate-200 bg-white shadow-sm">
                     <button
                         type="button"
-                        class="flex w-full items-center justify-between px-6 py-4 text-left font-semibold text-slate-800"
+                        class="flex w-full items-center justify-between px-6 py-4 text-left font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-yellow-500"
                         x-on:click="open = open === {{ $i }} ? null : {{ $i }}"
-                        :aria-expanded="open === {{ $i }}"
+                        :aria-expanded="(open === {{ $i }}).toString()"
+                        aria-controls="faq-answer-{{ $block->id }}-{{ $i }}"
+                        id="faq-question-{{ $block->id }}-{{ $i }}"
                     >
                         <span>{{ $item['question'] }}</span>
                         <i
@@ -42,8 +33,11 @@
                     </button>
 
                     <div
+                        id="faq-answer-{{ $block->id }}-{{ $i }}"
                         x-show="open === {{ $i }}"
                         x-cloak
+                        role="region"
+                        aria-labelledby="faq-question-{{ $block->id }}-{{ $i }}"
                         class="border-t border-slate-100 px-6 py-4 text-sm text-slate-600"
                     >
                         {{ $item['answer'] }}

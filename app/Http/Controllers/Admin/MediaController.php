@@ -22,7 +22,7 @@ class MediaController extends Controller
     public function index(Request $request)
     {
         $media = $this->mediaService->list([
-            'search'    => $request->query('search'),
+            'search' => $request->query('search'),
             'extension' => $request->query('type'),
         ]);
 
@@ -31,10 +31,11 @@ class MediaController extends Controller
             : 'backend.media.index';
 
         return view($view, [
-            'media'      => $media,
+            'media' => $media,
             'extensions' => $this->mediaService->availableExtensions(),
-            'search'     => $request->query('search'),
+            'search' => $request->query('search'),
             'activeType' => $request->query('type'),
+            'orphanCount' => $request->boolean('picker') ? 0 : count($this->mediaService->orphanedFiles()),
         ]);
     }
 
@@ -49,13 +50,13 @@ class MediaController extends Controller
         if ($request->expectsJson()) {
             return response()->json([
                 'success' => true,
-                'media'   => collect($created)->map(fn (Media $m) => $this->payload($m)),
+                'media' => collect($created)->map(fn (Media $m) => $this->payload($m)),
             ]);
         }
 
         return redirect()
             ->route('admin.media.index')
-            ->with('success', count($created) . ' file(s) uploaded.');
+            ->with('success', count($created).' file(s) uploaded.');
     }
 
     public function update(UpdateMediaRequest $request, Media $media)
@@ -84,6 +85,15 @@ class MediaController extends Controller
             ->with('success', 'Media deleted.');
     }
 
+    public function purgeOrphans()
+    {
+        $deleted = $this->mediaService->purgeOrphanedFiles();
+
+        return redirect()
+            ->route('admin.media.index')
+            ->with('success', $deleted.' orphaned file(s) removed.');
+    }
+
     /**
      * Batch upload for gallery blocks. Now also registers Media records.
      * Accepts up to 20 files[], returns array of { id, path, url, filename }.
@@ -91,14 +101,14 @@ class MediaController extends Controller
     public function uploadBatch(Request $request)
     {
         $request->validate([
-            'files'   => ['required', 'array', 'max:20'],
-            'files.*' => ['required', 'image', 'mimes:jpg,jpeg,png,gif,webp', 'max:5120'],
+            'files' => ['required', 'array', 'max:20'],
+            'files.*' => ['required', 'image', 'mimes:jpg,jpeg,png,gif,webp', 'extensions:jpg,jpeg,png,gif,webp', 'max:5120'],
         ]);
 
         $results = [];
 
         foreach ($request->file('files') as $file) {
-            $media     = $this->mediaService->store($file, $request->user());
+            $media = $this->mediaService->store($file, $request->user());
             $results[] = $this->payload($media);
         }
 
@@ -112,7 +122,7 @@ class MediaController extends Controller
     public function uploadQuick(Request $request)
     {
         $request->validate([
-            'image' => ['required', 'image', 'mimes:jpg,jpeg,png,gif,webp', 'max:5120'],
+            'image' => ['required', 'image', 'mimes:jpg,jpeg,png,gif,webp', 'extensions:jpg,jpeg,png,gif,webp', 'max:5120'],
         ]);
 
         $media = $this->mediaService->store($request->file('image'), $request->user());
@@ -124,10 +134,12 @@ class MediaController extends Controller
     private function payload(Media $media): array
     {
         return [
-            'id'       => $media->id,
-            'path'     => $media->path,
-            'url'      => $media->url,
+            'id' => $media->id,
+            'path' => $media->path,
+            'url' => $media->url,
             'filename' => $media->original_name,
+            'alt' => $media->alt,
+            'caption' => $media->caption,
         ];
     }
 }

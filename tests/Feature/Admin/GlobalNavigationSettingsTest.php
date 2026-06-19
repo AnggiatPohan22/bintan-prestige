@@ -15,6 +15,23 @@ class GlobalNavigationSettingsTest extends TestCase
     public function test_admin_can_manage_header_navigation_from_global_assets_settings(): void
     {
         $admin = User::factory()->admin()->create();
+        $legacyItems = [
+            [
+                'label' => 'Legacy Home',
+                'url' => '/',
+                'is_external' => false,
+                'children' => [],
+            ],
+        ];
+
+        SiteSetting::create([
+            'key' => NavigationSettings::ITEMS_KEY,
+            'label' => 'Legacy header navigation items',
+            'value' => json_encode($legacyItems),
+            'type' => 'json',
+            'group' => NavigationSettings::GROUP,
+            'is_active' => true,
+        ]);
 
         $response = $this->actingAs($admin)
             ->put(route('admin.settings.global-assets.navigation-settings.update'), [
@@ -87,13 +104,7 @@ class GlobalNavigationSettingsTest extends TestCase
             ->where('key', NavigationSettings::ITEMS_KEY)
             ->value('value'), true);
 
-        $this->assertCount(3, $items);
-        $this->assertSame('Packages', $items[0]['label']);
-        $this->assertCount(2, $items[0]['children']);
-        $this->assertSame('Private Trip', $items[0]['children'][0]['label']);
-        $this->assertTrue($items[0]['children'][1]['is_external']);
-        $this->assertSame('Instagram', $items[2]['label']);
-        $this->assertTrue($items[2]['is_external']);
+        $this->assertSame($legacyItems, $items);
     }
 
     public function test_navigation_settings_tab_only_shows_navigation_form(): void
@@ -111,9 +122,11 @@ class GlobalNavigationSettingsTest extends TestCase
         $response->assertSee('Menu Colors');
         $response->assertSee('Menu hover / active');
         $response->assertSee('Dropdown hover background');
-        $response->assertSee('Add Menu');
-        $response->assertSee('Add Dropdown');
-        $response->assertSee('Move Up');
+        $response->assertSee('Menu links are managed in the Menu Manager.');
+        $response->assertSee(route('admin.menus.index'), false);
+        $response->assertDontSee('Add Menu');
+        $response->assertDontSee('Add Dropdown');
+        $response->assertDontSee('data-navigation-items-list', false);
         $response->assertSee('Sticky header');
         $response->assertDontSee('Active route');
         $response->assertDontSee('Upload favicon');

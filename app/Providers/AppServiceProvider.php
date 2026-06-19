@@ -2,6 +2,12 @@
 
 namespace App\Providers;
 
+use App\Models\Category;
+use App\Models\Destination;
+use App\Models\Menu;
+use App\Models\MenuItem;
+use App\Models\Page;
+use App\Models\Product;
 use App\Services\GlobalSettingsService;
 use App\Services\MenuService;
 use Illuminate\Support\Facades\Gate;
@@ -24,6 +30,16 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Gate::define('manage-users', fn ($user) => $user->isSuperAdmin());
+
+        $forgetMenus = fn () => app(MenuService::class)->forget();
+
+        foreach ([Menu::class, MenuItem::class, Page::class, Product::class, Category::class, Destination::class] as $model) {
+            $model::saved($forgetMenus);
+            $model::deleted($forgetMenus);
+        }
+
+        Category::restored($forgetMenus);
+        Destination::restored($forgetMenus);
 
         View::composer([
             'frontend.partials.header',
@@ -72,20 +88,26 @@ class AppServiceProvider extends ServiceProvider
 
             // Menu Manager trees (single source of truth for header/footer links).
             // Empty arrays fall back to the legacy Global Assets settings in the views.
-            $menuService = null;
-            $resolveMenu = function (string $location) use (&$menuService): array {
-                $menuService ??= app(MenuService::class);
-
-                return $menuService->tree($location);
+            $menuSources = null;
+            $resolveMenuSources = function () use (&$menuSources): array {
+                return $menuSources ??= app(MenuService::class)->sources();
             };
 
             foreach ([
-                'headerMenu'         => 'header',
-                'footerQuickLinks'   => 'footer_quick',
-                'footerUtilityLinks' => 'footer_utility',
-            ] as $key => $location) {
-                if (! array_key_exists($key, $viewData)) {
-                    $view->with($key, $resolveMenu($location));
+                'headerMenu' => ['header', 'headerMenuManaged'],
+                'footerQuickLinks' => ['footer_quick', 'footerQuickLinksManaged'],
+                'footerUtilityLinks' => ['footer_utility', 'footerUtilityLinksManaged'],
+            ] as $key => [$location, $managedKey]) {
+                $hasExplicitMenu = array_key_exists($key, $viewData);
+                $source = null;
+
+                if (! $hasExplicitMenu) {
+                    $source = $resolveMenuSources()[$location] ?? ['managed' => false, 'items' => []];
+                    $view->with($key, $source['items']);
+                }
+
+                if (! array_key_exists($managedKey, $viewData)) {
+                    $view->with($managedKey, $hasExplicitMenu ? true : (bool) ($source['managed'] ?? false));
                 }
             }
         });

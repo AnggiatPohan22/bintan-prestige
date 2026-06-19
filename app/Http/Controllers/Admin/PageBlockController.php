@@ -22,14 +22,14 @@ class PageBlockController extends Controller
     public function store(Request $request, Page $page)
     {
         $request->validate([
-            'block_type' => ['required', 'in:' . implode(',', self::BLOCK_TYPES)],
-            'label'      => ['nullable', 'string', 'max:255'],
+            'block_type' => ['required', 'in:'.implode(',', self::BLOCK_TYPES)],
+            'label' => ['nullable', 'string', 'max:255'],
         ]);
 
         $page->blocks()->create([
             'block_type' => $request->block_type,
-            'label'      => $request->label ?: ucfirst(str_replace('_', ' ', $request->block_type)),
-            'data'       => $this->blockService->defaultDataFor($request->block_type),
+            'label' => $request->label ?: ucfirst(str_replace('_', ' ', $request->block_type)),
+            'data' => $this->blockService->defaultDataFor($request->block_type),
             'sort_order' => $this->blockService->nextSortOrder($page),
             'is_visible' => true,
         ]);
@@ -42,19 +42,21 @@ class PageBlockController extends Controller
 
     public function update(Request $request, Page $page, PageBlock $block)
     {
+        $this->ensureBlockBelongsToPage($page, $block);
+
         $request->validate([
             'label' => ['nullable', 'string', 'max:255'],
-            'data'  => ['nullable', 'array'],
+            'data' => ['nullable', 'array'],
         ]);
 
-        $data = $this->blockService->sanitizeData(
+        $data = $this->blockService->validateAndSanitizeData(
             $block->block_type,
             $request->input('data', [])
         );
 
         $block->update([
             'label' => $request->label ?? $block->label,
-            'data'  => $data,
+            'data' => $data,
         ]);
 
         return redirect()
@@ -65,6 +67,8 @@ class PageBlockController extends Controller
 
     public function destroy(Page $page, PageBlock $block)
     {
+        $this->ensureBlockBelongsToPage($page, $block);
+
         $block->delete();
 
         return redirect()
@@ -76,7 +80,7 @@ class PageBlockController extends Controller
     public function reorder(Request $request, Page $page)
     {
         $request->validate([
-            'ids'   => ['required', 'array'],
+            'ids' => ['required', 'array'],
             'ids.*' => ['integer'],
         ]);
 
@@ -90,11 +94,18 @@ class PageBlockController extends Controller
 
     public function toggleVisible(Page $page, PageBlock $block)
     {
+        $this->ensureBlockBelongsToPage($page, $block);
+
         $block->update(['is_visible' => ! $block->is_visible]);
 
         return redirect()
             ->route('admin.pages.edit', $page)
             ->with('success', $block->is_visible ? 'Block is now visible.' : 'Block is now hidden.')
             ->with('open_section', 'blocks');
+    }
+
+    private function ensureBlockBelongsToPage(Page $page, PageBlock $block): void
+    {
+        abort_unless($block->page_id === $page->id, 404);
     }
 }

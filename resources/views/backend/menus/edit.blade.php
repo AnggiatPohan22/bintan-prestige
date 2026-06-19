@@ -218,7 +218,8 @@
                         </div>
                     </template>
 
-                    {{-- Parent --}}
+                    @if($isHeader)
+                    {{-- Header supports one dropdown child level; footer locations remain flat. --}}
                     <div>
                         <label class="admin-form-label">Parent (optional)</label>
                         <select name="parent_id" x-model="form.parentId" class="admin-input">
@@ -227,8 +228,9 @@
                                 <option :value="p.id" x-text="p.label"></option>
                             </template>
                         </select>
-                        <p class="mt-1 text-xs text-slate-400">Choose a parent to make this a dropdown child.</p>
+                        <p class="mt-1 text-xs text-slate-400">Choose one top-level parent. Deeper nesting is not allowed.</p>
                     </div>
+                    @endif
 
                     {{-- New tab --}}
                     <label class="flex items-center gap-2">

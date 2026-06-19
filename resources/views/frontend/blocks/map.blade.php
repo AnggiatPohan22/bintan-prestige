@@ -12,8 +12,8 @@
 @endphp
 
 @if($embedUrl)
-<section class="py-12" style="{{ $bgStyle }}">
-    <div class="mx-auto max-w-5xl px-6">
+<section class="py-10 sm:py-12" style="{{ $bgStyle }}" aria-label="{{ $address ?: 'Location map' }}">
+    <div class="mx-auto max-w-5xl px-4 sm:px-6">
         @if($address)
             <p class="mb-4 text-center text-sm text-slate-500">
                 <i class="fa-solid fa-location-dot mr-1 text-yellow-500"></i>
@@ -21,11 +21,12 @@
             </p>
         @endif
 
-        <div class="overflow-hidden rounded-2xl shadow-lg">
+        <div class="aspect-[4/3] overflow-hidden rounded-2xl shadow-lg sm:aspect-video">
             <iframe
                 src="{{ $embedUrl }}"
                 width="100%"
-                height="450"
+                height="100%"
+                class="h-full w-full"
                 style="border:0;"
                 allowfullscreen=""
                 loading="lazy"

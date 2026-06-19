@@ -15,6 +15,7 @@
             <button type="button"
                     x-on:click="select({
                         id: {{ $item->id }},
+                        path: @js($item->path),
                         url: @js($item->url),
                         name: @js($item->original_name),
                         alt: @js($item->alt),
@@ -24,6 +25,9 @@
                         ext: @js(strtoupper($item->extension)),
                         date: @js($item->created_at?->format('d M Y, H:i')),
                         uploader: @js($item->uploader?->name ?? 'Unknown'),
+                        usageCount: {{ (int) ($item->usage_count ?? 0) }},
+                        usageReferences: @js($item->usage_references ?? []),
+                        missingFile: @js((bool) ($item->missing_file ?? false)),
                     })"
                     class="group overflow-hidden rounded-xl border border-slate-200 bg-white text-left shadow-sm transition hover:-translate-y-0.5 hover:border-indigo-300 hover:shadow-md">
                 <div class="aspect-square overflow-hidden bg-slate-100">
@@ -37,6 +41,11 @@
                         <span>{{ $item->size_for_humans }}</span>
                         <span class="rounded bg-slate-100 px-1.5 font-mono uppercase">{{ $item->extension }}</span>
                     </p>
+                    @if($item->missing_file ?? false)
+                        <span class="mt-1 inline-flex rounded bg-red-50 px-1.5 py-0.5 text-[10px] font-semibold text-red-600">Missing file</span>
+                    @elseif(($item->usage_count ?? 0) > 0)
+                        <span class="mt-1 inline-flex rounded bg-amber-50 px-1.5 py-0.5 text-[10px] font-semibold text-amber-700">Used {{ $item->usage_count }}Ã—</span>
+                    @endif
                 </div>
             </button>
         @endforeach

@@ -1,7 +1,10 @@
 @php
     $navigationSettings = $navigationSettings ?? \App\Support\NavigationSettings::valuesFromSettings(collect());
-    // Menu Manager owns the link items; fall back to legacy Global Assets nav if no menu yet.
-    $navigationItems = ! empty($headerMenu) ? $headerMenu : ($navigationSettings['items'] ?? []);
+    // A managed-but-empty menu intentionally renders empty. Legacy data is used
+    // only when this Menu Manager location has not been configured yet.
+    $navigationItems = ($headerMenuManaged ?? false)
+        ? ($headerMenu ?? [])
+        : ($navigationSettings['items'] ?? []);
     $bookingCtaSettings = $bookingCtaSettings ?? \App\Support\BookingCtaSettings::valuesFromSettings(collect());
     $usesGlobalHeaderCta = \App\Support\BookingCtaSettings::isEnabledFor($bookingCtaSettings, 'header');
     $headerCtaLabel = $usesGlobalHeaderCta ? ($bookingCtaSettings['header_label'] ?? 'Plan Trip') : ($navigationSettings['cta_label'] ?? 'Plan Trip');

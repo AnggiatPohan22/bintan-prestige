@@ -3,7 +3,9 @@
 @section('content')
 
 @php
-    $openSection = session('open_section', 'basic');
+    $openSection = old('_editor_context') === 'blocks' && $errors->any()
+        ? 'blocks'
+        : session('open_section', 'basic');
 @endphp
 
 <div
@@ -50,7 +52,7 @@
                     class="admin-btn-secondary text-sm"
                 >
                     <i class="fa-solid fa-eye mr-1 text-xs"></i>
-                    Preview
+                    {{ $page->isPublished() ? 'Preview' : 'Preview Draft' }}
                 </a>
 
                 @if($page->isPublished())
@@ -60,7 +62,7 @@
                         class="admin-btn-secondary text-sm"
                     >
                         <i class="fa-solid fa-arrow-up-right-from-square mr-1 text-xs"></i>
-                        View on Site
+                        View Live
                     </a>
                 @endif
 
@@ -151,6 +153,10 @@
                                 @error('status')
                                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
+                                <div class="mt-2 space-y-1 text-xs text-slate-500">
+                                    <p><strong class="text-amber-700">Draft:</strong> admin preview only; unavailable on the public URL and hidden from managed menus.</p>
+                                    <p><strong class="text-emerald-700">Published:</strong> live on the public URL and eligible for managed menus.</p>
+                                </div>
                             </div>
 
                             <div>
