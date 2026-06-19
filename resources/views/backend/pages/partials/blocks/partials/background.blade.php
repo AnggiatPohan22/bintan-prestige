@@ -19,6 +19,7 @@
         bgImage: '{{ $bgImage }}',
         bgUploading: false,
         bgError: '',
+        pickerTarget: 'background-{{ $block->id }}',
         get bgPreview() {
             if (!this.bgImage) return '';
             return this.bgImage.startsWith('http') ? this.bgImage : '/storage/' + this.bgImage;
@@ -40,6 +41,7 @@
             finally { this.bgUploading = false; event.target.value = ''; }
         },
     }"
+    x-on:media-picker-selected.window="if ($event.detail.target === pickerTarget) bgImage = $event.detail.media.path || ''"
 >
     <button
         type="button"
@@ -112,6 +114,10 @@
                     <span x-text="bgUploading ? '…' : 'Upload'"></span>
                     <input type="file" accept="image/jpeg,image/png,image/webp" class="hidden" x-on:change="uploadBg($event)">
                 </label>
+                <button type="button" class="admin-btn-secondary whitespace-nowrap px-3 py-2 text-xs"
+                        x-on:click="$dispatch('open-media-picker', { target: pickerTarget })">
+                    Library
+                </button>
             </div>
             <p x-show="bgError" x-text="bgError" class="mt-1 text-xs text-red-500" x-cloak></p>
         </div>

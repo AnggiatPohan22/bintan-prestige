@@ -8,17 +8,13 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="bg-slate-50 p-4">
-    {{--
-        Minimal grid-only picker for the block editor (opened via ?picker=1 in a modal/iframe).
-        Selecting an image posts { type: 'media-selected', media: {...} } to the parent window.
-        Not yet wired into block fields — reserved for a follow-up task.
-    --}}
+    {{-- Selection metadata is posted to the parent and routed to the requesting block field. --}}
     <div x-data="mediaPicker()">
-        <div class="mb-4 flex items-center justify-between">
+        <div class="mb-4 flex items-center justify-between gap-3">
             <h1 class="text-base font-bold text-slate-900">Select media</h1>
             <form method="GET" action="{{ route('admin.media.index') }}" class="flex gap-2">
                 <input type="hidden" name="picker" value="1">
-                <input type="text" name="search" value="{{ $search }}" class="admin-input" placeholder="Search…">
+                <input type="text" name="search" value="{{ $search }}" class="admin-input" placeholder="Search...">
                 <button type="submit" class="admin-btn-secondary"><i class="fa-solid fa-magnifying-glass"></i></button>
             </form>
         </div>

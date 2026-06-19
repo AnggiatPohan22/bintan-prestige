@@ -4,11 +4,18 @@ namespace App\Http\Controllers\Frontend;
 
 use App\Http\Controllers\Controller;
 use App\Models\Page;
-use App\Models\Product;
-use Illuminate\Support\Facades\View;
+use App\Services\GlobalSettingsService;
+use App\Support\PageRenderData;
+use App\Support\PageTemplateRegistry;
+use App\Support\SeoDefaultSettings;
 
 class PageController extends Controller
 {
+    public function __construct(
+        private readonly PageRenderData $pageRenderData,
+        private readonly GlobalSettingsService $globalSettings,
+    ) {}
+
     /** Public route — published pages only. */
     public function show(Page $page)
     {
@@ -30,31 +37,42 @@ class PageController extends Controller
             'blocks' => fn ($q) => $q->visible()->ordered(),
         ]);
 
-        foreach ($page->blocks as $block) {
-            if ($block->block_type !== 'products_grid') {
-                continue;
-            }
+        $renderData = $this->pageRenderData->prepare($page);
+        $templateKey = PageTemplateRegistry::keyFor($page->template?->blade_file);
+        $templateView = PageTemplateRegistry::viewFor($templateKey);
+        $pageSchemaType = PageTemplateRegistry::schemaTypeFor($templateKey);
 
-            $data          = $block->data ?? [];
-            $limit         = max(3, min(12, (int) ($data['limit'] ?? 6)));
-            $categoryId    = ($data['category_id'] ?? null) ?: null;
-            $destinationId = ($data['destination_id'] ?? null) ?: null;
+        $globalViewData = $this->globalSettings->viewData();
+        $seoDefaults = $globalViewData['seoDefaultSettings'];
+        $siteAssets = $globalViewData['siteAssets'];
+        $seoTitle = $page->meta_title ?: $page->title;
+        $seoDescription = $page->meta_description ?: ($seoDefaults['meta_description'] ?: null);
+        $seoImage = $page->og_image
+            ? asset('storage/'.ltrim($page->og_image, '/'))
+            : (($siteAssets[SeoDefaultSettings::OG_IMAGE_KEY] ?? null)?->url
+                ?: ($siteAssets['site.social_share.default_image'] ?? null)?->url);
+        $canonicalUrl = SeoDefaultSettings::canonicalUrl(
+            route('pages.show', $page->slug, false),
+            $seoDefaults,
+        );
+        $socialShareTitle = $seoTitle;
+        $socialShareDescription = $page->meta_description ?: null;
+        $seoRobots = $preview ? 'noindex, nofollow' : null;
+        $pageFaqItems = $renderData['faqItems'];
 
-            $block->resolvedProducts = Product::publiclyVisible()
-                ->when($categoryId,    fn ($q) => $q->where('category_id', $categoryId))
-                ->when($destinationId, fn ($q) => $q->where('destination_id', $destinationId))
-                ->frontendListingReady()
-                ->latest()
-                ->limit($limit)
-                ->get();
-        }
-
-        $templateView = 'frontend.templates.' . ($page->template?->blade_file ?: 'default');
-
-        if (! View::exists($templateView)) {
-            $templateView = 'frontend.templates.default';
-        }
-
-        return view('frontend.pages.show', compact('page', 'templateView', 'preview'));
+        return view('frontend.pages.show', compact(
+            'page',
+            'templateView',
+            'preview',
+            'seoTitle',
+            'seoDescription',
+            'seoImage',
+            'canonicalUrl',
+            'socialShareTitle',
+            'socialShareDescription',
+            'seoRobots',
+            'pageSchemaType',
+            'pageFaqItems',
+        ));
     }
 }

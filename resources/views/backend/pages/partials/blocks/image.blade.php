@@ -1,6 +1,12 @@
 <div
     class="grid grid-cols-1 gap-4 md:grid-cols-2"
-    x-data="imageUploader('{{ old('data.src', $block->data['src'] ?? '') }}')"
+    x-data="imageUploader(
+        @js(old('data.src', $block->data['src'] ?? '')),
+        'image-block-{{ $block->id }}',
+        @js(old('data.alt', $block->data['alt'] ?? '')),
+        @js(old('data.caption', $block->data['caption'] ?? ''))
+    )"
+    x-on:media-picker-selected.window="selectMedia($event.detail)"
 >
     <div class="md:col-span-2">
         <label class="admin-form-label">Image</label>
@@ -27,6 +33,10 @@
                     x-on:change="uploadImage($event)"
                 >
             </label>
+            <button type="button" class="admin-btn-secondary whitespace-nowrap px-4 py-2 text-sm"
+                    x-on:click="$dispatch('open-media-picker', { target: pickerTarget })">
+                Media Library
+            </button>
         </div>
         <p class="mt-1 text-xs text-slate-400">Upload or paste a storage path / URL. Max 5MB.</p>
         <p x-show="error" x-text="error" class="mt-1 text-xs text-red-500" x-cloak></p>
@@ -34,12 +44,12 @@
 
     <div>
         <label class="admin-form-label">Alt Text</label>
-        <input type="text" name="data[alt]" value="{{ old('data.alt', $block->data['alt'] ?? '') }}" class="admin-input" placeholder="Describe the image for accessibility">
+        <input type="text" name="data[alt]" x-model="alt" class="admin-input" placeholder="Describe the image for accessibility">
     </div>
 
     <div>
         <label class="admin-form-label">Caption</label>
-        <input type="text" name="data[caption]" value="{{ old('data.caption', $block->data['caption'] ?? '') }}" class="admin-input" placeholder="Optional caption below image">
+        <input type="text" name="data[caption]" x-model="caption" class="admin-input" placeholder="Optional caption below image">
     </div>
 
     <div>

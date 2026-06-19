@@ -15,19 +15,15 @@
     }
 @endphp
 
-{{-- Hide the carousel scrollbar without depending on a Tailwind rebuild --}}
-@once
-<style>
-    .bp-pcarousel { scrollbar-width: none; -ms-overflow-style: none; }
-    .bp-pcarousel::-webkit-scrollbar { display: none; }
-</style>
-@endonce
+@if($products->isNotEmpty())
+    {{-- Hide the carousel scrollbar without depending on a Tailwind rebuild. --}}
+    @once
+        <style>
+            .bp-pcarousel { scrollbar-width: none; -ms-overflow-style: none; }
+            .bp-pcarousel::-webkit-scrollbar { display: none; }
+        </style>
+    @endonce
 
-@if($products->isEmpty())
-    <div class="py-12 text-center text-sm text-gray-400">
-        No products found for this block.
-    </div>
-@else
     <section class="py-16" style="{{ $bgStyle }}">
         <div class="mx-auto max-w-7xl px-6">
 

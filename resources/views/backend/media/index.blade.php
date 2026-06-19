@@ -20,6 +20,28 @@
         </button>
     </div>
 
+    @if($errors->has('media'))
+        <div class="mb-5 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+            {{ $errors->first('media') }}
+        </div>
+    @endif
+
+    @if($orphanCount > 0)
+        <div class="mb-5 flex flex-col gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+                <p class="text-sm font-semibold text-amber-900">{{ $orphanCount }} unregistered media file(s) detected.</p>
+                <p class="text-xs text-amber-700">Only files with no Media record and no known CMS reference will be removed.</p>
+            </div>
+            <form method="POST" action="{{ route('admin.media.orphans.destroy') }}">
+                @csrf
+                @method('DELETE')
+                <button type="submit" class="admin-btn-secondary whitespace-nowrap" onclick="return confirm('Remove all confirmed orphaned media files?')">
+                    Clean orphan files
+                </button>
+            </form>
+        </div>
+    @endif
+
     {{-- Toolbar: search + type filter --}}
     <div class="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <form method="GET" action="{{ route('admin.media.index') }}" class="flex w-full max-w-sm gap-2">
@@ -102,6 +124,20 @@
                     <div class="flex justify-between"><dt class="text-slate-400">Uploaded by</dt><dd class="font-medium text-slate-700" x-text="selected.uploader"></dd></div>
                     <div class="flex justify-between"><dt class="text-slate-400">Date</dt><dd class="font-medium text-slate-700" x-text="selected.date"></dd></div>
                 </dl>
+
+                <div x-show="selected.usageCount > 0" class="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+                    <p class="font-semibold">Used in <span x-text="selected.usageCount"></span> content location(s)</p>
+                    <ul class="mt-2 list-disc space-y-1 pl-4 text-xs">
+                        <template x-for="reference in selected.usageReferences" :key="`${reference.source}-${reference.record_id}-${reference.field}`">
+                            <li x-text="`${reference.label} (${reference.field})`"></li>
+                        </template>
+                    </ul>
+                    <p class="mt-2 text-xs">Remove these references before deleting the media.</p>
+                </div>
+
+                <div x-show="selected.missingFile" class="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+                    The stored file is missing. Deleting this entry will safely remove the stale database record.
+                </div>
             </div>
 
             {{-- Delete --}}
@@ -109,7 +145,7 @@
                 <form method="POST" :action="`${updateBase}/${selected.id}`" x-on:submit="return confirm('Delete this media file? This cannot be undone.')">
                     @csrf
                     @method('DELETE')
-                    <button type="submit" class="admin-btn-danger w-full">
+                    <button type="submit" class="admin-btn-danger w-full disabled:cursor-not-allowed disabled:opacity-50" :disabled="selected.usageCount > 0">
                         <i class="fa-solid fa-trash mr-1"></i> Delete media
                     </button>
                 </form>
@@ -130,7 +166,7 @@
             uploadOpen: false,
             dragging: false,
             copied: false,
-            selected: { id: null, url: '', name: '', alt: '', caption: '', size: '', dimensions: '', ext: '', date: '', uploader: '' },
+            selected: { id: null, path: '', url: '', name: '', alt: '', caption: '', size: '', dimensions: '', ext: '', date: '', uploader: '', usageCount: 0, usageReferences: [], missingFile: false },
             uploadTotal: 0,
             uploadDone: 0,
             uploadError: '',

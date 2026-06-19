@@ -33,13 +33,13 @@ class MenuController extends Controller
         ])]);
 
         return view('backend.menus.edit', [
-            'menu'         => $menu,
-            'linkTypes'    => MenuItem::LINK_TYPES,
-            'pages'        => Page::orderBy('title')->get(['id', 'title', 'slug']),
-            'products'     => Product::orderBy('name')->get(['id', 'name', 'slug']),
-            'categories'   => Category::orderBy('name')->get(['id', 'name']),
-            'destinations' => Destination::orderBy('name')->get(['id', 'name']),
-            'parentOptions'=> $menu->rootItems,
+            'menu' => $menu,
+            'linkTypes' => MenuItem::LINK_TYPES,
+            'pages' => Page::published()->orderBy('title')->get(['id', 'title', 'slug']),
+            'products' => Product::publiclyVisible()->orderBy('name')->get(['id', 'name', 'slug']),
+            'categories' => Category::query()->where('is_active', true)->orderBy('name')->get(['id', 'name']),
+            'destinations' => Destination::query()->where('is_active', true)->orderBy('name')->get(['id', 'name']),
+            'parentOptions' => $menu->rootItems,
         ]);
     }
 }

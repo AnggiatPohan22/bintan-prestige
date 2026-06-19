@@ -1,4 +1,6 @@
-<div class="space-y-4" x-data="galleryBlock({{ json_encode($block->data ?? []) }})">
+<div class="space-y-4"
+     x-data="galleryBlock({{ json_encode($block->data ?? []) }}, 'gallery-block-{{ $block->id }}')"
+     x-on:media-picker-selected.window="selectMedia($event.detail)">
 
     {{-- Hidden inputs — always submitted, one set per image (kept in sync via x-model) --}}
     <template x-for="(img, i) in images" :key="'h' + i">
@@ -25,6 +27,9 @@
                 </label>
                 <button type="button" x-on:click="addImage()" class="admin-btn-soft px-3 py-1.5 text-xs">
                     <i class="fa-solid fa-link mr-1"></i>Add URL
+                </button>
+                <button type="button" x-on:click="$dispatch('open-media-picker', { target: pickerTarget })" class="admin-btn-soft px-3 py-1.5 text-xs">
+                    <i class="fa-solid fa-photo-film mr-1"></i>Media Library
                 </button>
             </div>
         </header>
@@ -181,7 +186,7 @@
 @once
 @push('scripts')
 <script>
-function galleryBlock(blockData) {
+function galleryBlock(blockData, pickerTarget) {
     return {
         images: (blockData.images && blockData.images.length)
             ? blockData.images.map(img => ({ src: img.src || '', alt: img.alt || '', caption: img.caption || '' }))
@@ -190,6 +195,7 @@ function galleryBlock(blockData) {
         uploadTotal: 0,
         uploadDone: 0,
         uploadError: '',
+        pickerTarget,
 
         imgPreview(src) {
             if (!src) return '';
@@ -200,6 +206,16 @@ function galleryBlock(blockData) {
 
         addImage() {
             this.images.push({ src: '', alt: '', caption: '' });
+            this.selected = this.images.length - 1;
+        },
+
+        selectMedia(detail) {
+            if (detail.target !== this.pickerTarget) return;
+            this.images.push({
+                src: detail.media.path || '',
+                alt: detail.media.alt || '',
+                caption: detail.media.caption || '',
+            });
             this.selected = this.images.length - 1;
         },
 

@@ -25,11 +25,15 @@
     }
 @endphp
 
-@if($title || $btnTxt)
-<section class="{{ $bgClass }} py-20" style="{{ $bgStyle }}">
-    <div class="mx-auto max-w-3xl px-6 text-center">
+@if($title || $desc || ($btnTxt && $btnUrl))
+<section
+    class="{{ $bgClass }} py-14 sm:py-20"
+    style="{{ $bgStyle }}"
+    @if($title) aria-labelledby="cta-title-{{ $block->id }}" @else aria-label="Call to action" @endif
+>
+    <div class="mx-auto max-w-3xl px-4 text-center sm:px-6">
         @if($title)
-            <h2 class="text-3xl font-bold md:text-4xl">{{ $title }}</h2>
+            <h2 id="cta-title-{{ $block->id }}" class="text-3xl font-bold md:text-4xl">{{ $title }}</h2>
         @endif
 
         @if($desc)
@@ -40,7 +44,7 @@
             <div class="mt-8">
                 <a
                     href="{{ $btnUrl }}"
-                    class="inline-block rounded-full px-10 py-4 text-sm font-bold uppercase tracking-widest transition {{ $btnClass }}"
+                    class="inline-flex max-w-full justify-center break-words rounded-full px-6 py-4 text-sm font-bold uppercase tracking-widest transition focus:outline-none focus:ring-2 focus:ring-offset-2 sm:px-10 {{ $btnClass }}"
                 >
                     {{ $btnTxt }}
                 </a>

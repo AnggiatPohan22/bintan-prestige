@@ -20,6 +20,7 @@
     $lightbox = (bool) ($data['lightbox_enabled'] ?? true);
     $autoplay = (bool) ($data['autoplay'] ?? false);
     $globalCaption = $data['caption'] ?? '';
+    $galleryLabel = $globalCaption ?: 'Image gallery';
 
     $colClass = match ($columns) {
         1       => 'grid-cols-1',
@@ -56,7 +57,7 @@
 @endphp
 
 @if($images->isNotEmpty())
-<section class="py-12" style="{{ $bgStyle }}">
+<section class="py-10 sm:py-12" style="{{ $bgStyle }}" aria-label="{{ $galleryLabel }}">
     {{-- Self-contained Alpine component (no external script dependency) --}}
     <div
         class="mx-auto max-w-7xl px-6"
@@ -68,19 +69,41 @@
             slide: 0,
             lbOpen: false,
             lbIdx: 0,
+            lastTrigger: null,
             _sx: 0, _lsx: 0, _timer: null,
             init() {
                 if (this.autoplay && this.slideCount > 1) {
                     this._timer = setInterval(() => { if (!this.lbOpen) this.next(); }, 5000);
                 }
             },
+            destroy() { if (this._timer) clearInterval(this._timer); },
             next() { this.slide = (this.slide + 1) % this.slideCount; },
             prev() { this.slide = (this.slide - 1 + this.slideCount) % this.slideCount; },
             go(i) { this.slide = i; },
             swipeStart(e) { this._sx = e.touches[0].clientX; },
             swipeEnd(e) { const d = this._sx - e.changedTouches[0].clientX; if (d > 50) this.next(); if (d < -50) this.prev(); },
-            openLb(i) { if (!this.lightbox) return; this.lbIdx = i; this.lbOpen = true; document.body.style.overflow = 'hidden'; },
-            closeLb() { this.lbOpen = false; document.body.style.overflow = ''; },
+            openLb(i, trigger) {
+                if (!this.lightbox) return;
+                this.lastTrigger = trigger;
+                this.lbIdx = i;
+                this.lbOpen = true;
+                document.body.style.overflow = 'hidden';
+                this.$nextTick(() => this.$refs.closeButton?.focus());
+            },
+            closeLb() {
+                this.lbOpen = false;
+                document.body.style.overflow = '';
+                this.$nextTick(() => this.lastTrigger?.focus());
+            },
+            trapFocus(e) {
+                if (!this.lbOpen) return;
+                const focusable = [...this.$refs.dialog.querySelectorAll('button:not([disabled])')];
+                if (!focusable.length) return;
+                const first = focusable[0];
+                const last = focusable[focusable.length - 1];
+                if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+                if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+            },
             lbPrev() { this.lbIdx = (this.lbIdx - 1 + this.images.length) % this.images.length; },
             lbNext() { this.lbIdx = (this.lbIdx + 1) % this.images.length; },
             onKey(e) { if (!this.lbOpen) return; if (e.key === 'ArrowLeft') this.lbPrev(); if (e.key === 'ArrowRight') this.lbNext(); if (e.key === 'Escape') this.closeLb(); },
@@ -89,7 +112,7 @@
         }"
         @keydown.window="onKey"
     >
-        <div class="relative">
+        <div class="relative" role="region" aria-roledescription="carousel" aria-label="{{ $galleryLabel }}">
 
             @if($isCarousel)
                 <button type="button" @click="prev()"
@@ -97,14 +120,14 @@
                                rounded-full bg-white/90 text-slate-700 shadow-md ring-1 ring-slate-200
                                transition hover:bg-white md:-left-4"
                         aria-label="Previous images">
-                    <i class="fa-solid fa-chevron-left text-sm"></i>
+                    <i class="fa-solid fa-chevron-left text-sm" aria-hidden="true"></i>
                 </button>
                 <button type="button" @click="next()"
                         class="absolute -right-3 top-1/2 z-10 grid h-10 w-10 -translate-y-1/2 place-items-center
                                rounded-full bg-white/90 text-slate-700 shadow-md ring-1 ring-slate-200
                                transition hover:bg-white md:-right-4"
                         aria-label="Next images">
-                    <i class="fa-solid fa-chevron-right text-sm"></i>
+                    <i class="fa-solid fa-chevron-right text-sm" aria-hidden="true"></i>
                 </button>
             @endif
 
@@ -124,14 +147,23 @@
                 >
                     @foreach($slide as $gi => $img)
                         <figure
-                            class="group relative overflow-hidden rounded-xl {{ $aspectClass }} {{ $lightbox ? 'cursor-pointer' : '' }}"
-                            @if($lightbox) @click="openLb({{ $gi }})" @endif
+                            class="group relative overflow-hidden rounded-xl {{ $aspectClass }} {{ $lightbox ? 'cursor-pointer focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2' : '' }}"
+                            @if($lightbox)
+                                role="button"
+                                tabindex="0"
+                                aria-haspopup="dialog"
+                                aria-label="Open image {{ $gi + 1 }} in gallery"
+                                @click="openLb({{ $gi }}, $el)"
+                                @keydown.enter.prevent="openLb({{ $gi }}, $el)"
+                                @keydown.space.prevent="openLb({{ $gi }}, $el)"
+                            @endif
                         >
                             <img
                                 src="{{ $img['src'] }}"
                                 alt="{{ $img['alt'] ?? '' }}"
                                 class="{{ $imgClass }} transition duration-500 group-hover:scale-105"
                                 loading="lazy"
+                                decoding="async"
                             >
                             @if($captions && ! empty($img['caption']))
                                 <figcaption class="absolute inset-x-0 bottom-0 bg-black/60 px-3 py-2 text-xs
@@ -152,7 +184,8 @@
                     <button type="button" @click="go(i - 1)"
                             :class="slide === (i - 1) ? 'w-6 bg-slate-800' : 'w-2 bg-slate-300 hover:bg-slate-400'"
                             class="h-2 rounded-full transition-all"
-                            :aria-label="'Go to slide ' + i"></button>
+                            :aria-label="'Go to slide ' + i"
+                            :aria-current="slide === (i - 1) ? 'true' : 'false'"></button>
                 </template>
             </div>
         @endif
@@ -174,24 +207,29 @@
                 @click.self="closeLb"
                 @touchstart.passive="lbSwipeStart"
                 @touchend.passive="lbSwipeEnd"
+                @keydown.tab="trapFocus($event)"
+                x-ref="dialog"
                 class="fixed inset-0 z-[999] flex items-center justify-center bg-black/90"
                 style="display:none"
+                role="dialog"
+                aria-modal="true"
+                aria-label="Gallery image viewer"
             >
-                <button @click="closeLb"
+                <button x-ref="closeButton" @click="closeLb"
                         class="absolute right-4 top-4 z-10 grid h-10 w-10 place-items-center rounded-full
                                bg-white/10 text-white transition hover:bg-white/25"
                         aria-label="Close">
-                    <i class="fa-solid fa-xmark text-lg"></i>
+                    <i class="fa-solid fa-xmark text-lg" aria-hidden="true"></i>
                 </button>
 
                 <button @click="lbPrev"
                         class="absolute left-4 top-1/2 z-10 grid h-12 w-12 -translate-y-1/2 place-items-center
                                rounded-full bg-white/10 text-white transition hover:bg-white/25"
                         aria-label="Previous">
-                    <i class="fa-solid fa-chevron-left text-xl"></i>
+                    <i class="fa-solid fa-chevron-left text-xl" aria-hidden="true"></i>
                 </button>
 
-                <div class="flex max-h-[85vh] max-w-[85vw] flex-col items-center px-16">
+                <div class="flex max-h-[85vh] max-w-[96vw] flex-col items-center px-14 sm:max-w-[85vw] sm:px-16">
                     <template x-for="(img, i) in images" :key="i">
                         <div x-show="lbIdx === i" class="text-center">
                             <img :src="img.src" :alt="img.alt || ''"
@@ -205,14 +243,16 @@
                         class="absolute right-4 top-1/2 z-10 grid h-12 w-12 -translate-y-1/2 place-items-center
                                rounded-full bg-white/10 text-white transition hover:bg-white/25"
                         aria-label="Next">
-                    <i class="fa-solid fa-chevron-right text-xl"></i>
+                    <i class="fa-solid fa-chevron-right text-xl" aria-hidden="true"></i>
                 </button>
 
                 <div class="absolute bottom-4 left-1/2 flex -translate-x-1/2 gap-2">
                     <template x-for="(img, i) in images" :key="i">
                         <button @click="lbIdx = i"
                                 :class="lbIdx === i ? 'scale-125 bg-white' : 'bg-white/40'"
-                                class="h-2 w-2 rounded-full transition-all"></button>
+                                class="h-2 w-2 rounded-full transition-all"
+                                :aria-label="'Show image ' + (i + 1)"
+                                :aria-current="lbIdx === i ? 'true' : 'false'"></button>
                     </template>
                 </div>
             </div>

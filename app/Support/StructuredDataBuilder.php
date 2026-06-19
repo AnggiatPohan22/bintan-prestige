@@ -2,6 +2,7 @@
 
 namespace App\Support;
 
+use App\Models\Page;
 use App\Models\Product;
 use Illuminate\Support\Arr;
 
@@ -19,6 +20,7 @@ class StructuredDataBuilder
             self::businessSchema($context),
             self::websiteSchema($context),
             self::breadcrumbSchema($context),
+            self::pageSchema($context),
             self::itemListSchema($context),
             self::productSchema($context),
             self::faqPageSchema($context),
@@ -54,7 +56,7 @@ class StructuredDataBuilder
 
         return self::clean([
             '@type' => $settings['business_type'] ?? 'Organization',
-            '@id' => rtrim($baseUrl, '/') . '#business',
+            '@id' => rtrim($baseUrl, '/').'#business',
             'name' => $businessName,
             'legalName' => $legalName,
             'url' => $baseUrl,
@@ -87,11 +89,11 @@ class StructuredDataBuilder
 
         return self::clean([
             '@type' => 'WebSite',
-            '@id' => rtrim($baseUrl, '/') . '#website',
+            '@id' => rtrim($baseUrl, '/').'#website',
             'name' => $siteName,
             'url' => $baseUrl,
             'description' => $identity['short_description'] ?? ($seo['meta_description'] ?? null),
-            'publisher' => ['@id' => rtrim($baseUrl, '/') . '#business'],
+            'publisher' => ['@id' => rtrim($baseUrl, '/').'#business'],
         ]);
     }
 
@@ -142,7 +144,7 @@ class StructuredDataBuilder
 
         return self::clean([
             '@type' => 'Product',
-            '@id' => $canonicalUrl . '#product',
+            '@id' => $canonicalUrl.'#product',
             'name' => $product->name,
             'description' => $description,
             'image' => $images,
@@ -150,19 +152,59 @@ class StructuredDataBuilder
             'category' => $product->category?->name,
             'brand' => self::clean([
                 '@type' => 'Brand',
-                '@id' => rtrim($baseUrl, '/') . '#business',
+                '@id' => rtrim($baseUrl, '/').'#business',
                 'name' => $siteName,
             ]),
             'offers' => $offers,
         ]);
     }
 
+    public static function pageSchema(array $context): ?array
+    {
+        $settings = $context['structuredDataSettings'] ?? [];
+        $page = $context['page'] ?? null;
+
+        if (! ($settings['enabled'] ?? true) || ! $page instanceof Page) {
+            return null;
+        }
+
+        $canonicalUrl = $context['canonicalUrl'] ?? route('pages.show', $page->slug);
+        $schemaType = in_array($context['pageSchemaType'] ?? null, ['WebPage', 'Article'], true)
+            ? $context['pageSchemaType']
+            : 'WebPage';
+        $description = self::plainText($context['seoDescription'] ?? null);
+        $image = self::plainText($context['seoImage'] ?? null);
+        $seo = $context['seoDefaultSettings'] ?? [];
+        $baseUrl = $seo['canonical_base_url'] ?: url('/');
+
+        $schema = [
+            '@type' => $schemaType,
+            '@id' => rtrim($canonicalUrl, '#').'#webpage',
+            'url' => $canonicalUrl,
+            'name' => self::plainText($context['listingName'] ?? null) ?? $page->title,
+            'description' => $description,
+            'image' => $image,
+            'isPartOf' => ['@id' => rtrim($baseUrl, '/').'#website'],
+            'datePublished' => $page->created_at?->toAtomString(),
+            'dateModified' => $page->updated_at?->toAtomString(),
+        ];
+
+        if ($schemaType === 'Article') {
+            $schema['headline'] = $page->title;
+            $schema['mainEntityOfPage'] = ['@id' => rtrim($canonicalUrl, '#').'#webpage'];
+            $schema['publisher'] = ['@id' => rtrim($baseUrl, '/').'#business'];
+        }
+
+        return self::clean($schema);
+    }
+
     public static function faqPageSchema(array $context): ?array
     {
         $settings = $context['structuredDataSettings'] ?? [];
         $product = $context['product'] ?? null;
+        $page = $context['page'] ?? null;
 
-        if (! ($settings['enabled'] ?? true) || ! $product instanceof Product) {
+        if (! ($settings['enabled'] ?? true) || (! $product instanceof Product && ! $page instanceof Page)) {
             return null;
         }
 
@@ -218,7 +260,7 @@ class StructuredDataBuilder
 
         return self::clean([
             '@type' => 'ItemList',
-            '@id' => rtrim($canonicalUrl, '#') . '#itemlist',
+            '@id' => rtrim($canonicalUrl, '#').'#itemlist',
             'name' => $context['listingName'] ?? 'Product listing',
             'itemListElement' => $products
                 ->map(fn (Product $product, int $index) => self::clean([
@@ -275,6 +317,17 @@ class StructuredDataBuilder
                 ['name' => 'Home', 'url' => route('home')],
                 ['name' => 'Products', 'url' => route('products.index')],
                 ['name' => $product->name, 'url' => $canonicalUrl],
+            ];
+        }
+
+        $page = $context['page'] ?? null;
+
+        if ($page instanceof Page) {
+            $canonicalUrl = $context['canonicalUrl'] ?? route('pages.show', $page->slug);
+
+            return [
+                ['name' => 'Home', 'url' => route('home')],
+                ['name' => $page->title, 'url' => $canonicalUrl],
             ];
         }
 

@@ -91,6 +91,9 @@
                                     <span class="{{ $page->status === 'published' ? 'admin-badge-success' : 'admin-badge-warning' }}">
                                         {{ ucfirst($page->status) }}
                                     </span>
+                                    <p class="mt-1 max-w-44 text-xs text-slate-400">
+                                        {{ $page->isPublished() ? 'Live publicly and eligible for managed menus.' : 'Admin preview only; hidden from public pages and menus.' }}
+                                    </p>
                                 </td>
 
                                 <td class="px-4 py-4 text-sm text-slate-500">
@@ -102,14 +105,24 @@
                                 </td>
 
                                 <td class="px-4 py-4">
-                                    <div class="flex flex-col justify-end gap-2 sm:flex-row">
+                                    <div class="flex flex-col justify-end gap-2 sm:flex-row sm:flex-wrap">
+                                        <a
+                                            href="{{ route('admin.pages.preview', $page) }}"
+                                            target="_blank"
+                                            rel="noopener"
+                                            class="admin-btn-soft px-4 py-2"
+                                        >
+                                            {{ $page->isPublished() ? 'Preview' : 'Preview Draft' }}
+                                        </a>
+
                                         @if($page->isPublished())
                                             <a
                                                 href="{{ route('pages.show', $page->slug) }}"
                                                 target="_blank"
+                                                rel="noopener"
                                                 class="admin-btn-soft px-4 py-2"
                                             >
-                                                View
+                                                View Live
                                             </a>
                                         @endif
 

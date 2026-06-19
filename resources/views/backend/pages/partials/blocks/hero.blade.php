@@ -1,6 +1,7 @@
 <div
     class="grid grid-cols-1 gap-4 md:grid-cols-2"
-    x-data="imageUploader('{{ old('data.image', $block->data['image'] ?? '') }}')"
+    x-data="imageUploader(@js(old('data.image', $block->data['image'] ?? '')), 'hero-image-{{ $block->id }}')"
+    x-on:media-picker-selected.window="selectMedia($event.detail)"
 >
     <div class="md:col-span-2">
         <label class="admin-form-label">Title</label>
@@ -37,6 +38,10 @@
                     x-on:change="uploadImage($event)"
                 >
             </label>
+            <button type="button" class="admin-btn-secondary whitespace-nowrap px-4 py-2 text-sm"
+                    x-on:click="$dispatch('open-media-picker', { target: pickerTarget })">
+                Media Library
+            </button>
         </div>
         <p class="mt-1 text-xs text-slate-400">Upload or paste a storage path / URL. Max 5MB. JPG, PNG, WebP.</p>
         <p x-show="error" x-text="error" class="mt-1 text-xs text-red-500" x-cloak></p>
@@ -144,48 +149,3 @@
     </div>
 
 </div>
-
-@once
-@push('scripts')
-<script>
-function imageUploader(initialPath) {
-    return {
-        path: initialPath,
-        uploading: false,
-        error: '',
-        get preview() {
-            if (!this.path) return '';
-            if (this.path.startsWith('http')) return this.path;
-            return '/storage/' + this.path;
-        },
-        async uploadImage(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            this.uploading = true;
-            this.error = '';
-            const form = new FormData();
-            form.append('image', file);
-            form.append('_token', document.querySelector('meta[name="csrf-token"]').content);
-            try {
-                const res = await fetch('{{ route('admin.media.upload-quick') }}', {
-                    method: 'POST',
-                    body: form,
-                });
-                const data = await res.json();
-                if (data.success) {
-                    this.path = data.path;
-                } else {
-                    this.error = data.message || 'Upload failed.';
-                }
-            } catch (e) {
-                this.error = 'Upload failed. Please try again.';
-            } finally {
-                this.uploading = false;
-                event.target.value = '';
-            }
-        },
-    };
-}
-</script>
-@endpush
-@endonce
