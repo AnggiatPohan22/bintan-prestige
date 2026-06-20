@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Facades\CmsHooks;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -17,6 +18,10 @@ class AdminMiddleware
             abort(403);
         }
 
-        return $next($request);
+        $response = $next($request);
+
+        CmsHooks::doAction('admin.loaded', $request);
+
+        return $response;
     }
 }

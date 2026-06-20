@@ -238,4 +238,24 @@ class HookManagerTest extends TestCase
 
         $this->assertTrue($fired);
     }
+
+    // =========================================================================
+    // G18 — Integration: admin.loaded hook fires via AdminMiddleware
+    // =========================================================================
+
+    /** @test */
+    public function test_admin_loaded_hook_fires_on_admin_request(): void // G18
+    {
+        $fired = false;
+
+        CmsHooks::addAction('admin.loaded', function () use (&$fired) {
+            $fired = true;
+        });
+
+        $admin = \App\Models\User::factory()->admin()->create();
+
+        $this->actingAs($admin)->get(route('admin.dashboard'));
+
+        $this->assertTrue($fired);
+    }
 }
