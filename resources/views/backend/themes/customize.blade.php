@@ -77,6 +77,58 @@
 
                     <div class="space-y-6">
 
+                        {{-- Google Font Picker --}}
+                        @if(!empty($fontList))
+                        <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
+                             x-data="googleFontPicker(@js($fontList), @js($overrides['_google_font'] ?? ''))">
+
+                            <h2 class="mb-4 text-xs font-bold uppercase tracking-wider text-slate-500">
+                                Google Font <span class="ml-1 font-normal normal-case text-slate-400">(Body)</span>
+                            </h2>
+
+                            {{-- Search --}}
+                            <input
+                                type="text"
+                                x-model="search"
+                                placeholder="Search fonts…"
+                                class="admin-input w-full mb-3 text-sm"
+                                autocomplete="off"
+                            >
+
+                            {{-- Font list --}}
+                            <select
+                                name="google_font"
+                                x-model="selected"
+                                @change="loadPreview()"
+                                size="6"
+                                class="admin-input w-full mb-3 font-mono text-sm"
+                            >
+                                <option value="">— None (use theme default) —</option>
+                                <template x-for="font in filteredFonts" :key="font">
+                                    <option :value="font" x-text="font"></option>
+                                </template>
+                            </select>
+
+                            {{-- Live preview --}}
+                            <div class="rounded-lg border border-slate-100 bg-slate-50 px-4 py-3">
+                                <p class="mb-1 text-xs text-slate-400">Preview</p>
+                                <p x-ref="previewText"
+                                   class="text-base text-slate-800 transition-all duration-200">
+                                    The quick brown fox jumps over the lazy dog
+                                </p>
+                            </div>
+
+                            @if(!empty($overrides['_google_font']))
+                                <p class="mt-2 text-xs text-slate-400">
+                                    Current:
+                                    <span class="font-mono font-medium text-slate-600">
+                                        {{ $overrides['_google_font'] }}
+                                    </span>
+                                </p>
+                            @endif
+                        </div>
+                        @endif
+
                         @foreach($schema as $groupKey => $group)
                             <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
 
@@ -266,6 +318,45 @@
 
 @push('scripts')
 <script>
+function googleFontPicker(allFonts, initialFont) {
+    return {
+        search: '',
+        selected: initialFont || '',
+        loadedFonts: new Set(),
+
+        get filteredFonts() {
+            const q = this.search.trim().toLowerCase();
+            const list = q
+                ? allFonts.filter(f => f.toLowerCase().includes(q))
+                : allFonts;
+            return list.slice(0, 150);
+        },
+
+        init() {
+            if (this.selected) {
+                this.$nextTick(() => this.loadPreview());
+            }
+        },
+
+        loadPreview() {
+            if (!this.selected) {
+                this.$refs.previewText.style.fontFamily = 'inherit';
+                return;
+            }
+            if (!this.loadedFonts.has(this.selected)) {
+                const link = document.createElement('link');
+                link.rel = 'stylesheet';
+                link.href = 'https://fonts.googleapis.com/css2?family='
+                    + encodeURIComponent(this.selected).replace(/%20/g, '+')
+                    + ':wght@400;700&display=swap';
+                document.head.appendChild(link);
+                this.loadedFonts.add(this.selected);
+            }
+            this.$refs.previewText.style.fontFamily = `'${this.selected}', sans-serif`;
+        },
+    };
+}
+
 function themeCustomizer(initialTokens, initialUrl) {
     return {
         tokens: initialTokens,

@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Facades\CmsHooks;
 use App\Models\Theme;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
@@ -72,12 +73,55 @@ class ThemeService
 
     /**
      * Return the active theme's stored token overrides, or [] when there is none.
+     * Does NOT include schema defaults — only what the admin has explicitly saved.
      *
      * @return array<string, string>
      */
     public function getTokenOverrides(): array
     {
         return $this->getActiveTheme()?->customization ?? [];
+    }
+
+    /**
+     * Return the full resolved token map for the active theme:
+     *   schema defaults → merged with saved overrides → filtered through theme.tokens hook.
+     *
+     * Use this for frontend rendering. Plugins can extend or modify the map via
+     * CmsHooks::addFilter('theme.tokens', fn($tokens, $theme) => ...).
+     *
+     * @return array<string, string>
+     */
+    public function resolvedTokens(): array
+    {
+        $theme = $this->getActiveTheme();
+
+        if ($theme === null) {
+            return [];
+        }
+
+        // Collect all defaults from the theme's customization_schema.
+        $defaults = [];
+        foreach ($theme->customizationSchema() as $group) {
+            foreach ($group['tokens'] ?? [] as $token) {
+                if (! empty($token['key']) && array_key_exists('default', $token)) {
+                    $defaults[$token['key']] = $token['default'];
+                }
+            }
+        }
+
+        // Saved admin overrides — only CSS variable keys (starting with --).
+        // Non-CSS metadata (e.g. _google_font) is stored in customization too but
+        // must never appear in the CSS :root {} block.
+        $saved = array_filter(
+            $theme->customization ?? [],
+            fn ($key) => str_starts_with($key, '--'),
+            ARRAY_FILTER_USE_KEY
+        );
+
+        $tokens = array_merge($defaults, $saved);
+
+        // Allow plugins to add, modify, or remove tokens.
+        return CmsHooks::applyFilters('theme.tokens', $tokens, $theme);
     }
 
     /**
@@ -104,6 +148,17 @@ class ThemeService
         }
 
         return collect($this->widgetsByArea[$area] ?? []);
+    }
+
+    /**
+     * Return the Google Font family selected for the active theme, or null if none set.
+     * This is stored in the customization column under the non-CSS key `_google_font`.
+     */
+    public function getGoogleFont(): ?string
+    {
+        $font = $this->getActiveTheme()?->customization['_google_font'] ?? null;
+
+        return filled($font) ? trim((string) $font) : null;
     }
 
     /** Clear the active-theme cache and reset per-request widget state. Called on Theme/Widget saved/deleted. */

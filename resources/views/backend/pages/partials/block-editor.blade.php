@@ -235,7 +235,7 @@
 
                     @include(
                         'backend.pages.partials.blocks.' . str_replace('_', '-', $block->block_type),
-                        ['block' => $block, 'categories' => $categories, 'destinations' => $destinations]
+                        ['block' => $block, 'categories' => $categories, 'destinations' => $destinations, 'formDefinitions' => $formDefinitions ?? collect()]
                     )
 
                     @include('backend.pages.partials.blocks.partials.background', ['block' => $block])

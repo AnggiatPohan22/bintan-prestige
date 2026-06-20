@@ -29,6 +29,7 @@
                         <option value="">All Status</option>
                         <option value="published" @selected(request('status') === 'published')>Published</option>
                         <option value="draft" @selected(request('status') === 'draft')>Draft</option>
+                        <option value="scheduled" @selected(request('status') === 'scheduled')>Scheduled</option>
                     </select>
                 </form>
 
@@ -88,12 +89,18 @@
                                 </td>
 
                                 <td class="px-4 py-4">
-                                    <span class="{{ $page->status === 'published' ? 'admin-badge-success' : 'admin-badge-warning' }}">
-                                        {{ ucfirst($page->status) }}
-                                    </span>
-                                    <p class="mt-1 max-w-44 text-xs text-slate-400">
-                                        {{ $page->isPublished() ? 'Live publicly and eligible for managed menus.' : 'Admin preview only; hidden from public pages and menus.' }}
-                                    </p>
+                                    @if($page->isPublished())
+                                        <span class="admin-badge-success">Published</span>
+                                        <p class="mt-1 max-w-44 text-xs text-slate-400">Live publicly and eligible for managed menus.</p>
+                                    @elseif($page->isScheduled())
+                                        <span class="admin-badge-warning" style="background-color:#fef9c3;color:#854d0e;">Scheduled</span>
+                                        <p class="mt-1 max-w-44 text-xs text-slate-400">
+                                            Publishes {{ $page->publish_at->format('d M Y, H:i') }}
+                                        </p>
+                                    @else
+                                        <span class="admin-badge-warning">Draft</span>
+                                        <p class="mt-1 max-w-44 text-xs text-slate-400">Admin preview only; hidden from public pages and menus.</p>
+                                    @endif
                                 </td>
 
                                 <td class="px-4 py-4 text-sm text-slate-500">
@@ -132,6 +139,20 @@
                                         >
                                             Edit
                                         </a>
+
+                                        <form
+                                            method="POST"
+                                            action="{{ route('admin.pages.duplicate', $page) }}"
+                                        >
+                                            @csrf
+                                            <button
+                                                type="submit"
+                                                onclick="return confirm('Duplicate \"{{ addslashes($page->title) }}\"?')"
+                                                class="admin-btn-soft px-4 py-2"
+                                            >
+                                                Duplicate
+                                            </button>
+                                        </form>
 
                                         <form
                                             method="POST"

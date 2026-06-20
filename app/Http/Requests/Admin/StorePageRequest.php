@@ -28,7 +28,8 @@ class StorePageRequest extends FormRequest
         return [
             'title' => ['required', 'string', 'max:255'],
             'slug' => ['nullable', 'string', 'max:255', 'unique:pages,slug', Rule::notIn(['admin', 'products', 'api', 'login', 'register'])],
-            'status' => ['required', Rule::in(['draft', 'published'])],
+            'status' => ['required', Rule::in(['draft', 'published', 'scheduled'])],
+            'publish_at' => ['nullable', 'date'],
             'template_id' => [
                 'nullable',
                 'integer',
@@ -52,7 +53,7 @@ class StorePageRequest extends FormRequest
             'slug.unique' => 'This slug is already in use.',
             'slug.not_in' => 'This slug is reserved and cannot be used.',
             'status.required' => 'Status is required.',
-            'status.in' => 'Status must be draft or published.',
+            'status.in' => 'Status must be draft, published, or scheduled.',
             'og_image.image' => 'OG image must be an image file.',
             'og_image.max' => 'OG image must not exceed 2MB.',
         ];

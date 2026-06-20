@@ -25,6 +25,12 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Forum&display=swap" rel="stylesheet">
 
+    @php($activeGoogleFont = $themeService->getGoogleFont())
+    @if($activeGoogleFont)
+        <link href="https://fonts.googleapis.com/css2?family={{ str_replace(' ', '+', $activeGoogleFont) }}:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+        <style>body { font-family: '{{ $activeGoogleFont }}', sans-serif; }</style>
+    @endif
+
     @vite([
         'resources/css/frontend.css',
         'resources/js/app.js'
@@ -32,7 +38,7 @@
 
     @include('partials.site-brand-colors')
 
-    @php($themeTokens = $themeService->getTokenOverrides())
+    @php($themeTokens = $themeService->resolvedTokens())
     @if($themeTokens)
         <style>
             :root {

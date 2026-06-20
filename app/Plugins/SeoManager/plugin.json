@@ -1,0 +1,11 @@
+{
+    "name": "SEO Manager",
+    "slug": "seo-manager",
+    "version": "1.0.0",
+    "author": "Bintan Prestige",
+    "description": "Dynamic XML sitemap, robots.txt editor, Open Graph configurator, JSON-LD templates, and redirect manager.",
+    "min_cms_version": "4.0.0",
+    "service_provider": "App\\Plugins\\SeoManager\\SeoManagerServiceProvider",
+    "requires": [],
+    "permissions": ["read:pages", "manage:redirects"]
+}

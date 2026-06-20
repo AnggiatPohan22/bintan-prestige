@@ -8,11 +8,21 @@ use App\Models\Menu;
 use App\Models\MenuItem;
 use App\Models\Page;
 use App\Models\Product;
+use App\Models\Redirect;
 use App\Models\Theme;
 use App\Models\Widget;
+use App\Observers\MenuObserver;
+use App\Observers\PageObserver;
+use App\Observers\ProductObserver;
+use App\Observers\RedirectObserver;
+use App\Observers\ThemeObserver;
+use App\Facades\CmsHooks;
 use App\Services\GlobalSettingsService;
 use App\Services\MenuService;
+use App\Services\Plugin\PluginManager;
+use App\Services\Plugin\PluginRegistry;
 use App\Services\ThemeService;
+use App\Support\HookManager;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
@@ -26,6 +36,12 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->app->singleton(GlobalSettingsService::class);
         $this->app->singleton(ThemeService::class);
+        $this->app->singleton(HookManager::class);
+        $this->app->singleton(PluginRegistry::class);
+        $this->app->singleton(PluginManager::class);
+
+        // Boot active plugin providers so they participate in the full boot cycle.
+        $this->app->make(PluginManager::class)->boot();
     }
 
     /**
@@ -34,6 +50,12 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Gate::define('manage-users', fn ($user) => $user->isSuperAdmin());
+
+        Page::observe(PageObserver::class);
+        Product::observe(ProductObserver::class);
+        Menu::observe(MenuObserver::class);
+        Theme::observe(ThemeObserver::class);
+        Redirect::observe(RedirectObserver::class);
 
         $forgetMenus = fn () => app(MenuService::class)->forget();
 
@@ -123,5 +145,7 @@ class AppServiceProvider extends ServiceProvider
                 }
             }
         });
+
+        CmsHooks::doAction('cms.init');
     }
 }

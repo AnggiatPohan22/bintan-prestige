@@ -14,8 +14,9 @@ class UpdateThemeCustomizationRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'tokens'   => ['nullable', 'array'],
-            'tokens.*' => ['nullable', 'string', 'max:200'],
+            'tokens'      => ['nullable', 'array'],
+            'tokens.*'    => ['nullable', 'string', 'max:200'],
+            'google_font' => ['nullable', 'string', 'max:100'],
         ];
     }
 }

@@ -14,17 +14,81 @@
             </p>
         </div>
 
-        <form method="POST" action="{{ route('admin.themes.scan') }}">
-            @csrf
+        <div class="flex flex-wrap items-center gap-2" x-data="{ importOpen: false }">
             <button
-                type="submit"
+                type="button"
                 class="admin-btn-secondary"
-                title="Scan the themes/ directory for new or updated theme.json manifests"
+                x-on:click="importOpen = !importOpen"
+                title="Import a theme from a ZIP file"
             >
-                <i class="fa-solid fa-rotate mr-1.5" aria-hidden="true"></i>
-                Scan for Themes
+                <i class="fa-solid fa-upload mr-1.5" aria-hidden="true"></i>
+                Import Theme
             </button>
-        </form>
+
+            <form method="POST" action="{{ route('admin.themes.scan') }}">
+                @csrf
+                <button
+                    type="submit"
+                    class="admin-btn-secondary"
+                    title="Scan the themes/ directory for new or updated theme.json manifests"
+                >
+                    <i class="fa-solid fa-rotate mr-1.5" aria-hidden="true"></i>
+                    Scan for Themes
+                </button>
+            </form>
+
+            {{-- Import panel --}}
+            <div
+                class="w-full"
+                x-cloak
+                x-show="importOpen"
+                x-transition
+            >
+                <div class="mt-3 rounded-2xl border border-slate-200 bg-slate-50 p-5">
+                    <h2 class="mb-1 text-sm font-bold text-slate-700">Import Theme from ZIP</h2>
+                    <p class="mb-4 text-xs text-slate-400">
+                        Upload a <code class="rounded bg-white px-1 border border-slate-200">.zip</code>
+                        file exported from this CMS. Max 50 MB. PHP files are not allowed.
+                    </p>
+
+                    @if(session('error'))
+                        <div class="mb-3 rounded-lg border border-red-200 bg-red-50 px-4 py-2 text-sm text-red-700">
+                            <i class="fa-solid fa-triangle-exclamation mr-1.5" aria-hidden="true"></i>
+                            {{ session('error') }}
+                        </div>
+                    @endif
+
+                    <form
+                        method="POST"
+                        action="{{ route('admin.themes.import') }}"
+                        enctype="multipart/form-data"
+                        class="flex flex-wrap items-end gap-3"
+                    >
+                        @csrf
+                        <div class="flex-1 min-w-48">
+                            <label class="mb-1 block text-xs font-semibold text-slate-500 uppercase tracking-wide">
+                                Theme ZIP File
+                            </label>
+                            <input
+                                type="file"
+                                name="theme_zip"
+                                accept=".zip,application/zip"
+                                class="admin-input w-full text-sm"
+                                required
+                            >
+                            @error('theme_zip')
+                                <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <button type="submit" class="admin-btn-primary">
+                            <i class="fa-solid fa-upload mr-1.5" aria-hidden="true"></i>
+                            Upload & Install
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
 
     {{-- Flash messages --}}
@@ -198,6 +262,14 @@
                                 title="Customize design tokens for {{ $theme->name }}"
                             >
                                 <i class="fa-solid fa-sliders" aria-hidden="true"></i>
+                            </a>
+
+                            <a
+                                href="{{ route('admin.themes.export', $theme) }}"
+                                class="admin-btn-secondary"
+                                title="Export {{ $theme->name }} as ZIP"
+                            >
+                                <i class="fa-solid fa-download" aria-hidden="true"></i>
                             </a>
                         </div>
                     </div>

@@ -1,7 +1,10 @@
 <?php
 
+use App\Console\Commands\AggregatePageViewStats;
 use App\Console\Commands\ProvisionFirstAdmin;
+use App\Console\Commands\PublishScheduledPages;
 use App\Http\Middleware\AdminMiddleware;
+use App\Http\Middleware\HandleRedirects;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -25,11 +28,18 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withCommands([
         ProvisionFirstAdmin::class,
+        PublishScheduledPages::class,
+        AggregatePageViewStats::class,
     ])
+    ->withSchedule(function (\Illuminate\Console\Scheduling\Schedule $schedule): void {
+        $schedule->command('pages:publish-scheduled')->everyMinute();
+        $schedule->command('analytics:aggregate-daily')->dailyAt('00:05');
+    })
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'admin' => AdminMiddleware::class,
         ]);
+        $middleware->append(HandleRedirects::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

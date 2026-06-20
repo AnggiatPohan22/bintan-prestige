@@ -16,28 +16,69 @@
         "colors": {
             "label": "Colors",
             "tokens": [
-                { "key": "--frontend-gold",                "label": "Brand Gold",              "type": "color", "default": "#B8924A" },
-                { "key": "--frontend-black",               "label": "Primary Dark",             "type": "color", "default": "#1a1a1a" },
-                { "key": "--frontend-brand-accent",        "label": "Accent Gold",              "type": "color", "default": "#c4a44a" },
-                { "key": "--frontend-white",               "label": "Card Background",          "type": "color", "default": "#ffffff" },
-                { "key": "--frontend-gold-pale",           "label": "Gold Pale Surface",        "type": "color", "default": "#faf6ef" },
-                { "key": "--frontend-surface-body",        "label": "Page Background",          "type": "color", "default": "#f9f9f9" },
-                { "key": "--frontend-surface-dark",        "label": "Dark Section Background",  "type": "color", "default": "#111111" },
-                { "key": "--frontend-text-title",          "label": "Heading Text",             "type": "color", "default": "#1a1a1a" },
-                { "key": "--frontend-text-body",           "label": "Body Text",                "type": "color", "default": "#3d3d3d" },
-                { "key": "--frontend-text-muted",          "label": "Muted Text",               "type": "color", "default": "#888888" },
-                { "key": "--frontend-text-link",           "label": "Link Color",               "type": "color", "default": "#B8924A" },
-                { "key": "--frontend-button-primary-bg",   "label": "Primary Button Background","type": "color", "default": "#B8924A" },
-                { "key": "--frontend-button-primary-text", "label": "Primary Button Text",      "type": "color", "default": "#ffffff" },
-                { "key": "--frontend-button-cta-bg",       "label": "CTA Button Background",    "type": "color", "default": "#c4a44a" },
-                { "key": "--frontend-button-cta-text",     "label": "CTA Button Text",          "type": "color", "default": "#ffffff" }
+                { "key": "--frontend-gold",                "label": "Brand Gold",               "type": "color", "default": "#B8924A" },
+                { "key": "--frontend-black",               "label": "Primary Dark",              "type": "color", "default": "#1a1a1a" },
+                { "key": "--frontend-brand-accent",        "label": "Accent Gold",               "type": "color", "default": "#c4a44a" },
+                { "key": "--frontend-white",               "label": "Card Background",           "type": "color", "default": "#ffffff" },
+                { "key": "--frontend-gold-pale",           "label": "Gold Pale Surface",         "type": "color", "default": "#faf6ef" },
+                { "key": "--frontend-surface-body",        "label": "Page Background",           "type": "color", "default": "#f9f9f9" },
+                { "key": "--frontend-surface-dark",        "label": "Dark Section Background",   "type": "color", "default": "#111111" },
+                { "key": "--frontend-text-title",          "label": "Heading Text",              "type": "color", "default": "#1a1a1a" },
+                { "key": "--frontend-text-body",           "label": "Body Text",                 "type": "color", "default": "#3d3d3d" },
+                { "key": "--frontend-text-muted",          "label": "Muted Text",                "type": "color", "default": "#888888" },
+                { "key": "--frontend-text-link",           "label": "Link Color",                "type": "color", "default": "#B8924A" },
+                { "key": "--frontend-button-primary-bg",   "label": "Primary Button Background", "type": "color", "default": "#B8924A" },
+                { "key": "--frontend-button-primary-text", "label": "Primary Button Text",       "type": "color", "default": "#ffffff" },
+                { "key": "--frontend-button-cta-bg",       "label": "CTA Button Background",     "type": "color", "default": "#c4a44a" },
+                { "key": "--frontend-button-cta-text",     "label": "CTA Button Text",           "type": "color", "default": "#ffffff" }
             ]
         },
         "typography": {
             "label": "Typography",
             "tokens": [
-                { "key": "--frontend-font-heading", "label": "Heading Font",   "type": "text", "default": "Forum, Georgia, serif" },
-                { "key": "--frontend-font-body",    "label": "Body Font",      "type": "text", "default": "Montserrat, system-ui, sans-serif" }
+                { "key": "--frontend-font-heading", "label": "Heading Font", "type": "text", "default": "Forum, Georgia, serif" },
+                { "key": "--frontend-font-body",    "label": "Body Font",    "type": "text", "default": "Montserrat, system-ui, sans-serif" }
+            ]
+        },
+        "spacing": {
+            "label": "Spacing Scale",
+            "tokens": [
+                { "key": "--bp-space-xs",  "label": "Space XS",  "type": "text", "default": "4px"  },
+                { "key": "--bp-space-sm",  "label": "Space SM",  "type": "text", "default": "8px"  },
+                { "key": "--bp-space-md",  "label": "Space MD",  "type": "text", "default": "16px" },
+                { "key": "--bp-space-lg",  "label": "Space LG",  "type": "text", "default": "24px" },
+                { "key": "--bp-space-xl",  "label": "Space XL",  "type": "text", "default": "32px" },
+                { "key": "--bp-space-2xl", "label": "Space 2XL", "type": "text", "default": "48px" }
+            ]
+        },
+        "border_radius": {
+            "label": "Border Radius",
+            "tokens": [
+                { "key": "--bp-radius-sm",   "label": "Radius SM",   "type": "text", "default": "4px"    },
+                { "key": "--bp-radius-md",   "label": "Radius MD",   "type": "text", "default": "8px"    },
+                { "key": "--bp-radius-lg",   "label": "Radius LG",   "type": "text", "default": "16px"   },
+                { "key": "--bp-radius-full", "label": "Radius Full", "type": "text", "default": "9999px" }
+            ]
+        },
+        "box_shadow": {
+            "label": "Box Shadow",
+            "tokens": [
+                { "key": "--bp-shadow-sm", "label": "Shadow SM", "type": "text", "default": "0 1px 3px rgba(0,0,0,.12)"  },
+                { "key": "--bp-shadow-md", "label": "Shadow MD", "type": "text", "default": "0 4px 6px rgba(0,0,0,.1)"   },
+                { "key": "--bp-shadow-lg", "label": "Shadow LG", "type": "text", "default": "0 10px 15px rgba(0,0,0,.1)" },
+                { "key": "--bp-shadow-xl", "label": "Shadow XL", "type": "text", "default": "0 20px 25px rgba(0,0,0,.1)"}
+            ]
+        },
+        "font_sizes": {
+            "label": "Font Sizes",
+            "tokens": [
+                { "key": "--bp-text-sm",   "label": "Text SM",   "type": "text", "default": "0.875rem" },
+                { "key": "--bp-text-base", "label": "Text Base", "type": "text", "default": "1rem"     },
+                { "key": "--bp-text-lg",   "label": "Text LG",   "type": "text", "default": "1.125rem" },
+                { "key": "--bp-text-xl",   "label": "Text XL",   "type": "text", "default": "1.25rem"  },
+                { "key": "--bp-text-2xl",  "label": "Text 2XL",  "type": "text", "default": "1.5rem"   },
+                { "key": "--bp-text-3xl",  "label": "Text 3XL",  "type": "text", "default": "1.875rem" },
+                { "key": "--bp-text-4xl",  "label": "Text 4XL",  "type": "text", "default": "2.25rem"  }
             ]
         }
     }

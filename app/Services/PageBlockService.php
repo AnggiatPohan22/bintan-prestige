@@ -117,6 +117,11 @@ class PageBlockService
             'divider' => $bg + [
                 'style' => 'line',
             ],
+            'contact_form' => $bg + [
+                'form_definition_id' => null,
+                'title'              => '',
+                'description'        => '',
+            ],
             default => $bg,
         };
     }
@@ -216,6 +221,11 @@ class PageBlockService
             ],
             'divider' => [
                 'style' => ['nullable', Rule::in(['line', 'space', 'gold-line'])],
+            ],
+            'contact_form' => [
+                'form_definition_id' => ['nullable', 'integer', 'exists:form_definitions,id'],
+                'title'              => ['nullable', 'string', 'max:255'],
+                'description'        => ['nullable', 'string', 'max:1000'],
             ],
             default => throw new \InvalidArgumentException("Unsupported block type [{$blockType}]."),
         };

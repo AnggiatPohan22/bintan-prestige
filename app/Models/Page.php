@@ -17,20 +17,28 @@ class Page extends Model
         'slug',
         'template_id',
         'status',
+        'publish_at',
         'meta_title',
         'meta_description',
         'og_image',
+        'seo_robots',
         'sort_order',
     ];
 
     protected $casts = [
-        'sort_order' => 'integer',
+        'sort_order'  => 'integer',
         'template_id' => 'integer',
+        'publish_at'  => 'datetime',
     ];
 
     public function blocks(): HasMany
     {
         return $this->hasMany(PageBlock::class)->orderBy('sort_order');
+    }
+
+    public function revisions(): HasMany
+    {
+        return $this->hasMany(PageRevision::class)->orderByDesc('revision_number');
     }
 
     public function template(): BelongsTo
@@ -43,6 +51,11 @@ class Page extends Model
         return $query->where('status', 'published');
     }
 
+    public function scopeScheduled(Builder $query): Builder
+    {
+        return $query->where('status', 'scheduled');
+    }
+
     public function scopeOrdered(Builder $query): Builder
     {
         return $query->orderBy('sort_order');
@@ -51,6 +64,11 @@ class Page extends Model
     public function isPublished(): bool
     {
         return $this->status === 'published';
+    }
+
+    public function isScheduled(): bool
+    {
+        return $this->status === 'scheduled';
     }
 
     public function getUrlAttribute(): string
