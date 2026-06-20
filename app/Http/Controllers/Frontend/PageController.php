@@ -57,7 +57,7 @@ class PageController extends Controller
         );
         $socialShareTitle = $seoTitle;
         $socialShareDescription = $page->meta_description ?: null;
-        $seoRobots = $preview ? 'noindex, nofollow' : null;
+        $seoRobots = $preview ? 'noindex, nofollow' : ($page->seo_robots ?: null);
         $pageFaqItems = $renderData['faqItems'];
 
         return view('frontend.pages.show', compact(

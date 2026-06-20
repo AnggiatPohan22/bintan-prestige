@@ -1,0 +1,11 @@
+{
+    "name": "Contact Form Builder",
+    "slug": "contact-form",
+    "version": "1.0.0",
+    "author": "Bintan Prestige",
+    "description": "Drag-and-drop form builder with submissions inbox, email notifications, and honeypot anti-spam.",
+    "min_cms_version": "4.0.0",
+    "service_provider": "App\\Plugins\\ContactForm\\ContactFormServiceProvider",
+    "requires": [],
+    "permissions": ["read:pages", "write:pages", "send:email", "manage:forms"]
+}

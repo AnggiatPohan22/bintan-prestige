@@ -13,6 +13,7 @@ class PageBlockController extends Controller
     public const BLOCK_TYPES = [
         'hero', 'text', 'image', 'gallery', 'cta',
         'products_grid', 'faq', 'testimonials', 'map', 'divider',
+        'contact_form',
     ];
 
     public function __construct(

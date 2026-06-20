@@ -31,9 +31,13 @@
                         {{ $page->title }}
                     </h1>
 
-                    <span class="{{ $page->status === 'published' ? 'admin-badge-success' : 'admin-badge-warning' }}">
-                        {{ ucfirst($page->status) }}
-                    </span>
+                    @if($page->isPublished())
+                        <span class="admin-badge-success">Published</span>
+                    @elseif($page->isScheduled())
+                        <span class="admin-badge-warning" style="background-color:#fef9c3;color:#854d0e;">Scheduled</span>
+                    @else
+                        <span class="admin-badge-warning">Draft</span>
+                    @endif
                 </div>
 
                 <p class="mt-0.5 truncate text-xs text-slate-400">
@@ -42,6 +46,10 @@
                     Created {{ $page->created_at->format('d M Y') }}
                     &nbsp;·&nbsp;
                     Updated {{ $page->updated_at->format('d M Y, H:i') }}
+                    @if($page->isScheduled() && $page->publish_at)
+                        &nbsp;·&nbsp;
+                        <span class="font-medium" style="color:#854d0e;">Scheduled for: {{ $page->publish_at->format('d M Y, H:i') }}</span>
+                    @endif
                 </p>
             </div>
 
@@ -149,6 +157,7 @@
                                 >
                                     <option value="draft" @selected(old('status', $page->status) === 'draft')>Draft</option>
                                     <option value="published" @selected(old('status', $page->status) === 'published')>Published</option>
+                                    <option value="scheduled" @selected(old('status', $page->status) === 'scheduled')>Scheduled</option>
                                 </select>
                                 @error('status')
                                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -157,6 +166,30 @@
                                     <p><strong class="text-amber-700">Draft:</strong> admin preview only; unavailable on the public URL and hidden from managed menus.</p>
                                     <p><strong class="text-emerald-700">Published:</strong> live on the public URL and eligible for managed menus.</p>
                                 </div>
+                            </div>
+
+                            <div>
+                                <label for="publish_at" class="admin-form-label">Schedule Publish Date</label>
+                                <input
+                                    id="publish_at"
+                                    type="datetime-local"
+                                    name="publish_at"
+                                    value="{{ old('publish_at', $page->publish_at?->format('Y-m-d\TH:i')) }}"
+                                    class="admin-input @error('publish_at') border-red-300 @enderror"
+                                >
+                                @error('publish_at')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
+                                <p class="mt-1 text-xs text-slate-400">
+                                    Set a future date/time to schedule this page. Leave empty to publish or save as draft manually.
+                                    If the date is in the past, the page will be published immediately.
+                                </p>
+                                @if($page->isScheduled() && $page->publish_at)
+                                    <p class="mt-1 text-xs font-medium" style="color:#854d0e;">
+                                        <i class="fa-solid fa-clock mr-1"></i>
+                                        Scheduled for: {{ $page->publish_at->format('d M Y, H:i') }}
+                                    </p>
+                                @endif
                             </div>
 
                             <div>
@@ -228,6 +261,7 @@
                         <input type="hidden" name="status" value="{{ $page->status }}">
                         <input type="hidden" name="sort_order" value="{{ $page->sort_order }}">
                         <input type="hidden" name="template_id" value="{{ $page->template_id }}">
+                        <input type="hidden" name="publish_at" value="{{ $page->publish_at?->format('Y-m-d\TH:i') }}">
 
                         <div>
                             <label for="meta_title" class="admin-form-label">Meta Title</label>
@@ -277,6 +311,17 @@
                             <p class="mt-1 text-xs text-slate-400">Max 2MB. Recommended: 1200×630px.</p>
                         </div>
 
+                        <div>
+                            <label class="admin-form-label" for="seo_robots">Robots (Search Engine Indexing)</label>
+                            <select id="seo_robots" name="seo_robots" class="admin-input w-full max-w-xs">
+                                <option value="" @selected(old('seo_robots', $page->seo_robots) === '')>Default (use global setting)</option>
+                                <option value="index, follow" @selected(old('seo_robots', $page->seo_robots) === 'index, follow')>index, follow</option>
+                                <option value="noindex, follow" @selected(old('seo_robots', $page->seo_robots) === 'noindex, follow')>noindex, follow</option>
+                                <option value="noindex, nofollow" @selected(old('seo_robots', $page->seo_robots) === 'noindex, nofollow')>noindex, nofollow</option>
+                            </select>
+                            <p class="admin-form-hint">Override robots meta tag for this page only.</p>
+                        </div>
+
                         <div class="flex gap-3 border-t border-slate-100 pt-4">
                             <button type="submit" class="admin-btn-primary">Save SEO</button>
                         </div>
@@ -315,7 +360,177 @@
             </div>
         </div>
 
-        {{-- 4. Danger Zone --}}
+        {{-- 4. Revisions --}}
+        @if($revisions->isNotEmpty())
+        <div class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+            <button
+                type="button"
+                class="flex w-full items-center justify-between px-6 py-4 text-left"
+                x-on:click="active = active === 'revisions' ? null : 'revisions'"
+            >
+                <div>
+                    <span class="font-extrabold text-slate-900">Revisions</span>
+                    <span class="ml-2 text-sm text-slate-400">{{ $revisions->count() }} saved snapshot(s) — restore any previous state</span>
+                </div>
+                <i
+                    class="fa-solid fa-chevron-down text-slate-400 transition-transform duration-200"
+                    :class="active === 'revisions' ? 'rotate-180' : ''"
+                ></i>
+            </button>
+
+            <div x-show="active === 'revisions'" x-cloak class="border-t border-slate-100">
+                <div class="divide-y divide-slate-100">
+                    @foreach($revisions as $revision)
+                        <div
+                            class="flex flex-col gap-3 px-6 py-4 sm:flex-row sm:items-center sm:justify-between"
+                            x-data="{ previewOpen: false, restoreOpen: false }"
+                        >
+                            <div class="min-w-0">
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <span class="text-sm font-semibold text-slate-800">
+                                        Revision #{{ $revision->revision_number }}
+                                    </span>
+                                    <span class="text-xs text-slate-400">
+                                        {{ $revision->created_at->format('d M Y, H:i') }}
+                                    </span>
+                                    @if($revision->author)
+                                        <span class="text-xs text-slate-400">
+                                            by {{ $revision->author->name }}
+                                        </span>
+                                    @endif
+                                </div>
+                                @if(!empty($revision->meta_snapshot['title']))
+                                    <p class="mt-0.5 truncate text-xs text-slate-400">
+                                        &ldquo;{{ $revision->meta_snapshot['title'] }}&rdquo;
+                                        &nbsp;&middot;&nbsp;
+                                        {{ count($revision->content_snapshot) }} block(s)
+                                    </p>
+                                @endif
+                            </div>
+
+                            <div class="flex shrink-0 gap-2">
+                                {{-- Preview --}}
+                                <button
+                                    type="button"
+                                    class="admin-btn-secondary py-1.5 text-xs"
+                                    x-on:click="previewOpen = true"
+                                >
+                                    <i class="fa-solid fa-eye mr-1" aria-hidden="true"></i>
+                                    Preview
+                                </button>
+
+                                {{-- Restore --}}
+                                <button
+                                    type="button"
+                                    class="rounded-lg border border-indigo-200 bg-indigo-50 px-3 py-1.5 text-xs font-semibold text-indigo-700 hover:bg-indigo-100 transition-colors"
+                                    x-on:click="restoreOpen = true"
+                                >
+                                    <i class="fa-solid fa-rotate-left mr-1" aria-hidden="true"></i>
+                                    Restore
+                                </button>
+                            </div>
+
+                            {{-- Preview modal --}}
+                            <div
+                                class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+                                x-cloak x-show="previewOpen" x-transition.opacity
+                            >
+                                <div
+                                    class="flex max-h-[80vh] w-full max-w-lg flex-col overflow-hidden rounded-2xl bg-white shadow-xl"
+                                    x-on:click.outside="previewOpen = false"
+                                >
+                                    <div class="flex items-center justify-between border-b border-slate-100 px-6 py-4">
+                                        <h3 class="font-bold text-slate-900">
+                                            Revision #{{ $revision->revision_number }} Preview
+                                        </h3>
+                                        <button type="button" x-on:click="previewOpen = false" class="text-slate-400 hover:text-slate-600">
+                                            <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+                                        </button>
+                                    </div>
+                                    <div class="overflow-y-auto px-6 py-4 space-y-4 text-sm">
+                                        @if($revision->meta_snapshot)
+                                            <div>
+                                                <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">Meta</p>
+                                                <dl class="space-y-1">
+                                                    @foreach(['title' => 'Title', 'slug' => 'Slug', 'status' => 'Status', 'meta_title' => 'Meta Title'] as $key => $label)
+                                                        @if(!empty($revision->meta_snapshot[$key]))
+                                                            <div class="flex gap-2">
+                                                                <dt class="w-24 shrink-0 text-slate-400">{{ $label }}</dt>
+                                                                <dd class="min-w-0 truncate font-medium text-slate-700">{{ $revision->meta_snapshot[$key] }}</dd>
+                                                            </div>
+                                                        @endif
+                                                    @endforeach
+                                                </dl>
+                                            </div>
+                                        @endif
+
+                                        @if(count($revision->content_snapshot) > 0)
+                                            <div>
+                                                <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">
+                                                    Blocks ({{ count($revision->content_snapshot) }})
+                                                </p>
+                                                <ol class="space-y-1">
+                                                    @foreach($revision->content_snapshot as $i => $block)
+                                                        <li class="flex items-center gap-2 rounded-lg bg-slate-50 px-3 py-2">
+                                                            <span class="w-5 shrink-0 text-center text-xs text-slate-400">{{ $i + 1 }}</span>
+                                                            <span class="rounded bg-slate-200 px-1.5 py-0.5 text-xs font-mono text-slate-600">{{ $block['block_type'] }}</span>
+                                                            @if(!empty($block['label']))
+                                                                <span class="min-w-0 truncate text-xs text-slate-500">{{ $block['label'] }}</span>
+                                                            @endif
+                                                            @if(!($block['is_visible'] ?? true))
+                                                                <span class="ml-auto rounded bg-amber-100 px-1 py-0.5 text-xs text-amber-600">hidden</span>
+                                                            @endif
+                                                        </li>
+                                                    @endforeach
+                                                </ol>
+                                            </div>
+                                        @else
+                                            <p class="text-xs text-slate-400">No blocks in this revision.</p>
+                                        @endif
+                                    </div>
+                                    <div class="border-t border-slate-100 px-6 py-3">
+                                        <button type="button" class="admin-btn-secondary py-1.5 text-sm w-full" x-on:click="previewOpen = false">
+                                            Close
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {{-- Restore confirm modal --}}
+                            <div
+                                class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+                                x-cloak x-show="restoreOpen" x-transition.opacity
+                            >
+                                <div
+                                    class="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl"
+                                    x-on:click.outside="restoreOpen = false"
+                                >
+                                    <h3 class="mb-2 text-base font-bold text-slate-900">Restore Revision</h3>
+                                    <p class="mb-5 text-sm text-slate-500">
+                                        Restore this page to
+                                        <strong>Revision #{{ $revision->revision_number }}</strong>
+                                        ({{ $revision->created_at->format('d M Y, H:i') }})?
+                                        <br><span class="mt-1 block text-xs text-slate-400">The current state will be auto-saved as a new revision before restoring.</span>
+                                    </p>
+                                    <div class="flex justify-end gap-2">
+                                        <button type="button" class="admin-btn-secondary py-1.5 text-sm" x-on:click="restoreOpen = false">Cancel</button>
+                                        <form method="POST" action="{{ route('admin.pages.revisions.restore', [$page, $revision]) }}">
+                                            @csrf
+                                            <button type="submit" class="rounded-lg bg-indigo-600 px-4 py-1.5 text-sm font-semibold text-white hover:bg-indigo-700 transition-colors">
+                                                Restore
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        </div>
+        @endif
+
+        {{-- 5. Danger Zone --}}
         <div class="overflow-hidden rounded-xl border border-red-100 bg-white shadow-sm">
             <button
                 type="button"

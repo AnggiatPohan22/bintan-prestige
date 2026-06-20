@@ -1,5 +1,12 @@
 <?php
 
+use App\Http\Controllers\Admin\AnalyticsDashboardController;
+use App\Http\Controllers\Admin\AuditLogController;
+use App\Http\Controllers\Admin\RedirectController;
+use App\Http\Controllers\Admin\SeoRobotsController;
+use App\Http\Controllers\Admin\FormDefinitionController;
+use App\Http\Controllers\Admin\FormSubmissionController;
+use App\Http\Controllers\Admin\PluginController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DestinationController;
@@ -17,7 +24,9 @@ use App\Http\Controllers\Admin\ProductHighlightController;
 use App\Http\Controllers\Admin\ProductItineraryController;
 use App\Http\Controllers\Admin\ProductNoteController;
 use App\Http\Controllers\Admin\SiteSettingController;
+use App\Http\Controllers\Admin\ThemeController;
 use App\Http\Controllers\Admin\UserManagementController;
+use App\Http\Controllers\Admin\WidgetController;
 use App\Http\Controllers\Frontend\PageController as FrontendPageController;
 use Illuminate\Support\Facades\Route;
 
@@ -149,11 +158,63 @@ Route::middleware(['auth', 'admin'])
 
         /*
         |--------------------------------------------------------------------------
+        | Themes (Phase 3)
+        |--------------------------------------------------------------------------
+        */
+        Route::get('themes', [ThemeController::class, 'index'])
+            ->name('themes.index');
+
+        Route::post('themes/scan', [ThemeController::class, 'scan'])
+            ->name('themes.scan');
+
+        Route::post('themes/import', [ThemeController::class, 'import'])
+            ->name('themes.import');
+
+        Route::patch('themes/{theme}/activate', [ThemeController::class, 'activate'])
+            ->name('themes.activate');
+
+        Route::get('themes/{theme}/export', [ThemeController::class, 'export'])
+            ->name('themes.export');
+
+        Route::get('themes/{theme}/customize', [ThemeController::class, 'customize'])
+            ->name('themes.customize');
+
+        Route::put('themes/{theme}/customization', [ThemeController::class, 'updateCustomization'])
+            ->name('themes.customization.update');
+
+        Route::delete('themes/{theme}/customization', [ThemeController::class, 'resetCustomization'])
+            ->name('themes.customization.destroy');
+
+        /*
+        |--------------------------------------------------------------------------
+        | Widget Manager (Phase 3 — STEP 4)
+        |--------------------------------------------------------------------------
+        */
+        Route::prefix('themes/{theme}/widgets')
+            ->name('themes.widgets.')
+            ->group(function () {
+                Route::get('/', [WidgetController::class, 'index'])->name('index');
+                Route::get('/create', [WidgetController::class, 'create'])->name('create');
+                Route::post('/', [WidgetController::class, 'store'])->name('store');
+                Route::get('{widget}/edit', [WidgetController::class, 'edit'])->name('edit');
+                Route::put('{widget}', [WidgetController::class, 'update'])->name('update');
+                Route::delete('{widget}', [WidgetController::class, 'destroy'])->name('destroy');
+                Route::post('{widget}/toggle-visible', [WidgetController::class, 'toggleVisible'])->name('toggle-visible');
+            });
+
+        /*
+        |--------------------------------------------------------------------------
         | Pages
         |--------------------------------------------------------------------------
         */
         Route::post('pages/reorder', [PageController::class, 'reorder'])
             ->name('pages.reorder');
+
+        Route::post('pages/{page}/revisions/{revision}/restore', [PageController::class, 'restoreRevision'])
+            ->name('pages.revisions.restore');
+
+        Route::post('pages/{page}/duplicate', [PageController::class, 'duplicate'])
+            ->name('pages.duplicate');
 
         Route::get('pages/{page}/preview', [FrontendPageController::class, 'preview'])
             ->name('pages.preview');
@@ -378,4 +439,68 @@ Route::middleware(['auth', 'admin'])
         Route::resource('destinations',
             DestinationController::class)
             ->except(['show']);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Contact Form Builder (Phase 4 — STEP 6)
+        |--------------------------------------------------------------------------
+        */
+        Route::prefix('forms')->name('forms.')->group(function () {
+            Route::get('/', [FormDefinitionController::class, 'index'])->name('index');
+            Route::get('/create', [FormDefinitionController::class, 'create'])->name('create');
+            Route::post('/', [FormDefinitionController::class, 'store'])->name('store');
+            Route::get('/{form}/edit', [FormDefinitionController::class, 'edit'])->name('edit');
+            Route::put('/{form}', [FormDefinitionController::class, 'update'])->name('update');
+            Route::delete('/{form}', [FormDefinitionController::class, 'destroy'])->name('destroy');
+            Route::get('/{form}/submissions', [FormSubmissionController::class, 'index'])->name('submissions.index');
+        });
+
+        Route::prefix('form-submissions')->name('form-submissions.')->group(function () {
+            Route::patch('/{submission}/read', [FormSubmissionController::class, 'markRead'])->name('read');
+            Route::delete('/{submission}', [FormSubmissionController::class, 'destroy'])->name('destroy');
+        });
+
+        /*
+        |--------------------------------------------------------------------------
+        | Analytics Dashboard (Phase 4 — STEP 7)
+        |--------------------------------------------------------------------------
+        */
+        Route::prefix('analytics')->name('analytics.')->group(function () {
+            Route::get('/', [AnalyticsDashboardController::class, 'index'])->name('index');
+            Route::get('/export', [AnalyticsDashboardController::class, 'exportCsv'])->name('export');
+        });
+
+        /*
+        |--------------------------------------------------------------------------
+        | SEO Manager (Phase 4 — STEP 5)
+        |--------------------------------------------------------------------------
+        */
+        Route::prefix('seo')->name('seo.')->group(function () {
+            Route::resource('redirects', RedirectController::class)
+                ->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
+            Route::get('robots', [SeoRobotsController::class, 'edit'])->name('robots.edit');
+            Route::put('robots', [SeoRobotsController::class, 'update'])->name('robots.update');
+        });
+
+        /*
+        |--------------------------------------------------------------------------
+        | Audit Log
+        |--------------------------------------------------------------------------
+        */
+        Route::get('audit-logs', [AuditLogController::class, 'index'])
+            ->name('audit-logs.index');
+
+        /*
+        |--------------------------------------------------------------------------
+        | Plugin Manager (Phase 4)
+        |--------------------------------------------------------------------------
+        */
+        Route::prefix('plugins')->name('plugins.')->group(function () {
+            Route::get('/', [PluginController::class, 'index'])->name('index');
+            Route::post('/scan', [PluginController::class, 'scan'])->name('scan');
+            Route::get('/{plugin}', [PluginController::class, 'show'])->name('show');
+            Route::patch('/{plugin}/activate', [PluginController::class, 'activate'])->name('activate');
+            Route::patch('/{plugin}/deactivate', [PluginController::class, 'deactivate'])->name('deactivate');
+            Route::delete('/{plugin}', [PluginController::class, 'destroy'])->name('destroy');
+        });
     });

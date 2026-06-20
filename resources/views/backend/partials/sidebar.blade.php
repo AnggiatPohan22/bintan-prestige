@@ -94,6 +94,18 @@
             @endcan
 
             <p class="admin-sidebar__section-label">
+                Appearance
+            </p>
+
+            <a href="{{ route('admin.themes.index') }}"
+               class="group admin-sidebar__link {{ request()->routeIs('admin.themes.*') ? 'admin-sidebar__link--active' : '' }}">
+                <span class="admin-sidebar__icon">
+                    <i class="fa-solid fa-palette" aria-hidden="true"></i>
+                </span>
+                <span>Themes</span>
+            </a>
+
+            <p class="admin-sidebar__section-label">
                 Content
             </p>
 
@@ -129,6 +141,14 @@
                 <span>FAQs</span>
             </a>
 
+            <a href="{{ route('admin.forms.index') }}"
+               class="group admin-sidebar__link {{ request()->routeIs('admin.forms.*') || request()->routeIs('admin.form-submissions.*') ? 'admin-sidebar__link--active' : '' }}">
+                <span class="admin-sidebar__icon">
+                    <i class="fa-solid fa-envelope-open-text" aria-hidden="true"></i>
+                </span>
+                <span>Forms</span>
+            </a>
+
             <a href="{{ route('admin.categories.index') }}"
                class="group admin-sidebar__link {{ request()->routeIs('admin.categories.*') ? 'admin-sidebar__link--active' : '' }}">
                 <span class="admin-sidebar__icon">
@@ -143,6 +163,62 @@
                     <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
                 </span>
                 <span>Destinations</span>
+            </a>
+
+            <p class="admin-sidebar__section-label">
+                SEO
+            </p>
+
+            <a href="{{ route('admin.seo.redirects.index') }}"
+               class="group admin-sidebar__link {{ request()->routeIs('admin.seo.redirects.*') ? 'admin-sidebar__link--active' : '' }}">
+                <span class="admin-sidebar__icon">
+                    <i class="fa-solid fa-arrow-right-arrow-left" aria-hidden="true"></i>
+                </span>
+                <span>Redirects</span>
+            </a>
+
+            <a href="{{ route('admin.seo.robots.edit') }}"
+               class="group admin-sidebar__link {{ request()->routeIs('admin.seo.robots.*') ? 'admin-sidebar__link--active' : '' }}">
+                <span class="admin-sidebar__icon">
+                    <i class="fa-solid fa-robot" aria-hidden="true"></i>
+                </span>
+                <span>Robots.txt</span>
+            </a>
+
+            <a href="{{ route('sitemap') }}" target="_blank"
+               class="group admin-sidebar__link">
+                <span class="admin-sidebar__icon">
+                    <i class="fa-solid fa-sitemap" aria-hidden="true"></i>
+                </span>
+                <span>Sitemap</span>
+            </a>
+
+            <p class="admin-sidebar__section-label">
+                System
+            </p>
+
+            <a href="{{ route('admin.analytics.index') }}"
+               class="group admin-sidebar__link {{ request()->routeIs('admin.analytics.*') ? 'admin-sidebar__link--active' : '' }}">
+                <span class="admin-sidebar__icon">
+                    <i class="fa-solid fa-chart-line" aria-hidden="true"></i>
+                </span>
+                <span>Analytics</span>
+            </a>
+
+            <a href="{{ route('admin.plugins.index') }}"
+               class="group admin-sidebar__link {{ request()->routeIs('admin.plugins.*') ? 'admin-sidebar__link--active' : '' }}">
+                <span class="admin-sidebar__icon">
+                    <i class="fa-solid fa-puzzle-piece" aria-hidden="true"></i>
+                </span>
+                <span>Plugins</span>
+            </a>
+
+            <a href="{{ route('admin.audit-logs.index') }}"
+               class="group admin-sidebar__link {{ request()->routeIs('admin.audit-logs.*') ? 'admin-sidebar__link--active' : '' }}">
+                <span class="admin-sidebar__icon">
+                    <i class="fa-solid fa-shield-halved" aria-hidden="true"></i>
+                </span>
+                <span>Audit Log</span>
             </a>
         </nav>
     </div>

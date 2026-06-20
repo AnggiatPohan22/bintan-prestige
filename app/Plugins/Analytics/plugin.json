@@ -1,0 +1,11 @@
+{
+    "name": "Analytics Dashboard",
+    "slug": "analytics",
+    "version": "1.0.0",
+    "author": "Bintan Prestige",
+    "description": "Server-side page view tracking, unique visitor hashing, 30-day chart, top-10 pages, and CSV export.",
+    "min_cms_version": "4.0.0",
+    "service_provider": "App\\Plugins\\Analytics\\AnalyticsServiceProvider",
+    "requires": [],
+    "permissions": ["read:pages", "read:analytics", "write:analytics"]
+}

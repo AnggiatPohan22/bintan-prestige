@@ -1365,7 +1365,8 @@ class ProductDetailBookingFormTest extends TestCase
 
         // One bulk menu lookup is expected on a cold cache. The previous
         // per-location composer implementation added three separate queries.
-        $this->assertLessThanOrEqual(21, $queryCount);
+        // +1 for HandleRedirects middleware (cold cache on first request).
+        $this->assertLessThanOrEqual(22, $queryCount);
     }
 
     private function createProduct(
