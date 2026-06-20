@@ -795,7 +795,7 @@ class SiteSettingController extends Controller
     {
         $variantConfig = DefaultMediaAssets::variantForSlug($variant);
 
-        abort_unless($variantConfig, 404);
+        abort_unless($variantConfig !== null, 404);
 
         $asset = SiteAsset::query()
             ->where('key', $variantConfig['key'])

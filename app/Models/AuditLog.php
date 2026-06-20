@@ -49,7 +49,7 @@ class AuditLog extends Model
             'action'          => $action,
             'auditable_type'  => class_basename($subject),
             'auditable_id'    => $subject->getKey(),
-            'auditable_label' => $label ?? static::resolveLabel($subject),
+            'auditable_label' => $label ?? self::resolveLabel($subject),
             'old_values'      => $oldValues,
             'new_values'      => $newValues,
             'ip_address'      => request()->ip(),

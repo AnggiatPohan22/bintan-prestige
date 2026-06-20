@@ -50,7 +50,7 @@ class LoginRequest extends FormRequest
             ]);
         }
 
-        if (! (bool) (Auth::user()?->is_active ?? true)) {
+        if (! (bool) (Auth::user()->is_active ?? true)) {
             Auth::guard('web')->logout();
             RateLimiter::hit($this->throttleKey());
 

@@ -13,6 +13,7 @@ use App\Support\CategoryDestinationDisplayState;
 use App\Support\PageSectionRegistry;
 use App\Support\ProductDetailDisplayState;
 use App\Support\ProductListingContent;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
@@ -205,19 +206,19 @@ class ProductController extends Controller
             $this->highPageRecoveryParameters($validQueryParameters)
         );
 
+        $priceRangeRow = ProductPrice::query()
+            ->where('currency', $priceCurrency)
+            ->whereHas('product', function (Builder $query): void {
+                /** @var Builder<Product> $query */
+                $query->publiclyVisible();
+            })
+            ->selectRaw('MIN(price) as min_price, MAX(price) as max_price')
+            ->toBase()
+            ->first();
+
         $priceRange = [
-            'min' => ProductPrice::query()
-                ->where('currency', $priceCurrency)
-                ->whereHas('product', function ($query) {
-                    $query->publiclyVisible();
-                })
-                ->min('price'),
-            'max' => ProductPrice::query()
-                ->where('currency', $priceCurrency)
-                ->whereHas('product', function ($query) {
-                    $query->publiclyVisible();
-                })
-                ->max('price'),
+            'min' => isset($priceRangeRow->min_price) ? $priceRangeRow->min_price : null,
+            'max' => isset($priceRangeRow->max_price) ? $priceRangeRow->max_price : null,
         ];
 
         $activeFilterCount = collect([

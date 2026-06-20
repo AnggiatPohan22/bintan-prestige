@@ -98,7 +98,7 @@ class DefaultMediaAssets
     {
         return collect(self::variants())
             ->mapWithKeys(function (array $variant) use ($settings) {
-                $value = $settings[self::fitKey($variant['slug'])]?->value ?? self::defaultFit($variant['slug']);
+                $value = $settings[self::fitKey($variant['slug'])]->value ?? self::defaultFit($variant['slug']);
 
                 if (! array_key_exists($value, self::fitOptions())) {
                     $value = self::defaultFit($variant['slug']);

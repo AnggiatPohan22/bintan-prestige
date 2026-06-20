@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\AuditLog;
 use App\Models\Plugin;
 use App\Services\Plugin\PluginManager;
 use App\Services\Plugin\PluginRegistry;
@@ -71,7 +70,6 @@ class PluginController extends Controller
     {
         try {
             $this->manager->activate($plugin);
-            AuditLog::record('plugin.activated', $plugin);
         } catch (RuntimeException $e) {
             return redirect()->route('admin.plugins.index')
                 ->with('error', $e->getMessage());
@@ -85,7 +83,6 @@ class PluginController extends Controller
     {
         try {
             $this->manager->deactivate($plugin);
-            AuditLog::record('plugin.deactivated', $plugin);
         } catch (RuntimeException $e) {
             return redirect()->route('admin.plugins.index')
                 ->with('error', $e->getMessage());
@@ -104,7 +101,6 @@ class PluginController extends Controller
 
         try {
             $name = $plugin->name;
-            AuditLog::record('plugin.uninstalled', $plugin);
             $this->manager->uninstall($plugin);
         } catch (RuntimeException $e) {
             return redirect()->route('admin.plugins.index')

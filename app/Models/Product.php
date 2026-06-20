@@ -60,28 +60,33 @@ class Product extends Model
         'is_featured' => 'boolean',
     ];
 
+    /** @return BelongsTo<Category, $this> */
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class)
             ->withTrashed();
     }
 
+    /** @return BelongsTo<Destination, $this> */
     public function destination(): BelongsTo
     {
         return $this->belongsTo(Destination::class)
             ->withTrashed();
     }
 
+    /** @return HasMany<ProductImage, $this> */
     public function images(): HasMany
     {
         return $this->hasMany(ProductImage::class);
     }
 
+    /** @return HasMany<ProductPrice, $this> */
     public function prices(): HasMany
     {
         return $this->hasMany(ProductPrice::class);
     }
 
+    /** @return HasMany<BookingItem, $this> */
     public function bookingItems(): HasMany
     {
         return $this->hasMany(BookingItem::class);
@@ -133,6 +138,7 @@ class Product extends Model
     }
     // end of accessors
 
+    /** @return HasMany<ProductHighlight, $this> */
     public function highlights(): HasMany
     {
         return $this->hasMany(
@@ -140,6 +146,7 @@ class Product extends Model
         )->orderBy('sort_order');
     }
 
+    /** @return HasMany<ProductFeature, $this> */
     public function features(): HasMany
     {
         return $this->hasMany(
@@ -147,6 +154,7 @@ class Product extends Model
         )->orderBy('sort_order');
     }
 
+    /** @return HasMany<ProductFeature, $this> */
     public function includedFeatures(): HasMany
     {
         return $this->hasMany(
@@ -156,6 +164,7 @@ class Product extends Model
         ->orderBy('sort_order');
     }
 
+    /** @return HasMany<ProductFeature, $this> */
     public function excludedFeatures(): HasMany
     {
         return $this->hasMany(
@@ -165,6 +174,7 @@ class Product extends Model
         ->orderBy('sort_order');
     }
 
+    /** @return HasMany<ProductItinerary, $this> */
     public function itineraries(): HasMany
     {
         return $this->hasMany(
@@ -173,6 +183,7 @@ class Product extends Model
         ->orderBy('start_time');
     }
 
+    /** @return HasMany<ProductFaq, $this> */
     public function faqs(): HasMany
     {
         return $this->hasMany(
@@ -180,6 +191,7 @@ class Product extends Model
         )->orderBy('sort_order');
     }
 
+    /** @return HasMany<ProductNote, $this> */
     public function notes(): HasMany
     {
         return $this->hasMany(

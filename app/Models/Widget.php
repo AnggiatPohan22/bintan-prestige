@@ -26,6 +26,7 @@ class Widget extends Model
         'sort_order' => 'integer',
     ];
 
+    /** @return BelongsTo<Theme, $this> */
     public function theme(): BelongsTo
     {
         return $this->belongsTo(Theme::class);

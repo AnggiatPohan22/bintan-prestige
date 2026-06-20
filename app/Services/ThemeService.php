@@ -79,7 +79,7 @@ class ThemeService
      */
     public function getTokenOverrides(): array
     {
-        return $this->getActiveTheme()?->customization ?? [];
+        return $this->getActiveTheme()->customization ?? [];
     }
 
     /**
