@@ -7,6 +7,10 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * @property array<int, array{question: mixed, answer: mixed}> $resolvedFaqItems
+ * @property \Illuminate\Database\Eloquent\Collection<int, Product> $resolvedProducts
+ */
 class PageBlock extends Model
 {
     use HasFactory;
@@ -26,6 +30,7 @@ class PageBlock extends Model
         'sort_order' => 'integer',
     ];
 
+    /** @return BelongsTo<Page, $this> */
     public function page(): BelongsTo
     {
         return $this->belongsTo(Page::class);

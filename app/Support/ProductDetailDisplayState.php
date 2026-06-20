@@ -3,6 +3,7 @@
 namespace App\Support;
 
 use App\Models\Product;
+use App\Models\ProductFeature;
 use App\Models\ProductPrice;
 use Illuminate\Support\Collection;
 
@@ -204,30 +205,38 @@ class ProductDetailDisplayState
         ];
 
         $groups = collect($titles)
-            ->map(fn (string $title, string $label) => [
-                'label' => $label,
-                'title' => $title,
-                'items' => $product->features
+            ->map(function (string $title, string $label) use ($product): array {
+                $items = $product->features
                     ->where('label', $label)
-                    ->map(function ($feature) {
+                    ->map(function (ProductFeature $feature): ?array {
                         $value = self::displayText($feature->value);
+
+                        if ($value === null) {
+                            return null;
+                        }
 
                         return [
                             'id' => $feature->id,
                             'value' => $value,
-                            'has_value' => $value !== null,
+                            'has_value' => true,
                             'sort_order' => $feature->sort_order,
                         ];
                     })
-                    ->filter(fn (array $feature) => $feature['has_value'])
-                    ->values(),
-            ])
+                    ->filter(fn (?array $feature): bool => $feature !== null)
+                    ->values();
+
+                return [
+                    'label' => $label,
+                    'title' => $title,
+                    'items' => $items,
+                ];
+            })
             ->values();
 
         $addons = $product->features
             ->where('label', 'addon')
-            ->map(fn ($feature) => self::displayText($feature->value))
-            ->filter()
+            ->map(fn (ProductFeature $feature): ?string => self::displayText($feature->value))
+            ->filter(fn (?string $value): bool => $value !== null)
             ->values()
             ->toBase();
 

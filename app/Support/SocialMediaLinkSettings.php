@@ -67,6 +67,6 @@ class SocialMediaLinkSettings
             ->values()
             ->all();
 
-        return array_values([...$presetLinks, ...$customLinks]);
+        return [...$presetLinks, ...$customLinks];
     }
 }

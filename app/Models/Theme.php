@@ -50,6 +50,7 @@ class Theme extends Model
         return $this->basePath() . '/theme.json';
     }
 
+    /** @return HasMany<Widget, $this> */
     public function widgets(): HasMany
     {
         return $this->hasMany(Widget::class);
@@ -92,7 +93,7 @@ class Theme extends Model
      * Read the customization_schema from this theme's theme.json.
      * Returns [] if the manifest is missing or has no schema section.
      *
-     * @return array<string, array{label: string, tokens: array<int, array{key: string, label: string, type: string, default: string}>}>
+     * @return array<string, array{label: string, tokens?: array<int, array{key: string, label: string, type: string, default?: string}>}>
      */
     public function customizationSchema(): array
     {

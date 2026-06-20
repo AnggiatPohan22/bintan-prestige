@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/** @property 'draft'|'published'|'scheduled' $status */
 class Page extends Model
 {
     use HasFactory;
@@ -31,16 +32,19 @@ class Page extends Model
         'publish_at'  => 'datetime',
     ];
 
+    /** @return HasMany<PageBlock, $this> */
     public function blocks(): HasMany
     {
         return $this->hasMany(PageBlock::class)->orderBy('sort_order');
     }
 
+    /** @return HasMany<PageRevision, $this> */
     public function revisions(): HasMany
     {
         return $this->hasMany(PageRevision::class)->orderByDesc('revision_number');
     }
 
+    /** @return BelongsTo<PageTemplate, $this> */
     public function template(): BelongsTo
     {
         return $this->belongsTo(PageTemplate::class, 'template_id');

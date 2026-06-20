@@ -23,6 +23,7 @@ class PageTemplate extends Model
         'sort_order' => 'integer',
     ];
 
+    /** @return HasMany<Page, $this> */
     public function pages(): HasMany
     {
         return $this->hasMany(Page::class, 'template_id');

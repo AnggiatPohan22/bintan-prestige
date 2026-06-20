@@ -44,6 +44,7 @@ class PageSectionMedia extends Model
         'is_active' => 'boolean',
     ];
 
+    /** @return BelongsTo<PageSection, $this> */
     public function pageSection(): BelongsTo
     {
         return $this->belongsTo(PageSection::class);

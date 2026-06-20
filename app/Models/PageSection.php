@@ -40,6 +40,7 @@ class PageSection extends Model
         'is_active' => 'boolean',
     ];
 
+    /** @return HasMany<PageSectionMedia, $this> */
     public function media(): HasMany
     {
         return $this->hasMany(PageSectionMedia::class)
@@ -47,6 +48,7 @@ class PageSection extends Model
             ->orderBy('id');
     }
 
+    /** @return HasMany<PageSectionMedia, $this> */
     public function activeMedia(): HasMany
     {
         return $this->media()->where('is_active', true);

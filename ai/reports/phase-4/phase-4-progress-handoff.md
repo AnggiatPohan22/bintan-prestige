@@ -12,13 +12,28 @@
 - Automated suite: **596 tests, 2765 assertions, 0 failures**
 - Q-series: Q1–Q7 added; all pass
 - Minimal fix: duplicate plugin lifecycle audit rows removed from the admin controller; `PluginManager` remains the single audit owner
-- PHPStan level 5: **BLOCKED** because the binary, configuration, and direct dependency are absent
+- PHPStan level 5: **PASS** after STEP 9A; Larastan 3.10.0 / PHPStan 2.2.2, `app` + `routes`, 0 errors, no ignores or baseline
 - Performance target: **FAIL**; four local representative routes average 730.79–912.51 ms against the <300 ms target
 - Release recommendation: **NO-GO**
 - `AGENTS.md`: intentionally not marked complete
 - Git release actions: no commit, merge, tag, or push performed
 
 Complete evidence and command results: `ai/reports/phase-4/step-9-phase4-release-gate-report.md`.
+
+## STEP 9A continuation state
+
+- Status: **PASS**
+- Initial PHPStan level 5 result: 95 errors
+- Final PHPStan level 5 result: 0 errors
+- Analysis paths: `app`, `routes`
+- Baseline: not used
+- Ignore rules: none
+- Regression suite: **596 tests, 2765 assertions, 0 failures**
+- Composer validation: PASS
+- Dependency audit: 9 advisories affecting 6 existing packages; requires a separately approved security update task
+- Remaining Phase 4 blockers: performance target and dependency advisories
+
+Complete STEP 9A evidence: `ai/reports/phase-4/step-9a-phpstan-larastan-foundation-report.md`.
 
 ## Branch
 

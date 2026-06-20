@@ -203,7 +203,7 @@ class CategoryDestinationDisplayState
     ): array {
         $type = 'has_results';
 
-        if ($products->total() > 0 && $products->count() === 0) {
+        if ($products->total() > 0 && count($products->items()) === 0) {
             $type = 'high_page_empty';
         } elseif ($products->total() === 0 && $filterState['has_active']) {
             $type = 'filtered_empty';

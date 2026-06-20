@@ -51,7 +51,7 @@ class MenuService
     public function sources(array $locations = self::LOCATIONS): array
     {
         $locations = collect($locations)
-            ->filter(fn ($location) => is_string($location) && $location !== '')
+            ->filter(fn (string $location) => $location !== '')
             ->unique()
             ->values()
             ->all();

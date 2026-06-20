@@ -8,7 +8,6 @@ use App\Http\Requests\Admin\UpdateThemeCustomizationRequest;
 use App\Models\Theme;
 use App\Services\GoogleFontsService;
 use App\Services\ThemeDiscoveryService;
-use App\Services\ThemeService;
 use App\Services\ZipService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Str;
@@ -20,7 +19,6 @@ class ThemeController extends Controller
 {
     public function __construct(
         private readonly ThemeDiscoveryService $discoveryService,
-        private readonly ThemeService $themeService,
         private readonly ZipService $zipService,
         private readonly GoogleFontsService $googleFontsService,
     ) {}

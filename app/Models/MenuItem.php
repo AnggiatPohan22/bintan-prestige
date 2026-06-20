@@ -37,16 +37,19 @@ class MenuItem extends Model
         'sort_order' => 'integer',
     ];
 
+    /** @return BelongsTo<Menu, $this> */
     public function menu(): BelongsTo
     {
         return $this->belongsTo(Menu::class);
     }
 
+    /** @return BelongsTo<MenuItem, $this> */
     public function parent(): BelongsTo
     {
         return $this->belongsTo(self::class, 'parent_id');
     }
 
+    /** @return HasMany<MenuItem, $this> */
     public function children(): HasMany
     {
         return $this->hasMany(self::class, 'parent_id')->orderBy('sort_order');
@@ -80,11 +83,13 @@ class MenuItem extends Model
      */
     public function resolveUrl(): string
     {
+        $linkable = $this->linkable;
+
         return match ($this->link_type) {
-            'page'        => $this->linkable ? route('pages.show', $this->linkable->slug, false) : '#',
-            'product'     => $this->linkable ? route('products.show', $this->linkable->slug, false) : '#',
-            'category'    => $this->linkable ? route('products.index', ['category' => [$this->linkable->id]], false) : '#',
-            'destination' => $this->linkable ? route('products.index', ['destination' => [$this->linkable->id]], false) : '#',
+            'page'        => $linkable instanceof Page ? route('pages.show', $linkable->slug, false) : '#',
+            'product'     => $linkable instanceof Product ? route('products.show', $linkable->slug, false) : '#',
+            'category'    => $linkable instanceof Category ? route('products.index', ['category' => [$linkable->id]], false) : '#',
+            'destination' => $linkable instanceof Destination ? route('products.index', ['destination' => [$linkable->id]], false) : '#',
             'anchor', 'url' => $this->url ?: '#',
             default       => '#',
         };

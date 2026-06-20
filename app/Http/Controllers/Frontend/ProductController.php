@@ -13,6 +13,7 @@ use App\Support\CategoryDestinationDisplayState;
 use App\Support\PageSectionRegistry;
 use App\Support\ProductDetailDisplayState;
 use App\Support\ProductListingContent;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
@@ -208,13 +209,15 @@ class ProductController extends Controller
         $priceRange = [
             'min' => ProductPrice::query()
                 ->where('currency', $priceCurrency)
-                ->whereHas('product', function ($query) {
+                ->whereHas('product', function (Builder $query): void {
+                    /** @var Builder<Product> $query */
                     $query->publiclyVisible();
                 })
                 ->min('price'),
             'max' => ProductPrice::query()
                 ->where('currency', $priceCurrency)
-                ->whereHas('product', function ($query) {
+                ->whereHas('product', function (Builder $query): void {
+                    /** @var Builder<Product> $query */
                     $query->publiclyVisible();
                 })
                 ->max('price'),

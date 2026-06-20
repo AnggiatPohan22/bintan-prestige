@@ -186,7 +186,7 @@ class HomepageContent
                 : 'View packages for ' . $name,
             'image_url' => $destination->image ? asset('storage/' . $destination->image) : null,
             'products_count' => $packageCount,
-            'package_label' => str_pad($packageCount, 2, '0', STR_PAD_LEFT) . ' ' . Str::plural('Package', $packageCount),
+            'package_label' => str_pad((string) $packageCount, 2, '0', STR_PAD_LEFT) . ' ' . Str::plural('Package', $packageCount),
         ];
     }
 

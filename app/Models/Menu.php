@@ -18,11 +18,13 @@ class Menu extends Model
         'is_active' => 'boolean',
     ];
 
+    /** @return HasMany<MenuItem, $this> */
     public function items(): HasMany
     {
         return $this->hasMany(MenuItem::class)->orderBy('sort_order');
     }
 
+    /** @return HasMany<MenuItem, $this> */
     public function rootItems(): HasMany
     {
         return $this->hasMany(MenuItem::class)

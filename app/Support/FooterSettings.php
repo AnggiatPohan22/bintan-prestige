@@ -145,7 +145,7 @@ class FooterSettings
             ->mapWithKeys(function (array $field) use ($settings) {
                 $setting = $settings[$field['key']] ?? null;
 
-                return [$field['slug'] => $setting?->value ?? $field['default']];
+                return [$field['slug'] => $setting->value ?? $field['default']];
             })
             ->all();
 
