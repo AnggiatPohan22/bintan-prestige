@@ -108,26 +108,251 @@ Jangan menjalankan query database dari Blade.
 
 Jika controller memang harus berubah, minta approval dengan diff plan yang sempit.
 
-## 7. Git dan Recovery
+## 7. Git, Claude Baseline, dan Recovery
 
-- Jangan bekerja langsung di `develop` atau branch stabil.
-- Pastikan pekerjaan Codex berada di branch `feature/`, `fix/`, `docs/`, atau
-  `refactor/` yang sesuai.
-- Sebelum task berisiko, buat checkpoint branch yang menunjuk ke commit sebelum
-  perubahan Codex.
-- Jangan menimpa atau menghapus branch Claude maupun branch checkpoint.
-- Jangan commit atau push kecuali diminta owner.
-- Jika diminta commit, stage hanya file yang sudah disetujui dan gunakan commit
-  kecil untuk satu concern.
+### 7.1 Working Branch
 
-Checkpoint awal project Codex:
+Codex hanya boleh menjalankan STEP 9 pada branch:
 
-- branch kerja: `feature/codex-backend-cms-next`
-- branch restore: `backup/pre-codex-master-rules-20260618`
-- baseline commit: `df17e18`
+`feature/phase-4-step9-release-gate`
 
-Cara kembali ke baseline harus dijelaskan sebelum tindakan restore dilakukan.
-Jangan menjalankan restore destruktif tanpa instruksi eksplisit owner.
+Sebelum melakukan inspeksi atau perubahan, jalankan:
+
+```bash
+git branch --show-current
+git status --short
+git log -10 --oneline --decorate
+```
+
+Rules:
+
+* Jangan bekerja langsung di `develop` atau `main`.
+* Jangan otomatis membuat, checkout, reset, merge, rebase, atau menghapus branch.
+* Jika branch aktif bukan `feature/phase-4-step9-release-gate`, STOP dan laporkan.
+* Jika terdapat dirty worktree, identifikasi setiap file dan tentukan apakah perubahan tersebut berasal dari owner, Claude, atau proses sebelumnya.
+* Jangan melakukan `git stash`, checkout file, restore file, reset, atau clean tanpa instruksi eksplisit owner.
+* Jangan menimpa branch Claude, branch backup, `develop`, atau `main`.
+
+### 7.2 Claude Baseline
+
+Implementasi yang diwarisi dari Claude adalah baseline yang harus dipertahankan.
+
+Sebelum perubahan STEP 9, Codex wajib mengidentifikasi:
+
+* branch atau commit sumber terakhir dari Claude;
+* commit parent atau baseline tempat branch STEP 9 dibuat;
+* perbedaan antara baseline Claude dan current HEAD;
+* file existing yang telah dibangun Claude dan berhubungan dengan task;
+* test baseline dan report terakhir yang mendokumentasikan implementasi Claude.
+
+Jangan menggunakan baseline lama yang berasal dari phase atau task lain.
+
+Baseline aktif STEP 9 harus dicatat menggunakan hasil Git aktual:
+
+```text
+Phase: Phase 4
+Task: STEP 9 — Phase 4 Final Release Gate
+Working branch: feature/phase-4-step9-release-gate
+Claude baseline branch: <ISI DARI HASIL INSPEKSI GIT>
+Claude baseline commit: <ISI HASH COMMIT AKTUAL>
+Restore branch: backup/pre-phase4-step9-claude-baseline
+Baseline tests: 589 tests, 2721 assertions
+```
+
+Nilai placeholder tidak boleh ditebak. Isi hanya setelah diverifikasi melalui Git history.
+
+### 7.3 Restore Branch
+
+Sebelum perubahan production code, konfigurasi, dokumentasi protected, atau test baru, pastikan tersedia restore branch yang menunjuk tepat ke Claude baseline commit:
+
+`backup/pre-phase4-step9-claude-baseline`
+
+Codex tidak boleh membuat restore branch secara otomatis sebelum menampilkan:
+
+* baseline commit yang dipilih;
+* alasan commit tersebut merupakan baseline Claude;
+* status apakah branch restore sudah ada;
+* command yang akan digunakan;
+* dampak command;
+* cara memverifikasi pointer branch.
+
+Command yang diperbolehkan setelah approval owner:
+
+```bash
+git branch backup/pre-phase4-step9-claude-baseline <CLAUDE_BASELINE_COMMIT>
+```
+
+Verifikasi:
+
+```bash
+git show --no-patch --oneline backup/pre-phase4-step9-claude-baseline
+git rev-parse backup/pre-phase4-step9-claude-baseline
+git rev-parse <CLAUDE_BASELINE_COMMIT>
+```
+
+Kedua hash hasil `rev-parse` harus sama.
+
+Rules:
+
+* Jangan checkout restore branch untuk pekerjaan normal.
+* Jangan commit pada restore branch.
+* Jangan merge restore branch.
+* Jangan rebase, force-update, rename, atau delete restore branch.
+* Jangan membuat restore branch dari current HEAD jika current HEAD sudah mengandung perubahan Codex.
+* Jika baseline tidak dapat dibuktikan dengan aman, STOP sebelum editing.
+
+### 7.4 Recovery Policy
+
+Recovery harus dilakukan secara non-destructive terlebih dahulu.
+
+Sebelum melakukan recovery, tampilkan:
+
+```text
+Masalah:
+Current branch:
+Current HEAD:
+Claude baseline commit:
+Restore branch:
+File yang perlu dipulihkan:
+Perubahan yang akan dipertahankan:
+Perubahan yang akan dibuang:
+Command recovery:
+Dampak:
+Risiko:
+```
+
+Prioritas recovery:
+
+1. Buat branch penyelamatan dari kondisi current jika ada perubahan yang perlu dipertahankan.
+2. Pulihkan file tertentu dari baseline hanya setelah diff diperiksa.
+3. Gunakan revert commit untuk perubahan yang sudah committed.
+4. Gunakan restore branch sebagai referensi, bukan sebagai target reset otomatis.
+5. Gunakan reset hanya jika owner meminta secara eksplisit dan seluruh dampaknya sudah dijelaskan.
+
+Command berikut tetap dilarang tanpa instruksi eksplisit owner:
+
+```bash
+git reset --hard
+git clean -fd
+git checkout -- .
+git restore .
+git branch -D
+git push --force
+git push --force-with-lease
+```
+
+Contoh pemulihan file tertentu yang hanya boleh dijalankan setelah approval:
+
+```bash
+git diff backup/pre-phase4-step9-claude-baseline -- path/to/file
+git restore --source backup/pre-phase4-step9-claude-baseline -- path/to/file
+```
+
+Jangan memulihkan seluruh repository ketika hanya satu atau beberapa file yang terdampak.
+
+### 7.5 Commit Policy
+
+Codex tidak boleh commit atau push kecuali diminta owner.
+
+Jika diminta commit:
+
+* stage hanya file yang telah disetujui;
+* jangan gunakan `git add .`;
+* tampilkan `git diff --stat`;
+* tampilkan `git diff --cached`;
+* gunakan satu commit untuk satu concern;
+* jangan memasukkan file owner atau Claude yang tidak terkait;
+* jangan amend, squash, atau rewrite history tanpa instruksi eksplisit.
+
+Suggested STEP 9 commit structure:
+
+```text
+test(phase4): add final release gate coverage
+fix(phase4): resolve verified release blockers
+docs(phase4): complete release gate documentation
+```
+
+Commit dapat digabung bila perubahan sangat kecil, tetapi setiap file tetap harus dijelaskan.
+
+### 7.6 Release Integration Policy
+
+STEP 9 memiliki dua approval gate yang berbeda:
+
+#### Approval Gate 1
+
+Keyword:
+
+`approved`
+
+Mengizinkan:
+
+* focused test dan full test;
+* PHPStan analysis;
+* penambahan Q-series tests;
+* minimal fixes dalam scope;
+* update dokumentasi yang telah disetujui;
+* pembuatan report dan final handoff.
+
+Tidak mengizinkan:
+
+* merge ke `develop`;
+* merge ke `main`;
+* pembuatan tag;
+* push branch atau tag;
+* package installation;
+* schema atau migration changes.
+
+#### Approval Gate 2
+
+Keyword:
+
+`approved release`
+
+Mengizinkan proses release integration sesuai instruksi owner.
+
+Intended flow:
+
+```text
+feature/phase-4-step9-release-gate
+    → develop
+    → main
+    → annotated tag v4.0.0
+```
+
+Rules:
+
+* Jangan merge seluruh flow dalam satu langkah tanpa checkpoint verifikasi.
+* Setelah merge ke `develop`, jalankan ulang full test dan PHPStan.
+* Setelah merge ke `main`, jalankan ulang full test dan PHPStan.
+* Tag hanya boleh menunjuk ke final verified release commit di `main`.
+* Jangan membuat tag jika working tree tidak bersih.
+* Jangan memindahkan tag existing.
+* Jangan push branch atau tag kecuali owner meminta secara eksplisit.
+* Jangan menggunakan force merge, force push, destructive reset, atau history rewriting.
+
+### 7.7 STEP 9 Protected Documentation Exception
+
+Untuk STEP 9, file berikut tetap protected:
+
+* `AGENTS.md`
+* `AGENTS.override.md`
+* `CLAUDE.md`
+* `.claudeignore`
+* `.claude/**`
+* `.codex/**`
+* `ai/skills/**`
+* `ai/guidelines/**`
+
+Exception terbatas:
+
+* `AGENTS.md` boleh diperbarui hanya untuk menandai status Phase 4 setelah Release Gate berhasil dan setelah approval owner.
+* `AGENTS.override.md` tidak boleh diubah selama pelaksanaan STEP 9, kecuali owner secara eksplisit meminta perubahan guardrail.
+* Report baru di `ai/reports/phase-4/**` diperbolehkan sesuai deliverables STEP 9.
+* `phase-4-progress-handoff.md` boleh diperbarui sesuai deliverables STEP 9.
+* Skill dan guideline tidak boleh diubah hanya untuk menyesuaikan implementasi atau membuat Release Gate terlihat berhasil.
+
+Perubahan terhadap protected documentation tidak boleh digunakan untuk menyembunyikan test failure, PHPStan error, incomplete implementation, atau release blocker.
+
 
 ## 8. Testing dan Regression
 
