@@ -1,12 +1,28 @@
-# Handoff: Phase 4 — Plugin & Module System (In Progress)
+# Handoff: Phase 4 — Plugin & Module System (STEP 9 NO-GO)
 
 ## Date
 
 2026-06-20
 
+## STEP 9 continuation state
+
+- Working branch: `feature/phase-4-step9-release-gate`
+- Claude baseline: `ace347ec0e4c6112d8e82672afb6b6429f1adaf1`
+- Restore branch: `backup/pre-phase4-step9-claude-baseline` (verified at the baseline hash)
+- Automated suite: **596 tests, 2765 assertions, 0 failures**
+- Q-series: Q1–Q7 added; all pass
+- Minimal fix: duplicate plugin lifecycle audit rows removed from the admin controller; `PluginManager` remains the single audit owner
+- PHPStan level 5: **BLOCKED** because the binary, configuration, and direct dependency are absent
+- Performance target: **FAIL**; four local representative routes average 730.79–912.51 ms against the <300 ms target
+- Release recommendation: **NO-GO**
+- `AGENTS.md`: intentionally not marked complete
+- Git release actions: no commit, merge, tag, or push performed
+
+Complete evidence and command results: `ai/reports/phase-4/step-9-phase4-release-gate-report.md`.
+
 ## Branch
 
-`feature/phase-4-plugin-system` (belum merge ke `develop`)
+`feature/phase-4-step9-release-gate` (Phase 4 baseline sudah merge ke `develop`; STEP 9 belum diintegrasikan)
 
 Last stable Phase 3 commit: `137dc5e` (`feat: complete phase 3 - theme system`)
 
@@ -45,7 +61,7 @@ Baca dari atas ke bawah secara berurutan sebelum menyentuh satu baris kode pun.
 | STEP 7 | Core Plugin: Analytics Dashboard | ✅ DONE |
 | STEP 5 | Core Plugin: SEO Manager *(dipindah ke setelah STEP 7)* | ✅ DONE |
 | STEP 8 | Plugin Security & Sandboxing | ✅ DONE |
-| **STEP 9** | **Phase 4 Release Gate** | **⏳ NEXT — mulai di sini** |
+| **STEP 9** | **Phase 4 Release Gate** | **⚠ NO-GO — PHPStan blocked, performance failed** |
 | [BONUS] IMP-08 | Child Theme Support | ⬜ LOW PRIORITY |
 
 ---
@@ -221,7 +237,7 @@ CmsHooks::doAction('cms.init');  // ← terakhir di boot()
 | `tests/Feature/Phase4/SeoManagerTest.php` | O1–O15 | 15 |
 | `tests/Feature/Phase4/PluginSecurityTest.php` | P1–P14 | 14 |
 
-Test kode berikutnya: **Q1–Qx** (untuk STEP 9 / Phase 4 Release Gate)
+Test STEP 9: **Q1–Q7** di `Phase4ReleaseGateTest.php` (7/7 pass)
 
 ---
 
@@ -298,7 +314,7 @@ See `step-7-analytics-dashboard-report.md` for full detail.
 3. **Inspect file yang akan diubah** sebelum edit — jangan asumsi struktur
 4. **Jalankan full test suite** setelah setiap STEP: `php artisan test`
 5. **Baseline saat ini: 589 tests, 2721 assertions** — tidak boleh ada regresi
-6. **Test kode berikutnya: Q1–Qx** untuk STEP 9 (Phase 4 Release Gate)
+6. **Q1–Q7 sudah ditambahkan dan lulus**; jangan duplikasi coverage saat blocker STEP 9 ditindaklanjuti
 7. **Tidak ada query di dalam plugin `boot()`** — selalu cache config saat load
 8. **Setiap plugin wajib punya try-catch** di method yang bisa throw
 9. **Selalu `AuditLog::record()`** untuk aksi plugin activation/deactivation/uninstall
@@ -337,7 +353,7 @@ Kirim prompt ini persis di awal sesi:
 
 ```
 Read ai/skills/phase4-plugin-module-skill.md first.
-Then check current git branch and confirm it is: feature/phase-4-plugin-system
+Then check current git branch and confirm it is: feature/phase-4-step9-release-gate
 Then read ai/reports/phase-4/phase-4-progress-handoff.md for full context.
 
 Current task: STEP 9 — Phase 4 Release Gate
