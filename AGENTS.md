@@ -19,9 +19,8 @@ Build a WordPress-like CMS where the complete website — pages, navigation,
 layout, content blocks, and appearance — is fully managed from one admin
 dashboard. No hardcoded frontend content. Backend controls everything.
 
-**Current Phase:** Phase 2 — Full Website Builder
-Building the page module, block editor, menu manager, media library,
-and template system so any page can be created and styled from admin.
+**Current Phase:** Phase 5 — Visual Builder (next)
+Phase 4 (Plugin & Module System) complete at v4.0.0 (2026-06-21).
 
 ---
 
@@ -78,7 +77,7 @@ Before working, read this file + the skill(s) below that match your task.
 Backend data syncs to frontend.
 Products, categories, destinations, bookings, page sections, global settings (13 modules), user roles, site assets.
 
-**Phase 2 — CURRENT 🔨**
+**Phase 2 — COMPLETE ✅**
 Full website builder from admin dashboard. Goal: WordPress-like control.
 - Generic Pages module (About, Contact, Privacy, etc.)
 - Block editor (Hero, Text, Image, Gallery, CTA, Products, FAQ blocks)
@@ -87,7 +86,19 @@ Full website builder from admin dashboard. Goal: WordPress-like control.
 - Template system (page templates selectable from admin)
 - Preview/draft mode
 
-**Phase 3 — FUTURE (when explicitly requested)**
+**Phase 3 — COMPLETE ✅**
+Theme system — design tokens, token editor, Google Fonts integration,
+theme export/import (ZIP), extended token inheritance.
+
+**Phase 4 — COMPLETE ✅** (v4.0.0 — 2026-06-21)
+Plugin & Module System — plugin registry/lifecycle, hook & filter event system,
+content revision history, content scheduling, admin audit log, SEO manager
+(sitemap/robots.txt/redirects/noindex), contact form builder plugin,
+analytics dashboard plugin, plugin security & sandboxing.
+- Test suite: 596 tests / 2765 assertions / 0 failures
+- PHPStan: level 5 / 0 errors / no ignores / no baseline
+
+**Phase 5 — FUTURE (when explicitly requested)**
 Visual drag-and-drop builder with live preview and inline editing.
 
 ---
