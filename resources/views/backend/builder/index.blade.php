@@ -220,13 +220,14 @@ document.addEventListener('alpine:init', () => {
 
         /* ── Preview mode ──────────────────────────────────── */
         iframeStyle() {
-            // min-height ensures iframe fills the visible canvas even for short pages.
-            // 56px = topbar (h-14), 2rem = p-4 top+bottom on canvas wrapper.
-            const minH = 'min-height:calc(100vh - 56px - 2rem)';
-            if (this.previewMode === 'tablet') return `width:768px;flex-shrink:0;${minH}`;
-            if (this.previewMode === 'mobile') return `width:375px;flex-shrink:0;${minH}`;
-            // desktop: fill available width, but never render narrower than 1280px
-            return `width:100%;min-width:1280px;${minH}`;
+            // Height is NOT set here — the iframe stretches to fill the flex wrapper
+            // via default align-items:stretch. Width controls the viewport simulation.
+            if (this.previewMode === 'tablet') return 'width:768px;flex-shrink:0';
+            if (this.previewMode === 'mobile') return 'width:375px;flex-shrink:0';
+            // Desktop: fill available canvas width; guarantee ≥ 1280px so the page
+            // always renders a proper desktop viewport. Canvas scrolls horizontally
+            // when the panel pair is narrower than 1280px.
+            return 'width:100%;min-width:1280px';
         },
 
         blockIcon(type) {
@@ -567,15 +568,19 @@ document.addEventListener('alpine:init', () => {
              regardless of how far the inner canvas has scrolled. --}}
         <div class="relative min-w-0 flex-1 overflow-hidden">
 
-            {{-- Inner: independently scrollable canvas.
-                 Scrolls both directions so the iframe (min-width 1280px in desktop mode)
-                 is always fully reachable. Background mimics Elementor's canvas bg. --}}
-            <div class="absolute inset-0 overflow-auto bg-slate-800">
-                <div class="flex min-h-full flex-col items-center p-4">
+            {{-- Inner: scrollable canvas.
+                 overflow-x-auto  — canvas scrolls right when iframe exceeds canvas width
+                                    (desktop min-width 1280px on narrow screens).
+                 overflow-y-hidden — page content scrolls INSIDE the iframe, not the canvas. --}}
+            <div class="absolute inset-0 overflow-x-auto overflow-y-hidden bg-slate-800">
+                {{-- Wrapper: full canvas height, min-w fills canvas so justify-center
+                     has a reference width for centering tablet/mobile iframes.
+                     Default align-items:stretch makes the iframe fill canvas height. --}}
+                <div class="flex h-full min-w-full justify-center p-4">
                     <iframe
                         id="builder-preview"
                         title="Page preview"
-                        class="flex-1 border-0 shadow-2xl"
+                        class="border-0 shadow-2xl"
                         :style="iframeStyle()"
                     ></iframe>
                 </div>
