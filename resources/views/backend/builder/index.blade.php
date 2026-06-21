@@ -230,7 +230,7 @@ document.addEventListener('alpine:init', () => {
 
 @section('content')
 @php
-    $categorized = collect($registry)->groupBy('category');
+    $categorized = collect($registry)->groupBy('category', true);
     $catOrder    = ['layout', 'content', 'media', 'conversion', 'travel'];
 @endphp
 
