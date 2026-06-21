@@ -27,15 +27,15 @@
 <section class="px-6 py-8 sm:py-10" style="{{ $bgStyle }}">
     <div class="mx-auto max-w-7xl {{ $alignment }}">
         @if($level === 'h2')
-            <h2 class="font-bold tracking-tight text-slate-900 {{ $size }}">{{ $text }}</h2>
+            <h2 class="font-bold tracking-tight {{ $size }}">{{ $text }}</h2>
         @elseif($level === 'h3')
-            <h3 class="font-bold tracking-tight text-slate-900 {{ $size }}">{{ $text }}</h3>
+            <h3 class="font-bold tracking-tight {{ $size }}">{{ $text }}</h3>
         @elseif($level === 'h4')
-            <h4 class="font-bold tracking-tight text-slate-900 {{ $size }}">{{ $text }}</h4>
+            <h4 class="font-bold tracking-tight {{ $size }}">{{ $text }}</h4>
         @elseif($level === 'h5')
-            <h5 class="font-bold tracking-tight text-slate-900 {{ $size }}">{{ $text }}</h5>
+            <h5 class="font-bold tracking-tight {{ $size }}">{{ $text }}</h5>
         @else
-            <h6 class="font-bold tracking-tight text-slate-900 {{ $size }}">{{ $text }}</h6>
+            <h6 class="font-bold tracking-tight {{ $size }}">{{ $text }}</h6>
         @endif
     </div>
 </section>

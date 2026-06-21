@@ -67,7 +67,7 @@
                     <a
                         href="{{ $ctaUrl }}"
                         class="inline-block rounded-full px-10 py-4 text-sm font-bold uppercase tracking-widest transition hover:-translate-y-0.5 hover:shadow-lg"
-                        style="background:var(--frontend-gold,#D4AF37);color:var(--frontend-black,#0f0f0f);"
+                        style="background:var(--frontend-gold,#c8a24a);color:var(--frontend-black,#090806);"
                     >
                         {{ $ctaTxt }}
                     </a>

@@ -8,17 +8,17 @@
 
     $bgClass  = match($style) {
         'light' => 'bg-white text-slate-900',
-        'gold'  => 'bg-yellow-500 text-black',
+        'gold'  => 'bg-[var(--frontend-gold,#c8a24a)] text-[var(--frontend-black,#090806)]',
         default => 'bg-slate-900 text-white',
     };
     $btnClass = match($style) {
         'light' => 'bg-slate-900 text-white hover:bg-slate-700',
-        'gold'  => 'bg-black text-white hover:bg-slate-800',
+        'gold'  => 'bg-[var(--frontend-black,#090806)] text-white hover:opacity-90',
         default => 'bg-yellow-500 text-black hover:bg-yellow-400',
     };
     $bg      = $data['background'] ?? [];
     $bgStyle = '';
-    if (! empty($bg['color'])) { $bgStyle .= 'background-color:' . e($bg['color']) . ';'; $bgClass = str_replace(['bg-white','bg-yellow-500','bg-slate-900'], '', $bgClass); }
+    if (! empty($bg['color'])) { $bgStyle .= 'background-color:' . e($bg['color']) . ';'; $bgClass = preg_replace('/bg-\[[^\]]+\]|bg-\S+/', '', $bgClass); }
     if (! empty($bg['image'])) {
         $bgImgUrl = str_starts_with($bg['image'], 'http') ? $bg['image'] : asset('storage/' . $bg['image']);
         $bgStyle .= 'background-image:url(' . $bgImgUrl . ');background-size:' . e($bg['size'] ?? 'cover') . ';background-position:' . e($bg['position'] ?? 'center') . ';background-repeat:' . e($bg['repeat'] ?? 'no-repeat') . ';';

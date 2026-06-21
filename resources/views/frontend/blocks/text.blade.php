@@ -15,7 +15,7 @@
 <section class="py-16" style="{{ $bgStyle }}">
     <div class="mx-auto max-w-3xl px-6">
         @if($heading)
-            <h2 class="mb-6 text-3xl font-bold text-slate-900">
+            <h2 class="mb-6 text-3xl font-bold">
                 {{ $heading }}
             </h2>
         @endif
