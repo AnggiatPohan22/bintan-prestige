@@ -580,7 +580,7 @@ document.addEventListener('alpine:init', () => {
                     <iframe
                         id="builder-preview"
                         title="Page preview"
-                        class="border-0 shadow-2xl"
+                        class="h-full border-0 shadow-2xl"
                         :style="iframeStyle()"
                     ></iframe>
                 </div>

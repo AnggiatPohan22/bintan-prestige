@@ -16,7 +16,6 @@
          where the base URL would otherwise be about:srcdoc. --}}
     @if($preview ?? false)
     <base href="{{ url('/') }}/">
-    <style>html,body{background:#020617!important}</style>
     @endif
 
     <title>
