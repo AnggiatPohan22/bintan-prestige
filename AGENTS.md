@@ -53,6 +53,7 @@ Before working, read this file + the skill(s) below that match your task.
 | Security fix or audit | `security-skill.md` |
 | SEO / Schema / Sitemap | `seo-ai-discovery-skill.md` |
 | Page Builder / Blocks | `page-builder-skill.md` + `cms-architect-skill.md` |
+| Visual Builder / Phase 5 | `phase5-visual-builder-skill.md` + `page-builder-skill.md` |
 | Pages module (About, Contact, etc.) | `page-module-skill.md` + `backend-skill.md` |
 | Menu / Navigation | `menu-manager-skill.md` + `backend-skill.md` |
 | Media Library | `media-library-skill.md` |
@@ -98,8 +99,19 @@ analytics dashboard plugin, plugin security & sandboxing.
 - Test suite: 596 tests / 2765 assertions / 0 failures
 - PHPStan: level 5 / 0 errors / no ignores / no baseline
 
-**Phase 5 — FUTURE (when explicitly requested)**
-Visual drag-and-drop builder with live preview and inline editing.
+**Phase 5 — CURRENT 🔨**
+Visual Page Builder & Foundation Hardening.
+Stage A: admin UX refactor, block library expansion, backend readiness, efficiency review, frontend polish.
+Stage B: drag-and-drop builder, live preview, inline editing, reusable patterns.
+
+**Phase 6 — FUTURE**
+Flexible Content Modeling — custom content types & fields from admin.
+
+**Phase 7 — FUTURE**
+Internationalization — multi-language content for Bintan tourism market.
+
+**Phase 8 — FUTURE**
+Operational Maturity — backup/restore, import/export, monitoring dashboard.
 
 ---
 
