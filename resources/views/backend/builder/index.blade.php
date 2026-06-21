@@ -658,7 +658,7 @@ document.addEventListener('alpine:init', () => {
 
             <div
                 x-ref="canvas"
-                class="flex-1 overflow-y-auto overflow-x-hidden bg-slate-800 p-4"
+                class="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-slate-800 p-4"
             >
                 {{-- SPACER: real-sized block reserving the scaled footprint → reliable
                      canvas scroll height. Centered via margin auto. --}}
