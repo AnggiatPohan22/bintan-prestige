@@ -55,6 +55,14 @@
 
             <div class="flex shrink-0 flex-col gap-2 sm:flex-row sm:items-center">
                 <a
+                    href="{{ route('admin.pages.builder', $page) }}"
+                    class="admin-btn-primary text-sm"
+                >
+                    <i class="fa-solid fa-wand-magic-sparkles mr-1 text-xs"></i>
+                    Visual Builder
+                </a>
+
+                <a
                     href="{{ route('admin.pages.preview', $page) }}"
                     target="_blank"
                     class="admin-btn-secondary text-sm"

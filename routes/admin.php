@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\AnalyticsDashboardController;
+use App\Http\Controllers\Admin\PageBuilderController;
 use App\Http\Controllers\Admin\AuditLogController;
 use App\Http\Controllers\Admin\RedirectController;
 use App\Http\Controllers\Admin\SeoRobotsController;
@@ -222,6 +223,9 @@ Route::middleware(['auth', 'admin'])
         Route::post('pages/{page}/preview-payload', [FrontendPageController::class, 'previewPayload'])
             ->name('pages.preview-payload');
 
+        Route::get('pages/{page}/builder', [PageBuilderController::class, 'show'])
+            ->name('pages.builder');
+
         Route::resource('pages', PageController::class)
             ->except(['show']);
 
@@ -246,6 +250,7 @@ Route::middleware(['auth', 'admin'])
                 Route::delete('{block}', [PageBlockController::class, 'destroy'])->name('destroy');
                 Route::post('reorder', [PageBlockController::class, 'reorder'])->name('reorder');
                 Route::post('{block}/toggle-visible', [PageBlockController::class, 'toggleVisible'])->name('toggle-visible');
+                Route::post('save-tree', [PageBuilderController::class, 'saveTree'])->name('save-tree');
             });
 
         /*
