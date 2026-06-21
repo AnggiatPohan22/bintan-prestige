@@ -2,6 +2,13 @@
 
 @section('builder-title', 'Builder: ' . $page->title)
 
+@push('head')
+<style>
+.sortable-ghost  { opacity: .25; background: rgb(71 85 105/.4); border-radius: .5rem; }
+.sortable-chosen { opacity: .85; box-shadow: 0 8px 32px rgb(0 0 0/.6); }
+</style>
+@endpush
+
 @push('scripts')
 <script>
 document.addEventListener('alpine:init', () => {
@@ -14,6 +21,7 @@ document.addEventListener('alpine:init', () => {
         saveError:    null,
         isRefreshing: false,
         activeTab:    'insert',   // 'insert' | 'tree'
+        selectedCid:  null,       // _cid of the block selected in tree list
         _cid:         0,
         _refreshTimer: null,
 
@@ -97,7 +105,7 @@ document.addEventListener('alpine:init', () => {
 
         /* ── Block operations ──────────────────────────────── */
         addBlock(type, label) {
-            this.tree.push({
+            const node = {
                 _cid:       ++this._cid,
                 id:         null,
                 type,
@@ -106,7 +114,32 @@ document.addEventListener('alpine:init', () => {
                 is_visible: true,
                 sort_order: this.tree.length,
                 children:   [],
-            });
+            };
+            if (this.selectedCid !== null) {
+                const idx = this.tree.findIndex(n => n._cid === this.selectedCid);
+                if (idx !== -1) {
+                    this.tree.splice(idx + 1, 0, node);
+                } else {
+                    this.tree.push(node);
+                }
+            } else {
+                this.tree.push(node);
+            }
+            this.selectedCid = node._cid;
+            this.activeTab   = 'tree';
+            this.scheduleRefresh();
+        },
+
+        selectBlock(cid) {
+            this.selectedCid = this.selectedCid === cid ? null : cid;
+        },
+
+        onSort(cidStr, newPos) {
+            const cid    = +cidStr;
+            const oldPos = this.tree.findIndex(n => n._cid === cid);
+            if (oldPos === -1 || oldPos === newPos) return;
+            const [item] = this.tree.splice(oldPos, 1);
+            this.tree.splice(newPos, 0, item);
             this.scheduleRefresh();
         },
 
@@ -132,6 +165,7 @@ document.addEventListener('alpine:init', () => {
         removeBlock(index) {
             this.tree.splice(index, 1);
             this.tree = [...this.tree];
+            if (!this.tree.some(n => n._cid === this.selectedCid)) this.selectedCid = null;
             this.scheduleRefresh();
         },
 
@@ -299,7 +333,27 @@ document.addEventListener('alpine:init', () => {
             </div>
 
             {{-- INSERT TAB --}}
-            <div x-show="activeTab === 'insert'" class="flex-1 overflow-y-auto py-2" x-cloak>
+            <div x-show="activeTab === 'insert'" class="flex-1 overflow-y-auto" x-cloak>
+
+                {{-- Insert position context --}}
+                <div class="border-b border-slate-800 px-3 py-2 text-xs text-slate-500">
+                    <span x-show="selectedCid === null">Adding to end of page</span>
+                    <span x-show="selectedCid !== null" x-cloak>
+                        Inserting after
+                        <span
+                            class="font-medium text-amber-400"
+                            x-text="(tree.find(n => n._cid === selectedCid) || {}).label || '…'"
+                        ></span>
+                        <button
+                            type="button"
+                            x-on:click="selectedCid = null"
+                            class="ml-1 text-slate-600 hover:text-slate-300"
+                            title="Reset to add at end"
+                        >✕</button>
+                    </span>
+                </div>
+
+                <div class="py-2">
                 @foreach($catOrder as $cat)
                     @if($categorized->has($cat))
                         <div class="mb-1">
@@ -345,6 +399,7 @@ document.addEventListener('alpine:init', () => {
                         </div>
                     @endif
                 @endforeach
+                </div>{{-- /py-2 --}}
             </div>
 
             {{-- TREE TAB --}}
@@ -355,22 +410,54 @@ document.addEventListener('alpine:init', () => {
                     Switch to <strong class="text-slate-400">Add Block</strong> to start.
                 </div>
 
-                <ul class="divide-y divide-slate-800/60 py-1">
+                {{-- x-sort enables drag-and-drop via @alpinejs/sort (already loaded in app.js) --}}
+                <ul x-sort="onSort($item, $position)" class="py-1">
                     <template x-for="(block, index) in tree" :key="block._cid">
-                        <li class="group flex items-center gap-2 px-3 py-2 hover:bg-slate-800/60">
-                            <i
-                                class="fa-solid fa-cube w-4 shrink-0 text-center text-xs text-slate-500"
-                                :class="!block.is_visible ? 'opacity-40' : ''"
-                            ></i>
+                        <li
+                            x-sort:item="block._cid"
+                            x-on:click="selectBlock(block._cid)"
+                            :class="{
+                                'bg-amber-900/30 border-l-2 border-amber-500': selectedCid === block._cid,
+                                'border-l-2 border-transparent': selectedCid !== block._cid,
+                            }"
+                            class="group flex cursor-pointer items-center gap-1.5 py-2 pl-2 pr-3 transition-colors hover:bg-slate-800/60"
+                        >
+                            {{-- Drag handle --}}
                             <span
-                                class="min-w-0 flex-1 truncate text-xs text-slate-300"
-                                :class="!block.is_visible ? 'opacity-40 line-through' : ''"
+                                x-sort:handle
+                                class="flex h-5 w-4 shrink-0 cursor-grab items-center justify-center text-slate-600 transition-colors hover:text-slate-400 active:cursor-grabbing"
+                                title="Drag to reorder"
+                            >
+                                <i class="fa-solid fa-grip-vertical text-xs"></i>
+                            </span>
+
+                            {{-- Block icon --}}
+                            <i
+                                class="fa-solid fa-cube w-3.5 shrink-0 text-center text-xs"
+                                :class="!block.is_visible ? 'text-slate-700' : 'text-slate-500'"
+                            ></i>
+
+                            {{-- Label --}}
+                            <span
+                                class="min-w-0 flex-1 truncate text-xs"
+                                :class="!block.is_visible
+                                    ? 'text-slate-600 line-through'
+                                    : selectedCid === block._cid ? 'text-amber-300' : 'text-slate-300'"
                                 x-text="block.label || block.type"
                             ></span>
+
+                            {{-- Insert-after indicator --}}
+                            <span
+                                x-show="selectedCid === block._cid"
+                                class="shrink-0 rounded bg-amber-800/60 px-1 py-0.5 text-xs text-amber-400"
+                                title="Next block added after this one"
+                            >↓</span>
+
+                            {{-- Action buttons (visible on hover) --}}
                             <div class="flex shrink-0 items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
                                 <button
                                     type="button"
-                                    x-on:click="moveUp(index)"
+                                    x-on:click.stop="moveUp(index)"
                                     :disabled="index === 0"
                                     class="flex h-5 w-5 items-center justify-center rounded text-slate-500 transition-colors hover:text-white disabled:cursor-not-allowed disabled:opacity-30"
                                     title="Move up"
@@ -379,7 +466,7 @@ document.addEventListener('alpine:init', () => {
                                 </button>
                                 <button
                                     type="button"
-                                    x-on:click="moveDown(index)"
+                                    x-on:click.stop="moveDown(index)"
                                     :disabled="index === tree.length - 1"
                                     class="flex h-5 w-5 items-center justify-center rounded text-slate-500 transition-colors hover:text-white disabled:cursor-not-allowed disabled:opacity-30"
                                     title="Move down"
@@ -388,7 +475,7 @@ document.addEventListener('alpine:init', () => {
                                 </button>
                                 <button
                                     type="button"
-                                    x-on:click="toggleVisible(block)"
+                                    x-on:click.stop="toggleVisible(block)"
                                     class="flex h-5 w-5 items-center justify-center rounded text-slate-500 transition-colors hover:text-white"
                                     :title="block.is_visible ? 'Hide block' : 'Show block'"
                                 >
@@ -396,7 +483,7 @@ document.addEventListener('alpine:init', () => {
                                 </button>
                                 <button
                                     type="button"
-                                    x-on:click="if(confirm('Remove this block?')) removeBlock(index)"
+                                    x-on:click.stop="if(confirm('Remove this block?')) removeBlock(index)"
                                     class="flex h-5 w-5 items-center justify-center rounded text-slate-500 transition-colors hover:text-red-400"
                                     title="Delete block"
                                 >
