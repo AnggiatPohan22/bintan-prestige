@@ -11,6 +11,10 @@
     <meta charset="UTF-8">
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0">
+    {{-- Only injected for admin previews (full-tab or srcdoc iframe).
+         Ensures root-relative asset paths resolve correctly inside an srcdoc document
+         where the base URL would otherwise be about:srcdoc. --}}
+    @if($preview ?? false)<base href="{{ url('/') }}/">@endif
 
     <title>
         {{ $documentTitle }}

@@ -20,6 +20,7 @@ document.addEventListener('alpine:init', () => {
         isSaving:     false,
         saveError:    null,
         isRefreshing: false,
+        previewError: null,
         activeTab:    'insert',   // 'insert' | 'tree'
         selectedCid:  null,       // _cid of the block selected in tree list
         _cid:         0,
@@ -48,6 +49,7 @@ document.addEventListener('alpine:init', () => {
 
         async refreshPreview() {
             this.isRefreshing = true;
+            this.previewError = null;
             try {
                 const res = await fetch(cfg.previewUrl, {
                     method: 'POST',
@@ -58,10 +60,16 @@ document.addEventListener('alpine:init', () => {
                     },
                     body: JSON.stringify({ blocks: this.serialize(this.tree) }),
                 });
-                const html = await res.text();
-                const frame = document.getElementById('builder-preview');
-                if (frame) frame.srcdoc = html;
-            } catch {}
+                if (!res.ok) {
+                    this.previewError = `Preview failed: HTTP ${res.status} ${res.statusText}`;
+                } else {
+                    const html = await res.text();
+                    const frame = document.getElementById('builder-preview');
+                    if (frame) frame.srcdoc = html;
+                }
+            } catch (e) {
+                this.previewError = `Preview error: ${e.message || 'Network error'}`;
+            }
             this.isRefreshing = false;
         },
 
@@ -522,6 +530,22 @@ document.addEventListener('alpine:init', () => {
             >
                 <i class="fa-solid fa-layer-group text-5xl"></i>
                 <p class="text-sm">Add a block from the left panel to get started.</p>
+            </div>
+
+            {{-- Preview fetch error (shown when the preview endpoint returns an error) --}}
+            <div
+                x-show="previewError"
+                class="absolute inset-x-0 bottom-0 z-20 flex items-center gap-3 bg-red-950/90 px-4 py-3 text-xs text-red-300 shadow-xl"
+                x-cloak
+            >
+                <i class="fa-solid fa-triangle-exclamation shrink-0 text-red-400"></i>
+                <span x-text="previewError" class="min-w-0 flex-1 truncate"></span>
+                <button
+                    type="button"
+                    x-on:click="previewError = null"
+                    class="shrink-0 text-red-500 hover:text-red-300"
+                    title="Dismiss"
+                ><i class="fa-solid fa-xmark"></i></button>
             </div>
 
             {{-- The preview iframe --}}
