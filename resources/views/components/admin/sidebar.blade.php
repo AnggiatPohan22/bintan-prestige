@@ -76,6 +76,10 @@ $groups = [
                 <span>Dashboard</span>
             </a>
 
+            <div class="admin-sidebar__divider"></div>
+
+            <p class="admin-sidebar__section-label">Content</p>
+
             {{-- Content --}}
             <div>
                 <button
@@ -206,6 +210,10 @@ $groups = [
                 </div>
             </div>
 
+            <div class="admin-sidebar__divider"></div>
+
+            <p class="admin-sidebar__section-label">Visibility</p>
+
             {{-- Analytics --}}
             <div>
                 <button
@@ -228,6 +236,10 @@ $groups = [
                     </a>
                 </div>
             </div>
+
+            <div class="admin-sidebar__divider"></div>
+
+            <p class="admin-sidebar__section-label">Admin</p>
 
             {{-- System --}}
             <div>

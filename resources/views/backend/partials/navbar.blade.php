@@ -36,14 +36,10 @@
     <div class="admin-topbar__main">
         <div class="admin-topbar__title-group">
             <p class="admin-topbar__breadcrumb">
-                Admin
-                <span aria-hidden="true">/</span>
-                {{ $pageEyebrow }}
+                <span class="text-slate-500">Bintan Prestige</span>
+                <span class="text-slate-300" aria-hidden="true">/</span>
+                <span class="text-slate-600 font-semibold">{{ $pageTitle }}</span>
             </p>
-
-            <h2 class="admin-topbar__title">
-                {{ $pageTitle }}
-            </h2>
         </div>
 
         <div class="admin-topbar__actions">
