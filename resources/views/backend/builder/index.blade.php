@@ -154,7 +154,6 @@ document.addEventListener('alpine:init', () => {
                 this.tree.push(node);
             }
             this.selectedCid = node._cid;
-            this.activeTab   = 'tree';
             this.scheduleRefresh();
         },
 

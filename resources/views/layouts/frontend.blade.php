@@ -14,7 +14,10 @@
     {{-- Only injected for admin previews (full-tab or srcdoc iframe).
          Ensures root-relative asset paths resolve correctly inside an srcdoc document
          where the base URL would otherwise be about:srcdoc. --}}
-    @if($preview ?? false)<base href="{{ url('/') }}/">@endif
+    @if($preview ?? false)
+    <base href="{{ url('/') }}/">
+    <style>html,body{background:#020617!important}</style>
+    @endif
 
     <title>
         {{ $documentTitle }}
