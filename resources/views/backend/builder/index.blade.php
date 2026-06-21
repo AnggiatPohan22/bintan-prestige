@@ -24,13 +24,30 @@ document.addEventListener('alpine:init', () => {
         activeTab:    'insert',   // 'insert' | 'tree'
         selectedCid:  null,       // _cid of the block selected in tree list
         previewMode:  'desktop',  // 'desktop' | 'tablet' | 'mobile'
+        canvasW:      0,          // measured width  of the canvas viewport (px)
+        canvasH:      0,          // measured height of the canvas viewport (px)
         _cid:         0,
         _refreshTimer: null,
+        _ro:          null,       // ResizeObserver on the canvas
 
         /* ── Init ──────────────────────────────────────────── */
         init() {
             this.tree = this.tagCids(JSON.parse(JSON.stringify(cfg.tree)));
-            this.$nextTick(() => this.refreshPreview());
+            this.$nextTick(() => {
+                this.measureCanvas();
+                this.refreshPreview();
+                if (this.$refs.canvas) {
+                    this._ro = new ResizeObserver(() => this.measureCanvas());
+                    this._ro.observe(this.$refs.canvas);
+                }
+            });
+        },
+
+        measureCanvas() {
+            const el = this.$refs.canvas;
+            if (!el) return;
+            this.canvasW = el.clientWidth;   // excludes scrollbar
+            this.canvasH = el.clientHeight;
         },
 
         tagCids(nodes) {
@@ -218,16 +235,40 @@ document.addEventListener('alpine:init', () => {
             }[cat] || 'fa-cube';
         },
 
-        /* ── Preview mode ──────────────────────────────────── */
-        iframeStyle() {
-            // Height is NOT set here — the iframe stretches to fill the flex wrapper
-            // via default align-items:stretch. Width controls the viewport simulation.
-            if (this.previewMode === 'tablet') return 'width:768px;flex-shrink:0';
-            if (this.previewMode === 'mobile') return 'width:375px;flex-shrink:0';
-            // Desktop: fill available canvas width; guarantee ≥ 1280px so the page
-            // always renders a proper desktop viewport. Canvas scrolls horizontally
-            // when the panel pair is narrower than 1280px.
-            return 'width:100%;min-width:1280px';
+        /* ── Preview mode (Elementor-style device frame) ───────
+           The iframe NEVER sizes itself. It fills a "frame" div whose width/height
+           are hard pixels (frameStyle), scaled to fit the canvas (fit-to-screen).
+           A "sizer" div reserves the SCALED footprint so scrolling stays accurate.
+           ──────────────────────────────────────────────────── */
+
+        // Natural (unscaled) device dimensions, in CSS pixels.
+        // 24 = vertical margin top+bottom; reused below.
+        frameNatural() {
+            const w = { desktop: 1440, tablet: 768, mobile: 375 }[this.previewMode];
+            const h = this.previewMode === 'desktop'
+                ? Math.max(200, (this.canvasH - 48) / this.scale())  // fill canvas height
+                : (this.previewMode === 'tablet' ? 1024 : 812);      // realistic device height
+            return { w, h };
+        },
+
+        // Scale factor ≤ 1 so the frame always fits horizontally — no horizontal scroll.
+        scale() {
+            if (! this.canvasW) return 1;
+            const w = { desktop: 1440, tablet: 768, mobile: 375 }[this.previewMode];
+            return Math.min(1, Math.max(0.1, (this.canvasW - 48) / w));  // 48 = h-margins
+        },
+
+        // FRAME: hard pixel size, scaled from top-left (absolute inside the sizer).
+        frameStyle() {
+            const n = this.frameNatural();
+            return `width:${n.w}px;height:${n.h}px;transform:scale(${this.scale()})`;
+        },
+
+        // SIZER: reserves the visible (scaled) footprint + centers it. overflow-hidden
+        // on the sizer clips the unscaled absolute frame so scrollWidth stays correct.
+        sizerStyle() {
+            const n = this.frameNatural(), s = this.scale();
+            return `width:${n.w * s}px;height:${n.h * s}px;margin:24px auto`;
         },
 
         blockIcon(type) {
@@ -563,25 +604,29 @@ document.addEventListener('alpine:init', () => {
 
         </aside>
 
-        {{-- ── CENTER PANEL: Live Preview iframe ─────────────── --}}
-        {{-- Outer: overflow-hidden so absolute overlays cover only the visible canvas area,
-             regardless of how far the inner canvas has scrolled. --}}
-        <div class="relative min-w-0 flex-1 overflow-hidden">
-
-            {{-- Inner: scrollable canvas.
-                 overflow-x-auto  — canvas scrolls right when iframe exceeds canvas width
-                                    (desktop min-width 1280px on narrow screens).
-                 overflow-y-hidden — page content scrolls INSIDE the iframe, not the canvas. --}}
-            <div class="absolute inset-0 overflow-x-auto overflow-y-hidden bg-slate-800">
-                {{-- Wrapper: full canvas height, min-w fills canvas so justify-center
-                     has a reference width for centering tablet/mobile iframes.
-                     Default align-items:stretch makes the iframe fill canvas height. --}}
-                <div class="flex h-full min-w-full justify-center p-4">
+        {{-- ── CENTER PANEL: Live Preview (Elementor-style device frame) ───
+             LAYER 1 (viewport): flex-1 sibling between the panels — it can never be
+             overlapped by them. Scrolls; hosts absolute overlays; measured by x-ref. --}}
+        <div
+            x-ref="canvas"
+            class="relative min-w-0 flex-1 overflow-auto bg-slate-800"
+        >
+            {{-- LAYER 2 (sizer): reserves the SCALED footprint, centers it (margin auto),
+                 and clips the unscaled absolute frame so scroll matches what's visible. --}}
+            <div
+                class="relative overflow-hidden rounded bg-white shadow-2xl"
+                :style="sizerStyle()"
+            >
+                {{-- LAYER 3 (frame): hard-pixel device size, scaled from top-left.
+                     The iframe simply fills this frame at 100% — fully deterministic. --}}
+                <div
+                    class="absolute left-0 top-0 origin-top-left"
+                    :style="frameStyle()"
+                >
                     <iframe
                         id="builder-preview"
                         title="Page preview"
-                        class="h-full border-0 shadow-2xl"
-                        :style="iframeStyle()"
+                        class="block h-full w-full border-0"
                     ></iframe>
                 </div>
             </div>
