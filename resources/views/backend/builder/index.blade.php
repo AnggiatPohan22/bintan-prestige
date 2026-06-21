@@ -26,13 +26,11 @@ document.addEventListener('alpine:init', () => {
         previewMode:    'desktop', // 'desktop' | 'tablet' | 'mobile'
         canvasW:        0,         // measured width  of the canvas viewport (px)
         canvasH:        0,         // measured height of the canvas viewport (px)
-        contentH:       0,         // measured height of the rendered page inside the iframe
         leftCollapsed:  false,     // optional: minimize the left (blocks) panel
         rightCollapsed: false,     // optional: minimize the right (settings) panel
         _cid:           0,
         _refreshTimer:  null,
         _ro:            null,      // ResizeObserver on the canvas
-        _cro:           null,      // ResizeObserver on the iframe's body (content height)
 
         /* ── Init ──────────────────────────────────────────── */
         init() {
@@ -99,16 +97,15 @@ document.addEventListener('alpine:init', () => {
                     const html  = await res.text();
                     const frame = document.getElementById('builder-preview');
                     if (frame) {
-                        // Preserve the OUTER canvas scroll (the page scrolls via the
-                        // canvas now, not inside the iframe).
-                        const canvas = this.$refs.canvas;
-                        const prevScroll = canvas ? canvas.scrollTop : 0;
-                        frame.addEventListener('load', () => {
-                            this.observeContent(frame);   // measure + live-track page height
-                            requestAnimationFrame(() => {
-                                if (canvas) canvas.scrollTop = prevScroll;
-                            });
-                        }, { once: true });
+                        // Preserve the page scroll position (the page scrolls natively
+                        // INSIDE the iframe, all the way down to the footer).
+                        let scrollY = 0;
+                        try { scrollY = frame.contentWindow?.scrollY ?? 0; } catch {}
+                        if (scrollY > 0) {
+                            frame.addEventListener('load', () => {
+                                try { frame.contentWindow?.scrollTo(0, scrollY); } catch {}
+                            }, { once: true });
+                        }
                         frame.srcdoc = html;
                     }
                 }
@@ -242,71 +239,31 @@ document.addEventListener('alpine:init', () => {
             }[cat] || 'fa-cube';
         },
 
-        /* ── Preview mode (Elementor-style device frame) ───────
-           The iframe NEVER sizes itself. It fills a "frame" div whose width/height
-           are hard pixels (frameStyle), scaled to fit the canvas (fit-to-screen).
-           A "sizer" div reserves the SCALED footprint so scrolling stays accurate.
+        /* ── Preview mode (Elementor-style device frame, fit-to-screen) ──
+           The page renders at a real device WIDTH (desktop 1280 / tablet 768 /
+           mobile 375) and the whole frame is scaled with CSS `zoom` to fit the
+           canvas width — no horizontal scroll. `zoom` (unlike transform:scale) is
+           layout-aware, so the page scrolls NATIVELY inside the iframe all the way
+           down to the footer. Heights come from the measured canvas only, so there
+           is no content-measurement feedback loop (the previous footer bug).
            ──────────────────────────────────────────────────── */
 
-        // Natural (unscaled) device dimensions, in CSS pixels.
-        // Width simulates the device; HEIGHT = the real rendered page height so the
-        // whole page (down to the footer) is reachable by scrolling the OUTER canvas —
-        // no internal iframe scroll, no browser zoom-out needed.
-        frameNatural() {
-            const w = { desktop: 1440, tablet: 768, mobile: 375 }[this.previewMode];
-            const h = this.contentH || Math.max(200, this.canvasH - 48);  // fallback pre-measure
-            return { w, h };
+        baseWidth() {
+            return { desktop: 1280, tablet: 768, mobile: 375 }[this.previewMode];
         },
 
-        // Scale factor ≤ 1 so the frame always fits horizontally — no horizontal scroll.
+        // zoom ≤ 1 so the device width always fits the canvas horizontally.
         scale() {
             if (! this.canvasW) return 1;
-            const w = { desktop: 1440, tablet: 768, mobile: 375 }[this.previewMode];
-            return Math.min(1, Math.max(0.1, (this.canvasW - 48) / w));  // 48 = h-margins
+            return Math.min(1, Math.max(0.1, (this.canvasW - 32) / this.baseWidth()));
         },
 
-        // Switch device mode, then re-measure: a width change reflows the page, so the
-        // content height (and thus the frame height) must be recomputed.
-        setMode(mode) {
-            this.previewMode = mode;
-            requestAnimationFrame(() => requestAnimationFrame(() => this.measureContent()));
-        },
-
-        // Read the rendered page height from inside the iframe.
-        measureContent() {
-            const frame = document.getElementById('builder-preview');
-            try {
-                const doc = frame?.contentDocument;
-                if (doc?.body) this.contentH = doc.body.scrollHeight;
-            } catch {}
-        },
-
-        // Measure once on load, then keep contentH in sync via a ResizeObserver inside
-        // the iframe — covers lazy-loaded images, web fonts, accordions, and reflow
-        // when the device width changes.
-        observeContent(frame) {
-            try {
-                const doc = frame.contentDocument;
-                if (! doc?.body) return;
-                this.contentH = doc.body.scrollHeight;
-                this._cro?.disconnect();
-                const RO = frame.contentWindow.ResizeObserver || window.ResizeObserver;
-                this._cro = new RO(() => { this.contentH = doc.body.scrollHeight; });
-                this._cro.observe(doc.body);
-            } catch {}
-        },
-
-        // FRAME: hard pixel size, scaled from top-left (absolute inside the sizer).
+        // Device frame: real device width + a height that, after zoom, fills the
+        // canvas. The page itself scrolls inside the iframe to reveal the footer.
         frameStyle() {
-            const n = this.frameNatural();
-            return `width:${n.w}px;height:${n.h}px;transform:scale(${this.scale()})`;
-        },
-
-        // SIZER: reserves the visible (scaled) footprint + centers it. overflow-hidden
-        // on the sizer clips the unscaled absolute frame so scrollWidth stays correct.
-        sizerStyle() {
-            const n = this.frameNatural(), s = this.scale();
-            return `width:${n.w * s}px;height:${n.h * s}px;margin:24px auto`;
+            const z = this.scale();
+            const h = Math.max(200, (this.canvasH - 32) / z);  // *z ⇒ fills canvas height
+            return `width:${this.baseWidth()}px;height:${h}px;zoom:${z}`;
         },
 
         blockIcon(type) {
@@ -414,21 +371,21 @@ document.addEventListener('alpine:init', () => {
             <div class="flex items-center gap-0.5 rounded-lg border border-slate-700 p-0.5">
                 <button
                     type="button"
-                    x-on:click="setMode('desktop')"
+                    x-on:click="previewMode = 'desktop'"
                     :class="previewMode === 'desktop' ? 'bg-slate-700 text-white' : 'text-slate-500 hover:text-slate-300'"
                     class="flex h-7 w-7 items-center justify-center rounded text-xs transition-colors"
-                    title="Desktop (1440px)"
+                    title="Desktop (1280px)"
                 ><i class="fa-solid fa-desktop"></i></button>
                 <button
                     type="button"
-                    x-on:click="setMode('tablet')"
+                    x-on:click="previewMode = 'tablet'"
                     :class="previewMode === 'tablet' ? 'bg-slate-700 text-white' : 'text-slate-500 hover:text-slate-300'"
                     class="flex h-7 w-7 items-center justify-center rounded text-xs transition-colors"
                     title="Tablet (768px)"
                 ><i class="fa-solid fa-tablet-screen-button"></i></button>
                 <button
                     type="button"
-                    x-on:click="setMode('mobile')"
+                    x-on:click="previewMode = 'mobile'"
                     :class="previewMode === 'mobile' ? 'bg-slate-700 text-white' : 'text-slate-500 hover:text-slate-300'"
                     class="flex h-7 w-7 items-center justify-center rounded text-xs transition-colors"
                     title="Mobile (375px)"
@@ -660,31 +617,24 @@ document.addEventListener('alpine:init', () => {
 
         </aside>
 
-        {{-- ── CENTER PANEL: Live Preview (Elementor-style device frame) ───
-             LAYER 1 (viewport): flex-1 sibling between the panels — it can never be
-             overlapped by them. Scrolls; hosts absolute overlays; measured by x-ref. --}}
+        {{-- ── CENTER PANEL: Live Preview (device frame, fit-to-screen via zoom) ───
+             Viewport: flex-1 sibling between the panels — can never be overlapped by
+             them. overflow-hidden + flex centering; measured by x-ref for the zoom calc.
+             The device FRAME has a real device width and is zoomed to fit; the page
+             scrolls NATIVELY inside the iframe down to the footer. --}}
         <div
             x-ref="canvas"
-            class="relative min-w-0 flex-1 overflow-auto bg-slate-800"
+            class="relative flex min-w-0 flex-1 justify-center overflow-hidden bg-slate-800 p-4"
         >
-            {{-- LAYER 2 (sizer): reserves the SCALED footprint, centers it (margin auto),
-                 and clips the unscaled absolute frame so scroll matches what's visible. --}}
             <div
-                class="relative overflow-hidden rounded bg-white shadow-2xl"
-                :style="sizerStyle()"
+                class="shrink-0 overflow-hidden rounded bg-white shadow-2xl"
+                :style="frameStyle()"
             >
-                {{-- LAYER 3 (frame): hard-pixel device size, scaled from top-left.
-                     The iframe simply fills this frame at 100% — fully deterministic. --}}
-                <div
-                    class="absolute left-0 top-0 origin-top-left"
-                    :style="frameStyle()"
-                >
-                    <iframe
-                        id="builder-preview"
-                        title="Page preview"
-                        class="block h-full w-full border-0"
-                    ></iframe>
-                </div>
+                <iframe
+                    id="builder-preview"
+                    title="Page preview"
+                    class="block h-full w-full border-0"
+                ></iframe>
             </div>
 
             {{-- Preview loading overlay — covers visible canvas area, not the scroll content --}}
