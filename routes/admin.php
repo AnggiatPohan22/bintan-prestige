@@ -219,8 +219,19 @@ Route::middleware(['auth', 'admin'])
         Route::get('pages/{page}/preview', [FrontendPageController::class, 'preview'])
             ->name('pages.preview');
 
+        Route::post('pages/{page}/preview-payload', [FrontendPageController::class, 'previewPayload'])
+            ->name('pages.preview-payload');
+
         Route::resource('pages', PageController::class)
             ->except(['show']);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Block Type Registry (JSON API for visual builder)
+        |--------------------------------------------------------------------------
+        */
+        Route::get('api/block-types', [PageBlockController::class, 'apiTypes'])
+            ->name('api.block-types');
 
         /*
         |--------------------------------------------------------------------------

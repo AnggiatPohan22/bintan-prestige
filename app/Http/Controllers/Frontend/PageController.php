@@ -3,11 +3,15 @@
 namespace App\Http\Controllers\Frontend;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Admin\PageBlockController;
 use App\Models\Page;
+use App\Models\PageBlock;
 use App\Services\GlobalSettingsService;
 use App\Support\PageRenderData;
 use App\Support\PageTemplateRegistry;
 use App\Support\SeoDefaultSettings;
+use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 
 class PageController extends Controller
 {
@@ -30,12 +34,45 @@ class PageController extends Controller
         return $this->renderPage($page, preview: true);
     }
 
-    private function renderPage(Page $page, bool $preview = false)
+    /**
+     * Admin-only: render page with a transient block tree from the request body.
+     * Used by the visual builder to preview unsaved changes without persisting them.
+     */
+    public function previewPayload(Request $request, Page $page): mixed
     {
-        $page->load([
-            'template',
-            'blocks' => fn ($q) => $q->visible()->ordered(),
+        $request->validate([
+            'blocks'              => ['nullable', 'array'],
+            'blocks.*.block_type' => ['required', 'string', 'in:'.implode(',', PageBlockController::blockTypes())],
+            'blocks.*.label'      => ['nullable', 'string', 'max:255'],
+            'blocks.*.data'       => ['nullable', 'array'],
+            'blocks.*.sort_order' => ['nullable', 'integer'],
+            'blocks.*.is_visible' => ['nullable', 'boolean'],
         ]);
+
+        $blocks = collect($request->input('blocks', []))
+            ->filter(fn (array $b): bool => (bool) ($b['is_visible'] ?? true))
+            ->sortBy('sort_order')
+            ->values()
+            ->map(fn (array $b): PageBlock => new PageBlock([
+                'block_type' => $b['block_type'],
+                'label'      => $b['label'] ?? null,
+                'data'       => $b['data'] ?? [],
+                'sort_order' => $b['sort_order'] ?? 0,
+                'is_visible' => true,
+            ]));
+
+        return $this->renderPage($page, preview: true, injectedBlocks: $blocks);
+    }
+
+    private function renderPage(Page $page, bool $preview = false, ?Collection $injectedBlocks = null)
+    {
+        $page->load(['template']);
+
+        if ($injectedBlocks !== null) {
+            $page->setRelation('blocks', $injectedBlocks);
+        } else {
+            $page->load(['blocks' => fn ($q) => $q->visible()->ordered()]);
+        }
 
         $renderData = $this->pageRenderData->prepare($page);
         $templateKey = PageTemplateRegistry::keyFor($page->template?->blade_file);

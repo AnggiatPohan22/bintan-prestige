@@ -6,15 +6,21 @@ use App\Http\Controllers\Controller;
 use App\Models\Page;
 use App\Models\PageBlock;
 use App\Services\PageBlockService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class PageBlockController extends Controller
 {
-    public const BLOCK_TYPES = [
-        'hero', 'text', 'image', 'gallery', 'cta',
-        'products_grid', 'faq', 'testimonials', 'map', 'divider',
-        'contact_form',
-    ];
+    /** @return list<string> */
+    public static function blockTypes(): array
+    {
+        return array_keys(config('blocks'));
+    }
+
+    public function apiTypes(): JsonResponse
+    {
+        return response()->json(config('blocks'));
+    }
 
     public function __construct(
         protected PageBlockService $blockService,
@@ -23,7 +29,7 @@ class PageBlockController extends Controller
     public function store(Request $request, Page $page)
     {
         $request->validate([
-            'block_type' => ['required', 'in:'.implode(',', self::BLOCK_TYPES)],
+            'block_type' => ['required', 'in:'.implode(',', self::blockTypes())],
             'label' => ['nullable', 'string', 'max:255'],
         ]);
 

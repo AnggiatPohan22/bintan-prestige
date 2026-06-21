@@ -68,7 +68,7 @@ class PageController extends Controller
         return view('backend.pages.edit', [
             'page'            => $page,
             'revisions'       => $revisions,
-            'blockTypes'      => PageBlockController::BLOCK_TYPES,
+            'blockTypes'      => PageBlockController::blockTypes(),
             'categories'      => Category::orderBy('name')->get(['id', 'name']),
             'destinations'    => Destination::orderBy('name')->get(['id', 'name']),
             'templates'       => PageTemplate::active()->whereIn('blade_file', PageTemplateRegistry::keys())->ordered()->get(['id', 'name']),
