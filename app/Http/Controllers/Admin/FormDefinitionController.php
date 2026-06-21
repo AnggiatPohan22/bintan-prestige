@@ -14,7 +14,7 @@ class FormDefinitionController extends Controller
         $forms = FormDefinition::withCount([
             'submissions',
             'submissions as unread_count' => fn ($q) => $q->where('is_read', false),
-        ])->orderBy('name')->get();
+        ])->orderBy('name')->paginate(20)->withQueryString();
 
         return view('backend.contact-forms.index', compact('forms'));
     }

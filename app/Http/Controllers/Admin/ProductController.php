@@ -31,11 +31,9 @@ class ProductController extends Controller
         $products = Product::query()
             ->with(['category', 'destination', 'prices'])
             ->withCount([
-                'highlights',
                 'features',
                 'faqs',
                 'itineraries',
-                'notes',
                 'images',
                 'features as included_features_count' => fn ($query) =>
                     $query->where('label', 'included'),

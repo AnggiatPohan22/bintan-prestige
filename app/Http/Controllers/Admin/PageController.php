@@ -7,12 +7,13 @@ use App\Http\Requests\Admin\StorePageRequest;
 use App\Http\Requests\Admin\UpdatePageRequest;
 use App\Models\Category;
 use App\Models\Destination;
-use App\Models\Page;
 use App\Models\FormDefinition;
+use App\Models\Page;
 use App\Models\PageBlock;
 use App\Models\PageRevision;
 use App\Models\PageTemplate;
 use App\Services\PageService;
+use Illuminate\Support\Facades\DB;
 use App\Support\PageTemplateRegistry;
 use Illuminate\Http\Request;
 
@@ -129,6 +130,9 @@ class PageController extends Controller
         $page->blocks()->delete();
 
         $restoredBlocks = [];
+        $snapshotIdToIndex = collect($revision->content_snapshot)
+            ->mapWithKeys(fn (array $blockData, int $index): array => isset($blockData['id']) ? [(int) $blockData['id'] => $index] : [])
+            ->all();
 
         foreach ($revision->content_snapshot as $snapshotIndex => $blockData) {
             $restoredBlocks[$snapshotIndex] = PageBlock::create([
@@ -142,17 +146,31 @@ class PageController extends Controller
             ]);
         }
 
-        $snapshotIdToIndex = collect($revision->content_snapshot)
-            ->mapWithKeys(fn (array $blockData, int $index): array => isset($blockData['id']) ? [(int) $blockData['id'] => $index] : [])
-            ->all();
-
+        // Remap parent IDs in one upsert instead of N individual updates.
+        $parentRows = [];
         foreach ($revision->content_snapshot as $snapshotIndex => $blockData) {
             $parentSnapshotId = $blockData['parent_block_id'] ?? null;
             $parentIndex = $parentSnapshotId !== null ? ($snapshotIdToIndex[(int) $parentSnapshotId] ?? null) : null;
 
             if ($parentIndex !== null && isset($restoredBlocks[$parentIndex])) {
-                $restoredBlocks[$snapshotIndex]->update(['parent_block_id' => $restoredBlocks[$parentIndex]->id]);
+                $parentRows[] = [
+                    'id'              => $restoredBlocks[$snapshotIndex]->id,
+                    'parent_block_id' => $restoredBlocks[$parentIndex]->id,
+                ];
             }
+        }
+
+        if (! empty($parentRows)) {
+            // Build a single CASE-WHEN update instead of N individual UPDATE queries.
+            // IDs are all integers from our own database — no injection risk.
+            $cases = collect($parentRows)
+                ->map(fn (array $row): string => "WHEN {$row['id']} THEN {$row['parent_block_id']}")
+                ->join(' ');
+            $childIds = array_column($parentRows, 'id');
+
+            DB::table('page_blocks')
+                ->whereIn('id', $childIds)
+                ->update(['parent_block_id' => DB::raw("CASE id {$cases} END")]);
         }
 
         return redirect()

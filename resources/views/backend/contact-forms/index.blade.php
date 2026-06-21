@@ -14,7 +14,7 @@
         </div>
     </div>
 
-    <x-admin.data-table title="All Forms" :count="$forms->count()">
+    <x-admin.data-table title="All Forms" :count="$forms->total()">
         <x-slot:thead>
             <th class="px-4 py-4">Form</th>
             <th class="px-4 py-4">Fields</th>
@@ -84,6 +84,10 @@
                 </tr>
             @endforelse
         </x-slot:tbody>
+
+        <x-slot:pagination>
+            {{ $forms->links() }}
+        </x-slot:pagination>
     </x-admin.data-table>
 </div>
 @endsection
