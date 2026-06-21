@@ -133,10 +133,17 @@ class PageController extends Controller
                     throw ValidationException::withMessages(['blocks' => 'Only Group and Columns blocks can contain children.']);
                 }
 
+                $rawData = $validated['data'] ?? [];
+                try {
+                    $blockData = $this->pageBlockService->validateAndSanitizeData($validated['block_type'], $rawData);
+                } catch (\Illuminate\Validation\ValidationException) {
+                    $blockData = $rawData;
+                }
+
                 $block = new PageBlock([
                     'block_type' => $validated['block_type'],
                     'label' => $validated['label'] ?? null,
-                    'data' => $this->pageBlockService->validateAndSanitizeData($validated['block_type'], $validated['data'] ?? []),
+                    'data' => $blockData,
                     'sort_order' => $validated['sort_order'] ?? 0,
                     'is_visible' => $validated['is_visible'] ?? true,
                 ]);
