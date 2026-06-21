@@ -48,10 +48,10 @@ class PageController extends Controller
         $nodeCount = 0;
         $blocks = $this->transientTree($request->input('blocks', []), $nodeCount);
 
-        return $this->renderPage($page, preview: true, injectedBlocks: $blocks);
+        return $this->renderPage($page, preview: true, injectedBlocks: $blocks, builderCanvas: true);
     }
 
-    private function renderPage(Page $page, bool $preview = false, ?Collection $injectedBlocks = null)
+    private function renderPage(Page $page, bool $preview = false, ?Collection $injectedBlocks = null, bool $builderCanvas = false)
     {
         $page->load(['template']);
 
@@ -89,6 +89,7 @@ class PageController extends Controller
             'page',
             'templateView',
             'preview',
+            'builderCanvas',
             'seoTitle',
             'seoDescription',
             'seoImage',

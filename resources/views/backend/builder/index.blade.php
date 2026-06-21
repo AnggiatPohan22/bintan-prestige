@@ -26,11 +26,13 @@ document.addEventListener('alpine:init', () => {
         previewMode:    'desktop', // 'desktop' | 'tablet' | 'mobile'
         canvasW:        0,         // measured width  of the canvas viewport (px)
         canvasH:        0,         // measured height of the canvas viewport (px)
+        contentH:       0,         // natural rendered page height inside the iframe (px)
         leftCollapsed:  false,     // optional: minimize the left (blocks) panel
         rightCollapsed: false,     // optional: minimize the right (settings) panel
         _cid:           0,
         _refreshTimer:  null,
         _ro:            null,      // ResizeObserver on the canvas
+        _cro:           null,      // ResizeObserver on the iframe body (content height)
 
         /* ── Init ──────────────────────────────────────────── */
         init() {
@@ -97,15 +99,16 @@ document.addEventListener('alpine:init', () => {
                     const html  = await res.text();
                     const frame = document.getElementById('builder-preview');
                     if (frame) {
-                        // Preserve the page scroll position (the page scrolls natively
-                        // INSIDE the iframe, all the way down to the footer).
-                        let scrollY = 0;
-                        try { scrollY = frame.contentWindow?.scrollY ?? 0; } catch {}
-                        if (scrollY > 0) {
-                            frame.addEventListener('load', () => {
-                                try { frame.contentWindow?.scrollTo(0, scrollY); } catch {}
-                            }, { once: true });
-                        }
+                        // Preserve the OUTER canvas scroll (the page scrolls via the
+                        // canvas now, down to the footer).
+                        const canvas = this.$refs.canvas;
+                        const prevScroll = canvas ? canvas.scrollTop : 0;
+                        frame.addEventListener('load', () => {
+                            this.observeContent(frame);   // measure + live-track page height
+                            requestAnimationFrame(() => {
+                                if (canvas) canvas.scrollTop = prevScroll;
+                            });
+                        }, { once: true });
                         frame.srcdoc = html;
                     }
                 }
@@ -241,11 +244,12 @@ document.addEventListener('alpine:init', () => {
 
         /* ── Preview mode (Elementor-style device frame, fit-to-screen) ──
            The page renders at a real device WIDTH (desktop 1280 / tablet 768 /
-           mobile 375) and the whole frame is scaled with CSS `zoom` to fit the
-           canvas width — no horizontal scroll. `zoom` (unlike transform:scale) is
-           layout-aware, so the page scrolls NATIVELY inside the iframe all the way
-           down to the footer. Heights come from the measured canvas only, so there
-           is no content-measurement feedback loop (the previous footer bug).
+           mobile 375) and the frame is scaled with CSS `zoom` to fit the canvas
+           width — no horizontal scroll. The frame HEIGHT equals the page's natural
+           content height (measured from the iframe), so the OUTER canvas scrolls
+           top-to-footer. Measurement is stable because the builder canvas drops the
+           page-level min-h-screen (see frontend.blade.php $builderCanvas) — no
+           feedback loop, no footer drift.
            ──────────────────────────────────────────────────── */
 
         baseWidth() {
@@ -258,12 +262,26 @@ document.addEventListener('alpine:init', () => {
             return Math.min(1, Math.max(0.1, (this.canvasW - 32) / this.baseWidth()));
         },
 
-        // Device frame: real device width + a height that, after zoom, fills the
-        // canvas. The page itself scrolls inside the iframe to reveal the footer.
+        // Device frame: real device width + natural content height, all zoomed to fit.
         frameStyle() {
             const z = this.scale();
-            const h = Math.max(200, (this.canvasH - 32) / z);  // *z ⇒ fills canvas height
+            const h = this.contentH || Math.max(200, (this.canvasH - 32) / z);  // fallback pre-measure
             return `width:${this.baseWidth()}px;height:${h}px;zoom:${z}`;
+        },
+
+        // Measure the page height on load, then keep it in sync via a ResizeObserver
+        // inside the iframe (covers lazy images, fonts, device-width reflow). Stable
+        // because min-h-screen is neutralised on the builder canvas.
+        observeContent(frame) {
+            try {
+                const doc = frame.contentDocument;
+                if (! doc?.body) return;
+                this.contentH = doc.body.scrollHeight;
+                this._cro?.disconnect();
+                const RO = frame.contentWindow.ResizeObserver || window.ResizeObserver;
+                this._cro = new RO(() => { this.contentH = doc.body.scrollHeight; });
+                this._cro.observe(doc.body);
+            } catch {}
         },
 
         blockIcon(type) {
@@ -618,26 +636,30 @@ document.addEventListener('alpine:init', () => {
         </aside>
 
         {{-- ── CENTER PANEL: Live Preview (device frame, fit-to-screen via zoom) ───
-             Viewport: flex-1 sibling between the panels — can never be overlapped by
-             them. overflow-hidden + flex centering; measured by x-ref for the zoom calc.
-             The device FRAME has a real device width and is zoomed to fit; the page
-             scrolls NATIVELY inside the iframe down to the footer. --}}
-        <div
-            x-ref="canvas"
-            class="relative flex min-w-0 flex-1 justify-center overflow-hidden bg-slate-800 p-4"
-        >
+             Wrapper: flex-1 sibling between the panels — can never be overlapped by
+             them. Non-scrolling, so the overlays below stay pinned to the visible area.
+             Inner canvas (x-ref) scrolls vertically; the device FRAME has a real
+             device width zoomed to fit and a natural content height so the canvas
+             scrolls top-to-footer. --}}
+        <div class="relative flex min-w-0 flex-1 flex-col overflow-hidden">
+
             <div
-                class="shrink-0 overflow-hidden rounded bg-white shadow-2xl"
-                :style="frameStyle()"
+                x-ref="canvas"
+                class="flex flex-1 items-start justify-center overflow-y-auto overflow-x-hidden bg-slate-800 p-4"
             >
-                <iframe
-                    id="builder-preview"
-                    title="Page preview"
-                    class="block h-full w-full border-0"
-                ></iframe>
+                <div
+                    class="shrink-0 overflow-hidden rounded bg-white shadow-2xl"
+                    :style="frameStyle()"
+                >
+                    <iframe
+                        id="builder-preview"
+                        title="Page preview"
+                        class="block h-full w-full border-0"
+                    ></iframe>
+                </div>
             </div>
 
-            {{-- Preview loading overlay — covers visible canvas area, not the scroll content --}}
+            {{-- Preview loading overlay — pinned to the visible canvas area --}}
             <div
                 x-show="isRefreshing"
                 x-transition.opacity
