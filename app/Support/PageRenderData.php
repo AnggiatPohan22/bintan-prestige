@@ -6,6 +6,7 @@ use App\Models\Faq;
 use App\Models\Page;
 use App\Models\PageBlock;
 use App\Models\Product;
+use Illuminate\Support\Collection;
 
 final class PageRenderData
 {
@@ -16,16 +17,17 @@ final class PageRenderData
      */
     public function prepare(Page $page): array
     {
-        $faqItems = $this->prepareFaqBlocks($page);
-        $this->prepareProductBlocks($page);
+        $blocks = $this->flattenBlocks($page->blocks);
+        $faqItems = $this->prepareFaqBlocks($blocks);
+        $this->prepareProductBlocks($blocks);
 
         return ['faqItems' => $faqItems];
     }
 
     /** @return array<int, array<string, mixed>> */
-    private function prepareFaqBlocks(Page $page): array
+    private function prepareFaqBlocks(Collection $blocks): array
     {
-        $faqBlocks = $page->blocks->where('block_type', 'faq');
+        $faqBlocks = $blocks->where('block_type', 'faq');
         $faqIds = $faqBlocks
             ->filter(fn (PageBlock $block): bool => ($block->data['source'] ?? 'inline') === 'ids')
             ->flatMap(function (PageBlock $block): array {
@@ -86,11 +88,11 @@ final class PageRenderData
             ->all();
     }
 
-    private function prepareProductBlocks(Page $page): void
+    private function prepareProductBlocks(Collection $blocks): void
     {
         $resolvedByConfiguration = [];
 
-        foreach ($page->blocks->where('block_type', 'products_grid') as $block) {
+        foreach ($blocks->where('block_type', 'products_grid') as $block) {
             $data = $block->data ?? [];
             $limit = max(3, min(12, (int) ($data['limit'] ?? 6)));
             $categoryId = ($data['category_id'] ?? null) ?: null;
@@ -109,5 +111,15 @@ final class PageRenderData
 
             $block->resolvedProducts = $resolvedByConfiguration[$configuration];
         }
+    }
+
+    /** @return Collection<int, PageBlock> */
+    private function flattenBlocks(Collection $blocks): Collection
+    {
+        return $blocks->flatMap(function (PageBlock $block): array {
+            $children = $block->relationLoaded('children') ? $block->children : collect();
+
+            return [$block, ...$this->flattenBlocks($children)->all()];
+        })->values();
     }
 }

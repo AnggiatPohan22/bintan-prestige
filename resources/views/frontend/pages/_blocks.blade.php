@@ -1,5 +1,6 @@
 {{-- Shared block loop for all page templates. Expects $page (with loaded blocks). --}}
-@forelse($page->blocks as $block)
+@php($renderBlocks = $blocks ?? $page->blocks)
+@forelse($renderBlocks as $block)
     {{-- Each block type renders its own partial (underscore→hyphen view name). --}}
     @includeIf('frontend.blocks.' . str_replace('_', '-', $block->block_type), [
         'block' => $block,

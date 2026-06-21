@@ -128,15 +128,31 @@ class PageController extends Controller
         // Restore blocks: wipe current, recreate from snapshot.
         $page->blocks()->delete();
 
-        foreach ($revision->content_snapshot as $blockData) {
-            PageBlock::create([
-                'page_id'    => $page->id,
-                'block_type' => $blockData['block_type'],
-                'label'      => $blockData['label'] ?? null,
-                'data'       => $blockData['data'] ?? null,
-                'sort_order' => $blockData['sort_order'] ?? 0,
-                'is_visible' => $blockData['is_visible'] ?? true,
+        $restoredBlocks = [];
+
+        foreach ($revision->content_snapshot as $snapshotIndex => $blockData) {
+            $restoredBlocks[$snapshotIndex] = PageBlock::create([
+                'page_id'         => $page->id,
+                'parent_block_id' => null,
+                'block_type'      => $blockData['block_type'],
+                'label'           => $blockData['label'] ?? null,
+                'data'            => $blockData['data'] ?? null,
+                'sort_order'      => $blockData['sort_order'] ?? 0,
+                'is_visible'      => $blockData['is_visible'] ?? true,
             ]);
+        }
+
+        $snapshotIdToIndex = collect($revision->content_snapshot)
+            ->mapWithKeys(fn (array $blockData, int $index): array => isset($blockData['id']) ? [(int) $blockData['id'] => $index] : [])
+            ->all();
+
+        foreach ($revision->content_snapshot as $snapshotIndex => $blockData) {
+            $parentSnapshotId = $blockData['parent_block_id'] ?? null;
+            $parentIndex = $parentSnapshotId !== null ? ($snapshotIdToIndex[(int) $parentSnapshotId] ?? null) : null;
+
+            if ($parentIndex !== null && isset($restoredBlocks[$parentIndex])) {
+                $restoredBlocks[$snapshotIndex]->update(['parent_block_id' => $restoredBlocks[$parentIndex]->id]);
+            }
         }
 
         return redirect()

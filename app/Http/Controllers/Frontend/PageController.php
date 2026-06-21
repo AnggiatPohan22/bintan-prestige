@@ -2,22 +2,26 @@
 
 namespace App\Http\Controllers\Frontend;
 
-use App\Http\Controllers\Controller;
 use App\Http\Controllers\Admin\PageBlockController;
+use App\Http\Controllers\Controller;
 use App\Models\Page;
 use App\Models\PageBlock;
 use App\Services\GlobalSettingsService;
+use App\Services\PageBlockService;
 use App\Support\PageRenderData;
 use App\Support\PageTemplateRegistry;
 use App\Support\SeoDefaultSettings;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
 
 class PageController extends Controller
 {
     public function __construct(
         private readonly PageRenderData $pageRenderData,
         private readonly GlobalSettingsService $globalSettings,
+        private readonly PageBlockService $pageBlockService,
     ) {}
 
     /** Public route — published pages only. */
@@ -40,26 +44,9 @@ class PageController extends Controller
      */
     public function previewPayload(Request $request, Page $page): mixed
     {
-        $request->validate([
-            'blocks'              => ['nullable', 'array'],
-            'blocks.*.block_type' => ['required', 'string', 'in:'.implode(',', PageBlockController::blockTypes())],
-            'blocks.*.label'      => ['nullable', 'string', 'max:255'],
-            'blocks.*.data'       => ['nullable', 'array'],
-            'blocks.*.sort_order' => ['nullable', 'integer'],
-            'blocks.*.is_visible' => ['nullable', 'boolean'],
-        ]);
-
-        $blocks = collect($request->input('blocks', []))
-            ->filter(fn (array $b): bool => (bool) ($b['is_visible'] ?? true))
-            ->sortBy('sort_order')
-            ->values()
-            ->map(fn (array $b): PageBlock => new PageBlock([
-                'block_type' => $b['block_type'],
-                'label'      => $b['label'] ?? null,
-                'data'       => $b['data'] ?? [],
-                'sort_order' => $b['sort_order'] ?? 0,
-                'is_visible' => true,
-            ]));
+        $request->validate(['blocks' => ['nullable', 'array', 'max:200']]);
+        $nodeCount = 0;
+        $blocks = $this->transientTree($request->input('blocks', []), $nodeCount);
 
         return $this->renderPage($page, preview: true, injectedBlocks: $blocks);
     }
@@ -71,7 +58,8 @@ class PageController extends Controller
         if ($injectedBlocks !== null) {
             $page->setRelation('blocks', $injectedBlocks);
         } else {
-            $page->load(['blocks' => fn ($q) => $q->visible()->ordered()]);
+            $flatBlocks = $page->blocks()->visible()->ordered()->get();
+            $page->setRelation('blocks', $this->buildTree($flatBlocks));
         }
 
         $renderData = $this->pageRenderData->prepare($page);
@@ -111,5 +99,80 @@ class PageController extends Controller
             'pageSchemaType',
             'pageFaqItems',
         ));
+    }
+
+    /** @param array<int, mixed> $nodes
+     * @return Collection<int, PageBlock>
+     */
+    private function transientTree(array $nodes, int &$nodeCount, int $depth = 0, ?string $parentType = null): Collection
+    {
+        if ($depth > 5) {
+            throw ValidationException::withMessages(['blocks' => 'Block nesting is limited to five levels.']);
+        }
+
+        return collect($nodes)
+            ->map(function (mixed $node) use (&$nodeCount, $depth, $parentType): PageBlock {
+                if (! is_array($node) || ++$nodeCount > 200) {
+                    throw ValidationException::withMessages(['blocks' => 'The block tree must contain at most 200 valid nodes.']);
+                }
+
+                $validated = Validator::make($node, [
+                    'block_type' => ['required', 'string', 'in:'.implode(',', PageBlockController::blockTypes())],
+                    'label' => ['nullable', 'string', 'max:255'],
+                    'data' => ['nullable', 'array'],
+                    'sort_order' => ['nullable', 'integer'],
+                    'is_visible' => ['nullable', 'boolean'],
+                    'children' => ['nullable', 'array'],
+                ])->validate();
+
+                if ($parentType === 'columns' && $validated['block_type'] !== 'group') {
+                    throw ValidationException::withMessages(['blocks' => 'Columns can contain Group blocks only.']);
+                }
+
+                if (! empty($validated['children']) && ! in_array($validated['block_type'], ['group', 'columns'], true)) {
+                    throw ValidationException::withMessages(['blocks' => 'Only Group and Columns blocks can contain children.']);
+                }
+
+                $block = new PageBlock([
+                    'block_type' => $validated['block_type'],
+                    'label' => $validated['label'] ?? null,
+                    'data' => $this->pageBlockService->validateAndSanitizeData($validated['block_type'], $validated['data'] ?? []),
+                    'sort_order' => $validated['sort_order'] ?? 0,
+                    'is_visible' => $validated['is_visible'] ?? true,
+                ]);
+                $block->id = -$nodeCount;
+                $block->setRelation('children', $this->transientTree(
+                    $validated['children'] ?? [],
+                    $nodeCount,
+                    $depth + 1,
+                    $validated['block_type'],
+                ));
+
+                return $block;
+            })
+            ->filter(fn (PageBlock $block): bool => $block->is_visible)
+            ->sortBy('sort_order')
+            ->values();
+    }
+
+    /** @param Collection<int, PageBlock> $blocks
+     * @return Collection<int, PageBlock>
+     */
+    private function buildTree(Collection $blocks): Collection
+    {
+        $byParent = $blocks->groupBy(fn (PageBlock $block): string => $block->parent_block_id === null ? 'root' : (string) $block->parent_block_id);
+
+        $attach = function (?int $parentId, array $ancestors = []) use (&$attach, $byParent): Collection {
+            $key = $parentId === null ? 'root' : (string) $parentId;
+
+            return ($byParent->get($key) ?? collect())
+                ->reject(fn (PageBlock $block): bool => in_array($block->id, $ancestors, true))
+                ->each(function (PageBlock $block) use (&$attach, $ancestors): void {
+                    $block->setRelation('children', $attach($block->id, [...$ancestors, $block->id]));
+                })
+                ->values();
+        };
+
+        return $attach(null);
     }
 }

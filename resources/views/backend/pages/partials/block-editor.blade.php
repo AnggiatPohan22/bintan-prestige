@@ -79,6 +79,8 @@
             }
 
             $failedBlock = $hasBlockErrors && (int) $failedBlockId === $block->id;
+            $siblings = $blocks->where('parent_block_id', $block->parent_block_id)->values();
+            $siblingIndex = $siblings->search(fn ($sibling) => $sibling->id === $block->id);
         @endphp
         <div
             x-data="{ open: @js($failedBlock), submitting: false }"
@@ -90,13 +92,13 @@
 
                 <div class="flex items-center gap-1" aria-label="Reorder {{ $block->label }}">
                     {{-- Reorder: Up --}}
-                    @if(! $loop->first)
+                    @if($siblingIndex !== false && $siblingIndex > 0)
                         <form method="POST" action="{{ route('admin.page-blocks.reorder', $page) }}">
                             @csrf
                             <input type="hidden" name="_editor_context" value="blocks">
                             @php
-                                $swapped = $blocks->pluck('id')->toArray();
-                                [$swapped[$index], $swapped[$index - 1]] = [$swapped[$index - 1], $swapped[$index]];
+                                $swapped = $siblings->pluck('id')->toArray();
+                                [$swapped[$siblingIndex], $swapped[$siblingIndex - 1]] = [$swapped[$siblingIndex - 1], $swapped[$siblingIndex]];
                             @endphp
                             @foreach($swapped as $bid)
                                 <input type="hidden" name="ids[]" value="{{ $bid }}">
@@ -112,13 +114,13 @@
                     @endif
 
                     {{-- Reorder: Down --}}
-                    @if(! $loop->last)
+                    @if($siblingIndex !== false && $siblingIndex < $siblings->count() - 1)
                         <form method="POST" action="{{ route('admin.page-blocks.reorder', $page) }}">
                             @csrf
                             <input type="hidden" name="_editor_context" value="blocks">
                             @php
-                                $swapped = $blocks->pluck('id')->toArray();
-                                [$swapped[$index], $swapped[$index + 1]] = [$swapped[$index + 1], $swapped[$index]];
+                                $swapped = $siblings->pluck('id')->toArray();
+                                [$swapped[$siblingIndex], $swapped[$siblingIndex + 1]] = [$swapped[$siblingIndex + 1], $swapped[$siblingIndex]];
                             @endphp
                             @foreach($swapped as $bid)
                                 <input type="hidden" name="ids[]" value="{{ $bid }}">
@@ -231,6 +233,19 @@
                             class="admin-input"
                             placeholder="Label shown in this editor"
                         >
+                    </div>
+
+                    <div>
+                        <label for="block-parent-{{ $block->id }}" class="admin-form-label">Parent Container</label>
+                        <select id="block-parent-{{ $block->id }}" name="parent_block_id" class="admin-input">
+                            <option value="">Top level</option>
+                            @foreach($blocks->filter(fn ($candidate) => $candidate->id !== $block->id && $candidate->isContainer() && ($candidate->block_type !== 'columns' || $block->block_type === 'group')) as $candidate)
+                                <option value="{{ $candidate->id }}" @selected((int) $block->parent_block_id === $candidate->id)>
+                                    {{ $candidate->label }} ({{ $candidate->block_type }})
+                                </option>
+                            @endforeach
+                        </select>
+                        <p class="mt-1 text-xs text-slate-500">Columns accept Group blocks as column slots. Other blocks can be nested inside Groups.</p>
                     </div>
 
                     @include(

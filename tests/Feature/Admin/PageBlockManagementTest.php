@@ -5,7 +5,9 @@ namespace Tests\Feature\Admin;
 use App\Models\Page;
 use App\Models\PageBlock;
 use App\Models\User;
+use App\Services\PageBlockService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Schema;
 use Tests\TestCase;
 
 class PageBlockManagementTest extends TestCase
@@ -63,6 +65,186 @@ class PageBlockManagementTest extends TestCase
             ->assertSessionHasErrors('block_type');
 
         $this->assertDatabaseCount('page_blocks', 0);
+    }
+
+    public function test_registry_metadata_and_defaults_are_complete_for_every_block_type(): void
+    {
+        $service = app(PageBlockService::class);
+
+        foreach (config('blocks') as $type => $definition) {
+            $this->assertIsString($definition['label'] ?? null, "{$type} is missing a label.");
+            $this->assertIsString($definition['icon'] ?? null, "{$type} is missing an icon.");
+            $this->assertContains($definition['category'] ?? null, ['content', 'media', 'conversion', 'travel', 'layout']);
+            $this->assertIsString($definition['description'] ?? null, "{$type} is missing a description.");
+            $this->assertIsArray($definition['keywords'] ?? null, "{$type} is missing keywords.");
+            $this->assertSame(
+                ['background', 'spacing', 'alignment', 'children'],
+                array_keys($definition['supports'] ?? []),
+                "{$type} has an incomplete supports contract."
+            );
+
+            $defaults = $service->defaultDataFor($type);
+            $this->assertArrayHasKey('background', $defaults, "{$type} is missing background defaults.");
+            $this->assertSame($defaults, $service->validateAndSanitizeData($type, $defaults));
+        }
+    }
+
+    public function test_a3_layout_schema_and_model_relationships_support_nested_blocks(): void
+    {
+        $this->assertTrue(Schema::hasColumn('page_blocks', 'parent_block_id'));
+
+        $page = $this->page();
+        $group = $this->block($page, 'group', 0);
+        $heading = $this->block($page, 'heading', 0);
+        $heading->update(['parent_block_id' => $group->id]);
+
+        $this->assertTrue($heading->fresh()->parent->is($group));
+        $this->assertTrue($group->children->first()->is($heading));
+        $this->assertTrue($page->rootBlocks->first()->is($group));
+    }
+
+    public function test_admin_can_build_nested_columns_and_invalid_or_cyclic_parenting_is_rejected(): void
+    {
+        $page = $this->page();
+        $columns = $this->block($page, 'columns', 0);
+        $group = $this->block($page, 'group', 1);
+        $text = $this->block($page, 'text', 2);
+        $foreignGroup = $this->block($this->page('Foreign', 'foreign'), 'group', 0);
+        $admin = $this->admin();
+
+        $this->actingAs($admin)->put(route('admin.page-blocks.update', [$page, $group]), [
+            'parent_block_id' => $columns->id,
+            'data' => ['width' => 'contained', 'spacing' => 'md'],
+        ])->assertRedirect(route('admin.pages.edit', $page));
+
+        $this->actingAs($admin)->put(route('admin.page-blocks.update', [$page, $text]), [
+            'parent_block_id' => $group->id,
+            'data' => ['heading' => 'Nested text'],
+        ])->assertRedirect(route('admin.pages.edit', $page));
+
+        $this->assertSame($columns->id, $group->fresh()->parent_block_id);
+        $this->assertSame($group->id, $text->fresh()->parent_block_id);
+
+        foreach ([
+            [$text, $columns->id, 'Columns can contain Group blocks only.'],
+            [$text, $foreignGroup->id, 'Choose a Group or Columns block from this page.'],
+            [$columns, $group->id, 'A block cannot be moved inside its own descendants.'],
+        ] as [$block, $parentId, $message]) {
+            $this->actingAs($admin)
+                ->from(route('admin.pages.edit', $page))
+                ->put(route('admin.page-blocks.update', [$page, $block]), [
+                    'parent_block_id' => $parentId,
+                    'data' => $block->data ?? [],
+                ])
+                ->assertRedirect(route('admin.pages.edit', $page))
+                ->assertSessionHasErrors(['parent_block_id' => $message]);
+        }
+    }
+
+    public function test_nested_reorder_is_scoped_to_siblings_and_deleting_container_promotes_children(): void
+    {
+        $page = $this->page();
+        $group = $this->block($page, 'group', 0);
+        $first = $this->block($page, 'heading', 0);
+        $second = $this->block($page, 'text', 1);
+        $root = $this->block($page, 'divider', 1);
+        $first->update(['parent_block_id' => $group->id]);
+        $second->update(['parent_block_id' => $group->id]);
+        $admin = $this->admin();
+
+        $this->actingAs($admin)->post(route('admin.page-blocks.reorder', $page), [
+            'ids' => [$second->id, $first->id],
+        ])->assertRedirect(route('admin.pages.edit', $page));
+        $this->assertSame(0, $second->fresh()->sort_order);
+        $this->assertSame(1, $first->fresh()->sort_order);
+
+        $this->actingAs($admin)
+            ->from(route('admin.pages.edit', $page))
+            ->post(route('admin.page-blocks.reorder', $page), ['ids' => [$first->id, $root->id]])
+            ->assertSessionHasErrors('ids');
+
+        $this->actingAs($admin)->delete(route('admin.page-blocks.destroy', [$page, $group]));
+        $this->assertNull($first->fresh()->parent_block_id);
+        $this->assertNull($second->fresh()->parent_block_id);
+    }
+
+    public function test_new_a3_blocks_store_validated_data_and_canonicalize_video_urls(): void
+    {
+        $page = $this->page();
+        $admin = $this->admin();
+
+        $heading = $this->block($page, 'heading', 0);
+        $this->actingAs($admin)->put(route('admin.page-blocks.update', [$page, $heading]), [
+            'data' => ['text' => 'Explore Bintan', 'level' => 'h3', 'alignment' => 'center'],
+        ])->assertRedirect(route('admin.pages.edit', $page));
+        $this->assertSame('h3', $heading->fresh()->data['level']);
+
+        $buttons = $this->block($page, 'button_group', 1);
+        $this->actingAs($admin)->put(route('admin.page-blocks.update', [$page, $buttons]), [
+            'data' => [
+                'alignment' => 'right',
+                'buttons' => [
+                    ['text' => 'View Tours', 'url' => '/products', 'style' => 'primary'],
+                    ['text' => 'Call Us', 'url' => 'tel:+62123456789', 'style' => 'link'],
+                ],
+            ],
+        ])->assertRedirect(route('admin.pages.edit', $page));
+        $this->assertCount(2, $buttons->fresh()->data['buttons']);
+
+        $video = $this->block($page, 'video_embed', 2);
+        $this->actingAs($admin)->put(route('admin.page-blocks.update', [$page, $video]), [
+            'data' => [
+                'url' => 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+                'title' => 'Bintan travel film',
+                'aspect_ratio' => '16-9',
+            ],
+        ])->assertRedirect(route('admin.pages.edit', $page));
+        $this->assertSame('https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ', $video->fresh()->data['url']);
+    }
+
+    public function test_a3_travel_blocks_store_bounded_structured_content(): void
+    {
+        $page = $this->page();
+        $admin = $this->admin();
+
+        $stats = $this->block($page, 'stats', 0);
+        $this->actingAs($admin)->put(route('admin.page-blocks.update', [$page, $stats]), [
+            'data' => [
+                'heading' => 'Bintan by the numbers',
+                'alignment' => 'center',
+                'items' => [['value' => '10+', 'label' => 'Years', 'description' => 'Local expertise']],
+            ],
+        ])->assertRedirect(route('admin.pages.edit', $page));
+        $this->assertSame('10+', $stats->fresh()->data['items'][0]['value']);
+
+        $itinerary = $this->block($page, 'tour_itinerary', 1);
+        $this->actingAs($admin)->put(route('admin.page-blocks.update', [$page, $itinerary]), [
+            'data' => [
+                'heading' => 'Two-day escape',
+                'intro' => 'A relaxed island itinerary.',
+                'items' => [['marker' => 'Day 1', 'title' => 'Lagoi arrival', 'description' => 'Transfer and check-in.']],
+            ],
+        ])->assertRedirect(route('admin.pages.edit', $page));
+        $this->assertSame('Lagoi arrival', $itinerary->fresh()->data['items'][0]['title']);
+
+        $pricing = $this->block($page, 'pricing_table', 2);
+        $this->actingAs($admin)->put(route('admin.page-blocks.update', [$page, $pricing]), [
+            'data' => [
+                'heading' => 'Packages',
+                'plans' => [[
+                    'name' => 'Island Explorer',
+                    'price' => '1,500,000',
+                    'currency' => 'IDR',
+                    'period' => 'per person',
+                    'features' => ['Private transfer', 'Lunch included'],
+                    'button_text' => 'Book now',
+                    'button_url' => '/contact',
+                    'featured' => true,
+                ]],
+            ],
+        ])->assertRedirect(route('admin.pages.edit', $page));
+        $this->assertTrue($pricing->fresh()->data['plans'][0]['featured']);
+        $this->assertCount(2, $pricing->fresh()->data['plans'][0]['features']);
     }
 
     public function test_text_block_update_preserves_allowed_markup_and_removes_disallowed_tags(): void
@@ -242,8 +424,14 @@ class PageBlockManagementTest extends TestCase
         $admin = $this->admin();
         $cases = [
             ['hero', ['cta_url' => 'javascript:alert(1)'], 'cta_url'],
+            ['heading', ['level' => 'h1'], 'level'],
             ['image', ['src' => '../../.env'], 'src'],
             ['gallery', ['columns' => 9], 'columns'],
+            ['video_embed', ['url' => 'https://example.com/video'], 'url'],
+            ['button_group', ['buttons' => [['text' => 'Unsafe', 'url' => 'javascript:alert(1)', 'style' => 'primary']]], 'buttons.0.url'],
+            ['stats', ['alignment' => 'justify'], 'alignment'],
+            ['tour_itinerary', ['items' => [['marker' => 'Day 1', 'title' => 'Trip', 'description' => str_repeat('x', 3001)]]], 'items.0.description'],
+            ['pricing_table', ['plans' => [['button_url' => 'javascript:alert(1)']]], 'plans.0.button_url'],
             ['cta', ['style' => 'neon'], 'style'],
             ['products_grid', ['category_id' => 999999, 'limit' => 99], 'category_id'],
             ['faq', ['faq_ids' => [999999]], 'faq_ids.0'],

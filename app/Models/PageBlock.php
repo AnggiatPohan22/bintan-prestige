@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * @property array<int, array{question: mixed, answer: mixed}> $resolvedFaqItems
@@ -17,6 +18,7 @@ class PageBlock extends Model
 
     protected $fillable = [
         'page_id',
+        'parent_block_id',
         'block_type',
         'label',
         'data',
@@ -26,6 +28,7 @@ class PageBlock extends Model
 
     protected $casts = [
         'data'       => 'array',
+        'parent_block_id' => 'integer',
         'is_visible' => 'boolean',
         'sort_order' => 'integer',
     ];
@@ -34,6 +37,23 @@ class PageBlock extends Model
     public function page(): BelongsTo
     {
         return $this->belongsTo(Page::class);
+    }
+
+    /** @return BelongsTo<PageBlock, $this> */
+    public function parent(): BelongsTo
+    {
+        return $this->belongsTo(self::class, 'parent_block_id');
+    }
+
+    /** @return HasMany<PageBlock, $this> */
+    public function children(): HasMany
+    {
+        return $this->hasMany(self::class, 'parent_block_id')->orderBy('sort_order');
+    }
+
+    public function isContainer(): bool
+    {
+        return in_array($this->block_type, ['group', 'columns'], true);
     }
 
     public function scopeVisible(Builder $query): Builder

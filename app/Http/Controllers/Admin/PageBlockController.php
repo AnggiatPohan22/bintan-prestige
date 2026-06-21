@@ -54,16 +54,26 @@ class PageBlockController extends Controller
         $request->validate([
             'label' => ['nullable', 'string', 'max:255'],
             'data' => ['nullable', 'array'],
+            'parent_block_id' => ['nullable', 'integer'],
         ]);
 
         $data = $this->blockService->validateAndSanitizeData(
             $block->block_type,
             $request->input('data', [])
         );
+        $parentId = $this->blockService->validateParent(
+            $page,
+            $block,
+            $request->integer('parent_block_id') ?: null,
+        );
 
         $block->update([
             'label' => $request->label ?? $block->label,
             'data' => $data,
+            'parent_block_id' => $parentId,
+            'sort_order' => $block->parent_block_id !== $parentId
+                ? $this->blockService->nextSortOrder($page, $parentId)
+                : $block->sort_order,
         ]);
 
         return redirect()

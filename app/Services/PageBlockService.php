@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Page;
+use App\Models\PageBlock;
 use Closure;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -11,9 +12,9 @@ use Illuminate\Validation\ValidationException;
 
 class PageBlockService
 {
-    public function nextSortOrder(Page $page): int
+    public function nextSortOrder(Page $page, ?int $parentId = null): int
     {
-        $max = $page->blocks()->max('sort_order');
+        $max = $page->blocks()->where('parent_block_id', $parentId)->max('sort_order');
 
         return $max === null ? 0 : $max + 1;
     }
@@ -26,7 +27,20 @@ class PageBlockService
             throw ValidationException::withMessages(['ids' => 'Block order contains duplicate items.']);
         }
 
-        $expected = $page->blocks()->pluck('id')->map(fn ($id): int => (int) $id)->sort()->values()->all();
+        $submittedBlocks = $page->blocks()->whereIn('id', $ids)->get(['id', 'parent_block_id']);
+
+        if ($submittedBlocks->count() !== count($ids) || $submittedBlocks->pluck('parent_block_id')->unique()->count() !== 1) {
+            throw ValidationException::withMessages(['ids' => 'Block order must contain siblings from the same container.']);
+        }
+
+        $parentId = $submittedBlocks->first()?->parent_block_id;
+        $expected = $page->blocks()
+            ->where('parent_block_id', $parentId)
+            ->pluck('id')
+            ->map(fn ($id): int => (int) $id)
+            ->sort()
+            ->values()
+            ->all();
         $submitted = collect($ids)->sort()->values()->all();
 
         if ($expected !== $submitted) {
@@ -57,6 +71,15 @@ class PageBlockService
         $bg = ['background' => $this->defaultBackground()];
 
         return match ($blockType) {
+            'group' => $bg + [
+                'width' => 'contained',
+                'spacing' => 'md',
+            ],
+            'columns' => $bg + [
+                'columns' => 2,
+                'gap' => 'md',
+                'stack_mobile' => true,
+            ],
             'hero' => $bg + [
                 'title' => '',
                 'subtitle' => '',
@@ -67,6 +90,11 @@ class PageBlockService
                 'overlay_opacity' => 40,
                 'has_overlay' => true,
                 'min_height' => 'large',
+            ],
+            'heading' => $bg + [
+                'text' => '',
+                'level' => 'h2',
+                'alignment' => 'left',
             ],
             'text' => $bg + [
                 'heading' => '',
@@ -87,6 +115,31 @@ class PageBlockService
                 'lightbox_enabled' => true,
                 'autoplay' => false,
                 'caption' => '',
+            ],
+            'video_embed' => $bg + [
+                'url' => '',
+                'title' => '',
+                'caption' => '',
+                'aspect_ratio' => '16-9',
+            ],
+            'button_group' => $bg + [
+                'buttons' => [],
+                'alignment' => 'left',
+            ],
+            'stats' => $bg + [
+                'heading' => '',
+                'items' => [],
+                'alignment' => 'center',
+            ],
+            'tour_itinerary' => $bg + [
+                'heading' => '',
+                'intro' => '',
+                'items' => [],
+            ],
+            'pricing_table' => $bg + [
+                'heading' => '',
+                'intro' => '',
+                'plans' => [],
             ],
             'cta' => $bg + [
                 'title' => '',
@@ -119,8 +172,8 @@ class PageBlockService
             ],
             'contact_form' => $bg + [
                 'form_definition_id' => null,
-                'title'              => '',
-                'description'        => '',
+                'title' => '',
+                'description' => '',
             ],
             default => $bg,
         };
@@ -141,6 +194,10 @@ class PageBlockService
             $validated['body_html'] = $this->sanitizeRichHtml($validated['body_html']);
         }
 
+        if ($blockType === 'video_embed' && ! empty($validated['url'])) {
+            $validated['url'] = $this->canonicalVideoEmbedUrl($validated['url']);
+        }
+
         return $validated;
     }
 
@@ -149,6 +206,15 @@ class PageBlockService
         $rules = $this->backgroundRules();
 
         return $rules + match ($blockType) {
+            'group' => [
+                'width' => ['nullable', Rule::in(['contained', 'wide', 'full'])],
+                'spacing' => ['nullable', Rule::in(['none', 'sm', 'md', 'lg'])],
+            ],
+            'columns' => [
+                'columns' => ['nullable', 'integer', 'between:2,4'],
+                'gap' => ['nullable', Rule::in(['none', 'sm', 'md', 'lg'])],
+                'stack_mobile' => ['nullable', 'boolean'],
+            ],
             'hero' => [
                 'title' => ['nullable', 'string', 'max:255'],
                 'subtitle' => ['nullable', 'string', 'max:1000'],
@@ -159,6 +225,11 @@ class PageBlockService
                 'overlay_opacity' => ['nullable', 'integer', 'between:0,90'],
                 'has_overlay' => ['nullable', 'boolean'],
                 'min_height' => ['nullable', Rule::in(['small', 'medium', 'large'])],
+            ],
+            'heading' => [
+                'text' => ['nullable', 'string', 'max:500'],
+                'level' => ['nullable', Rule::in(['h2', 'h3', 'h4', 'h5', 'h6'])],
+                'alignment' => ['nullable', Rule::in(['left', 'center', 'right'])],
             ],
             'text' => [
                 'heading' => ['nullable', 'string', 'max:255'],
@@ -183,6 +254,53 @@ class PageBlockService
                 'lightbox_enabled' => ['nullable', 'boolean'],
                 'autoplay' => ['nullable', 'boolean'],
                 'caption' => ['nullable', 'string', 'max:1000'],
+            ],
+            'video_embed' => [
+                'url' => $this->videoUrlRules(),
+                'title' => ['nullable', 'string', 'max:255'],
+                'caption' => ['nullable', 'string', 'max:1000'],
+                'aspect_ratio' => ['nullable', Rule::in(['16-9', '4-3', '1-1'])],
+            ],
+            'button_group' => [
+                'buttons' => ['nullable', 'array', 'max:6'],
+                'buttons.*' => ['array:text,url,style'],
+                'buttons.*.text' => ['nullable', 'string', 'max:100'],
+                'buttons.*.url' => $this->linkRules(),
+                'buttons.*.style' => ['nullable', Rule::in(['primary', 'secondary', 'link'])],
+                'alignment' => ['nullable', Rule::in(['left', 'center', 'right'])],
+            ],
+            'stats' => [
+                'heading' => ['nullable', 'string', 'max:255'],
+                'items' => ['nullable', 'array', 'max:8'],
+                'items.*' => ['array:value,label,description'],
+                'items.*.value' => ['nullable', 'string', 'max:50'],
+                'items.*.label' => ['nullable', 'string', 'max:100'],
+                'items.*.description' => ['nullable', 'string', 'max:500'],
+                'alignment' => ['nullable', Rule::in(['left', 'center'])],
+            ],
+            'tour_itinerary' => [
+                'heading' => ['nullable', 'string', 'max:255'],
+                'intro' => ['nullable', 'string', 'max:1000'],
+                'items' => ['nullable', 'array', 'max:30'],
+                'items.*' => ['array:marker,title,description'],
+                'items.*.marker' => ['nullable', 'string', 'max:50'],
+                'items.*.title' => ['nullable', 'string', 'max:255'],
+                'items.*.description' => ['nullable', 'string', 'max:3000'],
+            ],
+            'pricing_table' => [
+                'heading' => ['nullable', 'string', 'max:255'],
+                'intro' => ['nullable', 'string', 'max:1000'],
+                'plans' => ['nullable', 'array', 'max:6'],
+                'plans.*' => ['array:name,price,currency,period,features,button_text,button_url,featured'],
+                'plans.*.name' => ['nullable', 'string', 'max:150'],
+                'plans.*.price' => ['nullable', 'string', 'max:50'],
+                'plans.*.currency' => ['nullable', 'string', 'max:10'],
+                'plans.*.period' => ['nullable', 'string', 'max:50'],
+                'plans.*.features' => ['nullable', 'array', 'max:20'],
+                'plans.*.features.*' => ['nullable', 'string', 'max:255'],
+                'plans.*.button_text' => ['nullable', 'string', 'max:100'],
+                'plans.*.button_url' => $this->linkRules(),
+                'plans.*.featured' => ['nullable', 'boolean'],
             ],
             'cta' => [
                 'title' => ['nullable', 'string', 'max:255'],
@@ -224,8 +342,8 @@ class PageBlockService
             ],
             'contact_form' => [
                 'form_definition_id' => ['nullable', 'integer', 'exists:form_definitions,id'],
-                'title'              => ['nullable', 'string', 'max:255'],
-                'description'        => ['nullable', 'string', 'max:1000'],
+                'title' => ['nullable', 'string', 'max:255'],
+                'description' => ['nullable', 'string', 'max:1000'],
             ],
             default => throw new \InvalidArgumentException("Unsupported block type [{$blockType}]."),
         };
@@ -245,6 +363,47 @@ class PageBlockService
             'background.size' => ['nullable', Rule::in(['cover', 'contain', 'auto'])],
             'background.opacity' => ['nullable', 'integer', 'between:0,100'],
         ];
+    }
+
+    public function validateParent(Page $page, PageBlock $block, ?int $parentId): ?int
+    {
+        if ($parentId === null) {
+            return null;
+        }
+
+        $parent = $page->blocks()->find($parentId);
+
+        if (! $parent || ! $parent->isContainer()) {
+            throw ValidationException::withMessages(['parent_block_id' => 'Choose a Group or Columns block from this page.']);
+        }
+
+        if ($parent->is($block)) {
+            throw ValidationException::withMessages(['parent_block_id' => 'A block cannot contain itself.']);
+        }
+
+        if ($parent->block_type === 'columns' && $block->block_type !== 'group') {
+            throw ValidationException::withMessages(['parent_block_id' => 'Columns can contain Group blocks only.']);
+        }
+
+        $depth = 1;
+        $ancestor = $parent;
+        while ($ancestor->parent_block_id !== null) {
+            if ($ancestor->parent_block_id === $block->id) {
+                throw ValidationException::withMessages(['parent_block_id' => 'A block cannot be moved inside its own descendants.']);
+            }
+
+            $ancestor = $page->blocks()->find($ancestor->parent_block_id);
+            if (! $ancestor) {
+                break;
+            }
+
+            $depth++;
+            if ($depth >= 5) {
+                throw ValidationException::withMessages(['parent_block_id' => 'Block nesting is limited to five levels.']);
+            }
+        }
+
+        return $parent->id;
     }
 
     private function imagePathRules(): array
@@ -296,6 +455,61 @@ class PageBlockService
                 $fail("The {$attribute} field must be a valid HTTP or HTTPS URL.");
             }
         }];
+    }
+
+    private function videoUrlRules(): array
+    {
+        return ['nullable', 'string', 'max:2048', function (string $attribute, mixed $value, Closure $fail): void {
+            if ($value !== '' && $this->canonicalVideoEmbedUrl($value) === '') {
+                $fail("The {$attribute} field must be a supported YouTube or Vimeo URL.");
+            }
+        }];
+    }
+
+    private function canonicalVideoEmbedUrl(string $url): string
+    {
+        if (! filter_var($url, FILTER_VALIDATE_URL)) {
+            return '';
+        }
+
+        $scheme = strtolower((string) parse_url($url, PHP_URL_SCHEME));
+        $host = strtolower((string) parse_url($url, PHP_URL_HOST));
+        $path = trim((string) parse_url($url, PHP_URL_PATH), '/');
+
+        if (! in_array($scheme, ['http', 'https'], true)) {
+            return '';
+        }
+
+        $youtubeId = null;
+        if ($host === 'youtu.be') {
+            $youtubeId = explode('/', $path)[0];
+        } elseif (in_array($host, ['youtube.com', 'www.youtube.com', 'm.youtube.com'], true)) {
+            if (str_starts_with($path, 'embed/')) {
+                $youtubeId = explode('/', $path)[1] ?? null;
+            } elseif ($path === 'watch') {
+                parse_str((string) parse_url($url, PHP_URL_QUERY), $query);
+                $youtubeId = $query['v'] ?? null;
+            }
+        } elseif (in_array($host, ['youtube-nocookie.com', 'www.youtube-nocookie.com'], true) && str_starts_with($path, 'embed/')) {
+            $youtubeId = explode('/', $path)[1] ?? null;
+        }
+
+        if (is_string($youtubeId) && preg_match('/^[A-Za-z0-9_-]{6,20}$/', $youtubeId)) {
+            return 'https://www.youtube-nocookie.com/embed/'.$youtubeId;
+        }
+
+        $vimeoId = null;
+        if (in_array($host, ['vimeo.com', 'www.vimeo.com'], true)) {
+            $vimeoId = explode('/', $path)[0];
+        } elseif ($host === 'player.vimeo.com' && str_starts_with($path, 'video/')) {
+            $vimeoId = explode('/', $path)[1] ?? null;
+        }
+
+        if (is_string($vimeoId) && preg_match('/^[0-9]{6,12}$/', $vimeoId)) {
+            return 'https://player.vimeo.com/video/'.$vimeoId;
+        }
+
+        return '';
     }
 
     private function sanitizeRichHtml(string $html): string
