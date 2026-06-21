@@ -23,6 +23,7 @@ document.addEventListener('alpine:init', () => {
         previewError: null,
         activeTab:    'insert',   // 'insert' | 'tree'
         selectedCid:  null,       // _cid of the block selected in tree list
+        previewMode:  'desktop',  // 'desktop' | 'tablet' | 'mobile'
         _cid:         0,
         _refreshTimer: null,
 
@@ -217,6 +218,17 @@ document.addEventListener('alpine:init', () => {
             }[cat] || 'fa-cube';
         },
 
+        /* ── Preview mode ──────────────────────────────────── */
+        iframeStyle() {
+            // min-height ensures iframe fills the visible canvas even for short pages.
+            // 56px = topbar (h-14), 2rem = p-4 top+bottom on canvas wrapper.
+            const minH = 'min-height:calc(100vh - 56px - 2rem)';
+            if (this.previewMode === 'tablet') return `width:768px;flex-shrink:0;${minH}`;
+            if (this.previewMode === 'mobile') return `width:375px;flex-shrink:0;${minH}`;
+            // desktop: fill available width, but never render narrower than 1280px
+            return `width:100%;min-width:1280px;${minH}`;
+        },
+
         blockIcon(type) {
             const icons = {
                 group: 'fa-layer-group', columns: 'fa-table-columns',
@@ -299,6 +311,31 @@ document.addEventListener('alpine:init', () => {
                 class="text-xs text-amber-400"
                 x-cloak
             >Unsaved changes</span>
+
+            {{-- Device preview toggles --}}
+            <div class="flex items-center gap-0.5 rounded-lg border border-slate-700 p-0.5">
+                <button
+                    type="button"
+                    x-on:click="previewMode = 'desktop'"
+                    :class="previewMode === 'desktop' ? 'bg-slate-700 text-white' : 'text-slate-500 hover:text-slate-300'"
+                    class="flex h-7 w-7 items-center justify-center rounded text-xs transition-colors"
+                    title="Desktop (1280px+)"
+                ><i class="fa-solid fa-desktop"></i></button>
+                <button
+                    type="button"
+                    x-on:click="previewMode = 'tablet'"
+                    :class="previewMode === 'tablet' ? 'bg-slate-700 text-white' : 'text-slate-500 hover:text-slate-300'"
+                    class="flex h-7 w-7 items-center justify-center rounded text-xs transition-colors"
+                    title="Tablet (768px)"
+                ><i class="fa-solid fa-tablet-screen-button"></i></button>
+                <button
+                    type="button"
+                    x-on:click="previewMode = 'mobile'"
+                    :class="previewMode === 'mobile' ? 'bg-slate-700 text-white' : 'text-slate-500 hover:text-slate-300'"
+                    class="flex h-7 w-7 items-center justify-center rounded text-xs transition-colors"
+                    title="Mobile (375px)"
+                ><i class="fa-solid fa-mobile-screen-button"></i></button>
+            </div>
 
             {{-- Preview in new tab --}}
             <a
@@ -526,9 +563,25 @@ document.addEventListener('alpine:init', () => {
         </aside>
 
         {{-- ── CENTER PANEL: Live Preview iframe ─────────────── --}}
-        <main class="relative flex min-w-0 flex-1 flex-col overflow-hidden bg-slate-950">
+        {{-- Outer: overflow-hidden so absolute overlays cover only the visible canvas area,
+             regardless of how far the inner canvas has scrolled. --}}
+        <div class="relative min-w-0 flex-1 overflow-hidden">
 
-            {{-- Preview loading overlay --}}
+            {{-- Inner: independently scrollable canvas.
+                 Scrolls both directions so the iframe (min-width 1280px in desktop mode)
+                 is always fully reachable. Background mimics Elementor's canvas bg. --}}
+            <div class="absolute inset-0 overflow-auto bg-slate-800">
+                <div class="flex min-h-full flex-col items-center p-4">
+                    <iframe
+                        id="builder-preview"
+                        title="Page preview"
+                        class="flex-1 border-0 shadow-2xl"
+                        :style="iframeStyle()"
+                    ></iframe>
+                </div>
+            </div>
+
+            {{-- Preview loading overlay — covers visible canvas area, not the scroll content --}}
             <div
                 x-show="isRefreshing"
                 x-transition.opacity
@@ -541,7 +594,7 @@ document.addEventListener('alpine:init', () => {
                 </div>
             </div>
 
-            {{-- Empty state (before first preview loads) --}}
+            {{-- Empty state --}}
             <div
                 x-show="tree.length === 0 && !isRefreshing"
                 class="absolute inset-0 z-10 flex flex-col items-center justify-center gap-4 text-slate-600"
@@ -551,7 +604,7 @@ document.addEventListener('alpine:init', () => {
                 <p class="text-sm">Add a block from the left panel to get started.</p>
             </div>
 
-            {{-- Preview fetch error (shown when the preview endpoint returns an error) --}}
+            {{-- Preview fetch error bar --}}
             <div
                 x-show="previewError"
                 class="absolute inset-x-0 bottom-0 z-20 flex items-center gap-3 bg-red-950/90 px-4 py-3 text-xs text-red-300 shadow-xl"
@@ -567,14 +620,7 @@ document.addEventListener('alpine:init', () => {
                 ><i class="fa-solid fa-xmark"></i></button>
             </div>
 
-            {{-- The preview iframe --}}
-            <iframe
-                id="builder-preview"
-                title="Page preview"
-                class="h-full w-full border-0"
-            ></iframe>
-
-        </main>
+        </div>{{-- /center panel --}}
 
         {{-- ── RIGHT PANEL: Block Settings (B3 scope) ────────── --}}
         <aside class="flex w-72 shrink-0 flex-col border-l border-slate-800 bg-slate-900">
