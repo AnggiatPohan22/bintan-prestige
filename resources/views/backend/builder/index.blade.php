@@ -23,12 +23,16 @@ document.addEventListener('alpine:init', () => {
         previewError: null,
         activeTab:    'insert',   // 'insert' | 'tree'
         selectedCid:  null,       // _cid of the block selected in tree list
-        previewMode:  'desktop',  // 'desktop' | 'tablet' | 'mobile'
-        canvasW:      0,          // measured width  of the canvas viewport (px)
-        canvasH:      0,          // measured height of the canvas viewport (px)
-        _cid:         0,
-        _refreshTimer: null,
-        _ro:          null,       // ResizeObserver on the canvas
+        previewMode:    'desktop', // 'desktop' | 'tablet' | 'mobile'
+        canvasW:        0,         // measured width  of the canvas viewport (px)
+        canvasH:        0,         // measured height of the canvas viewport (px)
+        contentH:       0,         // measured height of the rendered page inside the iframe
+        leftCollapsed:  false,     // optional: minimize the left (blocks) panel
+        rightCollapsed: false,     // optional: minimize the right (settings) panel
+        _cid:           0,
+        _refreshTimer:  null,
+        _ro:            null,      // ResizeObserver on the canvas
+        _cro:           null,      // ResizeObserver on the iframe's body (content height)
 
         /* ── Init ──────────────────────────────────────────── */
         init() {
@@ -92,17 +96,20 @@ document.addEventListener('alpine:init', () => {
                         this.previewError = `Preview failed: HTTP ${res.status} ${res.statusText}`;
                     }
                 } else {
-                    const html = await res.text();
+                    const html  = await res.text();
                     const frame = document.getElementById('builder-preview');
                     if (frame) {
-                        let scrollY = 0;
-                        try { scrollY = frame.contentWindow?.scrollY ?? 0; } catch {}
+                        // Preserve the OUTER canvas scroll (the page scrolls via the
+                        // canvas now, not inside the iframe).
+                        const canvas = this.$refs.canvas;
+                        const prevScroll = canvas ? canvas.scrollTop : 0;
+                        frame.addEventListener('load', () => {
+                            this.observeContent(frame);   // measure + live-track page height
+                            requestAnimationFrame(() => {
+                                if (canvas) canvas.scrollTop = prevScroll;
+                            });
+                        }, { once: true });
                         frame.srcdoc = html;
-                        if (scrollY > 0) {
-                            frame.addEventListener('load', () => {
-                                try { frame.contentWindow?.scrollTo(0, scrollY); } catch {}
-                            }, { once: true });
-                        }
                     }
                 }
             } catch (e) {
@@ -242,12 +249,12 @@ document.addEventListener('alpine:init', () => {
            ──────────────────────────────────────────────────── */
 
         // Natural (unscaled) device dimensions, in CSS pixels.
-        // 24 = vertical margin top+bottom; reused below.
+        // Width simulates the device; HEIGHT = the real rendered page height so the
+        // whole page (down to the footer) is reachable by scrolling the OUTER canvas —
+        // no internal iframe scroll, no browser zoom-out needed.
         frameNatural() {
             const w = { desktop: 1440, tablet: 768, mobile: 375 }[this.previewMode];
-            const h = this.previewMode === 'desktop'
-                ? Math.max(200, (this.canvasH - 48) / this.scale())  // fill canvas height
-                : (this.previewMode === 'tablet' ? 1024 : 812);      // realistic device height
+            const h = this.contentH || Math.max(200, this.canvasH - 48);  // fallback pre-measure
             return { w, h };
         },
 
@@ -256,6 +263,37 @@ document.addEventListener('alpine:init', () => {
             if (! this.canvasW) return 1;
             const w = { desktop: 1440, tablet: 768, mobile: 375 }[this.previewMode];
             return Math.min(1, Math.max(0.1, (this.canvasW - 48) / w));  // 48 = h-margins
+        },
+
+        // Switch device mode, then re-measure: a width change reflows the page, so the
+        // content height (and thus the frame height) must be recomputed.
+        setMode(mode) {
+            this.previewMode = mode;
+            requestAnimationFrame(() => requestAnimationFrame(() => this.measureContent()));
+        },
+
+        // Read the rendered page height from inside the iframe.
+        measureContent() {
+            const frame = document.getElementById('builder-preview');
+            try {
+                const doc = frame?.contentDocument;
+                if (doc?.body) this.contentH = doc.body.scrollHeight;
+            } catch {}
+        },
+
+        // Measure once on load, then keep contentH in sync via a ResizeObserver inside
+        // the iframe — covers lazy-loaded images, web fonts, accordions, and reflow
+        // when the device width changes.
+        observeContent(frame) {
+            try {
+                const doc = frame.contentDocument;
+                if (! doc?.body) return;
+                this.contentH = doc.body.scrollHeight;
+                this._cro?.disconnect();
+                const RO = frame.contentWindow.ResizeObserver || window.ResizeObserver;
+                this._cro = new RO(() => { this.contentH = doc.body.scrollHeight; });
+                this._cro.observe(doc.body);
+            } catch {}
         },
 
         // FRAME: hard pixel size, scaled from top-left (absolute inside the sizer).
@@ -354,25 +392,43 @@ document.addEventListener('alpine:init', () => {
                 x-cloak
             >Unsaved changes</span>
 
+            {{-- Panel minimize toggles (optional — widen the preview) --}}
+            <div class="flex items-center gap-0.5 rounded-lg border border-slate-700 p-0.5">
+                <button
+                    type="button"
+                    x-on:click="leftCollapsed = !leftCollapsed"
+                    :class="leftCollapsed ? 'text-slate-500 hover:text-slate-300' : 'bg-slate-700 text-white'"
+                    class="flex h-7 w-7 items-center justify-center rounded text-xs transition-colors"
+                    title="Toggle blocks panel"
+                ><i class="fa-solid fa-table-columns"></i></button>
+                <button
+                    type="button"
+                    x-on:click="rightCollapsed = !rightCollapsed"
+                    :class="rightCollapsed ? 'text-slate-500 hover:text-slate-300' : 'bg-slate-700 text-white'"
+                    class="flex h-7 w-7 items-center justify-center rounded text-xs transition-colors"
+                    title="Toggle settings panel"
+                ><i class="fa-solid fa-sliders"></i></button>
+            </div>
+
             {{-- Device preview toggles --}}
             <div class="flex items-center gap-0.5 rounded-lg border border-slate-700 p-0.5">
                 <button
                     type="button"
-                    x-on:click="previewMode = 'desktop'"
+                    x-on:click="setMode('desktop')"
                     :class="previewMode === 'desktop' ? 'bg-slate-700 text-white' : 'text-slate-500 hover:text-slate-300'"
                     class="flex h-7 w-7 items-center justify-center rounded text-xs transition-colors"
-                    title="Desktop (1280px+)"
+                    title="Desktop (1440px)"
                 ><i class="fa-solid fa-desktop"></i></button>
                 <button
                     type="button"
-                    x-on:click="previewMode = 'tablet'"
+                    x-on:click="setMode('tablet')"
                     :class="previewMode === 'tablet' ? 'bg-slate-700 text-white' : 'text-slate-500 hover:text-slate-300'"
                     class="flex h-7 w-7 items-center justify-center rounded text-xs transition-colors"
                     title="Tablet (768px)"
                 ><i class="fa-solid fa-tablet-screen-button"></i></button>
                 <button
                     type="button"
-                    x-on:click="previewMode = 'mobile'"
+                    x-on:click="setMode('mobile')"
                     :class="previewMode === 'mobile' ? 'bg-slate-700 text-white' : 'text-slate-500 hover:text-slate-300'"
                     class="flex h-7 w-7 items-center justify-center rounded text-xs transition-colors"
                     title="Mobile (375px)"
@@ -410,7 +466,7 @@ document.addEventListener('alpine:init', () => {
     <div class="flex min-h-0 flex-1 overflow-hidden">
 
         {{-- ── LEFT PANEL: Inserter + Tree ───────────────────── --}}
-        <aside class="flex w-64 shrink-0 flex-col border-r border-slate-800 bg-slate-900">
+        <aside x-show="!leftCollapsed" class="flex w-72 shrink-0 flex-col border-r border-slate-800 bg-slate-900">
 
             {{-- Tab switcher --}}
             <div class="flex shrink-0 border-b border-slate-800">
@@ -673,7 +729,7 @@ document.addEventListener('alpine:init', () => {
         </div>{{-- /center panel --}}
 
         {{-- ── RIGHT PANEL: Block Settings (B3 scope) ────────── --}}
-        <aside class="flex w-72 shrink-0 flex-col border-l border-slate-800 bg-slate-900">
+        <aside x-show="!rightCollapsed" class="flex w-80 shrink-0 flex-col border-l border-slate-800 bg-slate-900">
 
             <div class="shrink-0 border-b border-slate-800 px-4 py-3">
                 <p class="text-xs font-semibold uppercase tracking-widest text-slate-500">Block Settings</p>
