@@ -22,7 +22,7 @@
                         name="search"
                         value="{{ request('search') }}"
                         placeholder="Search categories..."
-                        class="form-input"
+                        class="admin-input"
                     >
                 </form>
 

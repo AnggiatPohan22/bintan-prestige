@@ -43,18 +43,6 @@
         </div>
     </div>
 
-    @if(session('success'))
-        <div class="admin-alert-success mb-4">
-            {{ session('success') }}
-        </div>
-    @endif
-
-    @if(session('error'))
-        <div class="admin-alert-danger mb-4">
-            {{ session('error') }}
-        </div>
-    @endif
-
     <div class="admin-card">
         <div class="admin-card-header">
             <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">

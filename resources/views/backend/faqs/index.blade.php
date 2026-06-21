@@ -15,12 +15,24 @@
                 </p>
             </div>
 
-            <a
-                href="{{ route('admin.faqs.create') }}"
-                class="admin-btn-primary w-full sm:w-auto"
-            >
-                Create FAQ
-            </a>
+            <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
+                <form class="w-full sm:w-64">
+                    <input
+                        type="text"
+                        name="search"
+                        value="{{ request('search') }}"
+                        placeholder="Search FAQs..."
+                        class="admin-input"
+                    >
+                </form>
+
+                <a
+                    href="{{ route('admin.faqs.create') }}"
+                    class="admin-btn-primary w-full sm:w-auto"
+                >
+                    Create FAQ
+                </a>
+            </div>
         </div>
     </div>
 
