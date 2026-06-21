@@ -76,7 +76,16 @@ document.addEventListener('alpine:init', () => {
                 } else {
                     const html = await res.text();
                     const frame = document.getElementById('builder-preview');
-                    if (frame) frame.srcdoc = html;
+                    if (frame) {
+                        let scrollY = 0;
+                        try { scrollY = frame.contentWindow?.scrollY ?? 0; } catch {}
+                        frame.srcdoc = html;
+                        if (scrollY > 0) {
+                            frame.addEventListener('load', () => {
+                                try { frame.contentWindow?.scrollTo(0, scrollY); } catch {}
+                            }, { once: true });
+                        }
+                    }
                 }
             } catch (e) {
                 this.previewError = `Preview error: ${e.message || 'Network error'}`;
@@ -564,7 +573,6 @@ document.addEventListener('alpine:init', () => {
                 id="builder-preview"
                 title="Page preview"
                 class="h-full w-full border-0"
-                sandbox="allow-same-origin allow-scripts allow-forms"
             ></iframe>
 
         </main>
