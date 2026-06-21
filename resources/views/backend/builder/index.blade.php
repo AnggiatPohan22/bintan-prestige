@@ -56,12 +56,23 @@ document.addEventListener('alpine:init', () => {
                     headers: {
                         'Content-Type': 'application/json',
                         'X-CSRF-TOKEN': cfg.csrf,
-                        'Accept': 'text/html',
+                        'Accept': '*/*',
+                        'X-Requested-With': 'XMLHttpRequest',
                     },
                     body: JSON.stringify({ blocks: this.serialize(this.tree) }),
                 });
-                if (!res.ok) {
-                    this.previewError = `Preview failed: HTTP ${res.status} ${res.statusText}`;
+                if (!res.ok || res.redirected) {
+                    const ct = res.headers.get('content-type') || '';
+                    if (ct.includes('application/json')) {
+                        try {
+                            const json = await res.json();
+                            this.previewError = `Preview failed: ${json.message || 'Validation error'}`;
+                        } catch {
+                            this.previewError = `Preview failed: HTTP ${res.status} ${res.statusText}`;
+                        }
+                    } else {
+                        this.previewError = `Preview failed: HTTP ${res.status} ${res.statusText}`;
+                    }
                 } else {
                     const html = await res.text();
                     const frame = document.getElementById('builder-preview');
