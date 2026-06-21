@@ -1,8 +1,11 @@
 @props([
-    'title'     => null,
-    'subtitle'  => null,
-    'backRoute' => null,
-    'backLabel' => 'Back',
+    'title'       => null,
+    'subtitle'    => null,
+    'backRoute'   => null,
+    'backLabel'   => 'Back',
+    'formAction'  => null,
+    'formMethod'  => 'POST',
+    'enctype'     => null,
 ])
 
 <div class="admin-page">
@@ -27,6 +30,19 @@
         </div>
     </div>
 
+    {{-- Optionally wrap in a form tag --}}
+    @if($formAction)
+        <form
+            action="{{ $formAction }}"
+            method="{{ in_array(strtoupper($formMethod), ['GET', 'POST']) ? strtoupper($formMethod) : 'POST' }}"
+            @if($enctype) enctype="{{ $enctype }}" @endif
+        >
+            @csrf
+            @if(!in_array(strtoupper($formMethod), ['GET', 'POST']))
+                @method(strtoupper($formMethod))
+            @endif
+    @endif
+
     {{-- Two-column layout --}}
     <div class="grid grid-cols-1 gap-6 xl:grid-cols-[1fr_300px]">
 
@@ -43,5 +59,9 @@
         @endif
 
     </div>
+
+    @if($formAction)
+        </form>
+    @endif
 
 </div>
