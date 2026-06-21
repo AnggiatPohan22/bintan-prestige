@@ -256,17 +256,30 @@ document.addEventListener('alpine:init', () => {
             return { desktop: 1280, tablet: 768, mobile: 375 }[this.previewMode];
         },
 
-        // zoom ≤ 1 so the device width always fits the canvas horizontally.
+        // scale ≤ 1 so the device width always fits the canvas horizontally.
         scale() {
             if (! this.canvasW) return 1;
             return Math.min(1, Math.max(0.1, (this.canvasW - 32) / this.baseWidth()));
         },
 
-        // Device frame: real device width + natural content height, all zoomed to fit.
-        frameStyle() {
+        // Natural (unscaled) frame height = the real page height (stable: min-h-screen
+        // is neutralised on the builder canvas), with a pre-measure fallback.
+        frameHeight() {
+            return this.contentH || Math.max(200, (this.canvasH - 32) / this.scale());
+        },
+
+        // SPACER: reserves the SCALED footprint as a normal block so the canvas's
+        // scroll height is accurate (unlike CSS zoom, which mis-reports flex overflow).
+        // margin auto centers it horizontally; the canvas scrolls vertically to footer.
+        sizerStyle() {
             const z = this.scale();
-            const h = this.contentH || Math.max(200, (this.canvasH - 32) / z);  // fallback pre-measure
-            return `width:${this.baseWidth()}px;height:${h}px;zoom:${z}`;
+            return `width:${this.baseWidth() * z}px;height:${this.frameHeight() * z}px;margin:0 auto`;
+        },
+
+        // FRAME: real device pixels, scaled from the top-left, absolute inside the spacer.
+        frameStyle() {
+            return `width:${this.baseWidth()}px;height:${this.frameHeight()}px;`
+                 + `transform:scale(${this.scale()});transform-origin:top left`;
         },
 
         // Measure the page height on load, then keep it in sync via a ResizeObserver
@@ -645,17 +658,22 @@ document.addEventListener('alpine:init', () => {
 
             <div
                 x-ref="canvas"
-                class="flex flex-1 items-start justify-center overflow-y-auto overflow-x-hidden bg-slate-800 p-4"
+                class="flex-1 overflow-y-auto overflow-x-hidden bg-slate-800 p-4"
             >
+                {{-- SPACER: real-sized block reserving the scaled footprint → reliable
+                     canvas scroll height. Centered via margin auto. --}}
                 <div
-                    class="shrink-0 overflow-hidden rounded bg-white shadow-2xl"
-                    :style="frameStyle()"
+                    class="relative overflow-hidden rounded bg-white shadow-2xl"
+                    :style="sizerStyle()"
                 >
-                    <iframe
-                        id="builder-preview"
-                        title="Page preview"
-                        class="block h-full w-full border-0"
-                    ></iframe>
+                    {{-- FRAME: device-pixel size, scaled from top-left. --}}
+                    <div class="absolute left-0 top-0" :style="frameStyle()">
+                        <iframe
+                            id="builder-preview"
+                            title="Page preview"
+                            class="block h-full w-full border-0"
+                        ></iframe>
+                    </div>
                 </div>
             </div>
 
