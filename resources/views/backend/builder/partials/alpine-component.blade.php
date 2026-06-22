@@ -19,6 +19,9 @@ document.addEventListener('alpine:init', () => {
         _pickSetter:    null,      // pending Media Library target setter
         nestHint:       null,      // transient hint shown when a nesting rule applies
         _hintTimer:     null,
+        dragCid:        null,      // _cid of the block being dragged
+        dragOverCid:    null,      // _cid of the row currently hovered as a drop target
+        dropMode:       null,      // 'before' | 'after' | 'inside' | 'invalid'
 
         /* ── Init ──────────────────────────────────────────── */
         init() {
@@ -212,27 +215,87 @@ document.addEventListener('alpine:init', () => {
             return out;
         },
 
-        // Nest a block into the Group/Columns directly above it (same level).
-        indent(cid) {
-            const ctx = this.findCtx(cid);
-            if (!ctx || ctx.index === 0) return;
-            const prev = ctx.arr[ctx.index - 1];
-            if (!this.isContainer(prev)) { this.flash('Place it just below a Group/Columns to nest inside.'); return; }
-            if (prev.type === 'columns' && ctx.node.type !== 'group') { this.flash('Columns can contain Group blocks only.'); return; }
-            ctx.arr.splice(ctx.index, 1);
-            prev.children = prev.children || [];
-            prev.children.push(ctx.node);
-            this.tree = [...this.tree];
-            this.scheduleRefresh();
+        // True when `cid` is inside `node`'s subtree (used to block invalid drops).
+        contains(node, cid) {
+            for (const c of (node?.children || [])) {
+                if (c._cid === cid || this.contains(c, cid)) return true;
+            }
+            return false;
         },
 
-        // Move a nested block out to its parent's level (just after the parent).
-        outdent(cid) {
-            const ctx = this.findCtx(cid);
-            if (!ctx || !ctx.parent) return;
-            const parentCtx = this.findCtx(ctx.parent._cid);
-            ctx.arr.splice(ctx.index, 1);
-            parentCtx.arr.splice(parentCtx.index + 1, 0, ctx.node);
+        /* ── Drag & drop (reorder + nest) ──────────────────── */
+        onDragStart(cid, e) {
+            this.dragCid = cid;
+            if (e.dataTransfer) {
+                e.dataTransfer.effectAllowed = 'move';
+                try { e.dataTransfer.setData('text/plain', String(cid)); } catch (_) {}
+            }
+        },
+
+        // Decide the drop intent from the cursor position within the hovered row:
+        // a container's middle band = drop INSIDE, its edges (and any leaf) = reorder.
+        onDragOver(cid, e) {
+            if (this.dragCid === null) return;
+            const drag = this.findCtx(this.dragCid)?.node;
+            const target = this.findCtx(cid)?.node;
+            if (!drag || !target) return;
+
+            const r = e.currentTarget.getBoundingClientRect();
+            const ratio = (e.clientY - r.top) / (r.height || 1);
+
+            let mode;
+            if (this.isContainer(target)) {
+                mode = ratio < 0.25 ? 'before' : ratio > 0.78 ? 'after' : 'inside';
+            } else {
+                mode = ratio < 0.5 ? 'before' : 'after';
+            }
+
+            // Validity: never drop onto itself or into its own subtree; Columns hold Groups only.
+            if (cid === this.dragCid || this.contains(drag, cid)) {
+                mode = 'invalid';
+            } else if (mode === 'inside' && target.type === 'columns' && drag.type !== 'group') {
+                mode = 'invalid';
+            }
+
+            this.dragOverCid = cid;
+            this.dropMode = mode;
+        },
+
+        onDrop(cid) {
+            const mode = this.dropMode;
+            const dragCid = this.dragCid;
+            this.clearDrag();
+            if (dragCid === null || cid === dragCid || mode === 'invalid' || !mode) {
+                if (mode === 'invalid') this.flash('Can’t drop there — Columns hold Group blocks only, and a block can’t go inside itself.');
+                return;
+            }
+            this.moveNode(dragCid, cid, mode);
+        },
+
+        clearDrag() { this.dragCid = null; this.dragOverCid = null; this.dropMode = null; },
+
+        // Re-parent / reorder a node relative to a target.
+        moveNode(dragCid, targetCid, mode) {
+            const dctx = this.findCtx(dragCid);
+            if (!dctx) return;
+            const node = dctx.node;
+            if (dragCid === targetCid || this.contains(node, targetCid)) return;
+
+            // Remove from its current spot first, then locate the target afresh
+            // (indices may shift) and insert.
+            dctx.arr.splice(dctx.index, 1);
+            const tctx = this.findCtx(targetCid);
+            if (!tctx) { this.tree.push(node); }
+            else if (mode === 'inside') {
+                tctx.node.children = tctx.node.children || [];
+                tctx.node.children.push(node);
+            } else if (mode === 'before') {
+                tctx.arr.splice(tctx.index, 0, node);
+            } else {
+                tctx.arr.splice(tctx.index + 1, 0, node);
+            }
+
+            this.selectedCid = node._cid;
             this.tree = [...this.tree];
             this.scheduleRefresh();
         },
@@ -359,23 +422,6 @@ document.addEventListener('alpine:init', () => {
 
         toggleVisible(node) {
             node.is_visible = !node.is_visible;
-            this.scheduleRefresh();
-        },
-
-        // Reorder within the block's own sibling level (works at any depth).
-        moveUp(cid) {
-            const ctx = this.findCtx(cid);
-            if (!ctx || ctx.index === 0) return;
-            [ctx.arr[ctx.index - 1], ctx.arr[ctx.index]] = [ctx.arr[ctx.index], ctx.arr[ctx.index - 1]];
-            this.tree = [...this.tree];
-            this.scheduleRefresh();
-        },
-
-        moveDown(cid) {
-            const ctx = this.findCtx(cid);
-            if (!ctx || ctx.index >= ctx.arr.length - 1) return;
-            [ctx.arr[ctx.index], ctx.arr[ctx.index + 1]] = [ctx.arr[ctx.index + 1], ctx.arr[ctx.index]];
-            this.tree = [...this.tree];
             this.scheduleRefresh();
         },
 

@@ -128,22 +128,44 @@
 
         {{-- How-to hint for nesting --}}
         <div x-show="tree.length > 0" class="border-b border-slate-800 px-3 py-2 text-[11px] leading-snug text-slate-500" x-cloak>
-            Add a <strong class="text-slate-400">Group</strong> or <strong class="text-slate-400">Columns</strong>, select it, then add blocks to nest them inside.
-            Use <i class="fa-solid fa-indent"></i> / <i class="fa-solid fa-outdent"></i> to nest or un-nest a block.
+            <i class="fa-solid fa-arrows-up-down-left-right mr-1"></i>
+            Drag a block to reorder. Drop it <strong class="text-amber-400/90">onto</strong> a
+            <strong class="text-slate-400">Group</strong> or <strong class="text-slate-400">Columns</strong>
+            to place it inside.
         </div>
 
-        {{-- Hierarchical block list — children render indented under their container. --}}
+        {{-- Hierarchical, drag-and-drop block list.
+             Children render indented under their container. Dragging shows a
+             blue/amber line for reorder (above/below) or highlights a container
+             with an "inside" badge when the drop will nest the block. --}}
         <ul class="py-1">
             <template x-for="row in flatList()" :key="row.node._cid">
                 <li
+                    draggable="true"
+                    x-on:dragstart="onDragStart(row.node._cid, $event)"
+                    x-on:dragover.prevent="onDragOver(row.node._cid, $event)"
+                    x-on:drop.prevent="onDrop(row.node._cid)"
+                    x-on:dragend="clearDrag()"
                     x-on:click="selectBlock(row.node._cid)"
-                    :class="{
-                        'bg-amber-900/30 border-l-2 border-amber-500': selectedCid === row.node._cid,
-                        'border-l-2 border-transparent': selectedCid !== row.node._cid,
-                    }"
                     :style="'padding-left:' + (8 + row.depth * 16) + 'px'"
-                    class="group flex cursor-pointer items-center gap-1.5 py-2 pr-2 transition-colors hover:bg-slate-800/60"
+                    class="group relative flex cursor-grab items-center gap-1.5 border-l-2 py-2 pr-2 transition-colors active:cursor-grabbing hover:bg-slate-800/60"
+                    :class="{
+                        'bg-amber-900/30 border-amber-500': selectedCid === row.node._cid && !(dragOverCid === row.node._cid),
+                        'border-transparent': selectedCid !== row.node._cid && !(dragOverCid === row.node._cid),
+                        'bg-amber-500/15 ring-2 ring-inset ring-amber-400 border-amber-400': dragOverCid === row.node._cid && dropMode === 'inside',
+                        'ring-2 ring-inset ring-red-500/70 border-red-500/70': dragOverCid === row.node._cid && dropMode === 'invalid',
+                        'opacity-40': dragCid === row.node._cid,
+                    }"
                 >
+                    {{-- Reorder indicator lines (above / below) --}}
+                    <div x-show="dragOverCid === row.node._cid && dropMode === 'before'"
+                         class="pointer-events-none absolute inset-x-0 top-0 z-10 h-0.5 bg-amber-400"></div>
+                    <div x-show="dragOverCid === row.node._cid && dropMode === 'after'"
+                         class="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-0.5 bg-amber-400"></div>
+
+                    {{-- Grip affordance --}}
+                    <i class="fa-solid fa-grip-vertical w-2.5 shrink-0 text-center text-[10px] text-slate-600 group-hover:text-slate-400"></i>
+
                     {{-- Icon — folder for containers, cube for leaves --}}
                     <i
                         class="w-3.5 shrink-0 text-center text-xs"
@@ -162,40 +184,30 @@
                         x-text="row.node.label || row.node.type"
                     ></span>
 
-                    {{-- Child count for containers --}}
+                    {{-- 'Drop inside' badge while hovering a container as nest target --}}
                     <span
-                        x-show="isContainer(row.node)"
+                        x-show="dragOverCid === row.node._cid && dropMode === 'inside'"
+                        class="pointer-events-none shrink-0 rounded bg-amber-500 px-1.5 py-0.5 text-[10px] font-semibold text-slate-900"
+                    ><i class="fa-solid fa-arrow-turn-down mr-0.5"></i>inside</span>
+
+                    {{-- Child count for containers (hidden while showing the drop badge) --}}
+                    <span
+                        x-show="isContainer(row.node) && !(dragOverCid === row.node._cid && dropMode === 'inside')"
                         class="shrink-0 rounded bg-slate-700 px-1 text-[10px] text-slate-400"
                         x-text="childCount(row.node)"
                         title="Blocks inside"
                     ></span>
 
-                    {{-- Insert target indicator --}}
+                    {{-- Insert target indicator (selection) --}}
                     <span
-                        x-show="selectedCid === row.node._cid"
+                        x-show="selectedCid === row.node._cid && dragCid === null"
                         class="shrink-0 rounded bg-amber-800/60 px-1 py-0.5 text-[10px] text-amber-400"
                         x-text="isContainer(row.node) ? 'inside' : '↓'"
                         title="Where the next added block goes"
                     ></span>
 
-                    {{-- Action buttons (visible on hover) --}}
-                    <div class="flex shrink-0 items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
-                        <button type="button" x-on:click.stop="moveUp(row.node._cid)"
-                                class="flex h-5 w-5 items-center justify-center rounded text-slate-500 transition-colors hover:text-white" title="Move up">
-                            <i class="fa-solid fa-chevron-up text-xs"></i>
-                        </button>
-                        <button type="button" x-on:click.stop="moveDown(row.node._cid)"
-                                class="flex h-5 w-5 items-center justify-center rounded text-slate-500 transition-colors hover:text-white" title="Move down">
-                            <i class="fa-solid fa-chevron-down text-xs"></i>
-                        </button>
-                        <button type="button" x-on:click.stop="outdent(row.node._cid)" :disabled="row.depth === 0"
-                                class="flex h-5 w-5 items-center justify-center rounded text-slate-500 transition-colors hover:text-white disabled:cursor-not-allowed disabled:opacity-30" title="Move out of container">
-                            <i class="fa-solid fa-outdent text-xs"></i>
-                        </button>
-                        <button type="button" x-on:click.stop="indent(row.node._cid)"
-                                class="flex h-5 w-5 items-center justify-center rounded text-slate-500 transition-colors hover:text-white" title="Nest into the block above">
-                            <i class="fa-solid fa-indent text-xs"></i>
-                        </button>
+                    {{-- Action buttons (hover) — hidden while dragging --}}
+                    <div class="flex shrink-0 items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100" x-show="dragCid === null">
                         <button type="button" x-on:click.stop="toggleVisible(row.node)"
                                 class="flex h-5 w-5 items-center justify-center rounded text-slate-500 transition-colors hover:text-white"
                                 :title="row.node.is_visible ? 'Hide block' : 'Show block'">
