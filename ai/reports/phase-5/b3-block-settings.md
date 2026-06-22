@@ -107,6 +107,26 @@ repeater rows call it with `item[sub.key]`. One source of truth for every contro
 - PHPStan level 5 on the changed controller → 0 errors
 - `npm run build` → new classes compiled
 
+### B3 — Nesting (Group / Columns) — COMPLETE ✓
+
+The backend, preview (`transientTree`) and frontend block partials already
+rendered nested `children`, but the builder UI had no way to create nesting.
+Added a hierarchical Block List and container-aware insertion:
+
+- `flatList()` renders children indented under their container (folder icon +
+  child count); `findCtx()` locates a node + its parent array at any depth.
+- `addBlock` drops a block **inside** a selected Group/Columns, or as the next
+  **sibling** of a selected leaf, else at root. Columns enforce Group-only
+  children (also validated server-side in `transientTree`).
+- Per-row **indent** (nest into the block above) / **outdent** (move to parent
+  level); `moveUp`/`moveDown`/`removeBlock` operate at any depth.
+- `selectedNode()` is recursive, so the settings panel works for nested blocks.
+- Note: empty Group/Columns render nothing on the page by design — the panel and
+  Block List hint this so it doesn't look "broken".
+
+Files: `partials/alpine-component.blade.php`, `partials/panel-left.blade.php`,
+`partials/panel-right.blade.php`. Tests: 52 passed / 543 assertions.
+
 ### Still deferred (optional, future)
 
 - Nested **background styling object** (`data[background][color|image|position|repeat|size|opacity]`)

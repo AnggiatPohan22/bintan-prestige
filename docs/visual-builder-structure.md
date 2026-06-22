@@ -159,8 +159,14 @@ sets `previewMode`. No other change needed.
   rows. Detailed/legacy editing still available via the Page Edit form editor.
 - **Detachable/draggable panels** (Elementor-style float) are not implemented —
   intentional trade-off; static `20:60:20` grid is used instead.
-- **Block-tree drag-and-drop** reorders top-level blocks only; nesting into
-  container blocks (Group/Columns) is future work.
+- **Nesting (Group/Columns)** works via the hierarchical Block List: select a
+  container then add blocks to place them inside, or use per-row indent/outdent.
+  Backed by `findCtx`/`flatList`/`indent`/`outdent` in the Alpine store; Columns
+  accept Group children only (enforced client + server). Empty containers render
+  nothing on the page by design.
+- **Drag-and-drop** block reordering was replaced by the depth-aware tree
+  controls (move up/down + indent/outdent). The `@alpinejs/sort` dependency and
+  the `.sortable-*` styles remain available if drag is reintroduced later.
 - **Desktop preview is fluid** (100% of the 60% canvas), matching Elementor's
   fluid desktop. Tablet/mobile are fixed widths (768 / 375) and centered.
 
