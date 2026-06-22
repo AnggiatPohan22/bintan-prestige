@@ -17,6 +17,8 @@ document.addEventListener('alpine:init', () => {
         _cid:           0,
         _refreshTimer:  null,
         _pickSetter:    null,      // pending Media Library target setter
+        nestHint:       null,      // transient hint shown when a nesting rule applies
+        _hintTimer:     null,
 
         /* ── Init ──────────────────────────────────────────── */
         init() {
@@ -132,7 +134,7 @@ document.addEventListener('alpine:init', () => {
             this.isSaving = false;
         },
 
-        /* ── Block operations ──────────────────────────────── */
+        /* ── Block operations (nesting-aware) ──────────────── */
         addBlock(type, label) {
             const node = {
                 _cid:       ++this._cid,
@@ -141,20 +143,30 @@ document.addEventListener('alpine:init', () => {
                 label,
                 data:       {},
                 is_visible: true,
-                sort_order: this.tree.length,
+                sort_order: 0,
                 children:   [],
             };
-            if (this.selectedCid !== null) {
-                const idx = this.tree.findIndex(n => n._cid === this.selectedCid);
-                if (idx !== -1) {
-                    this.tree.splice(idx + 1, 0, node);
+            this.applyFieldDefaults(node);
+
+            const sel = this.selectedNode();
+            if (sel && this.isContainer(sel)) {
+                // A container is selected → drop the new block INSIDE it.
+                if (sel.type === 'columns' && type !== 'group') {
+                    // Columns may only hold Group blocks → place it right after instead.
+                    const ctx = this.findCtx(sel._cid);
+                    ctx.arr.splice(ctx.index + 1, 0, node);
+                    this.flash('Columns can contain Group blocks only — added after it instead.');
                 } else {
-                    this.tree.push(node);
+                    sel.children = sel.children || [];
+                    sel.children.push(node);
                 }
+            } else if (sel) {
+                // A normal block is selected → insert as its next sibling.
+                const ctx = this.findCtx(sel._cid);
+                ctx.arr.splice(ctx.index + 1, 0, node);
             } else {
                 this.tree.push(node);
             }
-            this.applyFieldDefaults(node);
             this.selectedCid = node._cid;
             this.scheduleRefresh();
         },
@@ -165,11 +177,70 @@ document.addEventListener('alpine:init', () => {
             if (node) this.applyFieldDefaults(node);
         },
 
-        /* ── Settings panel (B3) ───────────────────────────── */
-        // The root-level node currently selected (null = nothing selected).
+        /* ── Tree helpers (nesting) ────────────────────────── */
+        // The node currently selected, searched recursively (null = none).
         selectedNode() {
             if (this.selectedCid === null) return null;
-            return this.tree.find(n => n._cid === this.selectedCid) || null;
+            const ctx = this.findCtx(this.selectedCid);
+            return ctx ? ctx.node : null;
+        },
+
+        // Locate a node + its containing array / index / parent anywhere in the tree.
+        findCtx(cid, nodes = this.tree, parent = null) {
+            for (let i = 0; i < nodes.length; i++) {
+                if (nodes[i]._cid === cid) return { node: nodes[i], arr: nodes, index: i, parent };
+                const hit = this.findCtx(cid, nodes[i].children || [], nodes[i]);
+                if (hit) return hit;
+            }
+            return null;
+        },
+
+        isContainer(node) { return !!node && (node.type === 'group' || node.type === 'columns'); },
+
+        childCount(node) { return (node && node.children) ? node.children.length : 0; },
+
+        // Depth-first flattened view for the Block List (each row carries its depth).
+        flatList() {
+            const out = [];
+            const walk = (nodes, depth) => {
+                for (const n of nodes) {
+                    out.push({ node: n, depth });
+                    if (n.children && n.children.length) walk(n.children, depth + 1);
+                }
+            };
+            walk(this.tree, 0);
+            return out;
+        },
+
+        // Nest a block into the Group/Columns directly above it (same level).
+        indent(cid) {
+            const ctx = this.findCtx(cid);
+            if (!ctx || ctx.index === 0) return;
+            const prev = ctx.arr[ctx.index - 1];
+            if (!this.isContainer(prev)) { this.flash('Place it just below a Group/Columns to nest inside.'); return; }
+            if (prev.type === 'columns' && ctx.node.type !== 'group') { this.flash('Columns can contain Group blocks only.'); return; }
+            ctx.arr.splice(ctx.index, 1);
+            prev.children = prev.children || [];
+            prev.children.push(ctx.node);
+            this.tree = [...this.tree];
+            this.scheduleRefresh();
+        },
+
+        // Move a nested block out to its parent's level (just after the parent).
+        outdent(cid) {
+            const ctx = this.findCtx(cid);
+            if (!ctx || !ctx.parent) return;
+            const parentCtx = this.findCtx(ctx.parent._cid);
+            ctx.arr.splice(ctx.index, 1);
+            parentCtx.arr.splice(parentCtx.index + 1, 0, ctx.node);
+            this.tree = [...this.tree];
+            this.scheduleRefresh();
+        },
+
+        flash(msg) {
+            this.nestHint = msg;
+            clearTimeout(this._hintTimer);
+            this._hintTimer = setTimeout(() => { this.nestHint = null; }, 3500);
         },
 
         // Editable field schema for a block type, from config/blocks.php (cfg.registry).
@@ -286,38 +357,35 @@ document.addEventListener('alpine:init', () => {
             }
         },
 
-        onSort(cidStr, newPos) {
-            const cid    = +cidStr;
-            const oldPos = this.tree.findIndex(n => n._cid === cid);
-            if (oldPos === -1 || oldPos === newPos) return;
-            const [item] = this.tree.splice(oldPos, 1);
-            this.tree.splice(newPos, 0, item);
-            this.scheduleRefresh();
-        },
-
         toggleVisible(node) {
             node.is_visible = !node.is_visible;
             this.scheduleRefresh();
         },
 
-        moveUp(index) {
-            if (index === 0) return;
-            [this.tree[index - 1], this.tree[index]] = [this.tree[index], this.tree[index - 1]];
+        // Reorder within the block's own sibling level (works at any depth).
+        moveUp(cid) {
+            const ctx = this.findCtx(cid);
+            if (!ctx || ctx.index === 0) return;
+            [ctx.arr[ctx.index - 1], ctx.arr[ctx.index]] = [ctx.arr[ctx.index], ctx.arr[ctx.index - 1]];
             this.tree = [...this.tree];
             this.scheduleRefresh();
         },
 
-        moveDown(index) {
-            if (index >= this.tree.length - 1) return;
-            [this.tree[index], this.tree[index + 1]] = [this.tree[index + 1], this.tree[index]];
+        moveDown(cid) {
+            const ctx = this.findCtx(cid);
+            if (!ctx || ctx.index >= ctx.arr.length - 1) return;
+            [ctx.arr[ctx.index], ctx.arr[ctx.index + 1]] = [ctx.arr[ctx.index + 1], ctx.arr[ctx.index]];
             this.tree = [...this.tree];
             this.scheduleRefresh();
         },
 
-        removeBlock(index) {
-            this.tree.splice(index, 1);
+        // Remove a block (and, for a container, its children) anywhere in the tree.
+        removeBlock(cid) {
+            const ctx = this.findCtx(cid);
+            if (!ctx) return;
+            ctx.arr.splice(ctx.index, 1);
+            if (this.selectedCid === cid || !this.findCtx(this.selectedCid)) this.selectedCid = null;
             this.tree = [...this.tree];
-            if (!this.tree.some(n => n._cid === this.selectedCid)) this.selectedCid = null;
             this.scheduleRefresh();
         },
 

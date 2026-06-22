@@ -48,6 +48,16 @@
             >
         </div>
 
+        {{-- Container guidance --}}
+        <p
+            x-show="isContainer(selectedNode())"
+            class="rounded-lg border border-amber-900/40 bg-amber-950/30 px-3 py-2 text-[11px] leading-snug text-amber-300/90"
+            x-cloak
+        >
+            <i class="fa-solid fa-layer-group mr-1"></i>
+            This is a container (<span x-text="childCount(selectedNode())"></span> inside). Keep it selected and add blocks to place them inside it. Empty containers are hidden on the page.
+        </p>
+
         {{-- No editable fields for this block type --}}
         <p
             x-show="fieldsFor(selectedNode().type).length === 0"

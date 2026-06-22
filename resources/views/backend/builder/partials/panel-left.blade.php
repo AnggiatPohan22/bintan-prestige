@@ -39,25 +39,35 @@
         </button>
     </div>
 
+    {{-- Nesting hint (shown briefly when a Group/Columns rule applies) --}}
+    <div
+        x-show="nestHint"
+        x-cloak
+        x-transition.opacity
+        class="shrink-0 border-b border-amber-900/40 bg-amber-950/40 px-3 py-2 text-[11px] leading-snug text-amber-300"
+    >
+        <i class="fa-solid fa-circle-info mr-1"></i><span x-text="nestHint"></span>
+    </div>
+
     {{-- INSERT TAB --}}
     <div x-show="activeTab === 'insert'" class="builder-pane-scroll flex-1 overflow-y-auto" x-cloak>
 
-        {{-- Insert position context --}}
+        {{-- Insert position context (container-aware) --}}
         <div class="border-b border-slate-800 px-3 py-2 text-xs text-slate-500">
-            <span x-show="selectedCid === null">Adding to end of page</span>
-            <span x-show="selectedCid !== null" x-cloak>
-                Inserting after
-                <span
-                    class="font-medium text-amber-400"
-                    x-text="(tree.find(n => n._cid === selectedCid) || {}).label || '…'"
-                ></span>
-                <button
-                    type="button"
-                    x-on:click="selectedCid = null"
-                    class="ml-1 text-slate-600 hover:text-slate-300"
-                    title="Reset to add at end"
-                >✕</button>
-            </span>
+            <span x-show="!selectedNode()">Adding to end of page</span>
+            <template x-if="selectedNode()">
+                <span>
+                    <span x-show="isContainer(selectedNode())">Inserting <span class="font-medium text-amber-400">inside</span> </span>
+                    <span x-show="!isContainer(selectedNode())">Inserting after </span>
+                    <span class="font-medium text-amber-400" x-text="selectedNode()?.label || selectedNode()?.type"></span>
+                    <button
+                        type="button"
+                        x-on:click="selectedCid = null"
+                        class="ml-1 text-slate-600 hover:text-slate-300"
+                        title="Reset to add at end"
+                    >✕</button>
+                </span>
+            </template>
         </div>
 
         <div class="py-2">
@@ -116,83 +126,83 @@
             Switch to <strong class="text-slate-400">Add Block</strong> to start.
         </div>
 
-        {{-- x-sort enables drag-and-drop via @alpinejs/sort (already loaded in app.js) --}}
-        <ul x-sort="onSort($item, $position)" class="py-1">
-            <template x-for="(block, index) in tree" :key="block._cid">
-                <li
-                    x-sort:item="block._cid"
-                    x-on:click="selectBlock(block._cid)"
-                    :class="{
-                        'bg-amber-900/30 border-l-2 border-amber-500': selectedCid === block._cid,
-                        'border-l-2 border-transparent': selectedCid !== block._cid,
-                    }"
-                    class="group flex cursor-pointer items-center gap-1.5 py-2 pl-2 pr-3 transition-colors hover:bg-slate-800/60"
-                >
-                    {{-- Drag handle --}}
-                    <span
-                        x-sort:handle
-                        class="flex h-5 w-4 shrink-0 cursor-grab items-center justify-center text-slate-600 transition-colors hover:text-slate-400 active:cursor-grabbing"
-                        title="Drag to reorder"
-                    >
-                        <i class="fa-solid fa-grip-vertical text-xs"></i>
-                    </span>
+        {{-- How-to hint for nesting --}}
+        <div x-show="tree.length > 0" class="border-b border-slate-800 px-3 py-2 text-[11px] leading-snug text-slate-500" x-cloak>
+            Add a <strong class="text-slate-400">Group</strong> or <strong class="text-slate-400">Columns</strong>, select it, then add blocks to nest them inside.
+            Use <i class="fa-solid fa-indent"></i> / <i class="fa-solid fa-outdent"></i> to nest or un-nest a block.
+        </div>
 
-                    {{-- Block icon --}}
+        {{-- Hierarchical block list — children render indented under their container. --}}
+        <ul class="py-1">
+            <template x-for="row in flatList()" :key="row.node._cid">
+                <li
+                    x-on:click="selectBlock(row.node._cid)"
+                    :class="{
+                        'bg-amber-900/30 border-l-2 border-amber-500': selectedCid === row.node._cid,
+                        'border-l-2 border-transparent': selectedCid !== row.node._cid,
+                    }"
+                    :style="'padding-left:' + (8 + row.depth * 16) + 'px'"
+                    class="group flex cursor-pointer items-center gap-1.5 py-2 pr-2 transition-colors hover:bg-slate-800/60"
+                >
+                    {{-- Icon — folder for containers, cube for leaves --}}
                     <i
-                        class="fa-solid fa-cube w-3.5 shrink-0 text-center text-xs"
-                        :class="!block.is_visible ? 'text-slate-700' : 'text-slate-500'"
+                        class="w-3.5 shrink-0 text-center text-xs"
+                        :class="[
+                            isContainer(row.node) ? 'fa-solid fa-folder' : 'fa-solid fa-cube',
+                            !row.node.is_visible ? 'text-slate-700' : (isContainer(row.node) ? 'text-amber-500/70' : 'text-slate-500'),
+                        ]"
                     ></i>
 
                     {{-- Label --}}
                     <span
                         class="min-w-0 flex-1 truncate text-xs"
-                        :class="!block.is_visible
+                        :class="!row.node.is_visible
                             ? 'text-slate-600 line-through'
-                            : selectedCid === block._cid ? 'text-amber-300' : 'text-slate-300'"
-                        x-text="block.label || block.type"
+                            : selectedCid === row.node._cid ? 'text-amber-300' : 'text-slate-300'"
+                        x-text="row.node.label || row.node.type"
                     ></span>
 
-                    {{-- Insert-after indicator --}}
+                    {{-- Child count for containers --}}
                     <span
-                        x-show="selectedCid === block._cid"
-                        class="shrink-0 rounded bg-amber-800/60 px-1 py-0.5 text-xs text-amber-400"
-                        title="Next block added after this one"
-                    >↓</span>
+                        x-show="isContainer(row.node)"
+                        class="shrink-0 rounded bg-slate-700 px-1 text-[10px] text-slate-400"
+                        x-text="childCount(row.node)"
+                        title="Blocks inside"
+                    ></span>
+
+                    {{-- Insert target indicator --}}
+                    <span
+                        x-show="selectedCid === row.node._cid"
+                        class="shrink-0 rounded bg-amber-800/60 px-1 py-0.5 text-[10px] text-amber-400"
+                        x-text="isContainer(row.node) ? 'inside' : '↓'"
+                        title="Where the next added block goes"
+                    ></span>
 
                     {{-- Action buttons (visible on hover) --}}
                     <div class="flex shrink-0 items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
-                        <button
-                            type="button"
-                            x-on:click.stop="moveUp(index)"
-                            :disabled="index === 0"
-                            class="flex h-5 w-5 items-center justify-center rounded text-slate-500 transition-colors hover:text-white disabled:cursor-not-allowed disabled:opacity-30"
-                            title="Move up"
-                        >
+                        <button type="button" x-on:click.stop="moveUp(row.node._cid)"
+                                class="flex h-5 w-5 items-center justify-center rounded text-slate-500 transition-colors hover:text-white" title="Move up">
                             <i class="fa-solid fa-chevron-up text-xs"></i>
                         </button>
-                        <button
-                            type="button"
-                            x-on:click.stop="moveDown(index)"
-                            :disabled="index === tree.length - 1"
-                            class="flex h-5 w-5 items-center justify-center rounded text-slate-500 transition-colors hover:text-white disabled:cursor-not-allowed disabled:opacity-30"
-                            title="Move down"
-                        >
+                        <button type="button" x-on:click.stop="moveDown(row.node._cid)"
+                                class="flex h-5 w-5 items-center justify-center rounded text-slate-500 transition-colors hover:text-white" title="Move down">
                             <i class="fa-solid fa-chevron-down text-xs"></i>
                         </button>
-                        <button
-                            type="button"
-                            x-on:click.stop="toggleVisible(block)"
-                            class="flex h-5 w-5 items-center justify-center rounded text-slate-500 transition-colors hover:text-white"
-                            :title="block.is_visible ? 'Hide block' : 'Show block'"
-                        >
-                            <i class="fa-solid text-xs" :class="block.is_visible ? 'fa-eye' : 'fa-eye-slash'"></i>
+                        <button type="button" x-on:click.stop="outdent(row.node._cid)" :disabled="row.depth === 0"
+                                class="flex h-5 w-5 items-center justify-center rounded text-slate-500 transition-colors hover:text-white disabled:cursor-not-allowed disabled:opacity-30" title="Move out of container">
+                            <i class="fa-solid fa-outdent text-xs"></i>
                         </button>
-                        <button
-                            type="button"
-                            x-on:click.stop="if(confirm('Remove this block?')) removeBlock(index)"
-                            class="flex h-5 w-5 items-center justify-center rounded text-slate-500 transition-colors hover:text-red-400"
-                            title="Delete block"
-                        >
+                        <button type="button" x-on:click.stop="indent(row.node._cid)"
+                                class="flex h-5 w-5 items-center justify-center rounded text-slate-500 transition-colors hover:text-white" title="Nest into the block above">
+                            <i class="fa-solid fa-indent text-xs"></i>
+                        </button>
+                        <button type="button" x-on:click.stop="toggleVisible(row.node)"
+                                class="flex h-5 w-5 items-center justify-center rounded text-slate-500 transition-colors hover:text-white"
+                                :title="row.node.is_visible ? 'Hide block' : 'Show block'">
+                            <i class="fa-solid text-xs" :class="row.node.is_visible ? 'fa-eye' : 'fa-eye-slash'"></i>
+                        </button>
+                        <button type="button" x-on:click.stop="if(confirm('Remove this block?')) removeBlock(row.node._cid)"
+                                class="flex h-5 w-5 items-center justify-center rounded text-slate-500 transition-colors hover:text-red-400" title="Delete block">
                             <i class="fa-solid fa-trash-can text-xs"></i>
                         </button>
                     </div>
