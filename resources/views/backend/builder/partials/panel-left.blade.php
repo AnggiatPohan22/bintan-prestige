@@ -216,6 +216,7 @@
                         'bg-amber-500/15 ring-2 ring-inset ring-amber-400 border-amber-400': dragOverCid === row.node._cid && dropMode === 'inside',
                         'ring-2 ring-inset ring-red-500/70 border-red-500/70': dragOverCid === row.node._cid && dropMode === 'invalid',
                         'opacity-40': dragCid === row.node._cid,
+                        'opacity-50': isHiddenOnDevice(row.node) && dragCid !== row.node._cid,
                     }"
                 >
                     {{-- Reorder indicator lines (above / below) --}}
@@ -244,6 +245,14 @@
                             : selectedCid === row.node._cid ? 'text-amber-300' : 'text-slate-300'"
                         x-text="row.node.label || row.node.type"
                     ></span>
+
+                    {{-- B7: badge shown when block is hidden on the active preview device --}}
+                    <span
+                        x-show="isHiddenOnDevice(row.node) && dragCid !== row.node._cid"
+                        x-cloak
+                        class="pointer-events-none shrink-0 rounded border border-slate-600 px-1 py-0.5 text-[9px] font-medium text-slate-500"
+                        :title="'Hidden on ' + previewMode"
+                    ><i class="fa-solid fa-eye-slash mr-0.5"></i>hidden</span>
 
                     {{-- 'Drop inside' badge while hovering a container as nest target --}}
                     <span

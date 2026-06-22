@@ -30,6 +30,14 @@
         </div>
     </div>
 
+    {{-- B7: Canvas status bar — shows active device mode and viewport width. --}}
+    <div class="flex h-7 shrink-0 items-center justify-center gap-2 border-t border-slate-700/50 bg-slate-900/80 text-xs text-slate-500">
+        <i class="fa-solid fa-desktop"              x-show="previewMode === 'desktop'"></i>
+        <i class="fa-solid fa-tablet-screen-button" x-show="previewMode === 'tablet'"  x-cloak></i>
+        <i class="fa-solid fa-mobile-screen-button" x-show="previewMode === 'mobile'"  x-cloak></i>
+        <span x-text="previewModeLabel()"></span>
+    </div>
+
     {{-- Preview loading overlay — pinned to the visible canvas area --}}
     <div
         x-show="isRefreshing"

@@ -891,6 +891,27 @@ document.addEventListener('alpine:init', () => {
             return { desktop: '100%', tablet: '768px', mobile: '375px' }[this.previewMode];
         },
 
+        /* ── B7 responsive helpers ─────────────────────────── */
+
+        // Human-readable label for the current preview mode (shown in canvas status bar).
+        previewModeLabel() {
+            return {
+                desktop: 'Desktop · Fluid width',
+                tablet:  'Tablet · 768 px',
+                mobile:  'Mobile · 375 px',
+            }[this.previewMode] || '';
+        },
+
+        // True when the block is set to hide on the currently active device.
+        // Reads hide_desktop / hide_tablet / hide_mobile from the Advanced tab.
+        isHiddenOnDevice(node) {
+            const d = node?.data || {};
+            if (this.previewMode === 'desktop') return !!d.hide_desktop;
+            if (this.previewMode === 'tablet')  return !!d.hide_tablet;
+            if (this.previewMode === 'mobile')  return !!d.hide_mobile;
+            return false;
+        },
+
         blockIcon(type) {
             const icons = {
                 group: 'fa-layer-group', columns: 'fa-table-columns',
