@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\PageBlockController;
 use App\Http\Controllers\Controller;
 use App\Models\Page;
 use App\Models\PageBlock;
+use App\Models\PageTemplate;
 use App\Services\GlobalSettingsService;
 use App\Services\PageBlockService;
 use App\Support\PageRenderData;
@@ -14,6 +15,7 @@ use App\Support\SeoDefaultSettings;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
 class PageController extends Controller
@@ -44,16 +46,37 @@ class PageController extends Controller
      */
     public function previewPayload(Request $request, Page $page): mixed
     {
-        $request->validate(['blocks' => ['nullable', 'array', 'max:200']]);
+        $validated = $request->validate([
+            'blocks' => ['nullable', 'array', 'max:200'],
+            'template_id' => [
+                'nullable',
+                'integer',
+                Rule::exists('page_templates', 'id')->where(
+                    fn ($query) => $query
+                        ->where('is_active', true)
+                        ->whereIn('blade_file', PageTemplateRegistry::keys())
+                ),
+            ],
+        ]);
         $nodeCount = 0;
-        $blocks = $this->transientTree($request->input('blocks', []), $nodeCount);
+        $rawBlocks = $validated['blocks'] ?? [];
+        $blocks = $this->transientTree(is_array($rawBlocks) ? $rawBlocks : [], $nodeCount);
+
+        if ($request->exists('template_id')) {
+            $template = isset($validated['template_id'])
+                ? PageTemplate::query()->find($validated['template_id'])
+                : null;
+            $page->setRelation('template', $template);
+        }
 
         return $this->renderPage($page, preview: true, injectedBlocks: $blocks, builderCanvas: true);
     }
 
     private function renderPage(Page $page, bool $preview = false, ?Collection $injectedBlocks = null, bool $builderCanvas = false)
     {
-        $page->load(['template']);
+        if (! $page->relationLoaded('template')) {
+            $page->load(['template']);
+        }
 
         if ($injectedBlocks !== null) {
             $page->setRelation('blocks', $injectedBlocks);
@@ -137,7 +160,7 @@ class PageController extends Controller
                 $rawData = $validated['data'] ?? [];
                 try {
                     $blockData = $this->pageBlockService->validateAndSanitizeData($validated['block_type'], $rawData);
-                } catch (\Illuminate\Validation\ValidationException) {
+                } catch (ValidationException) {
                     $blockData = $rawData;
                 }
 

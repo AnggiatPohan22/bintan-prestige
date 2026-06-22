@@ -89,6 +89,17 @@
             ><i class="fa-solid fa-mobile-screen-button"></i></button>
         </div>
 
+        {{-- B6 template library: layout shells + saved full-page builder templates. --}}
+        <button
+            type="button"
+            x-on:click="openTemplateLibrary()"
+            class="flex h-8 items-center gap-1.5 rounded-lg border border-slate-700 px-3 text-xs font-medium text-slate-300 transition-colors hover:border-slate-500 hover:text-white"
+            title="Page templates"
+        >
+            <i class="fa-solid fa-layer-group text-xs"></i>
+            Templates
+        </button>
+
         {{-- Preview in new tab --}}
         <a
             href="{{ route('admin.pages.preview', $page) }}"

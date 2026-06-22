@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\AnalyticsDashboardController;
 use App\Http\Controllers\Admin\AuditLogController;
 use App\Http\Controllers\Admin\BuilderPatternController;
+use App\Http\Controllers\Admin\BuilderTemplateController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DestinationController;
@@ -226,6 +227,15 @@ Route::middleware(['auth', 'admin'])
 
         Route::get('pages/{page}/builder', [PageBuilderController::class, 'show'])
             ->name('pages.builder');
+        Route::post('pages/{page}/builder/templates', [BuilderTemplateController::class, 'store'])
+            ->name('builder-templates.store');
+
+        Route::get('builder-templates', [BuilderTemplateController::class, 'index'])
+            ->name('builder-templates.index');
+        Route::get('builder-templates/{builderTemplate}', [BuilderTemplateController::class, 'show'])
+            ->name('builder-templates.show');
+        Route::delete('builder-templates/{builderTemplate}', [BuilderTemplateController::class, 'destroy'])
+            ->name('builder-templates.destroy');
 
         Route::get('builder-patterns', [BuilderPatternController::class, 'index'])
             ->name('builder-patterns.index');

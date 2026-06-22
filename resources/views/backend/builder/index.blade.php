@@ -47,6 +47,11 @@
         options:    {{ Js::from($fieldOptions) }},
         uploadUrl:  {{ Js::from(route('admin.media.upload-quick')) }},
         patternsUrl: {{ Js::from(route('admin.builder-patterns.index')) }},
+        layoutTemplates: {{ Js::from($layoutTemplates) }},
+        currentTemplateId: {{ Js::from($page->template_id) }},
+        builderTemplatesUrl: {{ Js::from(route('admin.builder-templates.index')) }},
+        storeBuilderTemplateUrl: {{ Js::from(route('admin.builder-templates.store', $page)) }},
+        pageTitle: {{ Js::from($page->title) }},
     })"
     x-on:media-picker-selected.window="onMediaPicked($event.detail)"
     class="flex h-screen flex-col bg-slate-950"
@@ -76,6 +81,7 @@
     {{-- Media Library picker modal — reused by image fields via the
          open-media-picker / media-picker-selected event protocol. --}}
     @include('backend.media.partials.picker-modal')
+    @include('backend.builder.partials.template-library')
 
 </div>{{-- /x-data pageBuilder --}}
 

@@ -8,20 +8,23 @@ use App\Models\Destination;
 use App\Models\FormDefinition;
 use App\Models\Page;
 use App\Models\PageBlock;
+use App\Models\PageTemplate;
+use App\Services\BuilderTreeSanitizer;
 use App\Services\PageBlockService;
 use App\Services\PageService;
+use App\Support\PageTemplateRegistry;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\ValidationException;
+use Illuminate\Validation\Rule;
 
 class PageBuilderController extends Controller
 {
     public function __construct(
         private readonly PageBlockService $blockService,
         private readonly PageService $pageService,
+        private readonly BuilderTreeSanitizer $treeSanitizer,
     ) {}
 
     public function show(Page $page): mixed
@@ -29,6 +32,17 @@ class PageBuilderController extends Controller
         $flatBlocks = $page->blocks()->ordered()->get();
         $tree = $this->buildBuilderTree($flatBlocks);
         $registry = config('blocks');
+        $layoutTemplates = PageTemplate::query()
+            ->active()
+            ->whereIn('blade_file', PageTemplateRegistry::keys())
+            ->ordered()
+            ->get(['id', 'name', 'blade_file', 'description'])
+            ->map(fn (PageTemplate $template): array => [
+                'id' => $template->id,
+                'name' => $template->name,
+                'blade_file' => $template->blade_file,
+                'description' => $template->description,
+            ])->all();
 
         // Dynamic <select> option sources for schema fields that use `optionsFrom`
         // (products_grid → category/destination, contact_form → form definitions).
@@ -41,26 +55,45 @@ class PageBuilderController extends Controller
                 ->map(fn (FormDefinition $f): array => ['value' => (string) $f->id, 'label' => $f->name])->all(),
         ];
 
-        return view('backend.builder.index', compact('page', 'tree', 'registry', 'fieldOptions'));
+        return view('backend.builder.index', compact('page', 'tree', 'registry', 'fieldOptions', 'layoutTemplates'));
     }
 
     public function saveTree(Request $request, Page $page): JsonResponse
     {
-        $request->validate(['blocks' => ['nullable', 'array', 'max:200']]);
+        $validated = $request->validate([
+            'blocks' => ['nullable', 'array', 'max:200'],
+            'template_id' => [
+                'nullable',
+                'integer',
+                Rule::exists('page_templates', 'id')->where(
+                    fn ($query) => $query
+                        ->where('is_active', true)
+                        ->whereIn('blade_file', PageTemplateRegistry::keys())
+                ),
+            ],
+        ]);
 
-        $nodes = $request->input('blocks', []);
-        $nodeCount = 0;
-        $this->validateNodes($nodes, $nodeCount);
+        $rawNodes = $validated['blocks'] ?? [];
+        $nodes = $this->treeSanitizer->sanitizeTree(is_array($rawNodes) ? $rawNodes : [], 'blocks');
+        $updatesTemplate = $request->exists('template_id');
+        $templateId = $validated['template_id'] ?? null;
 
-        DB::transaction(function () use ($page, $nodes): void {
+        DB::transaction(function () use ($page, $nodes, $updatesTemplate, $templateId): void {
             $this->pageService->saveRevision($page);
+            if ($updatesTemplate) {
+                $page->update(['template_id' => $templateId]);
+            }
             $page->blocks()->delete();
             $this->insertNodes($page, $nodes);
         });
 
         $fresh = $this->buildBuilderTree($page->blocks()->ordered()->get());
 
-        return response()->json(['success' => true, 'tree' => $fresh]);
+        return response()->json([
+            'success' => true,
+            'tree' => $fresh,
+            'template_id' => $page->fresh()->template_id,
+        ]);
     }
 
     /**
@@ -93,42 +126,6 @@ class PageBuilderController extends Controller
         };
 
         return $attach(null);
-    }
-
-    /**
-     * @param  array<int, mixed>  $nodes
-     */
-    private function validateNodes(array $nodes, int &$nodeCount, int $depth = 0, ?string $parentType = null): void
-    {
-        if ($depth > 5) {
-            throw ValidationException::withMessages(['blocks' => 'Block nesting is limited to five levels.']);
-        }
-
-        $validTypes = implode(',', PageBlockController::blockTypes());
-
-        foreach ($nodes as $node) {
-            if (! is_array($node) || ++$nodeCount > 200) {
-                throw ValidationException::withMessages(['blocks' => 'Block tree must contain at most 200 valid nodes.']);
-            }
-
-            Validator::make($node, [
-                'block_type' => ['required', 'string', 'in:'.$validTypes],
-                'label' => ['nullable', 'string', 'max:255'],
-                'data' => ['nullable', 'array'],
-                'is_visible' => ['nullable', 'boolean'],
-                'children' => ['nullable', 'array'],
-            ])->validate();
-
-            if ($parentType === 'columns' && $node['block_type'] !== 'group') {
-                throw ValidationException::withMessages(['blocks' => 'Columns blocks may only contain Group blocks.']);
-            }
-
-            if (! empty($node['children']) && ! in_array($node['block_type'], ['group', 'columns'], true)) {
-                throw ValidationException::withMessages(['blocks' => 'Only Group and Columns blocks may contain children.']);
-            }
-
-            $this->validateNodes($node['children'] ?? [], $nodeCount, $depth + 1, $node['block_type']);
-        }
     }
 
     /**

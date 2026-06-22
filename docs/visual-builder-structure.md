@@ -201,7 +201,29 @@ the `20:60:20` grid and CSS-only device `max-width` contract remain unchanged.
 
 ---
 
-## 7. Change history
+## 7. B6 templates integration
+
+`page_templates` remains the allowlisted frontend layout-shell system (`default`,
+`full-width`, `contained`). B6 does not merge reusable page designs into that
+table. Saved designs live independently in `builder_templates` with
+`template_type`, `schema_version`, optional category/thumbnail/base-layout links,
+and a sanitized `template_data` block forest. This separation lets later stages
+add template types such as sections or theme parts without changing Page/PageBlock
+persistence.
+
+The library list endpoint returns paginated, searchable summaries only. The full
+JSON forest is fetched only when Apply is chosen. Choosing a layout shell keeps
+the current blocks. Applying a saved page template replaces only the in-memory
+canvas after confirmation, adopts its base shell, regenerates all client `_cid`
+values, and stays unsaved until the normal topbar Save action. Deleting a library
+record never affects pages or page blocks.
+
+Patterns, page templates, and persisted page trees share
+`BuilderTreeSanitizer`, keeping registry, nesting, node-count, label, and block-data
+sanitization aligned. The template modal is lazy-loaded and does not alter the
+fixed `20:60:20` panel contract or CSS-only device sizing.
+
+## 8. Change history
 
 - **B-LAYOUT** — Replaced absolute-drawer + JS-measured white device card +
   `transform:scale` iframe with a `20:60:20` flex grid and CSS `max-width`

@@ -32,6 +32,18 @@ document.addEventListener('alpine:init', () => {
         patternFormOpen: false,
         isSavingPattern: false,
         patternDraft:    { name: '', category: '', description: '' },
+        templateModalOpen: false,
+        layoutTemplates: cfg.layoutTemplates || [],
+        currentTemplateId: cfg.currentTemplateId ?? null,
+        builderTemplates: [],
+        templatesLoading: false,
+        templateError: null,
+        templateMeta: { current_page: 1, last_page: 1, total: 0 },
+        templateSearch: '',
+        templateFormOpen: false,
+        isSavingTemplate: false,
+        templateDraft: { name: '', category: '', description: '' },
+        _templatesLoaded: false,
 
         /* ── Init ──────────────────────────────────────────── */
         init() {
@@ -73,7 +85,10 @@ document.addEventListener('alpine:init', () => {
                         'Accept': '*/*',
                         'X-Requested-With': 'XMLHttpRequest',
                     },
-                    body: JSON.stringify({ blocks: this.serialize(this.tree) }),
+                    body: JSON.stringify({
+                        blocks: this.serialize(this.tree),
+                        template_id: this.currentTemplateId,
+                    }),
                 });
                 if (!res.ok || res.redirected) {
                     const ct = res.headers.get('content-type') || '';
@@ -134,11 +149,15 @@ document.addEventListener('alpine:init', () => {
                         'X-CSRF-TOKEN': cfg.csrf,
                         'Accept': 'application/json',
                     },
-                    body: JSON.stringify({ blocks: this.serialize(this.tree) }),
+                    body: JSON.stringify({
+                        blocks: this.serialize(this.tree),
+                        template_id: this.currentTemplateId,
+                    }),
                 });
                 const json = await res.json();
                 if (json.success) {
                     this.tree    = this.tagCids(json.tree);
+                    this.currentTemplateId = json.template_id ?? null;
                     this.isDirty = false;
                 } else {
                     this.saveError = json.message || 'Save failed.';
@@ -293,6 +312,141 @@ document.addEventListener('alpine:init', () => {
                 this.flash('Pattern deleted. Inserted page blocks were not changed.');
             } catch (error) {
                 this.patternsError = error.message || 'Unable to delete pattern.';
+            }
+        },
+
+        /* -- Full-page template library (B6) -------------------------------- */
+        openTemplateLibrary() {
+            this.templateModalOpen = true;
+            if (!this._templatesLoaded) this.loadBuilderTemplates(1);
+        },
+
+        async loadBuilderTemplates(page = 1) {
+            this.templatesLoading = true;
+            this.templateError = null;
+            try {
+                const url = new URL(cfg.builderTemplatesUrl, window.location.origin);
+                url.searchParams.set('page', page);
+                if (this.templateSearch.trim()) url.searchParams.set('search', this.templateSearch.trim());
+
+                const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
+                const json = await res.json();
+                if (!res.ok) throw new Error(json.message || 'Unable to load templates.');
+
+                this.builderTemplates = json.templates || [];
+                this.templateMeta = json.meta || { current_page: 1, last_page: 1, total: 0 };
+                this._templatesLoaded = true;
+            } catch (error) {
+                this.templateError = error.message || 'Unable to load templates.';
+            } finally {
+                this.templatesLoading = false;
+            }
+        },
+
+        currentLayoutName() {
+            return this.layoutTemplates.find(layout => Number(layout.id) === Number(this.currentTemplateId))?.name || 'Standard';
+        },
+
+        applyLayoutTemplate(layout) {
+            this.currentTemplateId = layout.id;
+            this.scheduleRefresh();
+            this.flash(`Layout selected: ${layout.name}. Save the page to persist it.`);
+        },
+
+        openTemplateSaveForm() {
+            this.templateDraft = {
+                name: cfg.pageTitle || 'Page Template',
+                category: '',
+                description: '',
+            };
+            this.templateFormOpen = true;
+        },
+
+        async saveBuilderTemplate() {
+            if (!this.templateDraft.name.trim()) return;
+
+            this.isSavingTemplate = true;
+            this.templateError = null;
+            try {
+                const res = await fetch(cfg.storeBuilderTemplateUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': cfg.csrf,
+                        'Accept': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        ...this.templateDraft,
+                        base_template_id: this.currentTemplateId,
+                        template_data: this.serialize(this.tree),
+                    }),
+                });
+                const json = await res.json();
+                if (!res.ok) {
+                    const firstError = Object.values(json.errors || {})[0];
+                    throw new Error(firstError?.[0] || json.message || 'Unable to save template.');
+                }
+
+                this.builderTemplates.unshift(json.template);
+                this.templateMeta.total = Number(this.templateMeta.total || 0) + 1;
+                this._templatesLoaded = true;
+                this.templateFormOpen = false;
+                this.templateDraft = { name: '', category: '', description: '' };
+                this.flash('Page template saved.');
+            } catch (error) {
+                this.templateError = error.message || 'Unable to save template.';
+            } finally {
+                this.isSavingTemplate = false;
+            }
+        },
+
+        hydrateTemplateTree(nodes) {
+            return (nodes || []).map(node => this.hydratePattern(node));
+        },
+
+        async applyBuilderTemplate(template) {
+            if (this.tree.length && !window.confirm('Replace the current canvas with this template? Unsaved blocks will be replaced.')) return;
+
+            this.templatesLoading = true;
+            this.templateError = null;
+            try {
+                const res = await fetch(`${cfg.builderTemplatesUrl}/${template.id}`, {
+                    headers: { 'Accept': 'application/json' },
+                });
+                const json = await res.json();
+                if (!res.ok) throw new Error(json.message || 'Unable to load this template.');
+
+                this.tree = this.hydrateTemplateTree(json.template.template_data);
+                this.selectedCid = null;
+                this.currentTemplateId = json.template.base_template_id ?? null;
+                this.templateModalOpen = false;
+                this.scheduleRefresh();
+                this.flash(`Applied template: ${json.template.name}. Save the page to persist it.`);
+            } catch (error) {
+                this.templateError = error.message || 'Unable to apply template.';
+            } finally {
+                this.templatesLoading = false;
+            }
+        },
+
+        async deleteBuilderTemplate(template) {
+            this.templateError = null;
+            try {
+                const res = await fetch(`${cfg.builderTemplatesUrl}/${template.id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': cfg.csrf,
+                        'Accept': 'application/json',
+                    },
+                });
+                const json = await res.json();
+                if (!res.ok) throw new Error(json.message || 'Unable to delete template.');
+
+                this.builderTemplates = this.builderTemplates.filter(item => item.id !== template.id);
+                this.templateMeta.total = Math.max(0, Number(this.templateMeta.total || 0) - 1);
+                this.flash('Template deleted. Existing pages were not changed.');
+            } catch (error) {
+                this.templateError = error.message || 'Unable to delete template.';
             }
         },
 
