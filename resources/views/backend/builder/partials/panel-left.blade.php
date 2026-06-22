@@ -26,6 +26,16 @@
         </button>
         <button
             type="button"
+            x-on:click="activeTab = 'patterns'"
+            :class="activeTab === 'patterns' ? 'border-b-2 border-amber-500 text-white' : 'text-slate-500 hover:text-slate-300'"
+            class="flex flex-1 items-center justify-center gap-1.5 py-3 text-xs font-semibold transition-colors"
+        >
+            <i class="fa-solid fa-shapes text-xs"></i>
+            Patterns
+            <span x-show="patterns.length" x-text="patterns.length" class="rounded-full bg-slate-700 px-1.5 py-0.5 text-[10px] text-slate-300"></span>
+        </button>
+        <button
+            type="button"
             x-on:click="activeTab = 'tree'"
             :class="activeTab === 'tree' ? 'border-b-2 border-amber-500 text-white' : 'text-slate-500 hover:text-slate-300'"
             class="flex flex-1 items-center justify-center gap-1.5 py-3 text-xs font-semibold transition-colors"
@@ -116,6 +126,57 @@
             @endif
         @endforeach
         </div>{{-- /py-2 --}}
+    </div>
+
+    {{-- PATTERNS TAB --}}
+    <div x-show="activeTab === 'patterns'" class="builder-pane-scroll flex-1 overflow-y-auto" x-cloak>
+        <div class="border-b border-slate-800 px-3 py-2 text-xs text-slate-500">
+            <span x-show="!selectedNode()">Patterns insert at the end of the page.</span>
+            <span x-show="selectedNode()">
+                Pattern inserts <span x-show="isContainer(selectedNode())">inside</span><span x-show="!isContainer(selectedNode())">after</span>
+                <strong class="text-amber-400" x-text="selectedNode()?.label || selectedNode()?.type"></strong>.
+            </span>
+        </div>
+
+        <div x-show="patternsLoading" class="flex items-center justify-center gap-2 p-6 text-xs text-slate-500">
+            <i class="fa-solid fa-spinner fa-spin"></i> Loading patternsâ€¦
+        </div>
+
+        <div x-show="patternsError" class="m-3 rounded-lg border border-red-900/50 bg-red-950/30 p-3 text-xs text-red-300" x-cloak>
+            <span x-text="patternsError"></span>
+            <button type="button" class="mt-2 block text-red-400 underline" x-on:click="loadPatterns()">Try again</button>
+        </div>
+
+        <div x-show="!patternsLoading && patterns.length === 0" class="p-6 text-center text-xs text-slate-500" x-cloak>
+            <i class="fa-solid fa-shapes mb-3 block text-3xl text-slate-700"></i>
+            No saved patterns yet.<br>Select a block and use <strong class="text-slate-400">Save as Pattern</strong> in Block Settings.
+        </div>
+
+        <div class="space-y-2 p-2">
+            <template x-for="pattern in patterns" :key="pattern.id">
+                <article class="rounded-lg border border-slate-700 bg-slate-800/60 p-3">
+                    <div class="flex items-start gap-2">
+                        <i class="fa-solid mt-0.5 text-xs text-amber-500" :class="blockIcon(pattern.block_type)"></i>
+                        <div class="min-w-0 flex-1">
+                            <p class="truncate text-xs font-semibold text-slate-200" x-text="pattern.name"></p>
+                            <p class="mt-0.5 text-[10px] uppercase tracking-wide text-slate-500" x-text="pattern.category || pattern.block_type"></p>
+                        </div>
+                        <button type="button"
+                                class="text-slate-600 hover:text-red-400"
+                                title="Delete pattern"
+                                x-on:click="if(confirm('Delete this saved pattern? Existing page blocks will stay unchanged.')) deletePattern(pattern)">
+                            <i class="fa-solid fa-trash-can text-xs"></i>
+                        </button>
+                    </div>
+                    <p x-show="pattern.description" x-text="pattern.description" class="mt-2 line-clamp-2 text-[11px] leading-snug text-slate-400"></p>
+                    <button type="button"
+                            x-on:click="insertPattern(pattern)"
+                            class="mt-3 w-full rounded-md bg-amber-500 px-2 py-1.5 text-xs font-semibold text-slate-950 transition hover:bg-amber-400">
+                        <i class="fa-solid fa-plus mr-1"></i>Insert Pattern
+                    </button>
+                </article>
+            </template>
+        </div>
     </div>
 
     {{-- TREE TAB --}}

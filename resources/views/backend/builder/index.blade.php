@@ -46,6 +46,7 @@
         registry:   {{ Js::from($registry) }},
         options:    {{ Js::from($fieldOptions) }},
         uploadUrl:  {{ Js::from(route('admin.media.upload-quick')) }},
+        patternsUrl: {{ Js::from(route('admin.builder-patterns.index')) }},
     })"
     x-on:media-picker-selected.window="onMediaPicked($event.detail)"
     class="flex h-screen flex-col bg-slate-950"

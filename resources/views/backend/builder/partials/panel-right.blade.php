@@ -161,6 +161,45 @@
                 ></p>
             </div>
         </template>
+
+        {{-- B5: persist the selected block or its complete subtree as a pattern. --}}
+        <div class="border-t border-slate-800 pt-4">
+            <button
+                type="button"
+                x-show="!patternFormOpen"
+                x-on:click="openPatternForm()"
+                class="w-full rounded-lg border border-amber-600/50 bg-amber-950/30 px-3 py-2 text-xs font-semibold text-amber-300 transition hover:border-amber-500 hover:bg-amber-950/50"
+            >
+                <i class="fa-solid fa-shapes mr-1"></i>Save as Pattern
+            </button>
+
+            <div x-show="patternFormOpen" class="space-y-3 rounded-lg border border-slate-700 bg-slate-800/40 p-3" x-cloak>
+                <p class="text-xs font-semibold text-slate-300">Save selected subtree</p>
+                <div>
+                    <label class="builder-label">Pattern Name</label>
+                    <input type="text" x-model="patternDraft.name" maxlength="150" class="builder-input" placeholder="e.g. Island Hero">
+                </div>
+                <div>
+                    <label class="builder-label">Category (optional)</label>
+                    <input type="text" x-model="patternDraft.category" maxlength="100" class="builder-input" placeholder="e.g. Landing Page">
+                </div>
+                <div>
+                    <label class="builder-label">Description (optional)</label>
+                    <textarea x-model="patternDraft.description" maxlength="2000" rows="2" class="builder-input" placeholder="When to use this pattern"></textarea>
+                </div>
+                <p x-show="patternsError" x-text="patternsError" class="text-[11px] text-red-400"></p>
+                <div class="flex gap-2">
+                    <button type="button"
+                            x-on:click="saveSelectedPattern()"
+                            :disabled="isSavingPattern || !patternDraft.name.trim()"
+                            class="flex-1 rounded-md bg-amber-500 px-3 py-2 text-xs font-semibold text-slate-950 disabled:cursor-not-allowed disabled:opacity-40">
+                        <i class="fa-solid fa-spinner fa-spin mr-1" x-show="isSavingPattern"></i>
+                        <span x-text="isSavingPattern ? 'Savingâ€¦' : 'Save Pattern'"></span>
+                    </button>
+                    <button type="button" x-on:click="patternFormOpen = false" class="rounded-md border border-slate-600 px-3 py-2 text-xs text-slate-400 hover:text-white">Cancel</button>
+                </div>
+            </div>
+        </div>
     </div>
     </template>
 

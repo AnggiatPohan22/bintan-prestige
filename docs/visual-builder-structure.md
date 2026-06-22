@@ -183,6 +183,22 @@ sets `previewMode`. No other change needed.
 - **Desktop preview is fluid** (100% of the 60% canvas), matching Elementor's
   fluid desktop. Tablet/mobile are fixed widths (768 / 375) and centered.
 
+### B5 reusable patterns
+
+Reusable patterns are stored independently in `builder_patterns`; they do not
+alter `pages` or `page_blocks`. Admin-only JSON endpoints live at
+`/admin/builder-patterns`. `BuilderPatternService` accepts one serialized block
+or container subtree, applies the same registry validation and
+`PageBlockService::validateAndSanitizeData()` contract used by save-tree, and
+removes client-only state before persistence.
+
+The left panel now has **Add Block / Patterns / Block List** tabs. The right
+settings panel exposes **Save as Pattern** for the selected node. Inserting a
+pattern deep-clones its data, regenerates every `_cid`, and uses the existing
+container-aware insertion rules. Deleting the library record never removes an
+already inserted page block. Pattern operations do not touch canvas sizing:
+the `20:60:20` grid and CSS-only device `max-width` contract remain unchanged.
+
 ---
 
 ## 7. Change history
@@ -192,3 +208,5 @@ sets `previewMode`. No other change needed.
   device mode. Split the 765-line monolith into wrapper + 5 partials.
   Fixes: white frame below the canvas; panels shrinking with the browser;
   site scaling with panel width.
+- **B5** â€” Added an isolated, sanitized reusable-pattern library with subtree
+  save/insert/delete support and regenerated client IDs.

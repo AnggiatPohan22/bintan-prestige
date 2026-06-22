@@ -9,7 +9,7 @@ document.addEventListener('alpine:init', () => {
         saveError:    null,
         isRefreshing: false,
         previewError: null,
-        activeTab:    'insert',   // 'insert' | 'tree'
+        activeTab:    'insert',   // 'insert' | 'patterns' | 'tree'
         activeFieldTab: 'layout', // settings panel tab: 'layout' | 'style' | 'advanced'
         selectedCid:  null,       // _cid of the block selected in tree list
         previewMode:    'desktop', // 'desktop' | 'tablet' | 'mobile'
@@ -26,6 +26,12 @@ document.addEventListener('alpine:init', () => {
         inlineToolbar:  { visible: false, left: 0, top: 0 },
         _inlineRange:    null,
         _inlineTarget:   null,
+        patterns:        [],
+        patternsLoading: false,
+        patternsError:   null,
+        patternFormOpen: false,
+        isSavingPattern: false,
+        patternDraft:    { name: '', category: '', description: '' },
 
         /* ── Init ──────────────────────────────────────────── */
         init() {
@@ -36,6 +42,7 @@ document.addEventListener('alpine:init', () => {
                 this.leftCollapsed  = true;
                 this.rightCollapsed = true;
             }
+            this.loadPatterns();
             this.$nextTick(() => this.refreshPreview());
         },
 
@@ -156,10 +163,15 @@ document.addEventListener('alpine:init', () => {
             };
             this.applyFieldDefaults(node);
 
+            this.placeNode(node);
+        },
+
+        placeNode(node) {
+
             const sel = this.selectedNode();
             if (sel && this.isContainer(sel)) {
                 // A container is selected → drop the new block INSIDE it.
-                if (sel.type === 'columns' && type !== 'group') {
+                if (sel.type === 'columns' && node.type !== 'group') {
                     // Columns may only hold Group blocks → place it right after instead.
                     const ctx = this.findCtx(sel._cid);
                     ctx.arr.splice(ctx.index + 1, 0, node);
@@ -177,6 +189,111 @@ document.addEventListener('alpine:init', () => {
             }
             this.selectedCid = node._cid;
             this.scheduleRefresh();
+        },
+
+        /* â”€â”€ Reusable patterns (B5) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+        async loadPatterns() {
+            this.patternsLoading = true;
+            this.patternsError = null;
+            try {
+                const res = await fetch(cfg.patternsUrl, {
+                    headers: { 'Accept': 'application/json' },
+                });
+                const json = await res.json();
+                if (!res.ok) throw new Error(json.message || 'Unable to load patterns.');
+                this.patterns = json.patterns || [];
+            } catch (error) {
+                this.patternsError = error.message || 'Unable to load patterns.';
+            } finally {
+                this.patternsLoading = false;
+            }
+        },
+
+        openPatternForm() {
+            const node = this.selectedNode();
+            if (!node) return;
+            this.patternDraft = {
+                name: node.label || cfg.registry?.[node.type]?.label || node.type,
+                category: '',
+                description: '',
+            };
+            this.patternFormOpen = true;
+        },
+
+        async saveSelectedPattern() {
+            const node = this.selectedNode();
+            if (!node || !this.patternDraft.name.trim()) return;
+
+            this.isSavingPattern = true;
+            this.patternsError = null;
+            try {
+                const res = await fetch(cfg.patternsUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': cfg.csrf,
+                        'Accept': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        ...this.patternDraft,
+                        pattern_data: this.serialize([node])[0],
+                    }),
+                });
+                const json = await res.json();
+                if (!res.ok) {
+                    const firstError = Object.values(json.errors || {})[0];
+                    throw new Error(firstError?.[0] || json.message || 'Unable to save pattern.');
+                }
+
+                this.patterns.unshift(json.pattern);
+                this.patternFormOpen = false;
+                this.patternDraft = { name: '', category: '', description: '' };
+                this.activeTab = 'patterns';
+                this.flash('Pattern saved.');
+            } catch (error) {
+                this.patternsError = error.message || 'Unable to save pattern.';
+            } finally {
+                this.isSavingPattern = false;
+            }
+        },
+
+        hydratePattern(node) {
+            return {
+                _cid: ++this._cid,
+                id: null,
+                type: node.block_type,
+                label: node.label,
+                data: JSON.parse(JSON.stringify(node.data || {})),
+                is_visible: node.is_visible !== false,
+                sort_order: 0,
+                children: (node.children || []).map(child => this.hydratePattern(child)),
+            };
+        },
+
+        insertPattern(pattern) {
+            if (!pattern?.pattern_data) return;
+            const node = this.hydratePattern(JSON.parse(JSON.stringify(pattern.pattern_data)));
+            this.placeNode(node);
+            this.flash(`Inserted pattern: ${pattern.name}`);
+        },
+
+        async deletePattern(pattern) {
+            this.patternsError = null;
+            try {
+                const res = await fetch(`${cfg.patternsUrl}/${pattern.id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': cfg.csrf,
+                        'Accept': 'application/json',
+                    },
+                });
+                const json = await res.json();
+                if (!res.ok) throw new Error(json.message || 'Unable to delete pattern.');
+                this.patterns = this.patterns.filter(item => item.id !== pattern.id);
+                this.flash('Pattern deleted. Inserted page blocks were not changed.');
+            } catch (error) {
+                this.patternsError = error.message || 'Unable to delete pattern.';
+            }
         },
 
         selectBlock(cid) {
