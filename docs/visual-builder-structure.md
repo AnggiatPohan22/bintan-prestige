@@ -125,17 +125,23 @@ schema + frontend Blade render per the 11-step CMS Module Pattern (AGENTS.md §6
 **Add a topbar control** — edit only `partials/topbar.blade.php`. Keep the header
 `flex-none`; never let it grow the row.
 
-**Right-panel settings (B3.1 — implemented)** — `partials/panel-right.blade.php`
-is schema-driven. It reads `selectedNode()` and renders that block type's
-`fields` array from `config/blocks.php` (passed to JS via `cfg.registry`). Each
-control binds with `x-model="selectedNode().data[field.key]"` + `x-on:input`/`change="scheduleRefresh()"`.
-Supported field types: `text, url, number, textarea, richtext, select, toggle`.
-**To make a block editable in the builder:** add a `fields` array to its entry in
-`config/blocks.php` (key/type/label + optional default/options/min/max/maxlength/rows/help).
-`applyFieldDefaults()` seeds defaults on select/add so selects and the preview stay
-consistent. Deferred to **B3.2**: `repeater` + `image`/media-picker field types and
-dynamic-option selects (products_grid, faq, contact_form) and the nested background
-styling section.
+**Right-panel settings (B3 — implemented, all 19 blocks)** —
+`partials/panel-right.blade.php` is schema-driven. It reads `selectedNode()` and
+renders that block type's `fields` array from `config/blocks.php` (passed to JS via
+`cfg.registry`). Simple controls are delegated to the reusable
+`partials/builder-field.blade.php`, parameterised by `$f` (field var) and `$model`
+(Alpine lvalue) — the same renderer drives top-level fields and repeater rows.
+**Field types:** `text, url, number, textarea, richtext, select` (static or dynamic
+`optionsFrom`), `toggle, color, range, image` (Media Library picker + upload),
+`repeater` (array of objects), `list` (array of strings), plus `showIf` conditional
+visibility.
+**To make a block editable:** add a `fields` array to its entry in `config/blocks.php`
+(key/type/label + optional default/options/optionsFrom/min/max/step/suffix/maxlength/
+rows/itemLabel/max/showIf/help). `applyFieldDefaults()` seeds defaults on select/add.
+Dynamic select sources (`categories`/`destinations`/`forms`) come from
+`PageBuilderController@show` as `$fieldOptions` → `cfg.options`. Images reuse the
+shared `backend/media/partials/picker-modal` via the
+`open-media-picker`/`media-picker-selected` events.
 
 **Change the grid ratio** — edit the two `lg:w-[20%]` values (panel-left /
 panel-right). Canvas auto-fills the rest (`flex-1`). Keep left + right < 100%.
@@ -147,10 +153,10 @@ sets `previewMode`. No other change needed.
 
 ## 6. Known issues / TODO
 
-- **B3.1 — Right settings panel** is live for flat-field blocks (heading, text,
-  cta, divider, video_embed, map, group, columns). **B3.2** pending: repeater +
-  media fields, dynamic-option selects, nested background styling. Blocks not yet
-  schema-mapped fall back to the form editor on the Page Edit screen.
+- **B3 — Right settings panel** is live for all 19 blocks (B3.1 flat fields +
+  B3.2 image/repeater/list/dynamic-selects). Remaining optional work: the nested
+  background-styling object (`data[background][...]`) and drag-reorder of repeater
+  rows. Detailed/legacy editing still available via the Page Edit form editor.
 - **Detachable/draggable panels** (Elementor-style float) are not implemented —
   intentional trade-off; static `20:60:20` grid is used instead.
 - **Block-tree drag-and-drop** reorders top-level blocks only; nesting into

@@ -2,7 +2,7 @@
 
 **Date:** 2026-06-22
 **Branch:** `feature/phase-5-stage-b-visual-builder`
-**Status:** **B3.1 COMPLETE ✓** · B3.2 pending
+**Status:** **B3.1 + B3.2 COMPLETE ✓** — all 19 blocks editable in the builder
 
 ---
 
@@ -61,12 +61,58 @@ on save) · `select` · `toggle`.
 - `php artisan test --filter="Builder|PageBlock|Block"` → **50 passed / 535 assertions**
 - `npm run build` → new classes compiled
 
-## B3.2 — pending scope
+## B3.2 — COMPLETE ✓
 
-- `repeater` field type (array of sub-fields): gallery images, stats, pricing_table, button_group, testimonials, hero(slides), faq(items)
-- `image` field type + media-library picker (reuse the `postMessage` pattern)
-- Dynamic-option selects: products_grid (category/destination), contact_form (published forms) — needs the builder controller to pass those lists
-- Nested **background styling** section (color/image/position/repeat/size/opacity) for blocks where `supports.background = true`
+Added field types and wired the remaining 11 blocks:
+
+- **`image`** — path input + direct upload (`upload-quick`) + Media Library picker.
+  Reuses the shared `backend/media/partials/picker-modal` via the
+  `open-media-picker` → `media-picker-selected` event protocol. A pending-setter
+  (`pickImage(setter)` / `onMediaPicked`) routes the chosen path to the right
+  field, so it works for images nested inside repeaters (e.g. gallery).
+- **`color`** — color swatch + hex text input (hero `background_color`).
+- **`range`** — slider with live value + suffix (hero `overlay_opacity`).
+- **`repeater`** — array of objects with add/remove and a `max`; sub-fields render
+  through the same `builder-field` partial (so a repeater row can contain an image).
+  Blocks: gallery, button_group, stats, tour_itinerary, pricing_table, faq, testimonials.
+- **`list`** — array of plain strings (pricing_table plan `features`).
+- **`showIf: {key, value}`** — conditional field visibility (faq inline vs. ids).
+- **Dynamic `optionsFrom`** selects — `categories` / `destinations` / `forms`,
+  passed from `PageBuilderController@show` as `$fieldOptions` → `cfg.options`.
+
+### Reusable renderer
+
+`resources/views/backend/builder/partials/builder-field.blade.php` renders ONE
+control, parameterised by `$f` (field-definition var) and `$model` (Alpine lvalue
+expression). The top-level loop calls it with `selectedNode().data[field.key]`;
+repeater rows call it with `item[sub.key]`. One source of truth for every control.
+
+### Files (B3.2)
+
+| File | Change |
+|---|---|
+| `config/blocks.php` | `fields` for the remaining 11 blocks |
+| `partials/builder-field.blade.php` | New — reusable control set (text/url/number/textarea/richtext/select/color/range/toggle/image) |
+| `partials/panel-right.blade.php` | repeater + list + showIf; delegates simple controls to builder-field |
+| `partials/alpine-component.blade.php` | repeater/list helpers, media picker (`pickImage`/`onMediaPicked`/`uploadInto`), `selectOptions`, `showField`, `defaultFor` |
+| `index.blade.php` | `.builder-input` styles, include picker modal, pass `options`+`uploadUrl`, listen `media-picker-selected` |
+| `PageBuilderController.php` | pass `$fieldOptions` (categories/destinations/forms) |
+
+### Verification (B3.2)
+
+- `php -l config/blocks.php` clean; **19/19 blocks have fields**
+- `php artisan view:cache` compiles all partials
+- Controller render smoke test: `show()->render()` → 103 KB HTML, no errors
+- `php artisan test --filter="Builder|PageBlock|Block"` → **50 passed / 535 assertions**
+- PHPStan level 5 on the changed controller → 0 errors
+- `npm run build` → new classes compiled
+
+### Still deferred (optional, future)
+
+- Nested **background styling object** (`data[background][color|image|position|repeat|size|opacity]`)
+  used by the shared `blocks/partials/background.blade.php` — a `fieldset`/group field
+  type would cover it. Not blocking; blocks using flat style keys (e.g. hero) are done.
+- Drag-reorder of repeater rows (currently add/remove + order as added).
 
 ## Manual check (owner)
 
