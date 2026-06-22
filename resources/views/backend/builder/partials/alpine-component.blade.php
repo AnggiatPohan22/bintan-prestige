@@ -153,12 +153,42 @@ document.addEventListener('alpine:init', () => {
             } else {
                 this.tree.push(node);
             }
+            this.applyFieldDefaults(node);
             this.selectedCid = node._cid;
             this.scheduleRefresh();
         },
 
         selectBlock(cid) {
             this.selectedCid = this.selectedCid === cid ? null : cid;
+            const node = this.selectedNode();
+            if (node) this.applyFieldDefaults(node);
+        },
+
+        /* ── Settings panel (B3) ───────────────────────────── */
+        // The root-level node currently selected (null = nothing selected).
+        selectedNode() {
+            if (this.selectedCid === null) return null;
+            return this.tree.find(n => n._cid === this.selectedCid) || null;
+        },
+
+        // Editable field schema for a block type, from config/blocks.php (cfg.registry).
+        fieldsFor(type) {
+            const def = cfg.registry?.[type];
+            return (def && def.fields) ? def.fields : [];
+        },
+
+        // Ensure every schema field exists in node.data so inputs/selects bind to a
+        // defined value (selects show their default; preview stays consistent).
+        applyFieldDefaults(node) {
+            if (!node) return;
+            node.data = node.data || {};
+            for (const f of this.fieldsFor(node.type)) {
+                if (node.data[f.key] === undefined) {
+                    node.data[f.key] = (f.default !== undefined)
+                        ? f.default
+                        : (f.type === 'toggle' ? false : '');
+                }
+            }
         },
 
         onSort(cidStr, newPos) {

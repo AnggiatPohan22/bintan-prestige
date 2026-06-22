@@ -125,9 +125,17 @@ schema + frontend Blade render per the 11-step CMS Module Pattern (AGENTS.md §6
 **Add a topbar control** — edit only `partials/topbar.blade.php`. Keep the header
 `flex-none`; never let it grow the row.
 
-**Build the right-panel settings (B3)** — replace the placeholder in
-`partials/panel-right.blade.php`. Read the selected block via `selectedCid`;
-write changes into the matching `tree` node and call `scheduleRefresh()`.
+**Right-panel settings (B3.1 — implemented)** — `partials/panel-right.blade.php`
+is schema-driven. It reads `selectedNode()` and renders that block type's
+`fields` array from `config/blocks.php` (passed to JS via `cfg.registry`). Each
+control binds with `x-model="selectedNode().data[field.key]"` + `x-on:input`/`change="scheduleRefresh()"`.
+Supported field types: `text, url, number, textarea, richtext, select, toggle`.
+**To make a block editable in the builder:** add a `fields` array to its entry in
+`config/blocks.php` (key/type/label + optional default/options/min/max/maxlength/rows/help).
+`applyFieldDefaults()` seeds defaults on select/add so selects and the preview stay
+consistent. Deferred to **B3.2**: `repeater` + `image`/media-picker field types and
+dynamic-option selects (products_grid, faq, contact_form) and the nested background
+styling section.
 
 **Change the grid ratio** — edit the two `lg:w-[20%]` values (panel-left /
 panel-right). Canvas auto-fills the rest (`flex-1`). Keep left + right < 100%.
@@ -139,8 +147,10 @@ sets `previewMode`. No other change needed.
 
 ## 6. Known issues / TODO
 
-- **B3 — Right settings panel** is a placeholder; detailed editing still uses the
-  form editor on the Page Edit screen.
+- **B3.1 — Right settings panel** is live for flat-field blocks (heading, text,
+  cta, divider, video_embed, map, group, columns). **B3.2** pending: repeater +
+  media fields, dynamic-option selects, nested background styling. Blocks not yet
+  schema-mapped fall back to the form editor on the Page Edit screen.
 - **Detachable/draggable panels** (Elementor-style float) are not implemented —
   intentional trade-off; static `20:60:20` grid is used instead.
 - **Block-tree drag-and-drop** reorders top-level blocks only; nesting into
