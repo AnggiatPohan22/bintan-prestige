@@ -131,6 +131,27 @@ Added a hierarchical Block List and container-aware insertion:
 Files: `partials/alpine-component.blade.php`, `partials/panel-left.blade.php`,
 `partials/panel-right.blade.php`. Tests: 52 passed / 543 assertions.
 
+### B3 — Group/Columns Layout/Style/Advanced tabs — COMPLETE ✓
+
+Elementor-style tabbed settings for the container blocks (other blocks unchanged):
+
+- **Tabs**: fields tagged with `'tab'` (layout|style|advanced); panel shows a
+  switcher only when a block uses >1 tab (`fieldTabs()`/`activeFieldTab`).
+- **Layout**: Content Width (Boxed/Standard/Full-width — full is truly
+  edge-to-edge, no side padding), vertical spacing, column count/gap (Columns).
+- **Style**: Background via a `background` field type — color + image (picker +
+  upload) + position/size/repeat/opacity, bound to `data.background.*` (already
+  rendered by the frontend partials). Slideshow/video deferred.
+- **Advanced**: margin & padding (`box` 4-side), z-index, CSS id, CSS classes,
+  hide on desktop/tablet/mobile, custom CSS (`code`). Applied on the frontend by
+  `App\Support\BlockStyle::advanced()`; validated + normalized by
+  `PageBlockService::advancedRules()`/`normalizeAdvanced()` so empty inputs never
+  break Save. Tailwind safelist covers the runtime hide classes.
+
+Security: `css_id`/`css_classes` sanitized to safe chars; `custom_css` strips
+`<`/`>` (no `</style>` breakout) and is admin-only. New field types: `code`,
+`box`, `background`. Round-trip + 158 tests verified; PHPStan level 5 clean.
+
 ### Still deferred (optional, future)
 
 - Nested **background styling object** (`data[background][color|image|position|repeat|size|opacity]`)

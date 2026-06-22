@@ -131,10 +131,20 @@ renders that block type's `fields` array from `config/blocks.php` (passed to JS 
 `cfg.registry`). Simple controls are delegated to the reusable
 `partials/builder-field.blade.php`, parameterised by `$f` (field var) and `$model`
 (Alpine lvalue) — the same renderer drives top-level fields and repeater rows.
-**Field types:** `text, url, number, textarea, richtext, select` (static or dynamic
-`optionsFrom`), `toggle, color, range, image` (Media Library picker + upload),
-`repeater` (array of objects), `list` (array of strings), plus `showIf` conditional
-visibility.
+**Field types:** `text, url, number, textarea, richtext, code` (mono), `select`
+(static or dynamic `optionsFrom`), `toggle, color, range, image` (Media Library
+picker + upload), `box` (4-side margin/padding), `background` (color + image +
+position/size/repeat/opacity → `data.background.*`), `repeater` (array of objects),
+`list` (array of strings), plus `showIf` conditional visibility.
+
+**Tabbed panel (Group/Columns):** a field may carry `'tab' => 'layout'|'style'|'advanced'`.
+When a block uses more than one tab, panel-right shows a Layout/Style/Advanced switcher
+(`fieldTabs()`/`activeFieldTab`); single-tab blocks render as a plain list (unchanged).
+Group/Columns Advanced (margin, padding, z-index, CSS id/classes, hide on
+desktop/tablet/mobile, custom CSS) is applied on the frontend by
+`App\Support\BlockStyle::advanced()` and validated/sanitized by
+`PageBlockService::advancedRules()`/`normalizeAdvanced()`. `width=full` renders
+truly edge-to-edge (no side padding). Background slideshow/video are deferred.
 **To make a block editable:** add a `fields` array to its entry in `config/blocks.php`
 (key/type/label + optional default/options/optionsFrom/min/max/step/suffix/maxlength/
 rows/itemLabel/max/showIf/help). `applyFieldDefaults()` seeds defaults on select/add.
