@@ -1,5 +1,7 @@
 @php
     $data       = $block->data ?? [];
+    $builderInline = (bool) ($builderCanvas ?? false);
+    $builderOrder = abs((int) $block->id);
     $title      = $data['title'] ?? '';
     $sub        = $data['subtitle'] ?? '';
     $img        = $data['image'] ?? '';
@@ -23,11 +25,12 @@
     }
 @endphp
 
-@if($title || $imgUrl)
+@if($title || $imgUrl || $builderInline)
 <section
     class="bp-block-hero"
     style="{{ $sectionStyle }}"
     aria-label="{{ $title ?: 'Hero section' }}"
+    @if($builderInline) data-builder-block-order="{{ $builderOrder }}" @endif
 >
     {{-- Gradient overlay --}}
     @if($hasOverlay)
@@ -44,30 +47,33 @@
     >
         <div class="max-w-3xl">
 
-            @if($title)
+            @if($title || $builderInline)
                 <h1
                     class="text-4xl font-extrabold uppercase leading-tight tracking-tight sm:text-5xl lg:text-7xl"
                     style="color:rgba(255,255,255,0.92);text-shadow:0 24px 80px rgba(0,0,0,0.34);"
+                    @if($builderInline) contenteditable="true" data-inline-field="title" data-edit-type="plaintext" data-placeholder="Hero title" @endif
                 >
                     {{ $title }}
                 </h1>
             @endif
 
-            @if($sub)
+            @if($sub || $builderInline)
                 <p
                     class="mt-5 max-w-2xl text-base font-semibold leading-7 sm:text-xl lg:text-2xl"
                     style="color:rgba(255,255,255,0.78);"
+                    @if($builderInline) contenteditable="true" data-inline-field="subtitle" data-edit-type="plaintext" data-placeholder="Hero subtitle" @endif
                 >
                     {{ $sub }}
                 </p>
             @endif
 
-            @if($ctaTxt && $ctaUrl)
+            @if(($ctaTxt && $ctaUrl) || $builderInline)
                 <div class="mt-8">
                     <a
-                        href="{{ $ctaUrl }}"
+                        href="{{ $ctaUrl ?: '#' }}"
                         class="inline-block rounded-full px-10 py-4 text-sm font-bold uppercase tracking-widest transition hover:-translate-y-0.5 hover:shadow-lg"
                         style="background:var(--frontend-gold,#c8a24a);color:var(--frontend-black,#090806);"
+                        @if($builderInline) contenteditable="true" data-inline-field="cta_text" data-edit-type="plaintext" data-placeholder="Button text" @endif
                     >
                         {{ $ctaTxt }}
                     </a>

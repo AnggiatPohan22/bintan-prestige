@@ -23,6 +23,9 @@ document.addEventListener('alpine:init', () => {
         dragCid:        null,      // _cid of the block being dragged
         dragOverCid:    null,      // _cid of the row currently hovered as a drop target
         dropMode:       null,      // 'before' | 'after' | 'inside' | 'invalid'
+        inlineToolbar:  { visible: false, left: 0, top: 0 },
+        _inlineRange:    null,
+        _inlineTarget:   null,
 
         /* ── Init ──────────────────────────────────────────── */
         init() {
@@ -89,6 +92,7 @@ document.addEventListener('alpine:init', () => {
                         frame.addEventListener('load', () => {
                             requestAnimationFrame(() => {
                                 try { frame.contentWindow.scrollTo(0, prevScroll); } catch {}
+                                this.bindInlineEditing(frame);
                             });
                         }, { once: true });
                         frame.srcdoc = html;
@@ -320,6 +324,142 @@ document.addEventListener('alpine:init', () => {
         fieldsFor(type) {
             const def = cfg.registry?.[type];
             return (def && def.fields) ? def.fields : [];
+        },
+
+        inlineField(type, key) {
+            return this.fieldsFor(type).find(field => field.key === key && field.inline) || null;
+        },
+
+        flattenTree(nodes = this.tree, result = []) {
+            for (const node of nodes) {
+                result.push(node);
+                this.flattenTree(node.children || [], result);
+            }
+            return result;
+        },
+
+        bindInlineEditing(frame) {
+            const doc = frame.contentDocument;
+            if (!doc) return;
+
+            const style = doc.createElement('style');
+            style.textContent = `
+                [contenteditable]:hover {
+                    outline:1px dashed var(--builder-edit-hint,#94a3b8);
+                    outline-offset:2px;
+                    cursor:text;
+                }
+                [contenteditable]:focus {
+                    outline:2px solid var(--builder-edit-active,#3b82f6);
+                    outline-offset:2px;
+                    min-height:1em;
+                }
+                [contenteditable]:empty::before {
+                    content:attr(data-placeholder);
+                    color:var(--builder-placeholder,#9ca3af);
+                    pointer-events:none;
+                    font-style:italic;
+                }
+            `;
+            doc.head.appendChild(style);
+
+            const nodes = this.flattenTree();
+            doc.querySelectorAll('[data-builder-block-order]').forEach(root => {
+                const order = Number(root.dataset.builderBlockOrder);
+                const node = nodes[order - 1];
+                if (!node) return;
+
+                root.querySelectorAll('[contenteditable][data-inline-field]').forEach(editable => {
+                    const field = editable.dataset.inlineField;
+                    const definition = this.inlineField(node.type, field);
+                    if (!definition || definition.inline !== editable.dataset.editType) return;
+
+                    editable.addEventListener('focus', () => {
+                        this.selectedCid = node._cid;
+                        this.activeFieldTab = 'layout';
+                    });
+                    editable.addEventListener('click', event => {
+                        if (editable.closest('a')) event.preventDefault();
+                    });
+                    editable.addEventListener('input', () => {
+                        node.data[field] = definition.inline === 'richtext'
+                            ? editable.innerHTML
+                            : editable.innerText.replace(/\r/g, '');
+                        this.isDirty = true;
+                        clearTimeout(this._refreshTimer);
+                        this._refreshTimer = setTimeout(() => this.refreshPreview(), 800);
+                    });
+                    editable.addEventListener('blur', () => {
+                        if (definition.inline !== 'richtext') this.hideInlineToolbar();
+                    });
+                });
+            });
+
+            doc.addEventListener('selectionchange', () => this.updateInlineToolbar(frame));
+            doc.addEventListener('mousedown', event => {
+                if (!event.target.closest?.('[contenteditable][data-edit-type="richtext"]')) {
+                    this.hideInlineToolbar();
+                }
+            });
+        },
+
+        updateInlineToolbar(frame) {
+            const doc = frame.contentDocument;
+            const selection = doc?.getSelection();
+            const anchor = selection?.anchorNode;
+            const anchorElement = anchor?.nodeType === 1 ? anchor : anchor?.parentElement;
+            const editable = anchorElement?.closest?.('[contenteditable][data-edit-type="richtext"]');
+
+            if (!selection || selection.rangeCount === 0 || selection.isCollapsed || !editable) {
+                this.hideInlineToolbar();
+                return;
+            }
+
+            const range = selection.getRangeAt(0);
+            if (!editable.contains(range.commonAncestorContainer)) {
+                this.hideInlineToolbar();
+                return;
+            }
+
+            const rect = range.getBoundingClientRect();
+            const frameRect = frame.getBoundingClientRect();
+            this._inlineRange = range.cloneRange();
+            this._inlineTarget = editable;
+            this.inlineToolbar = {
+                visible: true,
+                left: Math.max(8, frameRect.left + rect.left + (rect.width / 2)),
+                top: Math.max(8, frameRect.top + rect.top - 44),
+            };
+        },
+
+        formatInline(command) {
+            if (!this._inlineRange || !this._inlineTarget) return;
+            const doc = this._inlineTarget.ownerDocument;
+            const selection = doc.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(this._inlineRange);
+
+            if (command === 'link') {
+                const url = window.prompt('Link URL (http:// or https://)');
+                if (!url || !/^https?:\/\//i.test(url)) return;
+                doc.execCommand('createLink', false, url);
+                const link = selection.anchorNode?.parentElement?.closest?.('a');
+                if (link) link.setAttribute('target', '_blank');
+            } else if (command === 'clear') {
+                doc.execCommand('removeFormat', false, null);
+                doc.execCommand('unlink', false, null);
+            } else {
+                doc.execCommand(command, false, null);
+            }
+
+            this._inlineTarget.dispatchEvent(new Event('input', { bubbles: true }));
+            this._inlineRange = selection.rangeCount ? selection.getRangeAt(0).cloneRange() : null;
+        },
+
+        hideInlineToolbar() {
+            this.inlineToolbar.visible = false;
+            this._inlineRange = null;
+            this._inlineTarget = null;
         },
 
         // Default value for one field by type (fresh objects each call).

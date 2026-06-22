@@ -1,5 +1,7 @@
 @php
     $data = $block->data ?? [];
+    $builderInline = (bool) ($builderCanvas ?? false);
+    $builderOrder = abs((int) $block->id);
     $text = trim((string) ($data['text'] ?? ''));
     $requestedLevel = $data['level'] ?? 'h2';
     $level = in_array($requestedLevel, ['h2', 'h3', 'h4', 'h5', 'h6'], true) ? $requestedLevel : 'h2';
@@ -23,19 +25,19 @@
     }
 @endphp
 
-@if($text !== '')
-<section class="px-6 py-8 sm:py-10" style="{{ $bgStyle }}">
+@if($text !== '' || $builderInline)
+<section class="px-6 py-8 sm:py-10" style="{{ $bgStyle }}" @if($builderInline) data-builder-block-order="{{ $builderOrder }}" @endif>
     <div class="mx-auto max-w-7xl {{ $alignment }}">
         @if($level === 'h2')
-            <h2 class="font-bold tracking-tight {{ $size }}">{{ $text }}</h2>
+            <h2 class="font-bold tracking-tight {{ $size }}" @if($builderInline) contenteditable="true" data-inline-field="text" data-edit-type="plaintext" data-placeholder="Section heading" @endif>{{ $text }}</h2>
         @elseif($level === 'h3')
-            <h3 class="font-bold tracking-tight {{ $size }}">{{ $text }}</h3>
+            <h3 class="font-bold tracking-tight {{ $size }}" @if($builderInline) contenteditable="true" data-inline-field="text" data-edit-type="plaintext" data-placeholder="Section heading" @endif>{{ $text }}</h3>
         @elseif($level === 'h4')
-            <h4 class="font-bold tracking-tight {{ $size }}">{{ $text }}</h4>
+            <h4 class="font-bold tracking-tight {{ $size }}" @if($builderInline) contenteditable="true" data-inline-field="text" data-edit-type="plaintext" data-placeholder="Section heading" @endif>{{ $text }}</h4>
         @elseif($level === 'h5')
-            <h5 class="font-bold tracking-tight {{ $size }}">{{ $text }}</h5>
+            <h5 class="font-bold tracking-tight {{ $size }}" @if($builderInline) contenteditable="true" data-inline-field="text" data-edit-type="plaintext" data-placeholder="Section heading" @endif>{{ $text }}</h5>
         @else
-            <h6 class="font-bold tracking-tight {{ $size }}">{{ $text }}</h6>
+            <h6 class="font-bold tracking-tight {{ $size }}" @if($builderInline) contenteditable="true" data-inline-field="text" data-edit-type="plaintext" data-placeholder="Section heading" @endif>{{ $text }}</h6>
         @endif
     </div>
 </section>

@@ -6,6 +6,7 @@ use App\Models\Page;
 use App\Models\PageBlock;
 use App\Models\User;
 use App\Services\PageBlockService;
+use App\Support\InlineContentSanitizer;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Schema;
 use Tests\TestCase;
@@ -268,11 +269,116 @@ class PageBlockManagementTest extends TestCase
         $this->assertSame('Story block', $block->label);
         $this->assertSame('Our Story', $block->data['heading']);
         $this->assertSame(
-            '<p>Hello <strong>World</strong>alert(1) <a>Unsafe</a> '
+            '<p>Hello <strong>World</strong> <a>Unsafe</a> '
                 .'<a href="https://example.com" target="_blank" rel="noopener noreferrer">Safe</a></p>',
             $block->data['body_html']
         );
         $this->assertArrayNotHasKey('unexpected', $block->data);
+    }
+
+    public function test_b4_inline_content_sanitizer_neutralizes_xss_vectors(): void
+    {
+        $this->assertSame(
+            '<p>Normal <strong>bold</strong></p>',
+            InlineContentSanitizer::richtext('<p>Normal <strong>bold</strong></p>')
+        );
+        $this->assertSame('', InlineContentSanitizer::richtext('<script>alert(1)</script>'));
+        $this->assertSame('<p>Text</p>', InlineContentSanitizer::richtext('<p onclick="alert(1)">Text</p>'));
+        $this->assertSame('<a>Link</a>', InlineContentSanitizer::richtext('<a href="javascript:alert(1)">Link</a>'));
+        $this->assertSame('<a>Encoded</a>', InlineContentSanitizer::richtext('<a href="java&#x73;cript:alert(1)">Encoded</a>'));
+        $this->assertSame('', InlineContentSanitizer::richtext('<img src=x onerror=alert(1)>'));
+        $this->assertSame('', InlineContentSanitizer::richtext('<style>body{display:none}</style>'));
+        $this->assertSame('', InlineContentSanitizer::richtext('<iframe src="evil.com"></iframe>'));
+        $this->assertSame('Hello world', InlineContentSanitizer::plaintext('Hello <b>world</b>'));
+    }
+
+    public function test_builder_save_tree_sanitizes_all_configured_inline_fields(): void
+    {
+        $page = $this->page();
+
+        $this->actingAs($this->admin())
+            ->postJson(route('admin.page-blocks.save-tree', $page), [
+                'blocks' => [
+                    [
+                        'block_type' => 'hero',
+                        'label' => 'Hero',
+                        'data' => [
+                            'title' => 'Welcome <script>alert(1)</script>',
+                            'subtitle' => '<b>Island escapes</b>',
+                            'cta_text' => '<img src=x onerror=alert(1)>Explore',
+                        ],
+                        'children' => [],
+                    ],
+                    [
+                        'block_type' => 'text',
+                        'label' => 'Story',
+                        'data' => [
+                            'heading' => '<em>Our story</em>',
+                            'body_html' => '<p onclick="alert(1)">Safe <strong>copy</strong></p><script>alert(2)</script>',
+                        ],
+                        'children' => [],
+                    ],
+                    [
+                        'block_type' => 'heading',
+                        'label' => 'Heading',
+                        'data' => ['text' => '<u>Section title</u>'],
+                        'children' => [],
+                    ],
+                    [
+                        'block_type' => 'cta',
+                        'label' => 'CTA',
+                        'data' => [
+                            'title' => '<strong>Book today</strong>',
+                            'description' => '<script>bad()</script>Plan your escape',
+                            'button_text' => '<em>Contact us</em>',
+                        ],
+                        'children' => [],
+                    ],
+                ],
+            ])->assertOk()->assertJsonPath('success', true);
+
+        $hero = $page->blocks()->where('block_type', 'hero')->firstOrFail();
+        $text = $page->blocks()->where('block_type', 'text')->firstOrFail();
+        $heading = $page->blocks()->where('block_type', 'heading')->firstOrFail();
+        $cta = $page->blocks()->where('block_type', 'cta')->firstOrFail();
+
+        $this->assertSame('Welcome alert(1)', $hero->data['title']);
+        $this->assertSame('Island escapes', $hero->data['subtitle']);
+        $this->assertSame('Explore', $hero->data['cta_text']);
+        $this->assertSame('Our story', $text->data['heading']);
+        $this->assertSame('<p>Safe <strong>copy</strong></p>', $text->data['body_html']);
+        $this->assertSame('Section title', $heading->data['text']);
+        $this->assertSame('Book today', $cta->data['title']);
+        $this->assertSame('bad()Plan your escape', $cta->data['description']);
+        $this->assertSame('Contact us', $cta->data['button_text']);
+    }
+
+    public function test_builder_preview_marks_inline_fields_without_changing_public_routes(): void
+    {
+        $page = $this->page();
+        $blocks = collect(['heading', 'text', 'hero', 'cta'])
+            ->map(fn (string $type): array => [
+                'block_type' => $type,
+                'label' => ucfirst($type),
+                'data' => [],
+                'children' => [],
+            ])->all();
+        $blocks[1]['data'] = [
+            'heading' => str_repeat('x', 1001), // forces transient validation fallback
+            'body_html' => '<p>Preview copy</p><script>alert("preview-xss")</script>',
+        ];
+
+        $response = $this->actingAs($this->admin())
+            ->post(route('admin.pages.preview-payload', $page), ['blocks' => $blocks]);
+
+        $response->assertOk()
+            ->assertSee('data-builder-block-order="1"', false)
+            ->assertSee('data-inline-field="text"', false)
+            ->assertSee('data-inline-field="body_html"', false)
+            ->assertSee('data-inline-field="title"', false)
+            ->assertSee('data-inline-field="button_text"', false)
+            ->assertSee('contenteditable="true"', false)
+            ->assertDontSee('preview-xss', false);
     }
 
     public function test_admin_can_reorder_toggle_and_delete_blocks_for_a_page(): void

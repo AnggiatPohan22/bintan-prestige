@@ -69,4 +69,18 @@
         ><i class="fa-solid fa-xmark"></i></button>
     </div>
 
+    {{-- B4 rich-text toolbar. Coordinates are calculated from the iframe Selection API. --}}
+    <div
+        x-show="inlineToolbar.visible"
+        x-cloak
+        class="fixed z-50 flex -translate-x-1/2 items-center gap-1 rounded-lg border border-slate-600 bg-slate-900 p-1 text-slate-200 shadow-2xl"
+        :style="`left:${inlineToolbar.left}px;top:${inlineToolbar.top}px`"
+        x-on:mousedown.prevent
+    >
+        <button type="button" class="rounded px-2 py-1 text-xs font-bold hover:bg-slate-700" title="Bold" x-on:click="formatInline('bold')">B</button>
+        <button type="button" class="rounded px-2 py-1 text-xs italic hover:bg-slate-700" title="Italic" x-on:click="formatInline('italic')">I</button>
+        <button type="button" class="rounded px-2 py-1 text-xs hover:bg-slate-700" title="Link" x-on:click="formatInline('link')"><i class="fa-solid fa-link"></i></button>
+        <button type="button" class="rounded px-2 py-1 text-xs hover:bg-slate-700" title="Clear formatting" x-on:click="formatInline('clear')"><i class="fa-solid fa-eraser"></i></button>
+    </div>
+
 </div>{{-- /center panel --}}

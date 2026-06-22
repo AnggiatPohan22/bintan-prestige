@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Page;
 use App\Models\PageBlock;
 use App\Support\BlockStyle;
+use App\Support\InlineContentSanitizer;
 use Closure;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -196,15 +197,36 @@ class PageBlockService
 
         $validated = Validator::make($data, $this->rulesFor($blockType))->validate();
 
-        if ($blockType === 'text' && isset($validated['body_html'])) {
-            $validated['body_html'] = $this->sanitizeRichHtml($validated['body_html']);
-        }
+        $validated = $this->sanitizeInlineFields($blockType, $validated);
 
         if ($blockType === 'video_embed' && ! empty($validated['url'])) {
             $validated['url'] = $this->canonicalVideoEmbedUrl($validated['url']);
         }
 
         return $validated;
+    }
+
+    /** @param array<string, mixed> $data
+     * @return array<string, mixed>
+     */
+    private function sanitizeInlineFields(string $blockType, array $data): array
+    {
+        $fields = config("blocks.{$blockType}.fields", []);
+
+        foreach ($fields as $field) {
+            $key = $field['key'] ?? null;
+            $editType = $field['inline'] ?? null;
+
+            if (! is_string($key) || ! is_string($editType) || ! isset($data[$key]) || ! is_string($data[$key])) {
+                continue;
+            }
+
+            $data[$key] = $editType === 'richtext'
+                ? InlineContentSanitizer::richtext($data[$key])
+                : InlineContentSanitizer::plaintext($data[$key]);
+        }
+
+        return $data;
     }
 
     private function rulesFor(string $blockType): array
@@ -586,74 +608,5 @@ class PageBlockService
         }
 
         return '';
-    }
-
-    private function sanitizeRichHtml(string $html): string
-    {
-        $html = strip_tags($html, '<p><br><strong><em><ul><ol><li><a><h2><h3><blockquote>');
-
-        return preg_replace_callback(
-            '/<([a-z0-9]+)\b([^>]*)>/i',
-            function (array $match): string {
-                $tag = strtolower($match[1]);
-
-                if ($tag !== 'a') {
-                    return "<{$tag}>";
-                }
-
-                preg_match_all(
-                    '/\b(href|title|target|rel)\s*=\s*(["\'])(.*?)\2/i',
-                    $match[2],
-                    $attributes,
-                    PREG_SET_ORDER
-                );
-
-                $safe = [];
-                foreach ($attributes as $attribute) {
-                    $name = strtolower($attribute[1]);
-                    $value = $attribute[3];
-
-                    if ($name === 'href' && ! $this->isSafeRichTextLink($value)) {
-                        continue;
-                    }
-
-                    if ($name === 'target' && ! in_array($value, ['_blank', '_self'], true)) {
-                        continue;
-                    }
-
-                    if ($name === 'rel') {
-                        $tokens = array_intersect(preg_split('/\s+/', strtolower($value)), ['noopener', 'noreferrer', 'nofollow']);
-                        $value = implode(' ', array_unique($tokens));
-                        if ($value === '') {
-                            continue;
-                        }
-                    }
-
-                    $safe[$name] = $value;
-                }
-
-                if (($safe['target'] ?? null) === '_blank') {
-                    $rel = preg_split('/\s+/', $safe['rel'] ?? '', -1, PREG_SPLIT_NO_EMPTY);
-                    $safe['rel'] = implode(' ', array_unique([...$rel, 'noopener', 'noreferrer']));
-                }
-
-                $serialized = '';
-                foreach ($safe as $name => $value) {
-                    $serialized .= ' '.$name.'="'.htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8').'"';
-                }
-
-                return '<a'.$serialized.'>';
-            },
-            $html
-        ) ?? '';
-    }
-
-    private function isSafeRichTextLink(string $url): bool
-    {
-        if ((str_starts_with($url, '/') && ! str_starts_with($url, '//')) || str_starts_with($url, '#')) {
-            return true;
-        }
-
-        return in_array(strtolower((string) parse_url($url, PHP_URL_SCHEME)), ['http', 'https', 'mailto', 'tel'], true);
     }
 }

@@ -59,10 +59,10 @@ return [
         'keywords' => ['banner', 'header', 'intro'],
         'supports' => ['background' => true, 'spacing' => false, 'alignment' => false, 'children' => false],
         'fields' => [
-            ['key' => 'title', 'type' => 'text', 'label' => 'Title', 'placeholder' => 'Main headline'],
-            ['key' => 'subtitle', 'type' => 'text', 'label' => 'Subtitle', 'placeholder' => 'Supporting text below headline'],
+            ['key' => 'title', 'type' => 'text', 'inline' => 'plaintext', 'label' => 'Title', 'placeholder' => 'Main headline'],
+            ['key' => 'subtitle', 'type' => 'text', 'inline' => 'plaintext', 'label' => 'Subtitle', 'placeholder' => 'Supporting text below headline'],
             ['key' => 'image', 'type' => 'image', 'label' => 'Hero Image', 'placeholder' => 'e.g. pages/hero.webp or https://...'],
-            ['key' => 'cta_text', 'type' => 'text', 'label' => 'CTA Button Text', 'placeholder' => 'e.g. Explore Tours'],
+            ['key' => 'cta_text', 'type' => 'text', 'inline' => 'plaintext', 'label' => 'CTA Button Text', 'placeholder' => 'e.g. Explore Tours'],
             ['key' => 'cta_url', 'type' => 'text', 'label' => 'CTA Button URL', 'placeholder' => '/products'],
             ['key' => 'background_color', 'type' => 'color', 'label' => 'Background Color', 'default' => '#0f0f0f'],
             ['key' => 'min_height', 'type' => 'select', 'label' => 'Min Height', 'default' => 'large', 'options' => ['small' => 'Small (400px)', 'medium' => 'Medium (600px)', 'large' => 'Large (80vh)']],
@@ -76,7 +76,7 @@ return [
         'keywords' => ['title', 'headline'],
         'supports' => ['background' => true, 'spacing' => true, 'alignment' => true, 'children' => false],
         'fields' => [
-            ['key' => 'text', 'type' => 'text', 'label' => 'Heading Text', 'maxlength' => 500, 'placeholder' => 'Section heading'],
+            ['key' => 'text', 'type' => 'text', 'inline' => 'plaintext', 'label' => 'Heading Text', 'maxlength' => 500, 'placeholder' => 'Section heading'],
             ['key' => 'level', 'type' => 'select', 'label' => 'Semantic Level', 'default' => 'h2', 'options' => ['h2' => 'H2 — Main section', 'h3' => 'H3 — Subsection', 'h4' => 'H4', 'h5' => 'H5', 'h6' => 'H6']],
             ['key' => 'alignment', 'type' => 'select', 'label' => 'Alignment', 'default' => 'left', 'options' => ['left' => 'Left', 'center' => 'Center', 'right' => 'Right']],
         ],
@@ -87,8 +87,8 @@ return [
         'keywords' => ['paragraph', 'copy', 'article'],
         'supports' => ['background' => true, 'spacing' => false, 'alignment' => false, 'children' => false],
         'fields' => [
-            ['key' => 'heading', 'type' => 'text', 'label' => 'Heading', 'placeholder' => 'Section heading (optional)'],
-            ['key' => 'body_html', 'type' => 'richtext', 'label' => 'Body HTML', 'rows' => 8, 'placeholder' => 'Allowed tags: p, br, strong, em, ul, ol, li, a, h2, h3, blockquote', 'help' => 'HTML is sanitized on save. Allowed: p, br, strong, em, ul, ol, li, a, h2, h3, blockquote'],
+            ['key' => 'heading', 'type' => 'text', 'inline' => 'plaintext', 'label' => 'Heading', 'placeholder' => 'Section heading (optional)'],
+            ['key' => 'body_html', 'type' => 'richtext', 'inline' => 'richtext', 'label' => 'Body HTML', 'rows' => 8, 'placeholder' => 'Allowed tags: p, br, strong, em, ul, ol, li, a, h2, h3, blockquote', 'help' => 'HTML is sanitized on save. Allowed: p, br, strong, em, ul, ol, li, a, h2, h3, blockquote'],
         ],
     ],
     'image' => [
@@ -205,9 +205,9 @@ return [
         'keywords' => ['banner', 'button', 'conversion'],
         'supports' => ['background' => true, 'spacing' => false, 'alignment' => false, 'children' => false],
         'fields' => [
-            ['key' => 'title', 'type' => 'text', 'label' => 'Title', 'placeholder' => 'CTA headline'],
-            ['key' => 'description', 'type' => 'textarea', 'label' => 'Description', 'rows' => 3, 'placeholder' => 'Supporting text'],
-            ['key' => 'button_text', 'type' => 'text', 'label' => 'Button Text', 'placeholder' => 'e.g. Book Now'],
+            ['key' => 'title', 'type' => 'text', 'inline' => 'plaintext', 'label' => 'Title', 'placeholder' => 'CTA headline'],
+            ['key' => 'description', 'type' => 'textarea', 'inline' => 'plaintext', 'label' => 'Description', 'rows' => 3, 'placeholder' => 'Supporting text'],
+            ['key' => 'button_text', 'type' => 'text', 'inline' => 'plaintext', 'label' => 'Button Text', 'placeholder' => 'e.g. Book Now'],
             ['key' => 'button_url', 'type' => 'text', 'label' => 'Button URL', 'placeholder' => '/products'],
             ['key' => 'style', 'type' => 'select', 'label' => 'Style', 'default' => 'dark', 'options' => ['dark' => 'Dark (black background)', 'light' => 'Light (white background)', 'gold' => 'Gold accent']],
         ],
