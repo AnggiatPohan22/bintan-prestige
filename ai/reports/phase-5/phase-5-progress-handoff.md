@@ -5,7 +5,7 @@
 > Di-update setiap kali task selesai. AI agents WAJIB membaca file ini
 > sebelum memulai pekerjaan apapun yang menyentuh Phase 5 code.
 >
-> Last updated: Stage C3 — 2026-06-23
+> Last updated: Stage C4 — 2026-06-23 (**Phase 5 COMPLETE**)
 
 ---
 
@@ -29,7 +29,7 @@
 | C | C1 Static Analysis & Code Quality | ✅ DONE | c1-static-analysis-code-quality-report.md |
 | C | C2 Performance Audit | ✅ DONE | c2-performance-audit-report.md |
 | C | C3 Functional Smoke Test | ✅ DONE | c3-smoke-test-report.md |
-| C | C4 Architecture Documentation | ⏳ PENDING | — |
+| C | C4 Architecture Documentation | ✅ DONE | c4-architecture-documentation.md |
 
 ---
 
@@ -339,7 +339,13 @@ Classes: `[A-Za-z0-9_-]` only, max 20 classes, max 20 chars each (via regex filt
 
 ### C4 — Architecture Documentation
 
-- Status: ⏳ PENDING
+- Status: ✅ DONE — 2026-06-23
+- Created `docs/modules/visual-builder.md` — comprehensive developer reference (data model, routes, Alpine store, sanitization, extension guide, file map, constraints)
+- Updated `docs/visual-builder-structure.md` — added B7 section + complete change history
+- Added Phase 5 entry to `docs/changelog/CHANGELOG.md` (A1–A5, B0–B7, C1–C4, DB changes, tests)
+- Finalized Phase 6 Preparation Notes (TD-04, TD-05, pagination, new block types, child theme, pre-flight checklist)
+- No code changes — documentation only
+- Report: c4-architecture-documentation.md
 
 ---
 
@@ -361,17 +367,41 @@ Classes: `[A-Za-z0-9_-]` only, max 20 classes, max 20 chars each (via regex filt
 | PHPStan | ✅ PASS | Level 5, 0 errors |
 | Performance | ✅ PASS | All warm-run routes ≤300ms; no N+1; indexes complete |
 | Smoke test | ✅ PASS | 627 tests / 17 HTTP checks / 8 feature checks all PASS; 10 manual QA items pending browser |
-| Architecture docs | ⏳ PENDING | C4 not started |
-| **Release Gate** | **⏳ PENDING** | C4 outstanding |
+| Architecture docs | ✅ PASS | visual-builder.md + CHANGELOG + visual-builder-structure.md updated |
+| **Release Gate** | **✅ PASS** | All automated checks pass; 10 manual QA items + production env config pending before deploy |
 
 ---
 
 ## 12. Phase 6 Preparation Notes
 
-> Will be completed at C4 — Architecture Documentation.
+> Finalized at C4 — 2026-06-23.
 
-Preliminary notes from Phase 5 audit:
-- TD-04 and TD-05 are natural Phase 6 targets (widget sanitization, Blade query cleanup)
-- Builder architecture is extensible: new block types require only `config/blocks.php` + two Blade files
-- `BuilderTreeSanitizer` is the single save gateway — Phase 6 content type additions should route through it
-- Consider FormRequest for `PageBlockController` inline validation in Phase 6 (currently uses `$request->validate()`)
+### Immediate targets (carry-over technical debt)
+
+| # | Item | File | Action | Priority |
+|---|------|------|--------|----------|
+| TD-04 | Widget text not sanitized | `resources/views/components/widgets/text.blade.php` | Wrap `{!! $widget->content !!}` through `InlineContentSanitizer::richtext()` | LOW |
+| TD-05 | DB query in Blade | `resources/views/frontend/blocks/contact-form.blade.php:3` | Move `FormDefinition::find()` to `PageRenderData::prepareBlockData()` | LOW |
+| — | Patterns API unpaginated | `BuilderPatternController::index()` | Add `paginate(20)` when pattern count > ~50 | LOW |
+
+### Architecture opportunities
+
+- **FormRequest for PageBlockController** — move inline `$request->validate()` to a proper FormRequest class for consistency
+- **New block types** — system is extensible: add to `config/blocks.php` + two Blade files. Candidates: `accordion`, `tabs`, `countdown`, `social_feed`, `embed`
+- **Template categories / thumbnails UI** — `builder_templates` table has `category` + `thumbnail` columns; browsing/filtering UI not yet built
+- **Child theme support** — TD-03 from Phase 4; requires theme inheritance chain in `ThemeService` + migration
+- **Reviews / testimonials CMS** — currently static fallback; move to `reviews` table + admin CRUD if volume requires
+
+### Pre-flight checklist (before production deploy)
+
+| Action | Command |
+|--------|---------|
+| Set `APP_DEBUG=false` | `.env` |
+| Set `APP_ENV=production` | `.env` |
+| `php artisan config:cache` | — |
+| `php artisan route:cache` | — |
+| `php artisan view:cache` | — |
+| `npm run build` (Vite production build) | — |
+| `php artisan migrate --force` | — |
+| `php artisan storage:link` | — |
+| Complete MQ-1 to MQ-10 | Browser + admin login (see C3 report) |

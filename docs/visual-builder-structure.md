@@ -223,12 +223,48 @@ Patterns, page templates, and persisted page trees share
 sanitization aligned. The template modal is lazy-loaded and does not alter the
 fixed `20:60:20` panel contract or CSS-only device sizing.
 
-## 8. Change history
+## 8. B7 — Responsive preview controls
+
+Added in Phase 5 Stage B7. All changes are in `topbar.blade.php`, `canvas.blade.php`, and `alpine-component.blade.php`.
+
+### Device toggle buttons
+
+Three topbar buttons set `previewMode` in the Alpine store:
+`'desktop'` | `'tablet'` | `'mobile'`
+
+`deviceMaxWidth()` maps mode → CSS value:
+
+```js
+{ desktop: '100%', tablet: '768px', mobile: '375px' }
+```
+
+Applied as `:style=”'max-width:' + deviceMaxWidth()”` on the device wrapper div.
+No JS scaling. No ResizeObserver. CSS `max-width` + `mx-auto` only.
+
+### Status bar
+
+A one-line status bar below the iframe shows the active device label.
+Implemented as a `<div>` beneath the iframe in `canvas.blade.php`.
+
+### Hide-on-device controls
+
+`hide_desktop`, `hide_tablet`, `hide_mobile` toggles in the block Advanced tab.
+Stored in `page_blocks.data`. Applied on frontend render by `BlockStyle::advanced()`.
+A badge in the LEFT panel block list shows when a block is hidden on any device.
+
+---
+
+## 9. Change history
 
 - **B-LAYOUT** — Replaced absolute-drawer + JS-measured white device card +
   `transform:scale` iframe with a `20:60:20` flex grid and CSS `max-width`
   device mode. Split the 765-line monolith into wrapper + 5 partials.
   Fixes: white frame below the canvas; panels shrinking with the browser;
   site scaling with panel width.
-- **B5** â€” Added an isolated, sanitized reusable-pattern library with subtree
+- **B5** — Added an isolated, sanitized reusable-pattern library with subtree
   save/insert/delete support and regenerated client IDs.
+- **B6** — Added `builder_templates` library (full page block forests). Template
+  modal, apply-with-confirmation, base-layout adoption. Patterns/pages/templates
+  all share `BuilderTreeSanitizer`.
+- **B7** — Added device toggle (Desktop/Tablet/Mobile), status bar, and
+  per-block `hide_desktop` / `hide_tablet` / `hide_mobile` Advanced controls.
