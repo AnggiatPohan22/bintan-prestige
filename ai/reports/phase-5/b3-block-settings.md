@@ -118,8 +118,12 @@ Added a hierarchical Block List and container-aware insertion:
 - `addBlock` drops a block **inside** a selected Group/Columns, or as the next
   **sibling** of a selected leaf, else at root. Columns enforce Group-only
   children (also validated server-side in `transientTree`).
-- Per-row **indent** (nest into the block above) / **outdent** (move to parent
-  level); `moveUp`/`moveDown`/`removeBlock` operate at any depth.
+- **Drag-and-drop** (final UX): drag a row to reorder (amber line above/below) or
+  drop onto a Group/Columns to nest (ring + "↳ inside" badge). Drop intent is
+  derived from cursor position in the hovered row; `moveNode` re-parents via
+  `findCtx`, `contains()` blocks cyclic drops, Columns enforce Group-only.
+  Replaced the earlier indent/outdent/up-down arrow buttons (row actions are now
+  just visibility + delete).
 - `selectedNode()` is recursive, so the settings panel works for nested blocks.
 - Note: empty Group/Columns render nothing on the page by design — the panel and
   Block List hint this so it doesn't look "broken".

@@ -159,14 +159,17 @@ sets `previewMode`. No other change needed.
   rows. Detailed/legacy editing still available via the Page Edit form editor.
 - **Detachable/draggable panels** (Elementor-style float) are not implemented —
   intentional trade-off; static `20:60:20` grid is used instead.
-- **Nesting (Group/Columns)** works via the hierarchical Block List: select a
-  container then add blocks to place them inside, or use per-row indent/outdent.
-  Backed by `findCtx`/`flatList`/`indent`/`outdent` in the Alpine store; Columns
-  accept Group children only (enforced client + server). Empty containers render
-  nothing on the page by design.
-- **Drag-and-drop** block reordering was replaced by the depth-aware tree
-  controls (move up/down + indent/outdent). The `@alpinejs/sort` dependency and
-  the `.sortable-*` styles remain available if drag is reintroduced later.
+- **Nesting (Group/Columns)** works via **drag-and-drop** in the hierarchical
+  Block List: drag a row to reorder (amber line above/below) or drop it onto a
+  Group/Columns to nest it (ring + "↳ inside" badge). Drop intent comes from the
+  cursor position within the hovered row (`onDragOver`); `moveNode` re-parents via
+  the recursive `findCtx`, `contains()` blocks cyclic drops, and Columns accept
+  Group children only (enforced client + server). You can also select a container
+  and add blocks to drop them inside. Empty containers render nothing on the page
+  by design. Backed by `flatList`/`findCtx`/`onDragStart`/`onDragOver`/`onDrop`/
+  `moveNode` in the Alpine store.
+- `@alpinejs/sort` and the `.sortable-*` styles are no longer used by the tree but
+  remain available.
 - **Desktop preview is fluid** (100% of the 60% canvas), matching Elementor's
   fluid desktop. Tablet/mobile are fixed widths (768 / 375) and centered.
 
