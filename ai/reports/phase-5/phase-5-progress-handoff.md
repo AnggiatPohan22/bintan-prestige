@@ -5,7 +5,7 @@
 > Di-update setiap kali task selesai. AI agents WAJIB membaca file ini
 > sebelum memulai pekerjaan apapun yang menyentuh Phase 5 code.
 >
-> Last updated: Stage C1 — 2026-06-23
+> Last updated: Stage C2 — 2026-06-23
 
 ---
 
@@ -27,7 +27,7 @@
 | B | B6 Templates Integration | ✅ DONE | b6-templates-integration-report.md |
 | B | B7 Responsive Preview | ✅ DONE | b7-responsive-preview-report.md |
 | C | C1 Static Analysis & Code Quality | ✅ DONE | c1-static-analysis-code-quality-report.md |
-| C | C2 Performance Audit | ⏳ PENDING | — |
+| C | C2 Performance Audit | ✅ DONE | c2-performance-audit-report.md |
 | C | C3 Functional Smoke Test | ⏳ PENDING | — |
 | C | C4 Architecture Documentation | ⏳ PENDING | — |
 
@@ -316,7 +316,14 @@ Classes: `[A-Za-z0-9_-]` only, max 20 classes, max 20 chars each (via regex filt
 
 ### C2 — Performance Audit
 
-- Status: ⏳ PENDING
+- Status: ✅ DONE — 2026-06-23
+- Route timing (artisan serve, warm): `/` 291ms · `/products` 283ms · `/pages/{slug}` 194-222ms · `/sitemap.xml` 64ms — all ≤300ms ✅
+- DB queries: page render 3-8 queries (no N+1) · builder open 5 queries · save-tree N+3 (by design) ✅
+- Index coverage: all Phase 5 tables (parent_block_id, builder_patterns, builder_templates) properly indexed ✅
+- Asset bundles: 3 entries, 212 KB + 128 KB CSS + 87 KB JS (uncompressed) — reasonable ✅
+- Pre-release config: `APP_DEBUG=true` and `APP_ENV=local` must be flipped before production (not a code issue)
+- Note: `BuilderPatternController::index()` loads all patterns unpaginated — fine at current scale, Phase 6 item
+- Report: c2-performance-audit-report.md
 
 ### C3 — Functional Smoke Test
 
@@ -344,7 +351,7 @@ Classes: `[A-Za-z0-9_-]` only, max 20 classes, max 20 chars each (via regex filt
 |------|--------|----------|
 | Test suite | ✅ PASS | 627 tests, 3206 assertions, 0 failures |
 | PHPStan | ✅ PASS | Level 5, 0 errors |
-| Performance | ⏳ PENDING | C2 not started |
+| Performance | ✅ PASS | All warm-run routes ≤300ms; no N+1; indexes complete |
 | Smoke test | ⏳ PENDING | C3 not started |
 | Architecture docs | ⏳ PENDING | C4 not started |
 | **Release Gate** | **⏳ PENDING** | C2, C3, C4 outstanding |
