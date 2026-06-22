@@ -3,6 +3,9 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Category;
+use App\Models\Destination;
+use App\Models\FormDefinition;
 use App\Models\Page;
 use App\Models\PageBlock;
 use App\Services\PageBlockService;
@@ -27,7 +30,18 @@ class PageBuilderController extends Controller
         $tree = $this->buildBuilderTree($flatBlocks);
         $registry = config('blocks');
 
-        return view('backend.builder.index', compact('page', 'tree', 'registry'));
+        // Dynamic <select> option sources for schema fields that use `optionsFrom`
+        // (products_grid → category/destination, contact_form → form definitions).
+        $fieldOptions = [
+            'categories' => Category::orderBy('name')->get(['id', 'name'])
+                ->map(fn (Category $c): array => ['value' => (string) $c->id, 'label' => $c->name])->all(),
+            'destinations' => Destination::orderBy('name')->get(['id', 'name'])
+                ->map(fn (Destination $d): array => ['value' => (string) $d->id, 'label' => $d->name])->all(),
+            'forms' => FormDefinition::orderBy('name')->get(['id', 'name'])
+                ->map(fn (FormDefinition $f): array => ['value' => (string) $f->id, 'label' => $f->name])->all(),
+        ];
+
+        return view('backend.builder.index', compact('page', 'tree', 'registry', 'fieldOptions'));
     }
 
     public function saveTree(Request $request, Page $page): JsonResponse

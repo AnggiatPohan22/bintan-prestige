@@ -16,6 +16,7 @@ document.addEventListener('alpine:init', () => {
         rightCollapsed: false,     // minimize / close the right (settings) panel
         _cid:           0,
         _refreshTimer:  null,
+        _pickSetter:    null,      // pending Media Library target setter
 
         /* ── Init ──────────────────────────────────────────── */
         init() {
@@ -177,6 +178,14 @@ document.addEventListener('alpine:init', () => {
             return (def && def.fields) ? def.fields : [];
         },
 
+        // Default value for one field by type.
+        defaultFor(f) {
+            if (f.default !== undefined) return f.default;
+            if (f.type === 'repeater' || f.type === 'list') return [];
+            if (f.type === 'toggle') return false;
+            return '';
+        },
+
         // Ensure every schema field exists in node.data so inputs/selects bind to a
         // defined value (selects show their default; preview stays consistent).
         applyFieldDefaults(node) {
@@ -184,10 +193,96 @@ document.addEventListener('alpine:init', () => {
             node.data = node.data || {};
             for (const f of this.fieldsFor(node.type)) {
                 if (node.data[f.key] === undefined) {
-                    node.data[f.key] = (f.default !== undefined)
-                        ? f.default
-                        : (f.type === 'toggle' ? false : '');
+                    node.data[f.key] = this.defaultFor(f);
                 }
+            }
+        },
+
+        /* ── Repeater (array of objects) ───────────────────── */
+        // Build a fresh repeater row from its sub-field schema defaults.
+        newRepeaterItem(field) {
+            const item = {};
+            for (const sub of (field.fields || [])) item[sub.key] = this.defaultFor(sub);
+            return item;
+        },
+
+        repeaterArr(field) {
+            const node = this.selectedNode();
+            if (!node) return [];
+            if (!Array.isArray(node.data[field.key])) node.data[field.key] = [];
+            return node.data[field.key];
+        },
+
+        repeaterAdd(field) {
+            if (field.max && this.repeaterArr(field).length >= field.max) return;
+            this.repeaterArr(field).push(this.newRepeaterItem(field));
+            this.scheduleRefresh();
+        },
+
+        repeaterRemove(field, index) {
+            this.repeaterArr(field).splice(index, 1);
+            this.scheduleRefresh();
+        },
+
+        /* ── List (array of plain strings) ─────────────────── */
+        listAdd(field) {
+            if (field.max && this.repeaterArr(field).length >= field.max) return;
+            this.repeaterArr(field).push('');
+            this.scheduleRefresh();
+        },
+
+        listRemove(field, index) {
+            this.repeaterArr(field).splice(index, 1);
+            this.scheduleRefresh();
+        },
+
+        /* ── Select options (static object or dynamic source) ── */
+        selectOptions(field) {
+            if (field.optionsFrom) return (cfg.options?.[field.optionsFrom]) || [];
+            return Object.entries(field.options || {}).map(([value, label]) => ({ value, label }));
+        },
+
+        /* ── Conditional fields (showIf: {key, value}) ─────── */
+        showField(field) {
+            if (!field.showIf) return true;
+            const node = this.selectedNode();
+            return node ? node.data?.[field.showIf.key] === field.showIf.value : true;
+        },
+
+        /* ── Image fields: preview, media picker, direct upload ─ */
+        mediaPreview(path) {
+            if (!path) return '';
+            return path.startsWith('http') ? path : '/storage/' + path;
+        },
+
+        // Open the shared Media Library modal; remember where to write the result.
+        pickImage(setter) {
+            this._pickSetter = setter;
+            this.$dispatch('open-media-picker', { target: 'builder' });
+        },
+
+        onMediaPicked(detail) {
+            if (detail.target !== 'builder' || typeof this._pickSetter !== 'function') return;
+            this._pickSetter(detail.media?.path || '');
+            this._pickSetter = null;
+            this.scheduleRefresh();
+        },
+
+        async uploadInto(event, setter) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const form = new FormData();
+            form.append('image', file);
+            form.append('_token', cfg.csrf);
+            try {
+                const res = await fetch(cfg.uploadUrl, { method: 'POST', body: form });
+                const data = await res.json();
+                if (res.ok && data.success) { setter(data.path); this.scheduleRefresh(); }
+                else { this.saveError = data.message || 'Upload failed.'; }
+            } catch {
+                this.saveError = 'Upload failed. Please try again.';
+            } finally {
+                event.target.value = '';
             }
         },
 

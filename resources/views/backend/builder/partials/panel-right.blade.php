@@ -59,84 +59,75 @@
 
         {{-- Field schema loop --}}
         <template x-for="field in fieldsFor(selectedNode().type)" :key="field.key">
-            <div>
-                {{-- Toggle renders its own inline label; everything else uses a top label --}}
+            <div x-show="showField(field)">
+
+                {{-- Top label (toggle carries its own inline label) --}}
                 <label
                     x-show="field.type !== 'toggle'"
-                    class="mb-1 block text-xs font-medium text-slate-400"
+                    class="builder-label"
                     x-text="field.label"
                 ></label>
 
-                {{-- text / url --}}
-                <template x-if="field.type === 'text' || field.type === 'url'">
-                    <input
-                        :type="field.type === 'url' ? 'url' : 'text'"
-                        x-model="selectedNode().data[field.key]"
-                        x-on:input="scheduleRefresh()"
-                        :maxlength="field.maxlength || null"
-                        :placeholder="field.placeholder || ''"
-                        class="w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200 placeholder-slate-500 focus:border-amber-500 focus:outline-none"
-                    >
-                </template>
-
-                {{-- number --}}
-                <template x-if="field.type === 'number'">
-                    <input
-                        type="number"
-                        x-model.number="selectedNode().data[field.key]"
-                        x-on:input="scheduleRefresh()"
-                        :min="field.min ?? null"
-                        :max="field.max ?? null"
-                        class="w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200 placeholder-slate-500 focus:border-amber-500 focus:outline-none"
-                    >
-                </template>
-
-                {{-- textarea --}}
-                <template x-if="field.type === 'textarea'">
-                    <textarea
-                        x-model="selectedNode().data[field.key]"
-                        x-on:input="scheduleRefresh()"
-                        :rows="field.rows || 3"
-                        :placeholder="field.placeholder || ''"
-                        class="w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200 placeholder-slate-500 focus:border-amber-500 focus:outline-none"
-                    ></textarea>
-                </template>
-
-                {{-- richtext (HTML; sanitized server-side on save) --}}
-                <template x-if="field.type === 'richtext'">
-                    <textarea
-                        x-model="selectedNode().data[field.key]"
-                        x-on:input="scheduleRefresh()"
-                        :rows="field.rows || 6"
-                        :placeholder="field.placeholder || ''"
-                        class="w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 font-mono text-xs text-slate-200 placeholder-slate-500 focus:border-amber-500 focus:outline-none"
-                    ></textarea>
-                </template>
-
-                {{-- select --}}
-                <template x-if="field.type === 'select'">
-                    <select
-                        x-model="selectedNode().data[field.key]"
-                        x-on:change="scheduleRefresh()"
-                        class="w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200 focus:border-amber-500 focus:outline-none"
-                    >
-                        <template x-for="(label, value) in field.options" :key="value">
-                            <option :value="value" x-text="label"></option>
+                {{-- ── REPEATER (array of objects) ─────────────── --}}
+                <template x-if="field.type === 'repeater'">
+                    <div class="space-y-2">
+                        <template x-for="(item, idx) in repeaterArr(field)" :key="idx">
+                            <div class="space-y-2 rounded-lg border border-slate-700 bg-slate-800/40 p-2.5">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-[11px] font-semibold text-slate-400"
+                                          x-text="(field.itemLabel || 'Item') + ' ' + (idx + 1)"></span>
+                                    <button type="button" title="Remove"
+                                            class="text-slate-500 transition-colors hover:text-red-400"
+                                            x-on:click="repeaterRemove(field, idx)">
+                                        <i class="fa-solid fa-trash-can text-xs"></i>
+                                    </button>
+                                </div>
+                                <template x-for="sub in field.fields" :key="sub.key">
+                                    <div>
+                                        <label x-show="sub.type !== 'toggle'" class="builder-label" x-text="sub.label"></label>
+                                        @include('backend.builder.partials.builder-field', ['f' => 'sub', 'model' => 'item[sub.key]'])
+                                    </div>
+                                </template>
+                            </div>
                         </template>
-                    </select>
+
+                        <button type="button"
+                                class="w-full rounded-lg border border-dashed border-slate-600 py-2 text-xs font-medium text-slate-400 transition-colors hover:border-amber-500/50 hover:text-amber-300 disabled:cursor-not-allowed disabled:opacity-40"
+                                :disabled="field.max && repeaterArr(field).length >= field.max"
+                                x-on:click="repeaterAdd(field)">
+                            <i class="fa-solid fa-plus mr-1"></i><span x-text="'Add ' + (field.itemLabel || 'item')"></span>
+                        </button>
+                    </div>
                 </template>
 
-                {{-- toggle --}}
-                <template x-if="field.type === 'toggle'">
-                    <label class="flex cursor-pointer items-center gap-2 text-sm text-slate-300">
-                        <input
-                            type="checkbox"
-                            x-model="selectedNode().data[field.key]"
-                            x-on:change="scheduleRefresh()"
-                            class="h-4 w-4 rounded border-slate-600 bg-slate-800 text-amber-500 focus:ring-amber-500"
-                        >
-                        <span x-text="field.label"></span>
-                    </label>
+                {{-- ── LIST (array of plain strings) ───────────── --}}
+                <template x-if="field.type === 'list'">
+                    <div class="space-y-1.5">
+                        <template x-for="(val, idx) in repeaterArr(field)" :key="idx">
+                            <div class="flex gap-1.5">
+                                <input type="text" class="builder-input"
+                                       x-model="repeaterArr(field)[idx]" x-on:input="scheduleRefresh()"
+                                       :placeholder="field.placeholder || ''">
+                                <button type="button" class="px-1 text-slate-500 hover:text-red-400"
+                                        x-on:click="listRemove(field, idx)" title="Remove">
+                                    <i class="fa-solid fa-xmark"></i>
+                                </button>
+                            </div>
+                        </template>
+                        <button type="button"
+                                class="w-full rounded-lg border border-dashed border-slate-600 py-1.5 text-xs font-medium text-slate-400 transition-colors hover:border-amber-500/50 hover:text-amber-300 disabled:cursor-not-allowed disabled:opacity-40"
+                                :disabled="field.max && repeaterArr(field).length >= field.max"
+                                x-on:click="listAdd(field)">
+                            <i class="fa-solid fa-plus mr-1"></i><span x-text="'Add ' + (field.itemLabel || 'item')"></span>
+                        </button>
+                    </div>
+                </template>
+
+                {{-- ── SIMPLE CONTROLS (delegated to builder-field) ── --}}
+                <template x-if="field.type !== 'repeater' && field.type !== 'list'">
+                    <div>
+                        @include('backend.builder.partials.builder-field', ['f' => 'field', 'model' => 'selectedNode().data[field.key]'])
+                    </div>
                 </template>
 
                 {{-- help text --}}
