@@ -1,0 +1,205 @@
+{{-- ── LEFT PANEL: Inserter + Tree ─────────────────────────
+     lg+: in-flow grid column at 20% (lg:w-[20%]). Below lg: fixed overlay
+     drawer (w-72) so it never squeezes the canvas on small screens.
+     Width is FIXED on desktop — switching Add Block <-> Block List never
+     changes the panel width.
+──────────────────────────────────────────────────────── --}}
+<aside
+    x-show="!leftCollapsed"
+    x-transition:enter="transition ease-out duration-200"
+    x-transition:enter-start="-translate-x-full lg:translate-x-0 lg:opacity-0"
+    x-transition:enter-end="translate-x-0 lg:opacity-100"
+    class="absolute inset-y-0 left-0 z-40 flex w-72 max-w-[85vw] shrink-0 flex-col border-r border-slate-800 bg-slate-900 shadow-2xl lg:static lg:z-auto lg:w-[20%] lg:max-w-none lg:shadow-none"
+    x-cloak
+>
+
+    {{-- Tab switcher --}}
+    <div class="flex shrink-0 border-b border-slate-800">
+        <button
+            type="button"
+            x-on:click="activeTab = 'insert'"
+            :class="activeTab === 'insert' ? 'border-b-2 border-amber-500 text-white' : 'text-slate-500 hover:text-slate-300'"
+            class="flex flex-1 items-center justify-center gap-1.5 py-3 text-xs font-semibold transition-colors"
+        >
+            <i class="fa-solid fa-plus text-xs"></i>
+            Add Block
+        </button>
+        <button
+            type="button"
+            x-on:click="activeTab = 'tree'"
+            :class="activeTab === 'tree' ? 'border-b-2 border-amber-500 text-white' : 'text-slate-500 hover:text-slate-300'"
+            class="flex flex-1 items-center justify-center gap-1.5 py-3 text-xs font-semibold transition-colors"
+        >
+            <i class="fa-solid fa-list text-xs"></i>
+            Block List
+            <span
+                x-text="tree.length"
+                class="rounded-full bg-slate-700 px-1.5 py-0.5 text-xs text-slate-300"
+            ></span>
+        </button>
+    </div>
+
+    {{-- INSERT TAB --}}
+    <div x-show="activeTab === 'insert'" class="builder-pane-scroll flex-1 overflow-y-auto" x-cloak>
+
+        {{-- Insert position context --}}
+        <div class="border-b border-slate-800 px-3 py-2 text-xs text-slate-500">
+            <span x-show="selectedCid === null">Adding to end of page</span>
+            <span x-show="selectedCid !== null" x-cloak>
+                Inserting after
+                <span
+                    class="font-medium text-amber-400"
+                    x-text="(tree.find(n => n._cid === selectedCid) || {}).label || '…'"
+                ></span>
+                <button
+                    type="button"
+                    x-on:click="selectedCid = null"
+                    class="ml-1 text-slate-600 hover:text-slate-300"
+                    title="Reset to add at end"
+                >✕</button>
+            </span>
+        </div>
+
+        <div class="py-2">
+        @foreach($catOrder as $cat)
+            @if($categorized->has($cat))
+                <div class="mb-1">
+                    <p class="px-3 pb-1 pt-3 text-xs font-semibold uppercase tracking-widest text-slate-500">
+                        <i class="fa-solid {{ match($cat) { 'layout' => 'fa-table-columns', 'content' => 'fa-file-lines', 'media' => 'fa-image', 'conversion' => 'fa-arrow-pointer', 'travel' => 'fa-plane', default => 'fa-cube' } }} mr-1"></i>
+                        {{ ucfirst($cat) }}
+                    </p>
+                    <div class="grid grid-cols-2 gap-1 px-2">
+                        @foreach($categorized[$cat] as $type => $block)
+                            <button
+                                type="button"
+                                x-on:click="addBlock('{{ $type }}', '{{ $block['label'] }}')"
+                                class="flex flex-col items-center gap-1.5 rounded-lg border border-slate-700 bg-slate-800 px-2 py-3 text-center transition-colors hover:border-amber-500/50 hover:bg-slate-700"
+                                title="{{ $block['description'] }}"
+                            >
+                                <i class="fa-solid {{ match($type) {
+                                    'group'          => 'fa-layer-group',
+                                    'columns'        => 'fa-table-columns',
+                                    'hero'           => 'fa-panorama',
+                                    'heading'        => 'fa-heading',
+                                    'text'           => 'fa-align-left',
+                                    'image'          => 'fa-image',
+                                    'gallery'        => 'fa-images',
+                                    'video_embed'    => 'fa-video',
+                                    'button_group'   => 'fa-hand-pointer',
+                                    'stats'          => 'fa-chart-bar',
+                                    'tour_itinerary' => 'fa-route',
+                                    'pricing_table'  => 'fa-tags',
+                                    'cta'            => 'fa-bullhorn',
+                                    'products_grid'  => 'fa-th-large',
+                                    'faq'            => 'fa-circle-question',
+                                    'testimonials'   => 'fa-comments',
+                                    'map'            => 'fa-location-dot',
+                                    'divider'        => 'fa-minus',
+                                    'contact_form'   => 'fa-envelope',
+                                    default          => 'fa-cube',
+                                } }} text-sm text-slate-400"></i>
+                                <span class="text-xs leading-tight text-slate-300">{{ $block['label'] }}</span>
+                            </button>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
+        @endforeach
+        </div>{{-- /py-2 --}}
+    </div>
+
+    {{-- TREE TAB --}}
+    <div x-show="activeTab === 'tree'" class="builder-pane-scroll flex-1 overflow-y-auto" x-cloak>
+
+        <div x-show="tree.length === 0" class="p-4 text-center text-xs text-slate-500" x-cloak>
+            No blocks yet.<br>
+            Switch to <strong class="text-slate-400">Add Block</strong> to start.
+        </div>
+
+        {{-- x-sort enables drag-and-drop via @alpinejs/sort (already loaded in app.js) --}}
+        <ul x-sort="onSort($item, $position)" class="py-1">
+            <template x-for="(block, index) in tree" :key="block._cid">
+                <li
+                    x-sort:item="block._cid"
+                    x-on:click="selectBlock(block._cid)"
+                    :class="{
+                        'bg-amber-900/30 border-l-2 border-amber-500': selectedCid === block._cid,
+                        'border-l-2 border-transparent': selectedCid !== block._cid,
+                    }"
+                    class="group flex cursor-pointer items-center gap-1.5 py-2 pl-2 pr-3 transition-colors hover:bg-slate-800/60"
+                >
+                    {{-- Drag handle --}}
+                    <span
+                        x-sort:handle
+                        class="flex h-5 w-4 shrink-0 cursor-grab items-center justify-center text-slate-600 transition-colors hover:text-slate-400 active:cursor-grabbing"
+                        title="Drag to reorder"
+                    >
+                        <i class="fa-solid fa-grip-vertical text-xs"></i>
+                    </span>
+
+                    {{-- Block icon --}}
+                    <i
+                        class="fa-solid fa-cube w-3.5 shrink-0 text-center text-xs"
+                        :class="!block.is_visible ? 'text-slate-700' : 'text-slate-500'"
+                    ></i>
+
+                    {{-- Label --}}
+                    <span
+                        class="min-w-0 flex-1 truncate text-xs"
+                        :class="!block.is_visible
+                            ? 'text-slate-600 line-through'
+                            : selectedCid === block._cid ? 'text-amber-300' : 'text-slate-300'"
+                        x-text="block.label || block.type"
+                    ></span>
+
+                    {{-- Insert-after indicator --}}
+                    <span
+                        x-show="selectedCid === block._cid"
+                        class="shrink-0 rounded bg-amber-800/60 px-1 py-0.5 text-xs text-amber-400"
+                        title="Next block added after this one"
+                    >↓</span>
+
+                    {{-- Action buttons (visible on hover) --}}
+                    <div class="flex shrink-0 items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
+                        <button
+                            type="button"
+                            x-on:click.stop="moveUp(index)"
+                            :disabled="index === 0"
+                            class="flex h-5 w-5 items-center justify-center rounded text-slate-500 transition-colors hover:text-white disabled:cursor-not-allowed disabled:opacity-30"
+                            title="Move up"
+                        >
+                            <i class="fa-solid fa-chevron-up text-xs"></i>
+                        </button>
+                        <button
+                            type="button"
+                            x-on:click.stop="moveDown(index)"
+                            :disabled="index === tree.length - 1"
+                            class="flex h-5 w-5 items-center justify-center rounded text-slate-500 transition-colors hover:text-white disabled:cursor-not-allowed disabled:opacity-30"
+                            title="Move down"
+                        >
+                            <i class="fa-solid fa-chevron-down text-xs"></i>
+                        </button>
+                        <button
+                            type="button"
+                            x-on:click.stop="toggleVisible(block)"
+                            class="flex h-5 w-5 items-center justify-center rounded text-slate-500 transition-colors hover:text-white"
+                            :title="block.is_visible ? 'Hide block' : 'Show block'"
+                        >
+                            <i class="fa-solid text-xs" :class="block.is_visible ? 'fa-eye' : 'fa-eye-slash'"></i>
+                        </button>
+                        <button
+                            type="button"
+                            x-on:click.stop="if(confirm('Remove this block?')) removeBlock(index)"
+                            class="flex h-5 w-5 items-center justify-center rounded text-slate-500 transition-colors hover:text-red-400"
+                            title="Delete block"
+                        >
+                            <i class="fa-solid fa-trash-can text-xs"></i>
+                        </button>
+                    </div>
+                </li>
+            </template>
+        </ul>
+
+    </div>
+
+</aside>
