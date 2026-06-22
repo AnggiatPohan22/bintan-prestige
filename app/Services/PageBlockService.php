@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Page;
 use App\Models\PageBlock;
+use App\Support\BlockStyle;
 use Closure;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -76,6 +77,7 @@ class PageBlockService
                 'spacing' => 'md',
             ],
             'columns' => $bg + [
+                'width' => 'wide',
                 'columns' => 2,
                 'gap' => 'md',
                 'stack_mobile' => true,
@@ -188,6 +190,10 @@ class PageBlockService
             ));
         }
 
+        if (in_array($blockType, ['group', 'columns'], true)) {
+            $data = $this->normalizeAdvanced($data);
+        }
+
         $validated = Validator::make($data, $this->rulesFor($blockType))->validate();
 
         if ($blockType === 'text' && isset($validated['body_html'])) {
@@ -206,11 +212,12 @@ class PageBlockService
         $rules = $this->backgroundRules();
 
         return $rules + match ($blockType) {
-            'group' => [
+            'group' => $this->advancedRules() + [
                 'width' => ['nullable', Rule::in(['contained', 'wide', 'full'])],
                 'spacing' => ['nullable', Rule::in(['none', 'sm', 'md', 'lg'])],
             ],
-            'columns' => [
+            'columns' => $this->advancedRules() + [
+                'width' => ['nullable', Rule::in(['contained', 'wide', 'full'])],
                 'columns' => ['nullable', 'integer', 'between:2,4'],
                 'gap' => ['nullable', Rule::in(['none', 'sm', 'md', 'lg'])],
                 'stack_mobile' => ['nullable', 'boolean'],
@@ -363,6 +370,75 @@ class PageBlockService
             'background.size' => ['nullable', Rule::in(['cover', 'contain', 'auto'])],
             'background.opacity' => ['nullable', 'integer', 'between:0,100'],
         ];
+    }
+
+    /**
+     * Advanced-tab rules shared by Group and Columns (margin, padding, z-index,
+     * CSS id/classes, responsive visibility, custom CSS). All optional.
+     *
+     * @return array<string, mixed>
+     */
+    private function advancedRules(): array
+    {
+        $box = ['nullable', 'array:top,right,bottom,left'];
+        $side = ['nullable', 'integer', 'between:-2000,2000'];
+
+        return [
+            'margin' => $box,
+            'margin.top' => $side, 'margin.right' => $side, 'margin.bottom' => $side, 'margin.left' => $side,
+            'padding' => $box,
+            'padding.top' => $side, 'padding.right' => $side, 'padding.bottom' => $side, 'padding.left' => $side,
+            'z_index' => ['nullable', 'integer', 'between:-999,9999'],
+            'css_id' => ['nullable', 'string', 'max:64'],
+            'css_classes' => ['nullable', 'string', 'max:255'],
+            'hide_desktop' => ['nullable', 'boolean'],
+            'hide_tablet' => ['nullable', 'boolean'],
+            'hide_mobile' => ['nullable', 'boolean'],
+            'custom_css' => ['nullable', 'string', 'max:5000'],
+        ];
+    }
+
+    /**
+     * Coerce Advanced inputs to clean shapes before validation so empty builder
+     * values ('' from number inputs) never fail the integer rules.
+     *
+     * @param  array<string, mixed>  $data
+     * @return array<string, mixed>
+     */
+    private function normalizeAdvanced(array $data): array
+    {
+        foreach (['margin', 'padding'] as $box) {
+            if (isset($data[$box]) && is_array($data[$box])) {
+                $clean = [];
+                foreach (['top', 'right', 'bottom', 'left'] as $side) {
+                    $v = $data[$box][$side] ?? null;
+                    if (is_numeric($v)) {
+                        $clean[$side] = (int) $v;
+                    }
+                }
+                $data[$box] = $clean === [] ? null : $clean;
+            }
+        }
+
+        if (isset($data['z_index'])) {
+            $data['z_index'] = is_numeric($data['z_index']) ? (int) $data['z_index'] : null;
+        }
+        if (isset($data['css_id'])) {
+            $data['css_id'] = BlockStyle::cssId($data['css_id']);
+        }
+        if (isset($data['css_classes'])) {
+            $data['css_classes'] = BlockStyle::cssClasses($data['css_classes']) ?: null;
+        }
+        if (isset($data['custom_css'])) {
+            $data['custom_css'] = BlockStyle::customCss($data['custom_css']) ?: null;
+        }
+        foreach (['hide_desktop', 'hide_tablet', 'hide_mobile'] as $flag) {
+            if (isset($data[$flag])) {
+                $data[$flag] = filter_var($data[$flag], FILTER_VALIDATE_BOOLEAN);
+            }
+        }
+
+        return $data;
     }
 
     public function validateParent(Page $page, PageBlock $block, ?int $parentId): ?int

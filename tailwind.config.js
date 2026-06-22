@@ -7,7 +7,12 @@ export default {
         './vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php',
         './storage/framework/views/*.php',
         './resources/views/**/*.blade.php',
+        './app/Support/BlockStyle.php',
     ],
+
+    // Responsive visibility classes emitted at runtime by App\Support\BlockStyle
+    // (Advanced tab → hide on desktop/tablet/mobile) — keep them in the bundle.
+    safelist: ['hidden', 'md:block', 'md:hidden', 'lg:block', 'lg:hidden'],
 
     theme: {
         extend: {
