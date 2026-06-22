@@ -5,7 +5,7 @@
 > Di-update setiap kali task selesai. AI agents WAJIB membaca file ini
 > sebelum memulai pekerjaan apapun yang menyentuh Phase 5 code.
 >
-> Last updated: Stage C2 — 2026-06-23
+> Last updated: Stage C3 — 2026-06-23
 
 ---
 
@@ -28,7 +28,7 @@
 | B | B7 Responsive Preview | ✅ DONE | b7-responsive-preview-report.md |
 | C | C1 Static Analysis & Code Quality | ✅ DONE | c1-static-analysis-code-quality-report.md |
 | C | C2 Performance Audit | ✅ DONE | c2-performance-audit-report.md |
-| C | C3 Functional Smoke Test | ⏳ PENDING | — |
+| C | C3 Functional Smoke Test | ✅ DONE | c3-smoke-test-report.md |
 | C | C4 Architecture Documentation | ⏳ PENDING | — |
 
 ---
@@ -115,7 +115,7 @@
 | `button_group` | Conversion | `config/blocks.php` fields | `frontend/blocks/button-group.blade.php` | No | Alignment |
 | `pricing_table` | Conversion | `config/blocks.php` fields | `frontend/blocks/pricing-table.blade.php` | No | Plans repeater |
 | `contact_form` | Conversion | `config/blocks.php` fields | `frontend/blocks/contact-form.blade.php` | No | Form definition selector |
-| `products_grid` | Travel | `config/blocks.php` fields | `frontend/blocks/products.blade.php` | No | Category/destination filter |
+| `products_grid` | Travel | `config/blocks.php` fields | `frontend/blocks/products-grid.blade.php` | No | Category/destination filter |
 | `tour_itinerary` | Travel | `config/blocks.php` fields | `frontend/blocks/tour-itinerary.blade.php` | No | Timeline repeater |
 | `testimonials` | Travel | `config/blocks.php` fields | `frontend/blocks/testimonials.blade.php` | No | Repeater |
 | `map` | Travel | `config/blocks.php` fields | `frontend/blocks/map.blade.php` | No | Embed URL, zoom |
@@ -327,7 +327,15 @@ Classes: `[A-Za-z0-9_-]` only, max 20 classes, max 20 chars each (via regex filt
 
 ### C3 — Functional Smoke Test
 
-- Status: ⏳ PENDING
+- Status: ✅ DONE — 2026-06-23
+- Test suite: **627 tests / 3206 assertions / 0 failures** (PASS)
+- HTTP routes: 9/9 public routes PASS, draft 404 PASS, 5/5 admin routes secure (302→login), builder API secure (PASS)
+- Feature checks: block registry 19/19 types, all 19 view files present, InlineContentSanitizer PASS, BuilderTreeSanitizer PASS, BlockStyle PASS, all 3 Phase 5 migrations Ran, view cache PASS
+- Regression: Phase 1-4 features intact (14 products, 4 pages, plugins/patterns/templates accessible)
+- Manual QA: 10 items documented (require browser + admin login)
+- Minor doc note: handoff Section 3.2 lists `products.blade.php` — actual file is `products-grid.blade.php`. Code is correct; fix in C4.
+- Blockers: none
+- Report: c3-smoke-test-report.md
 
 ### C4 — Architecture Documentation
 
@@ -352,9 +360,9 @@ Classes: `[A-Za-z0-9_-]` only, max 20 classes, max 20 chars each (via regex filt
 | Test suite | ✅ PASS | 627 tests, 3206 assertions, 0 failures |
 | PHPStan | ✅ PASS | Level 5, 0 errors |
 | Performance | ✅ PASS | All warm-run routes ≤300ms; no N+1; indexes complete |
-| Smoke test | ⏳ PENDING | C3 not started |
+| Smoke test | ✅ PASS | 627 tests / 17 HTTP checks / 8 feature checks all PASS; 10 manual QA items pending browser |
 | Architecture docs | ⏳ PENDING | C4 not started |
-| **Release Gate** | **⏳ PENDING** | C2, C3, C4 outstanding |
+| **Release Gate** | **⏳ PENDING** | C4 outstanding |
 
 ---
 
