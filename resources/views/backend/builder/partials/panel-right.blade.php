@@ -67,9 +67,22 @@
             This block has no inline settings yet.
         </p>
 
-        {{-- Field schema loop --}}
+        {{-- Layout / Style / Advanced tab bar (only when the block uses >1 tab) --}}
+        <div x-show="fieldTabs().length > 1" class="flex gap-1 rounded-lg bg-slate-800 p-0.5" x-cloak>
+            <template x-for="t in fieldTabs()" :key="t">
+                <button
+                    type="button"
+                    x-on:click="activeFieldTab = t"
+                    :class="activeFieldTab === t ? 'bg-slate-700 text-white shadow' : 'text-slate-400 hover:text-slate-200'"
+                    class="flex-1 rounded-md py-1.5 text-[11px] font-semibold capitalize transition-colors"
+                    x-text="t"
+                ></button>
+            </template>
+        </div>
+
+        {{-- Field schema loop (filtered by active tab) --}}
         <template x-for="field in fieldsFor(selectedNode().type)" :key="field.key">
-            <div x-show="showField(field)">
+            <div x-show="showField(field) && fieldTab(field) === activeFieldTab">
 
                 {{-- Top label (toggle carries its own inline label) --}}
                 <label

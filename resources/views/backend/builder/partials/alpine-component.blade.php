@@ -10,6 +10,7 @@ document.addEventListener('alpine:init', () => {
         isRefreshing: false,
         previewError: null,
         activeTab:    'insert',   // 'insert' | 'tree'
+        activeFieldTab: 'layout', // settings panel tab: 'layout' | 'style' | 'advanced'
         selectedCid:  null,       // _cid of the block selected in tree list
         previewMode:    'desktop', // 'desktop' | 'tablet' | 'mobile'
         leftCollapsed:  false,     // minimize / close the left (blocks) panel
@@ -176,8 +177,17 @@ document.addEventListener('alpine:init', () => {
 
         selectBlock(cid) {
             this.selectedCid = this.selectedCid === cid ? null : cid;
+            this.activeFieldTab = 'layout';
             const node = this.selectedNode();
             if (node) this.applyFieldDefaults(node);
+        },
+
+        // Settings-panel tabs (only shown when a block uses more than one tab).
+        fieldTab(field) { return field.tab || 'layout'; },
+
+        fieldTabs() {
+            const present = new Set(this.fieldsFor(this.selectedNode()?.type).map(f => this.fieldTab(f)));
+            return ['layout', 'style', 'advanced'].filter(t => present.has(t));
         },
 
         /* ── Tree helpers (nesting) ────────────────────────── */
@@ -312,8 +322,10 @@ document.addEventListener('alpine:init', () => {
             return (def && def.fields) ? def.fields : [];
         },
 
-        // Default value for one field by type.
+        // Default value for one field by type (fresh objects each call).
         defaultFor(f) {
+            if (f.type === 'box') return { top: '', right: '', bottom: '', left: '' };
+            if (f.type === 'background') return { color: '', image: '', position: 'center', size: 'cover', repeat: 'no-repeat', opacity: 100 };
             if (f.default !== undefined) return f.default;
             if (f.type === 'repeater' || f.type === 'list') return [];
             if (f.type === 'toggle') return false;

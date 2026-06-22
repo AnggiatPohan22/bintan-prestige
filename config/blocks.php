@@ -1,5 +1,31 @@
 <?php
 
+/*
+|--------------------------------------------------------------------------
+| Block registry
+|--------------------------------------------------------------------------
+| Each block declares its editable `fields` (read by the visual builder's
+| settings panel). A field may carry a 'tab' (layout|style|advanced); when a
+| block uses more than one tab the panel shows a Layout/Style/Advanced switcher.
+| Blocks without tabs render as a single list (unchanged).
+*/
+
+// Style + Advanced tabs shared by container blocks (Group / Columns).
+$styleTab = [
+    ['key' => 'background', 'type' => 'background', 'tab' => 'style', 'label' => 'Background'],
+];
+$advancedTab = [
+    ['key' => 'margin', 'type' => 'box', 'tab' => 'advanced', 'label' => 'Margin (px)'],
+    ['key' => 'padding', 'type' => 'box', 'tab' => 'advanced', 'label' => 'Padding (px)'],
+    ['key' => 'z_index', 'type' => 'number', 'tab' => 'advanced', 'label' => 'Z-Index'],
+    ['key' => 'css_id', 'type' => 'text', 'tab' => 'advanced', 'label' => 'CSS ID', 'placeholder' => 'my-section'],
+    ['key' => 'css_classes', 'type' => 'text', 'tab' => 'advanced', 'label' => 'CSS Classes', 'placeholder' => 'class-one class-two'],
+    ['key' => 'hide_desktop', 'type' => 'toggle', 'tab' => 'advanced', 'label' => 'Hide on Desktop'],
+    ['key' => 'hide_tablet', 'type' => 'toggle', 'tab' => 'advanced', 'label' => 'Hide on Tablet'],
+    ['key' => 'hide_mobile', 'type' => 'toggle', 'tab' => 'advanced', 'label' => 'Hide on Mobile'],
+    ['key' => 'custom_css', 'type' => 'code', 'tab' => 'advanced', 'label' => 'Custom CSS', 'rows' => 6, 'placeholder' => "#my-section {\n  border: 1px solid gold;\n}", 'help' => 'Scoped to this page. Target this block with the CSS ID/Class you set above.'],
+];
+
 return [
     'group' => [
         'label' => 'Group / Section', 'icon' => 'layer-group', 'category' => 'layout',
@@ -7,8 +33,10 @@ return [
         'keywords' => ['section', 'container', 'wrapper'],
         'supports' => ['background' => true, 'spacing' => true, 'alignment' => false, 'children' => true],
         'fields' => [
-            ['key' => 'width', 'type' => 'select', 'label' => 'Content Width', 'default' => 'contained', 'options' => ['contained' => 'Contained', 'wide' => 'Wide', 'full' => 'Full width']],
-            ['key' => 'spacing', 'type' => 'select', 'label' => 'Vertical Spacing', 'default' => 'md', 'options' => ['none' => 'None', 'sm' => 'Small', 'md' => 'Medium', 'lg' => 'Large']],
+            ['key' => 'width', 'type' => 'select', 'tab' => 'layout', 'label' => 'Content Width', 'default' => 'contained', 'options' => ['contained' => 'Boxed', 'wide' => 'Standard', 'full' => 'Full width (no side spacing)']],
+            ['key' => 'spacing', 'type' => 'select', 'tab' => 'layout', 'label' => 'Vertical Spacing', 'default' => 'md', 'options' => ['none' => 'None', 'sm' => 'Small', 'md' => 'Medium', 'lg' => 'Large']],
+            ...$styleTab,
+            ...$advancedTab,
         ],
     ],
     'columns' => [
@@ -17,9 +45,12 @@ return [
         'keywords' => ['grid', 'layout', 'row'],
         'supports' => ['background' => true, 'spacing' => true, 'alignment' => false, 'children' => true],
         'fields' => [
-            ['key' => 'columns', 'type' => 'select', 'label' => 'Column Count', 'default' => '2', 'options' => ['2' => '2 columns', '3' => '3 columns', '4' => '4 columns']],
-            ['key' => 'gap', 'type' => 'select', 'label' => 'Gap', 'default' => 'md', 'options' => ['none' => 'None', 'sm' => 'Small', 'md' => 'Medium', 'lg' => 'Large']],
-            ['key' => 'stack_mobile', 'type' => 'toggle', 'label' => 'Stack columns vertically on mobile', 'default' => true],
+            ['key' => 'width', 'type' => 'select', 'tab' => 'layout', 'label' => 'Content Width', 'default' => 'wide', 'options' => ['contained' => 'Boxed', 'wide' => 'Standard', 'full' => 'Full width (no side spacing)']],
+            ['key' => 'columns', 'type' => 'select', 'tab' => 'layout', 'label' => 'Column Count', 'default' => '2', 'options' => ['2' => '2 columns', '3' => '3 columns', '4' => '4 columns']],
+            ['key' => 'gap', 'type' => 'select', 'tab' => 'layout', 'label' => 'Columns Gap', 'default' => 'md', 'options' => ['none' => 'None', 'sm' => 'Small', 'md' => 'Medium', 'lg' => 'Large']],
+            ['key' => 'stack_mobile', 'type' => 'toggle', 'tab' => 'layout', 'label' => 'Stack columns vertically on mobile', 'default' => true],
+            ...$styleTab,
+            ...$advancedTab,
         ],
     ],
     'hero' => [

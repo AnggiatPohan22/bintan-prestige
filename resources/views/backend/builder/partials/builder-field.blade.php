@@ -123,3 +123,119 @@
         </div>
     </div>
 </template>
+
+{{-- code (Custom CSS etc.) — monospace textarea, plain text --}}
+<template x-if="{{ $f }}.type === 'code'">
+    <textarea
+        x-model="{{ $model }}"
+        x-on:input="scheduleRefresh()"
+        :rows="{{ $f }}.rows || 6"
+        :placeholder="{{ $f }}.placeholder || ''"
+        spellcheck="false"
+        class="builder-input font-mono text-xs"
+    ></textarea>
+</template>
+
+{{-- box (4-side margin / padding, px) --}}
+<template x-if="{{ $f }}.type === 'box'">
+    <div class="grid grid-cols-4 gap-1.5">
+        <div>
+            <input type="number" x-model.number="{{ $model }}.top" x-on:input="scheduleRefresh()" placeholder="0" class="builder-input px-1.5 text-center" title="Top">
+            <p class="mt-0.5 text-center text-[9px] uppercase tracking-wide text-slate-600">Top</p>
+        </div>
+        <div>
+            <input type="number" x-model.number="{{ $model }}.right" x-on:input="scheduleRefresh()" placeholder="0" class="builder-input px-1.5 text-center" title="Right">
+            <p class="mt-0.5 text-center text-[9px] uppercase tracking-wide text-slate-600">Right</p>
+        </div>
+        <div>
+            <input type="number" x-model.number="{{ $model }}.bottom" x-on:input="scheduleRefresh()" placeholder="0" class="builder-input px-1.5 text-center" title="Bottom">
+            <p class="mt-0.5 text-center text-[9px] uppercase tracking-wide text-slate-600">Bottom</p>
+        </div>
+        <div>
+            <input type="number" x-model.number="{{ $model }}.left" x-on:input="scheduleRefresh()" placeholder="0" class="builder-input px-1.5 text-center" title="Left">
+            <p class="mt-0.5 text-center text-[9px] uppercase tracking-wide text-slate-600">Left</p>
+        </div>
+    </div>
+</template>
+
+{{-- background (color + image + position/size/repeat/opacity) → data.background.* --}}
+<template x-if="{{ $f }}.type === 'background'">
+    <div class="space-y-3">
+        {{-- Color --}}
+        <div>
+            <label class="builder-label">Background Color</label>
+            <div class="flex items-center gap-2">
+                <input type="color" x-model="{{ $model }}.color" x-on:input="scheduleRefresh()"
+                       class="h-9 w-12 shrink-0 cursor-pointer rounded border border-slate-700 bg-slate-800 p-0.5">
+                <input type="text" x-model="{{ $model }}.color" x-on:input="scheduleRefresh()"
+                       placeholder="transparent or #hex" class="builder-input font-mono">
+            </div>
+        </div>
+
+        {{-- Image --}}
+        <div>
+            <label class="builder-label">Background Image</label>
+            <div x-show="{{ $model }}.image" x-cloak class="mb-2">
+                <img :src="mediaPreview({{ $model }}.image)" alt="preview" class="h-20 w-full rounded-lg object-cover shadow">
+            </div>
+            <div class="flex gap-1.5">
+                <input type="text" x-model="{{ $model }}.image" x-on:input="scheduleRefresh()"
+                       placeholder="path or URL" class="builder-input flex-1">
+                <label class="flex cursor-pointer items-center rounded-lg border border-slate-700 px-2.5 text-xs text-slate-300 hover:border-slate-500 hover:text-white" title="Upload">
+                    <i class="fa-solid fa-upload"></i>
+                    <input type="file" accept="image/jpeg,image/png,image/webp" class="hidden"
+                           x-on:change="uploadInto($event, v => { {{ $model }}.image = v })">
+                </label>
+                <button type="button" title="Media Library"
+                        class="flex items-center rounded-lg border border-slate-700 px-2.5 text-xs text-slate-300 hover:border-slate-500 hover:text-white"
+                        x-on:click="pickImage(v => { {{ $model }}.image = v })">
+                    <i class="fa-solid fa-photo-film"></i>
+                </button>
+            </div>
+        </div>
+
+        {{-- Position --}}
+        <div>
+            <label class="builder-label">Position</label>
+            <select x-model="{{ $model }}.position" x-on:change="scheduleRefresh()" class="builder-input">
+                <option value="center">Center center</option>
+                <option value="top center">Top center</option>
+                <option value="bottom center">Bottom center</option>
+                <option value="top left">Top left</option>
+                <option value="top right">Top right</option>
+                <option value="bottom left">Bottom left</option>
+                <option value="bottom right">Bottom right</option>
+            </select>
+        </div>
+
+        {{-- Size + Repeat --}}
+        <div class="grid grid-cols-2 gap-2">
+            <div>
+                <label class="builder-label">Display Size</label>
+                <select x-model="{{ $model }}.size" x-on:change="scheduleRefresh()" class="builder-input">
+                    <option value="cover">Cover</option>
+                    <option value="contain">Contain</option>
+                    <option value="auto">Auto</option>
+                </select>
+            </div>
+            <div>
+                <label class="builder-label">Repeat</label>
+                <select x-model="{{ $model }}.repeat" x-on:change="scheduleRefresh()" class="builder-input">
+                    <option value="no-repeat">No repeat</option>
+                    <option value="repeat">Tile</option>
+                    <option value="repeat-x">Repeat X</option>
+                    <option value="repeat-y">Repeat Y</option>
+                </select>
+            </div>
+        </div>
+
+        {{-- Opacity --}}
+        <div>
+            <label class="builder-label">Opacity</label>
+            <div class="flex items-center gap-2">
+                <input type="range" min="0" max="100" step="5" x-model.number="{{ $model }}.opacity" x-on:input="scheduleRefresh()" class="w-full accent-amber-500">
+                <span class="w-10 shrink-0 text-right text-xs text-slate-400" x-text="({{ $model }}.opacity ?? 100) + '%'"></span>
+            </div>
+        </div>
+    </div>
+</template>
