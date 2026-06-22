@@ -3,7 +3,15 @@
 **Date:** 2026-06-21
 **Branch:** `feature/phase-5-stage-b-visual-builder`
 **Commit:** `e83a32a`
-**Status:** COMPLETE ✓
+**Status:** COMPLETE ✓ — superseded structure by **B-LAYOUT (2026-06-22)**
+
+> **Update (B-LAYOUT, 2026-06-22):** the builder view was refactored. The single
+> `backend/builder/index.blade.php` was split into a thin wrapper + 5 partials,
+> the 3-panel layout became a `20:60:20` flex grid (full-viewport, `min-h-0`),
+> and the preview iframe now uses a CSS `max-width` device frame (no
+> `transform:scale`, no JS measurement) with a `sandbox` attribute. See
+> `docs/visual-builder-structure.md` and `ai/reports/phase-5/b-layout-canvas-fix.md`.
+> Sections below are annotated where they changed.
 
 ---
 
@@ -20,9 +28,19 @@ Entry point: "Visual Builder" button on the page edit screen.
 |---|---|---|
 | `app/Http/Controllers/Admin/PageBuilderController.php` | New | `show()` + `saveTree()` |
 | `resources/views/layouts/builder.blade.php` | New | Standalone fullscreen layout (no sidebar/navbar) |
-| `resources/views/backend/builder/index.blade.php` | New | 3-panel builder UI + Alpine `pageBuilder()` |
+| `resources/views/backend/builder/index.blade.php` | New | 3-panel builder UI + Alpine `pageBuilder()` — **since B-LAYOUT: thin wrapper only, `@include`s the partials below** |
 | `routes/admin.php` | Modified | 2 new routes |
 | `resources/views/backend/pages/edit.blade.php` | Modified | "Visual Builder" button in page header |
+
+**Since B-LAYOUT (2026-06-22)** the UI lives in partials:
+
+| File | What |
+|---|---|
+| `backend/builder/partials/topbar.blade.php` | Top bar (back, status, panel/device toggles, Preview, Save) |
+| `backend/builder/partials/panel-left.blade.php` | Inserter + Block-List tree (drag-sort) |
+| `backend/builder/partials/canvas.blade.php` | Device iframe (`max-width` frame, `sandbox`) + overlays |
+| `backend/builder/partials/panel-right.blade.php` | Block Settings (B3 placeholder) |
+| `backend/builder/partials/alpine-component.blade.php` | The `<script>` Alpine `pageBuilder()` store |
 
 ---
 
@@ -175,7 +193,7 @@ via `php artisan migrate` during B1 — now applied to dev DB.
 | Inline text editing on canvas | B4 |
 | Reusable patterns | B5 |
 | Templates integration | B6 |
-| Responsive preview toggles | B7 |
+| ~~Responsive preview toggles~~ | **Done early in B-LAYOUT** — desktop/tablet/mobile device toggles are live in the topbar (width-only via `deviceMaxWidth()`); B7 now only needs per-breakpoint verification |
 
 ---
 

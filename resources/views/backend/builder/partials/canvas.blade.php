@@ -24,6 +24,7 @@
             <iframe
                 id="builder-preview"
                 title="Page preview"
+                sandbox="allow-same-origin allow-scripts allow-forms"
                 class="block h-full w-full rounded border-0 bg-white shadow-2xl"
             ></iframe>
         </div>

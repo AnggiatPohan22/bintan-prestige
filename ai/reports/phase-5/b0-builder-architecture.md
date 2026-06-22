@@ -43,9 +43,13 @@ opens, and written back to the database only on explicit Save/Publish.
 
 ### Node shape
 
+> **Update (B-LAYOUT, 2026-06-22):** implemented `_cid` is an **incrementing
+> integer** (`++this._cid`), not a UUID — see B1/B2 and the live code in
+> `resources/views/backend/builder/partials/alpine-component.blade.php`.
+
 ```js
 {
-  _cid:      "uuid-v4",       // client-only ID for Alpine tracking (never sent to server)
+  _cid:      1,               // client-only int ID for Alpine tracking (never sent to server)
   id:        42,              // DB id (null for unsaved new blocks)
   type:      "heading",       // matches config/blocks.php key
   label:     "Section Title",
@@ -205,7 +209,7 @@ of the contenteditable HTML → sanitize flow.
 |---|---|---|
 | `POST /admin/pages/{page}/blocks/save-tree` | new route + controller method | Owner approval (new endpoint) |
 | `resources/views/backend/builder/` | new Blade directory | No |
-| `resources/js/builder.js` (Alpine store) | new JS file | No |
+| ~~`resources/js/builder.js` (Alpine store)~~ | — | **Not created.** The Alpine store ships inline in `partials/alpine-component.blade.php` (see B-LAYOUT), no separate JS file. |
 | Builder admin route `GET /admin/pages/{page}/builder` | new route | Owner approval |
 
 No schema changes beyond what Stage A already delivered.  

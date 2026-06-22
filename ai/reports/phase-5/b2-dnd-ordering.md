@@ -5,6 +5,12 @@
 **Commit:** `0a8419b`
 **Status:** COMPLETE ✓
 
+> **Update (B-LAYOUT, 2026-06-22):** the builder view was split into partials.
+> The DnD markup described below now lives in
+> `resources/views/backend/builder/partials/panel-left.blade.php`, and the
+> `onSort`/`addBlock` logic in `partials/alpine-component.blade.php` — not in
+> `index.blade.php`. Behaviour is unchanged.
+
 ---
 
 ## Deliverable
@@ -19,7 +25,7 @@ inserted at a specific position by selecting a block first.
 
 | File | Type | What changed |
 |---|---|---|
-| `resources/views/backend/builder/index.blade.php` | Modified | DnD markup, ghost styles, insert-at-position logic |
+| `resources/views/backend/builder/index.blade.php` | Modified | DnD markup, ghost styles, insert-at-position logic — **since B-LAYOUT this markup is in `partials/panel-left.blade.php` + `partials/alpine-component.blade.php`** |
 
 No controller, route, or schema changes.
 
@@ -114,10 +120,14 @@ addBlock(type, label) {
     }
 
     this.selectedCid = node._cid;   // auto-select the new block
-    this.activeTab   = 'tree';      // auto-switch to tree list to show result
     this.scheduleRefresh();
 },
 ```
+
+> **Correction (B-LAYOUT, 2026-06-22):** the live `addBlock` does **not** switch
+> `activeTab` to `'tree'` — it stays on the `'insert'` tab so the user can keep
+> adding blocks. An earlier draft of this report showed an `activeTab = 'tree'`
+> line that was never in the shipped code.
 
 ### Insert context banner (Add Block tab)
 
