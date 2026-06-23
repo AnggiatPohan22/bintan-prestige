@@ -87,9 +87,9 @@
 
 | Priority | File | Issue |
 |----------|------|-------|
-| Medium | `resources/views/backend/page-sections/edit.blade.php` | `$inputClass` hardcodes `bg-white` + `focus:ring-emerald-*` |
-| Medium | `resources/views/backend/products/form.blade.php` | `$inputClass` hardcodes `bg-white` + `accordion bg-slate-50` headers |
-| Medium | `resources/views/backend/products/partials/search-booking.blade.php` | Legacy `form-input`/`form-label` classes |
+| ✅ Done | `resources/views/backend/page-sections/edit.blade.php` | `$inputClass` removed; `form-label`→`admin-form-label`; textarea→`admin-textarea` |
+| ✅ Done | `resources/views/backend/products/form.blade.php` | Dead `@php` block removed; `form-error` on `<p>` → `mt-1 text-sm text-red-600` |
+| ✅ Done | `resources/views/backend/products/partials/search-booking.blade.php` | `form-label/input/textarea`→`admin-*`; toggle `emerald`→`indigo` |
 | Low | `resources/views/admin/users/create.blade.php` | Checkbox: `text-indigo-600 focus:ring-indigo-500` — already correct, skip |
 | Low | `resources/views/backend/products/partials/features.blade.php` | Icon item rows use `bg-slate-50` (acceptable for light theme) |
 

@@ -12,7 +12,7 @@
     </div>
 
     <div>
-        <label class="form-label">
+        <label class="admin-form-label">
             Booking Box Title
         </label>
 
@@ -20,13 +20,13 @@
             type="text"
             name="cta_title"
             value="{{ old('cta_title', $product->cta_title ?? '') }}"
-            class="form-input"
+            class="admin-input"
             placeholder="Example: Need help booking this tour?"
         >
     </div>
 
     <div>
-        <label class="form-label">
+        <label class="admin-form-label">
             WhatsApp Button Text
         </label>
 
@@ -34,20 +34,20 @@
             type="text"
             name="cta_button_text"
             value="{{ old('cta_button_text', $product->cta_button_text ?? '') }}"
-            class="form-input"
+            class="admin-input"
             placeholder="Example: Chat via WhatsApp"
         >
     </div>
 
     <div class="md:col-span-2">
-        <label class="form-label">
+        <label class="admin-form-label">
             Booking Help Text
         </label>
 
         <textarea
             name="cta_description"
             rows="3"
-            class="form-textarea"
+            class="admin-textarea"
             placeholder="Example: Contact our team via WhatsApp for fast booking assistance."
         >{{ old('cta_description', $product->cta_description ?? '') }}</textarea>
     </div>
@@ -94,7 +94,7 @@
                 >
 
                 <div class="relative w-12 h-6 bg-slate-300 rounded-full
-                    peer peer-checked:bg-emerald-600
+                    peer peer-checked:bg-indigo-600
                     after:content-['']
                     after:absolute after:left-[2px]
                     after:top-[2px]
@@ -109,7 +109,7 @@
     </div>
 
     <div>
-        <label class="form-label">
+        <label class="admin-form-label">
             Pickup Type
         </label>
 
@@ -117,20 +117,20 @@
             type="text"
             name="pickup_type"
             value="{{ old('pickup_type', $product->pickup_type ?? '') }}"
-            class="form-input"
+            class="admin-input"
             placeholder="Example: Hotel Pickup / Meeting Point Only"
         >
     </div>
 
     <div class="md:col-span-2">
-        <label class="form-label">
+        <label class="admin-form-label">
             Pickup Note
         </label>
 
         <textarea
             name="pickup_note"
             rows="3"
-            class="form-textarea"
+            class="admin-textarea"
             placeholder="Example: Pickup available from selected hotels only."
         >{{ old('pickup_note', $product->pickup_note ?? '') }}</textarea>
     </div>
@@ -148,7 +148,7 @@
     </div>
 
     <div>
-        <label class="form-label">
+        <label class="admin-form-label">
             Google Title
         </label>
 
@@ -156,13 +156,13 @@
             type="text"
             name="meta_title"
             value="{{ old('meta_title', $product->meta_title ?? '') }}"
-            class="form-input"
+            class="admin-input"
             placeholder="Example: Bintan Mangrove Tour"
         >
     </div>
 
     <div>
-        <label class="form-label">
+        <label class="admin-form-label">
             Main Page URL
         </label>
 
@@ -170,33 +170,33 @@
             type="url"
             name="canonical_url"
             value="{{ old('canonical_url', $product->canonical_url ?? '') }}"
-            class="form-input"
+            class="admin-input"
             placeholder="https://example.com/products/bintan-tour"
         >
     </div>
 
     <div class="md:col-span-2">
-        <label class="form-label">
+        <label class="admin-form-label">
             Google Description
         </label>
 
         <textarea
             name="meta_description"
             rows="3"
-            class="form-textarea"
+            class="admin-textarea"
             placeholder="Short description shown on Google search result."
         >{{ old('meta_description', $product->meta_description ?? '') }}</textarea>
     </div>
 
     <div class="md:col-span-2">
-        <label class="form-label">
+        <label class="admin-form-label">
             Search Keywords
         </label>
 
         <textarea
             name="meta_keywords"
             rows="2"
-            class="form-textarea"
+            class="admin-textarea"
             placeholder="bintan tour, bintan activity, mangrove tour"
         >{{ old('meta_keywords', $product->meta_keywords ?? '') }}</textarea>
     </div>
