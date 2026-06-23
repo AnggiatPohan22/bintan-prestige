@@ -212,7 +212,7 @@
                         No products found yet.
                     </p>
 
-                    <a href="{{ route('admin.products.create') }}" class="btn-primary mt-4 px-4 py-2 text-sm">
+                    <a href="{{ route('admin.products.create') }}" class="admin-btn-primary mt-4 px-4 py-2 text-sm">
                         Create Product
                     </a>
                 </div>

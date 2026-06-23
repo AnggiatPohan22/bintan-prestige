@@ -97,50 +97,93 @@ Never use off-scale values (`p-7`, `m-13`, `gap-11`).
 
 ## 3. Backend Design System (Admin Dashboard)
 
+> **Note (updated 2026-06-23):** The admin uses a **dark sidebar + light content** layout
+> (similar to GitHub / Linear), NOT a fully dark admin. The initial spec in this file was
+> aspirational. This section now documents the actual implemented design.
+
 ### Aesthetic Direction
 
 | Aspect | Style |
 |--------|-------|
-| Base | Dark theme (#1F2937 background) |
-| Accent | Amber/Gold (#FBBF24) for primary actions |
-| Layout | Sidebar (25%) + Main content (55%) + Panel (20%) |
+| Sidebar | Dark — `bg-slate-900` with white text |
+| Content base | Light — `bg-slate-50` page background |
+| Cards / Panels | `bg-white border-slate-200 shadow-sm` |
+| Primary action | Indigo — `bg-indigo-600 hover:bg-indigo-700` (`admin-btn-primary`) |
+| Danger action | Red — `bg-red-600 hover:bg-red-700` (`admin-btn-danger`) |
 | Density | Medium — efficient for power users |
 | Feedback | Instant: toast, loading states, error messages |
 
-### Admin Color Palette
+### Admin CSS Classes (use these, not inline Tailwind)
 
-| Role | Hex | Tailwind |
-|------|-----|---------|
-| Sidebar/Header | #1F2937 | bg-gray-800 |
-| Content Background | #111827 | bg-gray-900 |
-| Primary Action | #FBBF24 | bg-amber-400 |
-| Success | #10B981 | bg-green-500 |
-| Danger | #EF4444 | bg-red-500 |
-| Border | #374151 | border-gray-700 |
-| Text Primary | #F3F4F6 | text-gray-100 |
-| Text Secondary | #D1D5DB | text-gray-300 |
+All admin component classes are defined in `resources/css/admin.css`. Use the semantic
+class names — never inline their Tailwind equivalents, so CSS updates propagate automatically.
 
-### Admin Component Standards
+| Component | CSS Class | Do NOT use |
+|-----------|-----------|-----------|
+| Page wrapper | `admin-page` | raw spacing |
+| Page header card | `admin-page-header` | `bg-white rounded-2xl ...` |
+| Card/panel | `admin-card` | `bg-white border border-slate-200 ...` |
+| Card header | `admin-card-header` | `bg-slate-50 border-b ...` |
+| Card body | `admin-card-body` | `p-6` |
+| Form card | `admin-form-card` | `bg-white rounded-2xl p-6 ...` |
+| Primary button | `admin-btn-primary` | `btn-primary` (legacy emerald) |
+| Secondary button | `admin-btn-secondary` | `btn-secondary` (legacy) |
+| Danger button | `admin-btn-danger` | raw red classes |
+| Text input | `admin-input` | `form-input` (legacy) |
+| Textarea | `admin-textarea` | `form-textarea` (legacy) |
+| Select | `admin-select` | `form-select` (legacy) |
+| Label | `admin-form-label` | `form-label` (legacy) |
+| Hint text | `admin-form-hint` | raw `text-xs text-slate-400` |
+| Table wrapper | `admin-table-wrapper` | raw `overflow-x-auto rounded-2xl ...` |
+| Table | `admin-table` | — |
+| Table header | `admin-table-header` | — |
+| Table row | `admin-table-row` | — |
+| Success badge | `admin-badge-success` | raw colors |
+| Warning badge | `admin-badge-warning` | raw colors + DO NOT add `style=` override |
+| Danger badge | `admin-badge-danger` | raw colors |
+| Info badge | `admin-badge-info` | raw colors |
+| Empty state | `admin-empty-state` | — |
+
+### Admin Color Palette (actual)
+
+| Role | Value | CSS/Tailwind |
+|------|-------|-------------|
+| Sidebar | `#0F172A` | `admin-sidebar` (`bg-slate-900`) |
+| Page background | `#F8FAFC` | `admin-body` (`bg-slate-50`) |
+| Cards / panels | `#FFFFFF` + `#E2E8F0` border | `admin-card` |
+| Primary action | `#4F46E5` | `admin-btn-primary` (`bg-indigo-600`) |
+| Active sidebar link | `#4F46E5` | `admin-sidebar__link--active` (`bg-indigo-600`) |
+| Success | `#059669` | `admin-btn-success` / `admin-badge-success` |
+| Danger | `#DC2626` | `admin-btn-danger` / `admin-badge-danger` |
+| Focus ring | `focus:ring-4 focus:ring-indigo-100` | on all interactive elements |
+| Checkbox checked | `text-indigo-600 focus:ring-indigo-500` | — |
+| Text primary | `#0F172A` | `text-slate-900` |
+| Text secondary | `#64748B` | `text-slate-500` |
+| Borders | `#E2E8F0` | `border-slate-200` |
+
+### Admin Component Standards (quick reference)
 
 **Buttons**
 
 ```blade
 {{-- Primary --}}
-<button class="bg-amber-400 hover:bg-amber-500 text-gray-900 font-semibold py-2 px-4 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-2 focus:ring-offset-gray-900">Save</button>
+<button class="admin-btn-primary">Save</button>
 
 {{-- Secondary --}}
-<button class="bg-gray-700 hover:bg-gray-600 text-gray-100 font-semibold py-2 px-4 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-amber-400">Cancel</button>
+<button class="admin-btn-secondary">Cancel</button>
 
 {{-- Danger --}}
-<button class="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-red-400">Delete</button>
+<button class="admin-btn-danger">Delete</button>
 ```
 
 **Card / Panel**
 
 ```blade
-<div class="bg-gray-800 border border-gray-700 rounded-lg p-6">
-  <h3 class="text-gray-100 font-semibold text-lg mb-4">Panel Title</h3>
-  <div class="text-gray-300">{{ $content }}</div>
+<div class="admin-card">
+  <div class="admin-card-header">
+    <h3 class="text-base font-bold text-slate-800">Panel Title</h3>
+  </div>
+  <div class="admin-card-body text-slate-600">{{ $content }}</div>
 </div>
 ```
 
@@ -148,19 +191,19 @@ Never use off-scale values (`p-7`, `m-13`, `gap-11`).
 
 ```blade
 <div class="mb-4">
-  <label for="title" class="block text-sm font-medium text-gray-300 mb-1">Title <span class="text-red-400">*</span></label>
-  <input id="title" type="text"
-    class="w-full bg-gray-900 border border-gray-700 text-gray-100 rounded-md px-3 py-2 focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400">
-  @error('title')<p class="mt-1 text-sm text-red-400">{{ $message }}</p>@enderror
+  <label for="title" class="admin-form-label">Title <span class="text-red-500" aria-hidden="true">*</span></label>
+  <input id="title" name="title" type="text"
+    class="admin-input @error('title') border-red-400 focus:border-red-500 focus:ring-red-100 @enderror">
+  @error('title')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
 </div>
 ```
 
 **Table row**
 
 ```blade
-<tr class="border-b border-gray-700 hover:bg-gray-700/40 transition-colors">
-  <td class="px-4 py-3 text-gray-100">{{ $item->name }}</td>
-  <td class="px-4 py-3"><span class="inline-flex px-2 py-1 text-xs rounded-full bg-green-500/20 text-green-400">Active</span></td>
+<tr class="admin-table-row">
+  <td class="px-6 py-4 text-sm text-slate-900">{{ $item->name }}</td>
+  <td class="px-6 py-4"><span class="admin-badge-success">Active</span></td>
 </tr>
 ```
 
@@ -168,11 +211,22 @@ Never use off-scale values (`p-7`, `m-13`, `gap-11`).
 
 ```blade
 <a href="{{ $url }}"
-  class="flex items-center gap-3 px-4 py-2 rounded-md text-gray-300 hover:bg-gray-700 hover:text-amber-400 transition-colors {{ $active ? 'bg-gray-700 text-amber-400' : '' }}">
-  <span class="w-5 h-5">{!! $icon !!}</span>
+  class="admin-sidebar__link {{ $active ? 'admin-sidebar__link--active' : '' }}"
+  @if($active) aria-current="page" @endif>
+  <span class="admin-sidebar__icon">{!! $icon !!}</span>
   <span>{{ $label }}</span>
 </a>
 ```
+
+### Admin UX Principles (preserved)
+
+- Clear create/edit/list flows · Obvious Save/Cancel · Helpful validation messages
+- Filters, search, status badges, pagination for lists
+- Confirmation before destructive actions
+- Compact repeatable modules (prices, images, features, FAQs, itineraries)
+- Tabs/sections for long product-detail forms
+- User always knows what to do next
+- Do NOT mix public luxury styling into admin styling (and vice versa)
 
 Admin UX principles (preserved): clear create/edit/list flows · obvious Save/Cancel ·
 helpful validation messages · filters, search, status badges, pagination for lists ·

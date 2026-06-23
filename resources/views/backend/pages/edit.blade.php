@@ -34,7 +34,7 @@
                     @if($page->isPublished())
                         <span class="admin-badge-success">Published</span>
                     @elseif($page->isScheduled())
-                        <span class="admin-badge-warning" style="background-color:#fef9c3;color:#854d0e;">Scheduled</span>
+                        <span class="admin-badge-warning">Scheduled</span>
                     @else
                         <span class="admin-badge-warning">Draft</span>
                     @endif
@@ -48,7 +48,7 @@
                     Updated {{ $page->updated_at->format('d M Y, H:i') }}
                     @if($page->isScheduled() && $page->publish_at)
                         &nbsp;·&nbsp;
-                        <span class="font-medium" style="color:#854d0e;">Scheduled for: {{ $page->publish_at->format('d M Y, H:i') }}</span>
+                        <span class="font-medium text-amber-700">Scheduled for: {{ $page->publish_at->format('d M Y, H:i') }}</span>
                     @endif
                 </p>
             </div>

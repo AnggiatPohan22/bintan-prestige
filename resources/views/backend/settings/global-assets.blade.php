@@ -2,10 +2,6 @@
 
 @section('content')
 
-@php
-    $inputClass = 'w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm shadow-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100';
-@endphp
-
 <div class="min-w-0 rounded-xl bg-white p-6 shadow">
     <div class="mb-6">
         <h1 class="text-2xl font-bold text-slate-800">Global Assets</h1>
@@ -17,7 +13,7 @@
         @foreach($assetTabs as $tab)
             <a
                 href="{{ route('admin.settings.global-assets.edit', ['tab' => $tab['key']]) }}"
-                class="shrink-0 rounded-lg border px-4 py-3 text-sm font-semibold transition {{ $activeTab === $tab['key'] ? 'border-emerald-500 bg-emerald-50 text-emerald-700' : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50' }}"
+                class="shrink-0 rounded-lg border px-4 py-3 text-sm font-semibold transition {{ $activeTab === $tab['key'] ? 'border-indigo-500 bg-indigo-50 text-indigo-700' : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50' }}"
             >
                 {{ $tab['label'] }}
             </a>
@@ -45,10 +41,6 @@
 
                 <div class="mt-5 grid grid-cols-1 gap-5 xl:grid-cols-2">
                     @foreach($logoVariants as $variant)
-                        @php
-                            $asset = $siteLogos[$variant['key']] ?? null;
-                            $slug = $variant['slug'];
-                        @endphp
 
                         <div class="rounded-xl border border-slate-200 bg-white p-4">
                             <div class="flex flex-col gap-4 md:flex-row">
@@ -70,13 +62,13 @@
                                     <div class="mt-4 space-y-3">
                                         <div>
                                             <label class="form-label">Upload</label>
-                                            <input type="file" name="logos[{{ $slug }}]" accept="image/jpeg,image/png,image/webp" class="{{ $inputClass }}">
+                                            <input type="file" name="logos[{{ $slug }}]" accept="image/jpeg,image/png,image/webp" class="admin-input">
                                             @error("logos.$slug") <p class="form-error">{{ $message }}</p> @enderror
                                         </div>
 
                                         <div>
                                             <label class="form-label">Alt text</label>
-                                            <input type="text" name="logo_alts[{{ $slug }}]" value="{{ old("logo_alts.$slug", $asset?->alt) }}" class="{{ $inputClass }}" placeholder="{{ $variant['label'] }}">
+                                            <input type="text" name="logo_alts[{{ $slug }}]" value="{{ old("logo_alts.$slug", $asset?->alt) }}" class="admin-input" placeholder="{{ $variant['label'] }}">
                                             @error("logo_alts.$slug") <p class="form-error">{{ $message }}</p> @enderror
                                         </div>
                                     </div>
@@ -87,7 +79,7 @@
                 </div>
 
                 <div class="mt-5 flex items-center gap-3 border-t border-slate-200 pt-5">
-                    <button type="submit" class="btn-primary">Save Logo Variants</button>
+                    <button type="submit" class="admin-btn-primary">Save Logo Variants</button>
                 </div>
             </form>
 
@@ -97,10 +89,6 @@
 
                 <div class="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">
                     @foreach($logoVariants as $variant)
-                        @php
-                            $asset = $siteLogos[$variant['key']] ?? null;
-                        @endphp
-
                         <div class="rounded-xl border border-slate-200 p-4">
                             <div class="text-sm font-bold text-slate-800">{{ $variant['label'] }}</div>
                             <div class="mt-1 text-xs text-slate-400">{{ $variant['key'] }}</div>
@@ -133,20 +121,20 @@
                 <div class="mt-5 space-y-4">
                     <div>
                         <label class="form-label">Upload favicon</label>
-                        <input type="file" name="favicon" accept=".ico,image/png,image/svg+xml,image/webp,image/jpeg" class="{{ $inputClass }}">
+                        <input type="file" name="favicon" accept=".ico,image/png,image/svg+xml,image/webp,image/jpeg" class="admin-input">
                         <p class="mt-2 text-xs text-slate-400">Accepted formats: ICO, PNG, SVG, WEBP, JPG. Maximum size: 1 MB.</p>
                         @error('favicon') <p class="form-error">{{ $message }}</p> @enderror
                     </div>
 
                     <div>
                         <label class="form-label">Alt text</label>
-                        <input type="text" name="favicon_alt" value="{{ old('favicon_alt', $favicon?->alt) }}" class="{{ $inputClass }}" placeholder="Bintan Prestige favicon">
+                        <input type="text" name="favicon_alt" value="{{ old('favicon_alt', $favicon?->alt) }}" class="admin-input" placeholder="Bintan Prestige favicon">
                         @error('favicon_alt') <p class="form-error">{{ $message }}</p> @enderror
                     </div>
                 </div>
 
                 <div class="mt-5 flex items-center gap-3 border-t border-slate-200 pt-5">
-                    <button type="submit" class="btn-primary">Save Favicon</button>
+                    <button type="submit" class="admin-btn-primary">Save Favicon</button>
                 </div>
             </form>
 
@@ -191,10 +179,6 @@
 
                             <div class="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-2">
                                 @foreach($fields as $field)
-                                    @php
-                                        $value = old("brand_colors.{$field['slug']}", $brandColors[$field['slug']] ?? $field['default']);
-                                    @endphp
-
                                     <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
                                         <div class="flex items-start justify-between gap-4">
                                             <div>
@@ -208,7 +192,7 @@
 
                                         <div class="mt-4 grid grid-cols-[72px_minmax(0,1fr)] gap-3">
                                             <input type="color" name="brand_colors[{{ $field['slug'] }}]" value="{{ $value }}" class="h-12 w-full cursor-pointer rounded-lg border border-slate-300 bg-white p-1">
-                                            <input type="text" value="{{ $value }}" disabled class="{{ $inputClass }} bg-slate-100 font-mono uppercase">
+                                            <input type="text" value="{{ $value }}" disabled class="admin-input bg-slate-100 font-mono uppercase">
                                         </div>
 
                                         @error("brand_colors.{$field['slug']}") <p class="form-error">{{ $message }}</p> @enderror
@@ -220,7 +204,7 @@
                 </div>
 
                 <div class="mt-5 flex items-center gap-3 border-t border-slate-200 pt-5">
-                    <button type="submit" class="btn-primary">Save Brand Colors</button>
+                    <button type="submit" class="admin-btn-primary">Save Brand Colors</button>
                 </div>
             </form>
         @endif
@@ -238,20 +222,20 @@
                     <div class="mt-5 space-y-4">
                         <div>
                             <label class="form-label">Upload image</label>
-                            <input type="file" name="social_share_image" accept="image/jpeg,image/png,image/webp" class="{{ $inputClass }}">
+                            <input type="file" name="social_share_image" accept="image/jpeg,image/png,image/webp" class="admin-input">
                             <p class="mt-2 text-xs text-slate-400">Recommended size: 1200 x 630 px. Accepted formats: JPG, PNG, WEBP. Maximum size: 4 MB.</p>
                             @error('social_share_image') <p class="form-error">{{ $message }}</p> @enderror
                         </div>
 
                         <div>
                             <label class="form-label">Alt / internal description</label>
-                            <input type="text" name="social_share_image_alt" value="{{ old('social_share_image_alt', $socialShareImage?->alt) }}" class="{{ $inputClass }}" placeholder="Bintan Prestige default social share image">
+                            <input type="text" name="social_share_image_alt" value="{{ old('social_share_image_alt', $socialShareImage?->alt) }}" class="admin-input" placeholder="Bintan Prestige default social share image">
                             @error('social_share_image_alt') <p class="form-error">{{ $message }}</p> @enderror
                         </div>
                     </div>
 
                     <div class="mt-5 flex items-center gap-3 border-t border-slate-200 pt-5">
-                        <button type="submit" class="btn-primary">Save Social Share Image</button>
+                        <button type="submit" class="admin-btn-primary">Save Social Share Image</button>
                     </div>
                 </form>
 
@@ -291,17 +275,13 @@
 
                 <div class="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-2">
                     @foreach($businessIdentityFields as $field)
-                        @php
-                            $value = old("business_identity.{$field['slug']}", $businessIdentity[$field['slug']] ?? $field['default']);
-                        @endphp
-
                         <div class="rounded-xl border border-slate-200 bg-white p-4 {{ $field['type'] === 'textarea' ? 'lg:col-span-2' : '' }}">
                             <label class="form-label">{{ $field['label'] }}</label>
 
                             @if($field['type'] === 'textarea')
-                                <textarea name="business_identity[{{ $field['slug'] }}]" rows="4" class="{{ $inputClass }}">{{ $value }}</textarea>
+                                <textarea name="business_identity[{{ $field['slug'] }}]" rows="4" class="admin-input">{{ $value }}</textarea>
                             @else
-                                <input type="text" name="business_identity[{{ $field['slug'] }}]" value="{{ $value }}" class="{{ $inputClass }}">
+                                <input type="text" name="business_identity[{{ $field['slug'] }}]" value="{{ $value }}" class="admin-input">
                             @endif
 
                             <p class="mt-2 text-xs text-slate-500">{{ $field['hint'] }}</p>
@@ -312,7 +292,7 @@
                 </div>
 
                 <div class="mt-5 flex items-center gap-3 border-t border-slate-200 pt-5">
-                    <button type="submit" class="btn-primary">Save Business Identity</button>
+                    <button type="submit" class="admin-btn-primary">Save Business Identity</button>
                 </div>
             </form>
         @endif
@@ -327,17 +307,13 @@
 
                 <div class="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-2">
                     @foreach($contactInformationFields as $field)
-                        @php
-                            $value = old("contact_information.{$field['slug']}", $contactInformation[$field['slug']] ?? $field['default']);
-                        @endphp
-
                         <div class="rounded-xl border border-slate-200 bg-white p-4 {{ $field['type'] === 'textarea' ? 'lg:col-span-2' : '' }}">
                             <label class="form-label">{{ $field['label'] }}</label>
 
                             @if($field['type'] === 'textarea')
-                                <textarea name="contact_information[{{ $field['slug'] }}]" rows="4" class="{{ $inputClass }}">{{ $value }}</textarea>
+                                <textarea name="contact_information[{{ $field['slug'] }}]" rows="4" class="admin-input">{{ $value }}</textarea>
                             @else
-                                <input type="{{ in_array($field['type'], ['email', 'url'], true) ? $field['type'] : 'text' }}" name="contact_information[{{ $field['slug'] }}]" value="{{ $value }}" class="{{ $inputClass }}">
+                                <input type="{{ in_array($field['type'], ['email', 'url'], true) ? $field['type'] : 'text' }}" name="contact_information[{{ $field['slug'] }}]" value="{{ $value }}" class="admin-input">
                             @endif
 
                             <p class="mt-2 text-xs text-slate-500">{{ $field['hint'] }}</p>
@@ -348,7 +324,7 @@
                 </div>
 
                 <div class="mt-5 flex items-center gap-3 border-t border-slate-200 pt-5">
-                    <button type="submit" class="btn-primary">Save Contact Information</button>
+                    <button type="submit" class="admin-btn-primary">Save Contact Information</button>
                 </div>
             </form>
         @endif
@@ -363,13 +339,9 @@
 
                 <div class="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-2">
                     @foreach($socialMediaLinkFields as $field)
-                        @php
-                            $value = old("social_media_links.{$field['slug']}", $socialMediaLinks[$field['slug']] ?? $field['default']);
-                        @endphp
-
                         <div class="rounded-xl border border-slate-200 bg-white p-4">
                             <label class="form-label">{{ $field['label'] }} URL</label>
-                            <input type="url" name="social_media_links[{{ $field['slug'] }}]" value="{{ $value }}" class="{{ $inputClass }}" placeholder="https://...">
+                            <input type="url" name="social_media_links[{{ $field['slug'] }}]" value="{{ $value }}" class="admin-input" placeholder="https://...">
                             <p class="mt-2 text-xs text-slate-500">Frontend icon label: {{ $field['abbr'] }}</p>
                             <p class="mt-2 text-[11px] font-semibold uppercase text-slate-400">{{ $field['key'] }}</p>
                             @error("social_media_links.{$field['slug']}") <p class="form-error">{{ $message }}</p> @enderror
@@ -398,17 +370,17 @@
                             <div class="grid grid-cols-1 gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4 lg:grid-cols-[minmax(0,1fr)_120px_minmax(0,1.4fr)_auto]" data-social-link-row>
                                 <div>
                                     <label class="form-label">Label</label>
-                                    <input type="text" name="custom_social_links[{{ $index }}][label]" value="{{ $customLink['label'] ?? '' }}" class="{{ $inputClass }}" placeholder="Pinterest">
+                                    <input type="text" name="custom_social_links[{{ $index }}][label]" value="{{ $customLink['label'] ?? '' }}" class="admin-input" placeholder="Pinterest">
                                     @error("custom_social_links.$index.label") <p class="form-error">{{ $message }}</p> @enderror
                                 </div>
                                 <div>
                                     <label class="form-label">Icon Label</label>
-                                    <input type="text" name="custom_social_links[{{ $index }}][abbr]" value="{{ $customLink['abbr'] ?? '' }}" class="{{ $inputClass }}" placeholder="PT">
+                                    <input type="text" name="custom_social_links[{{ $index }}][abbr]" value="{{ $customLink['abbr'] ?? '' }}" class="admin-input" placeholder="PT">
                                     @error("custom_social_links.$index.abbr") <p class="form-error">{{ $message }}</p> @enderror
                                 </div>
                                 <div>
                                     <label class="form-label">URL</label>
-                                    <input type="url" name="custom_social_links[{{ $index }}][url]" value="{{ $customLink['url'] ?? '' }}" class="{{ $inputClass }}" placeholder="https://...">
+                                    <input type="url" name="custom_social_links[{{ $index }}][url]" value="{{ $customLink['url'] ?? '' }}" class="admin-input" placeholder="https://...">
                                     @error("custom_social_links.$index.url") <p class="form-error">{{ $message }}</p> @enderror
                                 </div>
                                 <div class="flex items-end">
@@ -420,7 +392,7 @@
                 </div>
 
                 <div class="mt-5 flex items-center gap-3 border-t border-slate-200 pt-5">
-                    <button type="submit" class="btn-primary">Save Social Media Links</button>
+                    <button type="submit" class="admin-btn-primary">Save Social Media Links</button>
                 </div>
             </form>
 
@@ -428,15 +400,15 @@
                 <div class="grid grid-cols-1 gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4 lg:grid-cols-[minmax(0,1fr)_120px_minmax(0,1.4fr)_auto]" data-social-link-row>
                     <div>
                         <label class="form-label">Label</label>
-                        <input type="text" data-name="label" class="{{ $inputClass }}" placeholder="Pinterest">
+                        <input type="text" data-name="label" class="admin-input" placeholder="Pinterest">
                     </div>
                     <div>
                         <label class="form-label">Icon Label</label>
-                        <input type="text" data-name="abbr" class="{{ $inputClass }}" placeholder="PT">
+                        <input type="text" data-name="abbr" class="admin-input" placeholder="PT">
                     </div>
                     <div>
                         <label class="form-label">URL</label>
-                        <input type="url" data-name="url" class="{{ $inputClass }}" placeholder="https://...">
+                        <input type="url" data-name="url" class="admin-input" placeholder="https://...">
                     </div>
                     <div class="flex items-end">
                         <button type="button" data-remove-social-link class="w-full rounded-lg border border-red-200 px-4 py-3 text-sm font-semibold text-red-600 transition hover:bg-red-50">Remove</button>
@@ -496,10 +468,6 @@
                     </div>
                 </div>
 
-                @php
-                    $navigationBasicFields = collect($navigationFields)->reject(fn ($field) => $field['type'] === 'color');
-                    $navigationColorFields = collect($navigationFields)->filter(fn ($field) => $field['type'] === 'color');
-                @endphp
 
                 <div class="mt-5 space-y-3" data-navigation-accordion>
                     <details class="rounded-xl border border-slate-200 bg-white" open>
@@ -509,10 +477,6 @@
 
                         <div class="grid grid-cols-1 gap-5 border-t border-slate-200 bg-slate-50 p-4 lg:grid-cols-2">
                     @foreach($navigationBasicFields as $field)
-                        @php
-                            $value = old("navigation_settings.{$field['slug']}", $navigationSettings[$field['slug']] ?? $field['default']);
-                            $checkedValue = filter_var($value, FILTER_VALIDATE_BOOL);
-                        @endphp
 
                         <div class="rounded-xl border border-slate-200 bg-white p-4 {{ $field['type'] === 'boolean' ? 'lg:col-span-2' : '' }}">
                             @if($field['type'] === 'boolean')
@@ -527,7 +491,7 @@
                                 </label>
                             @else
                                 <label class="form-label">{{ $field['label'] }}</label>
-                                <input type="text" name="navigation_settings[{{ $field['slug'] }}]" value="{{ $value }}" class="{{ $inputClass }}" placeholder="{{ $field['default'] }}">
+                                <input type="text" name="navigation_settings[{{ $field['slug'] }}]" value="{{ $value }}" class="admin-input" placeholder="{{ $field['default'] }}">
                                 <p class="mt-2 text-xs text-slate-500">{{ $field['hint'] }}</p>
                                 <p class="mt-2 text-[11px] font-semibold uppercase text-slate-400">{{ $field['key'] }}</p>
                             @endif
@@ -548,10 +512,6 @@
 
                     <div class="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
                         @foreach($navigationColorFields as $field)
-                            @php
-                                $value = old("navigation_settings.{$field['slug']}", $navigationSettings[$field['slug']] ?? $field['default']);
-                            @endphp
-
                             <div class="rounded-xl border border-slate-200 bg-slate-50 p-3">
                                 <div class="flex items-start justify-between gap-3">
                                     <div>
@@ -563,7 +523,7 @@
 
                                 <div class="mt-3 grid grid-cols-[56px_minmax(0,1fr)] gap-2">
                                     <input type="color" name="navigation_settings[{{ $field['slug'] }}]" value="{{ $value }}" class="h-11 w-full cursor-pointer rounded-lg border border-slate-300 bg-white p-1">
-                                    <input type="text" value="{{ $value }}" disabled class="{{ $inputClass }} bg-slate-100 py-2 font-mono uppercase">
+                                    <input type="text" value="{{ $value }}" disabled class="admin-input bg-slate-100 py-2 font-mono uppercase">
                                 </div>
 
                                 <p class="mt-2 text-[11px] font-semibold uppercase text-slate-400">{{ $field['key'] }}</p>
@@ -577,7 +537,7 @@
                 </div>
 
                 <div class="mt-5 flex items-center gap-3 border-t border-slate-200 pt-5">
-                    <button type="submit" class="btn-primary">Save Header Navigation</button>
+                    <button type="submit" class="admin-btn-primary">Save Header Navigation</button>
                 </div>
             </form>
 
@@ -630,10 +590,6 @@
 
                         <div class="grid grid-cols-1 gap-5 border-t border-slate-200 bg-slate-50 p-4 lg:grid-cols-2">
                             @foreach($footerFields as $field)
-                                @php
-                                    $value = old("footer_settings.{$field['slug']}", $footerSettings[$field['slug']] ?? $field['default']);
-                                    $checkedValue = filter_var($value, FILTER_VALIDATE_BOOL);
-                                @endphp
 
                                 <div class="rounded-xl border border-slate-200 bg-white p-4 {{ $field['type'] === 'boolean' ? '' : 'lg:col-span-2' }}">
                                     @if($field['type'] === 'boolean')
@@ -648,7 +604,7 @@
                                         </label>
                                     @elseif($field['type'] === 'select')
                                         <label class="form-label">{{ $field['label'] }}</label>
-                                        <select name="footer_settings[{{ $field['slug'] }}]" class="{{ $inputClass }}">
+                                        <select name="footer_settings[{{ $field['slug'] }}]" class="admin-input">
                                             @foreach($field['options'] as $optionValue => $optionLabel)
                                                 <option value="{{ $optionValue }}" @selected($value === $optionValue)>{{ $optionLabel }}</option>
                                             @endforeach
@@ -657,7 +613,7 @@
                                         <p class="mt-2 text-[11px] font-semibold uppercase text-slate-400">{{ $field['key'] }}</p>
                                     @else
                                         <label class="form-label">{{ $field['label'] }}</label>
-                                        <input type="text" name="footer_settings[{{ $field['slug'] }}]" value="{{ $value }}" class="{{ $inputClass }}" placeholder="{{ $field['default'] }}">
+                                        <input type="text" name="footer_settings[{{ $field['slug'] }}]" value="{{ $value }}" class="admin-input" placeholder="{{ $field['default'] }}">
                                         <p class="mt-2 text-xs text-slate-500">{{ $field['hint'] }}</p>
                                         <p class="mt-2 text-[11px] font-semibold uppercase text-slate-400">{{ $field['key'] }}</p>
                                     @endif
@@ -695,7 +651,7 @@
                                         <div class="grid grid-cols-1 gap-3 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_150px_140px_220px]">
                                             <div>
                                                 <label class="form-label">Type</label>
-                                                <select name="footer_layout_blocks[{{ $index }}][type]" data-field="type" class="{{ $inputClass }}">
+                                                <select name="footer_layout_blocks[{{ $index }}][type]" data-field="type" class="admin-input">
                                                     @foreach($footerBlockTypes as $typeValue => $typeLabel)
                                                         <option value="{{ $typeValue }}" @selected(($block['type'] ?? '') === $typeValue)>{{ $typeLabel }}</option>
                                                     @endforeach
@@ -703,11 +659,11 @@
                                             </div>
                                             <div>
                                                 <label class="form-label">Title</label>
-                                                <input type="text" name="footer_layout_blocks[{{ $index }}][title]" data-field="title" value="{{ $block['title'] ?? '' }}" class="{{ $inputClass }}" placeholder="Quick Links">
+                                                <input type="text" name="footer_layout_blocks[{{ $index }}][title]" data-field="title" value="{{ $block['title'] ?? '' }}" class="admin-input" placeholder="Quick Links">
                                             </div>
                                             <div>
                                                 <label class="form-label">Width</label>
-                                                <select name="footer_layout_blocks[{{ $index }}][width]" data-field="width" data-footer-layout-control class="{{ $inputClass }}">
+                                                <select name="footer_layout_blocks[{{ $index }}][width]" data-field="width" data-footer-layout-control class="admin-input">
                                                     @foreach($footerWidthOptions as $widthValue => $widthLabel)
                                                         <option value="{{ $widthValue }}" @selected(($block['width'] ?? '1') === $widthValue)>{{ $widthLabel }}</option>
                                                     @endforeach
@@ -727,11 +683,11 @@
                                         <div class="mt-3 grid grid-cols-1 gap-3 lg:grid-cols-2">
                                             <div>
                                                 <label class="form-label">Maps embed URL</label>
-                                                <input type="text" name="footer_layout_blocks[{{ $index }}][settings][maps_embed_url]" data-setting-field="maps_embed_url" value="{{ $block['settings']['maps_embed_url'] ?? '' }}" class="{{ $inputClass }}" placeholder="https://www.google.com/maps/embed?...">
+                                                <input type="text" name="footer_layout_blocks[{{ $index }}][settings][maps_embed_url]" data-setting-field="maps_embed_url" value="{{ $block['settings']['maps_embed_url'] ?? '' }}" class="admin-input" placeholder="https://www.google.com/maps/embed?...">
                                             </div>
                                             <div>
                                                 <label class="form-label">Custom text / ads</label>
-                                                <textarea name="footer_layout_blocks[{{ $index }}][settings][custom_body]" data-setting-field="custom_body" rows="2" class="{{ $inputClass }}" placeholder="Short support text or ads copy">{{ $block['settings']['custom_body'] ?? '' }}</textarea>
+                                                <textarea name="footer_layout_blocks[{{ $index }}][settings][custom_body]" data-setting-field="custom_body" rows="2" class="admin-input" placeholder="Short support text or ads copy">{{ $block['settings']['custom_body'] ?? '' }}</textarea>
                                             </div>
                                         </div>
                                     </div>
@@ -743,7 +699,7 @@
                 </div>
 
                 <div class="mt-5 flex items-center gap-3 border-t border-slate-200 pt-5">
-                    <button type="submit" class="btn-primary">Save Footer Settings</button>
+                    <button type="submit" class="admin-btn-primary">Save Footer Settings</button>
                 </div>
             </form>
 
@@ -752,7 +708,7 @@
                     <div class="grid grid-cols-1 gap-3 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_150px_140px_220px]">
                         <div>
                             <label class="form-label">Type</label>
-                            <select data-field="type" class="{{ $inputClass }}">
+                            <select data-field="type" class="admin-input">
                                 @foreach(\App\Support\FooterSettings::blockTypes() as $typeValue => $typeLabel)
                                     <option value="{{ $typeValue }}">{{ $typeLabel }}</option>
                                 @endforeach
@@ -760,11 +716,11 @@
                         </div>
                         <div>
                             <label class="form-label">Title</label>
-                            <input type="text" data-field="title" class="{{ $inputClass }}" placeholder="Quick Links">
+                            <input type="text" data-field="title" class="admin-input" placeholder="Quick Links">
                         </div>
                         <div>
                             <label class="form-label">Width</label>
-                            <select data-field="width" data-footer-layout-control class="{{ $inputClass }}">
+                            <select data-field="width" data-footer-layout-control class="admin-input">
                                 @foreach(\App\Support\FooterSettings::widthOptions() as $widthValue => $widthLabel)
                                     <option value="{{ $widthValue }}">{{ $widthLabel }}</option>
                                 @endforeach
@@ -784,11 +740,11 @@
                     <div class="mt-3 grid grid-cols-1 gap-3 lg:grid-cols-2">
                         <div>
                             <label class="form-label">Maps embed URL</label>
-                            <input type="text" data-setting-field="maps_embed_url" class="{{ $inputClass }}" placeholder="https://www.google.com/maps/embed?...">
+                            <input type="text" data-setting-field="maps_embed_url" class="admin-input" placeholder="https://www.google.com/maps/embed?...">
                         </div>
                         <div>
                             <label class="form-label">Custom text / ads</label>
-                            <textarea data-setting-field="custom_body" rows="2" class="{{ $inputClass }}" placeholder="Short support text or ads copy"></textarea>
+                            <textarea data-setting-field="custom_body" rows="2" class="admin-input" placeholder="Short support text or ads copy"></textarea>
                         </div>
                     </div>
                 </div>
@@ -932,10 +888,6 @@
 
                 <div class="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-2">
                     @foreach($seoDefaultFields as $field)
-                        @php
-                            $value = old("seo_default.{$field['slug']}", $seoDefaultSettings[$field['slug']] ?? $field['default']);
-                            $checkedValue = filter_var($value, FILTER_VALIDATE_BOOL);
-                        @endphp
 
                         <div class="rounded-xl border border-slate-200 bg-white p-4 {{ in_array($field['type'], ['textarea', 'boolean'], true) ? 'lg:col-span-2' : '' }}">
                             @if($field['type'] === 'boolean')
@@ -950,7 +902,7 @@
                                 </label>
                             @elseif($field['type'] === 'select')
                                 <label class="form-label">{{ $field['label'] }}</label>
-                                <select name="seo_default[{{ $field['slug'] }}]" class="{{ $inputClass }}">
+                                <select name="seo_default[{{ $field['slug'] }}]" class="admin-input">
                                     @foreach($field['options'] as $optionValue => $optionLabel)
                                         <option value="{{ $optionValue }}" @selected($value === $optionValue)>{{ $optionLabel }}</option>
                                     @endforeach
@@ -959,12 +911,12 @@
                                 <p class="mt-2 text-[11px] font-semibold uppercase text-slate-400">{{ $field['key'] }}</p>
                             @elseif($field['type'] === 'textarea')
                                 <label class="form-label">{{ $field['label'] }}</label>
-                                <textarea name="seo_default[{{ $field['slug'] }}]" rows="3" class="{{ $inputClass }}">{{ $value }}</textarea>
+                                <textarea name="seo_default[{{ $field['slug'] }}]" rows="3" class="admin-input">{{ $value }}</textarea>
                                 <p class="mt-2 text-xs text-slate-500">{{ $field['hint'] }}</p>
                                 <p class="mt-2 text-[11px] font-semibold uppercase text-slate-400">{{ $field['key'] }}</p>
                             @else
                                 <label class="form-label">{{ $field['label'] }}</label>
-                                <input type="{{ $field['type'] === 'url' ? 'url' : 'text' }}" name="seo_default[{{ $field['slug'] }}]" value="{{ $value }}" class="{{ $inputClass }}" placeholder="{{ $field['default'] }}">
+                                <input type="{{ $field['type'] === 'url' ? 'url' : 'text' }}" name="seo_default[{{ $field['slug'] }}]" value="{{ $value }}" class="admin-input" placeholder="{{ $field['default'] }}">
                                 <p class="mt-2 text-xs text-slate-500">{{ $field['hint'] }}</p>
                                 <p class="mt-2 text-[11px] font-semibold uppercase text-slate-400">{{ $field['key'] }}</p>
                             @endif
@@ -977,7 +929,7 @@
                 <div class="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
                     <div class="rounded-xl border border-slate-200 bg-white p-4">
                         <label class="form-label">Default OG image</label>
-                        <input type="file" name="seo_default_og_image" accept="image/jpeg,image/png,image/webp" class="{{ $inputClass }}">
+                        <input type="file" name="seo_default_og_image" accept="image/jpeg,image/png,image/webp" class="admin-input">
                         <p class="mt-2 text-xs text-slate-500">Fallback social preview image when a product or page does not provide one. Recommended size: 1200 x 630 px.</p>
                         <p class="mt-2 text-[11px] font-semibold uppercase text-slate-400">{{ \App\Support\SeoDefaultSettings::OG_IMAGE_KEY }}</p>
                         @error('seo_default_og_image') <p class="form-error">{{ $message }}</p> @enderror
@@ -1002,16 +954,12 @@
                 </div>
 
                 <div class="mt-5 flex items-center gap-3 border-t border-slate-200 pt-5">
-                    <button type="submit" class="btn-primary">Save SEO Default</button>
+                    <button type="submit" class="admin-btn-primary">Save SEO Default</button>
                 </div>
             </form>
         @endif
 
         @if($activeTab === 'tracking-integrations')
-            @php
-                $trackingSections = collect($trackingIntegrationFields)->groupBy('section');
-            @endphp
-
             <form method="POST" action="{{ route('admin.settings.global-assets.tracking-integrations.update') }}" class="rounded-xl border border-slate-200 bg-slate-50 p-5">
                 @csrf
                 @method('PUT')
@@ -1028,10 +976,6 @@
 
                             <div class="grid grid-cols-1 gap-4 border-t border-slate-100 p-4 lg:grid-cols-2">
                                 @foreach($fields as $field)
-                                    @php
-                                        $value = old("tracking_integrations.{$field['slug']}", $trackingIntegrationSettings[$field['slug']] ?? $field['default']);
-                                        $checkedValue = filter_var($value, FILTER_VALIDATE_BOOL);
-                                    @endphp
 
                                     <div class="rounded-xl border border-slate-200 bg-slate-50 p-4 {{ $field['type'] === 'textarea' ? 'lg:col-span-2' : '' }}">
                                         @if($field['type'] === 'boolean')
@@ -1046,7 +990,7 @@
                                             </label>
                                         @elseif($field['type'] === 'select')
                                             <label class="form-label">{{ $field['label'] }}</label>
-                                            <select name="tracking_integrations[{{ $field['slug'] }}]" class="{{ $inputClass }}">
+                                            <select name="tracking_integrations[{{ $field['slug'] }}]" class="admin-input">
                                                 @foreach($field['options'] as $optionValue => $optionLabel)
                                                     <option value="{{ $optionValue }}" @selected($value === $optionValue)>{{ $optionLabel }}</option>
                                                 @endforeach
@@ -1055,12 +999,12 @@
                                             <p class="mt-2 text-[11px] font-semibold uppercase text-slate-400">{{ $field['key'] }}</p>
                                         @elseif($field['type'] === 'textarea')
                                             <label class="form-label">{{ $field['label'] }}</label>
-                                            <textarea name="tracking_integrations[{{ $field['slug'] }}]" rows="5" class="{{ $inputClass }}" placeholder="{{ $field['hint'] }}">{{ $value }}</textarea>
+                                            <textarea name="tracking_integrations[{{ $field['slug'] }}]" rows="5" class="admin-input" placeholder="{{ $field['hint'] }}">{{ $value }}</textarea>
                                             <p class="mt-2 text-xs text-slate-500">{{ $field['hint'] }}</p>
                                             <p class="mt-2 text-[11px] font-semibold uppercase text-slate-400">{{ $field['key'] }}</p>
                                         @else
                                             <label class="form-label">{{ $field['label'] }}</label>
-                                            <input type="text" name="tracking_integrations[{{ $field['slug'] }}]" value="{{ $value }}" class="{{ $inputClass }}" placeholder="{{ $field['default'] }}">
+                                            <input type="text" name="tracking_integrations[{{ $field['slug'] }}]" value="{{ $value }}" class="admin-input" placeholder="{{ $field['default'] }}">
                                             <p class="mt-2 text-xs text-slate-500">{{ $field['hint'] }}</p>
                                             <p class="mt-2 text-[11px] font-semibold uppercase text-slate-400">{{ $field['key'] }}</p>
                                         @endif
@@ -1074,7 +1018,7 @@
                 </div>
 
                 <div class="mt-5 flex items-center gap-3 border-t border-slate-200 pt-5">
-                    <button type="submit" class="btn-primary">Save Tracking / Integrations</button>
+                    <button type="submit" class="admin-btn-primary">Save Tracking / Integrations</button>
                 </div>
             </form>
 
@@ -1104,10 +1048,6 @@
         @endif
 
         @if($activeTab === 'booking-cta')
-            @php
-                $bookingCtaSections = collect($bookingCtaFields)->groupBy('section');
-            @endphp
-
             <form method="POST" action="{{ route('admin.settings.global-assets.booking-cta.update') }}" class="rounded-xl border border-slate-200 bg-slate-50 p-5">
                 @csrf
                 @method('PUT')
@@ -1129,10 +1069,6 @@
 
                             <div class="grid grid-cols-1 gap-4 border-t border-slate-100 p-4 lg:grid-cols-2">
                                 @foreach($fields as $field)
-                                    @php
-                                        $value = old("booking_cta.{$field['slug']}", $bookingCtaSettings[$field['slug']] ?? $field['default']);
-                                        $checkedValue = filter_var($value, FILTER_VALIDATE_BOOL);
-                                    @endphp
 
                                     <div class="rounded-xl border border-slate-200 bg-slate-50 p-4 {{ $field['type'] === 'textarea' ? 'lg:col-span-2' : '' }}">
                                         @if($field['type'] === 'boolean')
@@ -1147,7 +1083,7 @@
                                             </label>
                                         @elseif($field['type'] === 'select')
                                             <label class="form-label">{{ $field['label'] }}</label>
-                                            <select name="booking_cta[{{ $field['slug'] }}]" class="{{ $inputClass }}">
+                                            <select name="booking_cta[{{ $field['slug'] }}]" class="admin-input">
                                                 @foreach($field['options'] as $optionValue => $optionLabel)
                                                     <option value="{{ $optionValue }}" @selected($value === $optionValue)>{{ $optionLabel }}</option>
                                                 @endforeach
@@ -1156,12 +1092,12 @@
                                             <p class="mt-2 text-[11px] font-semibold uppercase text-slate-400">{{ $field['key'] }}</p>
                                         @elseif($field['type'] === 'textarea')
                                             <label class="form-label">{{ $field['label'] }}</label>
-                                            <textarea name="booking_cta[{{ $field['slug'] }}]" rows="4" class="{{ $inputClass }}" placeholder="{{ $field['hint'] }}">{{ $value }}</textarea>
+                                            <textarea name="booking_cta[{{ $field['slug'] }}]" rows="4" class="admin-input" placeholder="{{ $field['hint'] }}">{{ $value }}</textarea>
                                             <p class="mt-2 text-xs text-slate-500">{{ $field['hint'] }}</p>
                                             <p class="mt-2 text-[11px] font-semibold uppercase text-slate-400">{{ $field['key'] }}</p>
                                         @else
                                             <label class="form-label">{{ $field['label'] }}</label>
-                                            <input type="text" name="booking_cta[{{ $field['slug'] }}]" value="{{ $value }}" class="{{ $inputClass }}" placeholder="{{ $field['default'] }}">
+                                            <input type="text" name="booking_cta[{{ $field['slug'] }}]" value="{{ $value }}" class="admin-input" placeholder="{{ $field['default'] }}">
                                             <p class="mt-2 text-xs text-slate-500">{{ $field['hint'] }}</p>
                                             <p class="mt-2 text-[11px] font-semibold uppercase text-slate-400">{{ $field['key'] }}</p>
                                         @endif
@@ -1175,7 +1111,7 @@
                 </div>
 
                 <div class="mt-5 flex items-center gap-3 border-t border-slate-200 pt-5">
-                    <button type="submit" class="btn-primary">Save Booking / CTA</button>
+                    <button type="submit" class="admin-btn-primary">Save Booking / CTA</button>
                 </div>
             </form>
 
@@ -1256,7 +1192,7 @@
                                     <div class="mt-4 space-y-3">
                                         <div>
                                             <label class="form-label">Upload image</label>
-                                            <input type="file" name="default_media[{{ $slug }}]" accept="image/jpeg,image/png,image/webp" class="{{ $inputClass }}" data-default-media-input>
+                                            <input type="file" name="default_media[{{ $slug }}]" accept="image/jpeg,image/png,image/webp" class="admin-input" data-default-media-input>
                                             <button type="button" class="mt-3 hidden w-full rounded-lg border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-600 transition hover:bg-slate-50" data-default-media-clear>
                                                 Clear selected image
                                             </button>
@@ -1265,13 +1201,13 @@
 
                                         <div>
                                             <label class="form-label">Alt text</label>
-                                            <input type="text" name="default_media_alts[{{ $slug }}]" value="{{ old("default_media_alts.$slug", $asset?->alt) }}" class="{{ $inputClass }}" placeholder="{{ $variant['label'] }}">
+                                            <input type="text" name="default_media_alts[{{ $slug }}]" value="{{ old("default_media_alts.$slug", $asset?->alt) }}" class="admin-input" placeholder="{{ $variant['label'] }}">
                                             @error("default_media_alts.$slug") <p class="form-error">{{ $message }}</p> @enderror
                                         </div>
 
                                         <div>
                                             <label class="form-label">Image fit</label>
-                                            <select name="default_media_fits[{{ $slug }}]" class="{{ $inputClass }}">
+                                            <select name="default_media_fits[{{ $slug }}]" class="admin-input">
                                                 @foreach(\App\Support\DefaultMediaAssets::fitOptions() as $optionValue => $optionLabel)
                                                     <option value="{{ $optionValue }}" @selected($fitValue === $optionValue)>{{ $optionLabel }}</option>
                                                 @endforeach
@@ -1294,15 +1230,11 @@
                 </div>
 
                 <div class="mt-5 flex items-center gap-3 border-t border-slate-200 pt-5">
-                    <button type="submit" class="btn-primary">Save Default Media</button>
+                    <button type="submit" class="admin-btn-primary">Save Default Media</button>
                 </div>
             </form>
 
             @foreach($defaultMediaVariants as $variant)
-                @php
-                    $asset = $defaultMediaAssets[$variant['key']] ?? null;
-                    $slug = $variant['slug'];
-                @endphp
 
                 @if($asset?->url)
                     <form id="delete-default-media-{{ $slug }}" method="POST" action="{{ route('admin.settings.global-assets.default-media.destroy', $slug) }}" class="hidden">
@@ -1393,10 +1325,6 @@
         @endif
 
         @if($activeTab === 'structured-data')
-            @php
-                $structuredDataSections = collect($structuredDataFields)->groupBy('section');
-            @endphp
-
             <form method="POST" action="{{ route('admin.settings.global-assets.structured-data.update') }}" class="rounded-xl border border-slate-200 bg-slate-50 p-5">
                 @csrf
                 @method('PUT')
@@ -1419,10 +1347,6 @@
 
                             <div class="grid grid-cols-1 gap-4 border-t border-slate-100 p-4 lg:grid-cols-2">
                                 @foreach($fields as $field)
-                                    @php
-                                        $value = old("structured_data.{$field['slug']}", $structuredDataSettings[$field['slug']] ?? $field['default']);
-                                        $checkedValue = filter_var($value, FILTER_VALIDATE_BOOL);
-                                    @endphp
 
                                     <div class="rounded-xl border border-slate-200 bg-slate-50 p-4 {{ $field['type'] === 'textarea' ? 'lg:col-span-2' : '' }}">
                                         @if($field['type'] === 'boolean')
@@ -1437,7 +1361,7 @@
                                             </label>
                                         @elseif($field['type'] === 'select')
                                             <label class="form-label">{{ $field['label'] }}</label>
-                                            <select name="structured_data[{{ $field['slug'] }}]" class="{{ $inputClass }}">
+                                            <select name="structured_data[{{ $field['slug'] }}]" class="admin-input">
                                                 @foreach($field['options'] as $optionValue => $optionLabel)
                                                     <option value="{{ $optionValue }}" @selected($value === $optionValue)>{{ $optionLabel }}</option>
                                                 @endforeach
@@ -1446,12 +1370,12 @@
                                             <p class="mt-2 text-[11px] font-semibold uppercase text-slate-400">{{ $field['key'] }}</p>
                                         @elseif($field['type'] === 'textarea')
                                             <label class="form-label">{{ $field['label'] }}</label>
-                                            <textarea name="structured_data[{{ $field['slug'] }}]" rows="4" class="{{ $inputClass }}" placeholder="{{ $field['hint'] }}">{{ $value }}</textarea>
+                                            <textarea name="structured_data[{{ $field['slug'] }}]" rows="4" class="admin-input" placeholder="{{ $field['hint'] }}">{{ $value }}</textarea>
                                             <p class="mt-2 text-xs text-slate-500">{{ $field['hint'] }}</p>
                                             <p class="mt-2 text-[11px] font-semibold uppercase text-slate-400">{{ $field['key'] }}</p>
                                         @else
                                             <label class="form-label">{{ $field['label'] }}</label>
-                                            <input type="text" name="structured_data[{{ $field['slug'] }}]" value="{{ $value }}" class="{{ $inputClass }}" placeholder="{{ $field['default'] }}">
+                                            <input type="text" name="structured_data[{{ $field['slug'] }}]" value="{{ $value }}" class="admin-input" placeholder="{{ $field['default'] }}">
                                             <p class="mt-2 text-xs text-slate-500">{{ $field['hint'] }}</p>
                                             <p class="mt-2 text-[11px] font-semibold uppercase text-slate-400">{{ $field['key'] }}</p>
                                         @endif
@@ -1470,7 +1394,7 @@
                 </div>
 
                 <div class="mt-5 flex items-center gap-3 border-t border-slate-200 pt-5">
-                    <button type="submit" class="btn-primary">Save Structured Data</button>
+                    <button type="submit" class="admin-btn-primary">Save Structured Data</button>
                 </div>
             </form>
 

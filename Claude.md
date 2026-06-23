@@ -45,16 +45,21 @@ NEVER:
 ## When Generating Admin Dashboard UI
 
 ALWAYS:
-- Dark theme: bg-gray-900 base, bg-gray-800 sidebar/cards
-- Accent: bg-amber-400 / text-amber-400 for primary actions
-- 3-column layout awareness: sidebar (25%) + main (55%) + right panel (20%)
-- Instant feedback: always add loading states, toast notifications, error messages
-- Form inputs: bg-gray-900 border-gray-700 focus:border-amber-400
+- Use semantic CSS classes from `admin.css` — `admin-btn-primary`, `admin-input`, `admin-card`, etc.
+- Sidebar dark (`bg-slate-900`), content light (`bg-slate-50`), cards white (`admin-card`)
+- Primary action: `admin-btn-primary` (indigo-600) — never `btn-primary` (legacy emerald)
+- Form inputs: `admin-input` — never `form-input` (legacy) or hardcoded `$inputClass` PHP vars
+- Focus rings: `focus:ring-4 focus:ring-indigo-100` on inputs; checkboxes use `text-indigo-600 focus:ring-indigo-500`
+- Instant feedback: loading states, toast notifications, error messages on every data action
+- Badges: use `admin-badge-success/warning/danger/info` — never add `style=` overrides on top
 
 NEVER:
-- Light theme for admin (dark only unless explicitly requested)
+- Use `btn-primary` / `btn-secondary` (legacy emerald — inconsistent with admin-btn-primary indigo)
+- Use `form-input` / `form-label` / `form-textarea` (legacy — use admin-* classes)
+- Hardcode `$inputClass` PHP variable in Blade files
+- Add `style="color/background"` inline overrides on top of admin badge classes
 - Skip loading/error states on data-fetching actions
-- Create admin buttons without focus:ring-2 focus:ring-amber-400
+- Create interactive elements without a visible focus ring
 
 ---
 

@@ -81,7 +81,7 @@
                                         <span class="admin-badge-success">Published</span>
                                         <p class="mt-1 max-w-44 text-xs text-slate-400">Live publicly and eligible for managed menus.</p>
                                     @elseif($page->isScheduled())
-                                        <span class="admin-badge-warning" style="background-color:#fef9c3;color:#854d0e;">Scheduled</span>
+                                        <span class="admin-badge-warning">Scheduled</span>
                                         <p class="mt-1 max-w-44 text-xs text-slate-400">
                                             Publishes {{ $page->publish_at->format('d M Y, H:i') }}
                                         </p>
