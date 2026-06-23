@@ -365,7 +365,7 @@ Where Bintan Prestige stands toward WordPress-like capability after Phase 5:
 |-----------|------------------------|
 | Visual builder canvas / DnD | `phase5-visual-builder-skill.md` + `page-builder-skill.md` |
 | Block authoring (new blocks) | `phase5-visual-builder-skill.md` (§A3) + `cms-architect-skill.md` |
-| Admin UX refactor | `phase5-visual-builder-skill.md` (§A2) + `admin-dashboard-skill.md` + `uiux-skill.md` |
+| Admin UX refactor | `phase5-visual-builder-skill.md` (§A2) + `admin-dashboard-skill.md` + `frontend-design-skill.md` |
 
 ---
 

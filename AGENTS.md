@@ -48,7 +48,7 @@ Before working, read this file + the skill(s) below that match your task.
 
 | Task Type | Read These Skill Files |
 |-----------|----------------------|
-| Frontend / Blade / UI | `frontend-skill.md` + `uiux-skill.md` |
+| Frontend / Blade / UI | `frontend-design-skill.md` (consolidated) |
 | Backend / Controller / Service | `backend-skill.md` |
 | Database / Migration / Model | `database-architecture-skill.md` |
 | Security fix or audit | `security-skill.md` |
@@ -61,11 +61,11 @@ Before working, read this file + the skill(s) below that match your task.
 | Performance / Cache | `performance-skill.md` |
 | Testing / QA | `testing-qa-skill.md` |
 | Documentation | `documentation-skill.md` |
-| Design / Brand / Tokens | `design-system-skill.md` + `uiux-skill.md` |
+| Design / Brand / Tokens | `DESIGN-SYSTEM.md` (root) |
 | Admin Dashboard | `admin-dashboard-skill.md` |
 | Product / Tour / Activity | `product-management-skill.md` |
 | Travel Business Logic | `travel-business-skill.md` |
-| Component Library | `component-library-skill.md` |
+| Component Library | `COMPONENT-LIBRARY.md` |
 
 > Skill files live in: `ai/skills/`
 > Guidelines live in: `ai/guidelines/`
