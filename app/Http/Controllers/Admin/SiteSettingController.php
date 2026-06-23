@@ -103,6 +103,8 @@ class SiteSettingController extends Controller
                 ->keyBy('key')
             : collect();
         $navigationSettings = NavigationSettings::valuesFromSettings($navigationSettingsRows);
+        $navigationBasicFields = collect($navigationFields)->filter(fn ($f) => $f['type'] !== 'color')->values()->all();
+        $navigationColorFields = collect($navigationFields)->filter(fn ($f) => $f['type'] === 'color')->values()->all();
         $footerFields = FooterSettings::fields();
         $footerSettingsRows = Schema::hasTable('site_settings')
             ? SiteSetting::query()
@@ -130,6 +132,7 @@ class SiteSettingController extends Controller
                 ->keyBy('key')
             : collect();
         $trackingIntegrationSettings = TrackingIntegrationSettings::valuesFromSettings($trackingIntegrationRows);
+        $trackingSections = collect($trackingIntegrationFields)->groupBy('section')->all();
         $bookingCtaFields = BookingCtaSettings::fields();
         $bookingCtaRows = Schema::hasTable('site_settings')
             ? SiteSetting::query()
@@ -139,6 +142,7 @@ class SiteSettingController extends Controller
                 ->keyBy('key')
             : collect();
         $bookingCtaSettings = BookingCtaSettings::valuesFromSettings($bookingCtaRows);
+        $bookingCtaSections = collect($bookingCtaFields)->groupBy('section')->all();
         $structuredDataFields = StructuredDataSettings::fields();
         $structuredDataRows = Schema::hasTable('site_settings')
             ? SiteSetting::query()
@@ -148,8 +152,9 @@ class SiteSettingController extends Controller
                 ->keyBy('key')
             : collect();
         $structuredDataSettings = StructuredDataSettings::valuesFromSettings($structuredDataRows);
+        $structuredDataSections = collect($structuredDataFields)->groupBy('section')->all();
 
-        return view('backend.settings.global-assets', compact('activeTab', 'assetTabs', 'logoVariants', 'siteLogos', 'favicon', 'faviconConfig', 'socialShareImage', 'socialShareConfig', 'seoDefaultOgImage', 'defaultMediaVariants', 'defaultMediaAssets', 'defaultMediaSettings', 'brandColorFields', 'brandColors', 'businessIdentityFields', 'businessIdentity', 'contactInformationFields', 'contactInformation', 'socialMediaLinkFields', 'socialMediaLinks', 'navigationFields', 'navigationSettings', 'footerFields', 'footerSettings', 'seoDefaultFields', 'seoDefaultSettings', 'trackingIntegrationFields', 'trackingIntegrationSettings', 'bookingCtaFields', 'bookingCtaSettings', 'structuredDataFields', 'structuredDataSettings'));
+        return view('backend.settings.global-assets', compact('activeTab', 'assetTabs', 'logoVariants', 'siteLogos', 'favicon', 'faviconConfig', 'socialShareImage', 'socialShareConfig', 'seoDefaultOgImage', 'defaultMediaVariants', 'defaultMediaAssets', 'defaultMediaSettings', 'brandColorFields', 'brandColors', 'businessIdentityFields', 'businessIdentity', 'contactInformationFields', 'contactInformation', 'socialMediaLinkFields', 'socialMediaLinks', 'navigationFields', 'navigationBasicFields', 'navigationColorFields', 'navigationSettings', 'footerFields', 'footerSettings', 'seoDefaultFields', 'seoDefaultSettings', 'trackingIntegrationFields', 'trackingSections', 'trackingIntegrationSettings', 'bookingCtaFields', 'bookingCtaSections', 'bookingCtaSettings', 'structuredDataFields', 'structuredDataSections', 'structuredDataSettings'));
     }
 
     public function update(Request $request)

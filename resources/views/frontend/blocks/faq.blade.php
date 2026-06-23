@@ -18,7 +18,7 @@
                 <div class="rounded-xl border border-slate-200 bg-white shadow-sm">
                     <button
                         type="button"
-                        class="flex w-full items-center justify-between px-6 py-4 text-left font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-yellow-500"
+                        class="flex w-full items-center justify-between px-6 py-4 text-left font-semibold focus:outline-none focus:ring-2 focus:ring-inset focus:ring-[var(--frontend-gold,#c8a24a)]"
                         x-on:click="open = open === {{ $i }} ? null : {{ $i }}"
                         :aria-expanded="(open === {{ $i }}).toString()"
                         aria-controls="faq-answer-{{ $block->id }}-{{ $i }}"

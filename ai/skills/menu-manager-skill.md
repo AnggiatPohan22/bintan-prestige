@@ -7,7 +7,7 @@ from the dashboard. No hardcoded nav items in Blade. Frontend reads from `menus`
 ## Required References
 - `AGENTS.md` — master rules
 - `ai/skills/backend-skill.md` — Laravel MVC patterns
-- `ai/skills/frontend-skill.md` — frontend brand and rendering rules
+- `ai/skills/frontend-design-skill.md` — frontend brand and rendering rules
 - `ai/skills/database-architecture-skill.md` — schema rules
 - `ai/guidelines/05-admin-dashboard-cms-builder.md` — admin UX rules
 

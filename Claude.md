@@ -1,9 +1,65 @@
-# Bintan Prestige CMS — Claude Session Context
+# Bintan Prestige CMS — Session Bootstrap
+**Version:** 1.0
 
 **Stack:** Laravel 13.8 | PHP 8.3 | Tailwind CSS | Alpine.js | MySQL
-**Branch:** develop
-**Phase:** Phase 2 — Building WordPress-like website builder
-**Status:** ~80% complete. Core CMS done. Building page builder, menus, media library.
+**Phase:** Phase 6 — Flexible Content Modeling (next). Phase 5 (Visual Page Builder) complete — 2026-06-23.
+**Status:** Core CMS + page builder + theme system + plugin system + visual builder complete. See AGENTS.md §4 for full phase history.
+
+---
+
+## CRITICAL: Load These Files at Start of Every Session
+
+Read these files IN ORDER before starting any task:
+
+1. `AGENTS.md` — Architecture rules, authority order, safety rules
+2. `DESIGN-SYSTEM.md` (root) — ALL design tokens, admin + frontend aesthetic ⭐
+3. `ai/skills/COMPONENT-LIBRARY.md` — Copy-paste component catalog ⭐
+4. Task-relevant skill file(s) from `ai/skills/` (see Skill Map in AGENTS.md §3)
+
+Do NOT skip steps 2 and 3 when working on ANY UI task.
+
+---
+
+## When Generating Frontend UI
+
+ALWAYS:
+- Use colors from DESIGN-SYSTEM.md (never hardcode hex values)
+- Use spacing from design tokens (4px scale: p-1/p-2/p-4/p-6/p-10/p-20)
+- Use components from `ai/skills/COMPONENT-LIBRARY.md` where possible
+- Follow `ai/skills/frontend-design-skill.md` for patterns and guidelines
+- Mobile-first responsive (375px → 768px → 1024px)
+- Accessibility WCAG AA (contrast, alt text, focus states, semantic HTML)
+- Lazy-load images below the fold
+- No inline CSS except dynamic background-image values
+
+NEVER:
+- Hardcode colors (#hex in style attributes or class names)
+- Use arbitrary spacing (p-7, m-13, gap-11 — not in the scale)
+- Generate generic AI styling (intentional design only)
+- Skip hover states on interactive elements
+- Skip focus:ring-2 on buttons and inputs
+- Put queries in Blade templates (backend data only, prepared by controllers)
+
+---
+
+## When Generating Admin Dashboard UI
+
+ALWAYS:
+- Use semantic CSS classes from `admin.css` — `admin-btn-primary`, `admin-input`, `admin-card`, etc.
+- Sidebar dark (`bg-slate-900`), content light (`bg-slate-50`), cards white (`admin-card`)
+- Primary action: `admin-btn-primary` (indigo-600) — never `btn-primary` (legacy emerald)
+- Form inputs: `admin-input` — never `form-input` (legacy) or hardcoded `$inputClass` PHP vars
+- Focus rings: `focus:ring-4 focus:ring-indigo-100` on inputs; checkboxes use `text-indigo-600 focus:ring-indigo-500`
+- Instant feedback: loading states, toast notifications, error messages on every data action
+- Badges: use `admin-badge-success/warning/danger/info` — never add `style=` overrides on top
+
+NEVER:
+- Use `btn-primary` / `btn-secondary` (legacy emerald — inconsistent with admin-btn-primary indigo)
+- Use `form-input` / `form-label` / `form-textarea` (legacy — use admin-* classes)
+- Hardcode `$inputClass` PHP variable in Blade files
+- Add `style="color/background"` inline overrides on top of admin badge classes
+- Skip loading/error states on data-fetching actions
+- Create interactive elements without a visible focus ring
 
 ---
 
@@ -30,7 +86,7 @@ dashboard. No hardcoded frontend content. Backend controls everything.
 
 | Task | Skill Files to Read |
 |------|-------------------|
-| Frontend / Blade / UI | `frontend-skill.md` + `uiux-skill.md` |
+| Frontend / Blade / UI | `frontend-design-skill.md` (consolidated) |
 | Backend / Controller | `backend-skill.md` |
 | Database / Model | `database-architecture-skill.md` |
 | Security | `security-skill.md` |
@@ -42,7 +98,8 @@ dashboard. No hardcoded frontend content. Backend controls everything.
 | Performance | `performance-skill.md` |
 | Testing / QA | `testing-qa-skill.md` |
 | Documentation | `documentation-skill.md` |
-| Design / Brand | `design-system-skill.md` |
+| Design / Brand / Tokens | `DESIGN-SYSTEM.md` (root) |
+| Component Library | `COMPONENT-LIBRARY.md` |
 | Admin Dashboard | `admin-dashboard-skill.md` |
 | Products / Tours | `product-management-skill.md` |
 

@@ -1,4 +1,4 @@
-<div class="rounded-xl bg-white p-6 shadow">
+<div class="admin-form-card">
     <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
             <h1 class="text-2xl font-bold text-slate-800">
@@ -12,7 +12,7 @@
 
         <a
             href="{{ route('admin.destinations.index') }}"
-            class="btn-secondary w-full sm:w-auto"
+            class="admin-btn-secondary w-full sm:w-auto"
         >
             Cancel
         </a>
@@ -34,13 +34,13 @@
 
         <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
             <div>
-                <label for="name" class="form-label">Name</label>
+                <label for="name" class="admin-form-label">Name</label>
                 <input
                     id="name"
                     type="text"
                     name="name"
                     value="{{ old('name', $destination->name ?? '') }}"
-                    class="form-input @error('name') form-error @enderror"
+                    class="admin-input @error('name') border-red-400 focus:border-red-500 focus:ring-red-100 @enderror"
                     required
                 >
                 @error('name')
@@ -49,13 +49,13 @@
             </div>
 
             <div>
-                <label for="slug" class="form-label">Slug</label>
+                <label for="slug" class="admin-form-label">Slug</label>
                 <input
                     id="slug"
                     type="text"
                     name="slug"
                     value="{{ old('slug', $destination->slug ?? '') }}"
-                    class="form-input @error('slug') form-error @enderror"
+                    class="admin-input @error('slug') border-red-400 focus:border-red-500 focus:ring-red-100 @enderror"
                     placeholder="Auto generated if empty"
                 >
                 @error('slug')
@@ -65,12 +65,12 @@
         </div>
 
         <div>
-            <label for="description" class="form-label">Description</label>
+            <label for="description" class="admin-form-label">Description</label>
             <textarea
                 id="description"
                 name="description"
                 rows="5"
-                class="form-textarea @error('description') form-error @enderror"
+                class="admin-textarea @error('description') border-red-400 focus:border-red-500 focus:ring-red-100 @enderror"
             >{{ old('description', $destination->description ?? '') }}</textarea>
             @error('description')
                 <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
@@ -79,13 +79,13 @@
 
         <div class="grid grid-cols-1 gap-5 md:grid-cols-[minmax(0,1fr)_180px]">
             <div>
-                <label for="image" class="form-label">Image</label>
+                <label for="image" class="admin-form-label">Image</label>
                 <input
                     id="image"
                     type="file"
                     name="image"
                     accept="image/*"
-                    class="form-input @error('image') form-error @enderror"
+                    class="admin-input @error('image') border-red-400 focus:border-red-500 focus:ring-red-100 @enderror"
                 >
                 @error('image')
                     <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
@@ -112,7 +112,7 @@
                 type="checkbox"
                 name="is_active"
                 value="1"
-                class="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+                class="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
                 @checked(old('is_active', $destination->is_active ?? true))
             >
             <span class="text-sm font-medium text-slate-700">
@@ -121,11 +121,11 @@
         </label>
 
         <div class="flex flex-col gap-3 border-t pt-5 sm:flex-row">
-            <button type="submit" class="btn-primary">
+            <button type="submit" class="admin-btn-primary">
                 {{ isset($destination) ? 'Update Destination' : 'Create Destination' }}
             </button>
 
-            <a href="{{ route('admin.destinations.index') }}" class="btn-secondary">
+            <a href="{{ route('admin.destinations.index') }}" class="admin-btn-secondary">
                 Cancel
             </a>
         </div>

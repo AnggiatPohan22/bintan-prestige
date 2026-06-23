@@ -1,61 +1,61 @@
 @extends('layouts.admin')
 
 @section('content')
-    <div class="admin-page">
-        <div class="admin-page-header">
+<x-admin.form-shell
+    title="Edit FAQ"
+    :subtitle="Str::limit($faq->question, 60)"
+    back-route="admin.faqs.index"
+    form-action="{{ route('admin.faqs.update', $faq) }}"
+    form-method="PUT"
+>
+    <x-slot:content>
+        <div class="space-y-6">
             <div>
-                <h1 class="admin-page-title">Edit FAQ</h1>
-                <p class="admin-page-subtitle">
-                    Manage reusable frontend FAQ content.
-                </p>
+                <label for="question" class="admin-form-label">
+                    Question <span class="text-red-500">*</span>
+                </label>
+                <input
+                    id="question"
+                    type="text"
+                    name="question"
+                    value="{{ old('question', $faq->question) }}"
+                    class="admin-input @error('question') border-red-300 focus:border-red-500 focus:ring-red-500 @enderror"
+                    required
+                >
+                @error('question')
+                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                @enderror
             </div>
 
-            <a
-                href="{{ route('admin.faqs.index') }}"
-                class="admin-btn-secondary mt-5 w-full sm:mt-0 sm:w-auto"
-            >
-                Back
-            </a>
+            <div>
+                <label for="answer" class="admin-form-label">
+                    Answer <span class="text-red-500">*</span>
+                </label>
+                <textarea
+                    id="answer"
+                    name="answer"
+                    rows="6"
+                    class="admin-textarea @error('answer') border-red-300 focus:border-red-500 focus:ring-red-500 @enderror"
+                >{{ old('answer', $faq->answer) }}</textarea>
+                @error('answer')
+                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                @enderror
+            </div>
         </div>
+    </x-slot:content>
 
-        <div class="admin-form-card">
-            <form
-                method="POST"
-                action="{{ route('admin.faqs.update', $faq) }}"
-                class="space-y-6"
-            >
-                @csrf
-                @method('PUT')
-
+    <x-slot:sidebar>
+        <x-admin.publish-box
+            status-field="is_active"
+            :status="old('is_active', $faq->is_active ? '1' : '0')"
+            :status-options="['1' => 'Active', '0' => 'Inactive']"
+            :status-colors="['1' => 'success', '0' => 'warning']"
+            submit-label="Save FAQ"
+            cancel-route="admin.faqs.index"
+        >
+            <x-slot:extra>
                 <div>
-                    <label for="question" class="admin-form-label">Question</label>
-                    <input
-                        id="question"
-                        type="text"
-                        name="question"
-                        value="{{ old('question', $faq->question) }}"
-                        class="admin-input @error('question') border-red-300 focus:border-red-500 focus:ring-red-500 @enderror"
-                    >
-                    @error('question')
-                        <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                <div>
-                    <label for="answer" class="admin-form-label">Answer</label>
-                    <textarea
-                        id="answer"
-                        name="answer"
-                        rows="6"
-                        class="admin-textarea @error('answer') border-red-300 focus:border-red-500 focus:ring-red-500 @enderror"
-                    >{{ old('answer', $faq->answer) }}</textarea>
-                    @error('answer')
-                        <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                <div>
-                    <label for="sort_order" class="admin-form-label">Sort order</label>
+                    <label for="sort_order" class="admin-form-label">Sort Order</label>
                     <input
                         id="sort_order"
                         type="number"
@@ -68,33 +68,8 @@
                         <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                     @enderror
                 </div>
-
-                <label class="inline-flex items-center gap-3">
-                    <input
-                        type="checkbox"
-                        name="is_active"
-                        value="1"
-                        class="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
-                        @checked(old('is_active', $faq->is_active ?? true))
-                    >
-                    <span class="text-sm font-semibold text-slate-700">
-                        Active
-                    </span>
-                </label>
-
-                <div class="flex flex-col gap-3 border-t border-slate-100 pt-5 sm:flex-row sm:items-center">
-                    <button type="submit" class="admin-btn-primary w-full sm:w-auto">
-                        Save FAQ
-                    </button>
-
-                    <a
-                        href="{{ route('admin.faqs.index') }}"
-                        class="admin-btn-secondary w-full sm:w-auto"
-                    >
-                        Cancel
-                    </a>
-                </div>
-            </form>
-        </div>
-    </div>
+            </x-slot:extra>
+        </x-admin.publish-box>
+    </x-slot:sidebar>
+</x-admin.form-shell>
 @endsection

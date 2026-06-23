@@ -31,7 +31,7 @@
 
         <main class="admin-shell__main">
             <div class="admin-shell__content">
-            
+
             {{-- Flash Alert --}}
             <x-flash-alert />
 
@@ -44,6 +44,9 @@
         </main>
 
     </div>
+
+    {{-- Command Palette --}}
+    <x-admin.command-palette />
 
 </div>
 

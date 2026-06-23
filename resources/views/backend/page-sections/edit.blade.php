@@ -3,7 +3,6 @@
 @section('content')
 
 @php
-    $inputClass = 'w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm shadow-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100';
     $extraData = old('extra_data', json_encode($pageSection->extra_data ?? [], JSON_PRETTY_PRINT));
     $animation = old('animation', $pageSection->animation);
     $galleryCount = $pageSection->media->where('role', 'gallery')->count();
@@ -36,14 +35,14 @@
             @method('PUT')
 
             <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
-            <div><label class="form-label">Page key</label><input type="text" value="{{ $pageSection->page_key }}" disabled class="{{ $inputClass }} bg-slate-100"></div>
-            <div><label class="form-label">Section key</label><input type="text" value="{{ $pageSection->section_key }}" disabled class="{{ $inputClass }} bg-slate-100"></div>
-            <div><label class="form-label">Label</label><input type="text" name="label" value="{{ old('label', $pageSection->label) }}" class="{{ $inputClass }}"></div>
-            <div><label class="form-label">Title</label><input type="text" name="title" value="{{ old('title', $pageSection->title) }}" class="{{ $inputClass }}"></div>
-            <div class="md:col-span-2"><label class="form-label">Subtitle</label><input type="text" name="subtitle" value="{{ old('subtitle', $pageSection->subtitle) }}" class="{{ $inputClass }}"></div>
-            <div class="md:col-span-2"><label class="form-label">Description</label><textarea name="description" rows="5" class="{{ $inputClass }}">{{ old('description', $pageSection->description) }}</textarea></div>
-            <div><label class="form-label">Button text</label><input type="text" name="button_text" value="{{ old('button_text', $pageSection->button_text) }}" class="{{ $inputClass }}"></div>
-            <div><label class="form-label">Button URL</label><input type="text" name="button_url" value="{{ old('button_url', $pageSection->button_url) }}" class="{{ $inputClass }}"></div>
+            <div><label class="admin-form-label">Page key</label><input type="text" value="{{ $pageSection->page_key }}" disabled class="admin-input bg-slate-100"></div>
+            <div><label class="admin-form-label">Section key</label><input type="text" value="{{ $pageSection->section_key }}" disabled class="admin-input bg-slate-100"></div>
+            <div><label class="admin-form-label">Label</label><input type="text" name="label" value="{{ old('label', $pageSection->label) }}" class="admin-input"></div>
+            <div><label class="admin-form-label">Title</label><input type="text" name="title" value="{{ old('title', $pageSection->title) }}" class="admin-input"></div>
+            <div class="md:col-span-2"><label class="admin-form-label">Subtitle</label><input type="text" name="subtitle" value="{{ old('subtitle', $pageSection->subtitle) }}" class="admin-input"></div>
+            <div class="md:col-span-2"><label class="admin-form-label">Description</label><textarea name="description" rows="5" class="admin-textarea">{{ old('description', $pageSection->description) }}</textarea></div>
+            <div><label class="admin-form-label">Button text</label><input type="text" name="button_text" value="{{ old('button_text', $pageSection->button_text) }}" class="admin-input"></div>
+            <div><label class="admin-form-label">Button URL</label><input type="text" name="button_url" value="{{ old('button_url', $pageSection->button_url) }}" class="admin-input"></div>
 
             @if($usesLogo)
                 <div class="md:col-span-2 rounded-xl border border-amber-200 bg-amber-50 p-4">
@@ -73,8 +72,8 @@
                                 $slotPosition = old("slot_object_positions.{$slot['role']}.{$slot['slot_key']}", $slotMedia?->resolved_object_position ?? 'center center');
                             @endphp
                             <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
-                                <label class="form-label">{{ $slot['label'] }}</label>
-                                <input type="file" name="{{ $slotInputName }}" accept="image/jpeg,image/png,image/webp" class="{{ $inputClass }}">
+                                <label class="admin-form-label">{{ $slot['label'] }}</label>
+                                <input type="file" name="{{ $slotInputName }}" accept="image/jpeg,image/png,image/webp" class="admin-input">
                                 <p class="mt-2 text-xs text-slate-500">{{ $slot['hint'] ?? 'Leave empty to keep current image.' }}</p>
                                 @if($slotMedia?->url)
                                     <img src="{{ $slotMedia->url }}" alt="{{ $slotMedia->alt }}" class="mt-3 h-32 w-full rounded-lg border bg-white" style="{{ $slotMedia->image_style }}">
@@ -84,8 +83,8 @@
                                 @if($supportsMediaDisplayOptions ?? false)
                                     <div class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
                                         <div>
-                                            <label class="form-label">Image size</label>
-                                            <select name="{{ $slotFitName }}" class="{{ $inputClass }}">
+                                            <label class="admin-form-label">Image size</label>
+                                            <select name="{{ $slotFitName }}" class="admin-input">
                                                 @foreach(\App\Models\PageSectionMedia::OBJECT_FIT_OPTIONS as $value => $label)
                                                     <option value="{{ $value }}" @selected($slotFit === $value)>{{ $label }}</option>
                                                 @endforeach
@@ -93,8 +92,8 @@
                                             <p class="mt-2 text-xs text-slate-500">Controls how the image fills its frame.</p>
                                         </div>
                                         <div>
-                                            <label class="form-label">Image position</label>
-                                            <select name="{{ $slotPositionName }}" class="{{ $inputClass }}">
+                                            <label class="admin-form-label">Image position</label>
+                                            <select name="{{ $slotPositionName }}" class="admin-input">
                                                 @foreach(\App\Models\PageSectionMedia::OBJECT_POSITION_OPTIONS as $value => $label)
                                                     <option value="{{ $value }}" @selected($slotPosition === $value)>{{ $label }}</option>
                                                 @endforeach
@@ -103,23 +102,23 @@
                                         </div>
                                     </div>
                                 @endif
-                                @error("slot_uploads.{$slot['role']}.{$slot['slot_key']}") <p class="form-error">{{ $message }}</p> @enderror
-                                @error("slot_object_fits.{$slot['role']}.{$slot['slot_key']}") <p class="form-error">{{ $message }}</p> @enderror
-                                @error("slot_object_positions.{$slot['role']}.{$slot['slot_key']}") <p class="form-error">{{ $message }}</p> @enderror
+                                @error("slot_uploads.{$slot['role']}.{$slot['slot_key']}") <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
+                                @error("slot_object_fits.{$slot['role']}.{$slot['slot_key']}") <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
+                                @error("slot_object_positions.{$slot['role']}.{$slot['slot_key']}") <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
                             </div>
                         @endforeach
                     </div>
                 </div>
             @elseif($supportsLegacyImages)
                 <div>
-                    <label class="form-label">Legacy image upload</label>
-                    <input type="file" name="image" accept="image/jpeg,image/png,image/webp" class="{{ $inputClass }}">
+                    <label class="admin-form-label">Legacy image upload</label>
+                    <input type="file" name="image" accept="image/jpeg,image/png,image/webp" class="admin-input">
                     <p class="mt-2 text-xs text-slate-400">Fallback lama. Leave empty to keep current image.</p>
                     @if($pageSection->image_url)<img src="{{ $pageSection->image_url }}" alt="{{ $pageSection->title }}" class="mt-3 h-32 w-full rounded-lg border object-cover">@endif
                 </div>
                 <div>
-                    <label class="form-label">Legacy mobile image upload</label>
-                    <input type="file" name="mobile_image" accept="image/jpeg,image/png,image/webp" class="{{ $inputClass }}">
+                    <label class="admin-form-label">Legacy mobile image upload</label>
+                    <input type="file" name="mobile_image" accept="image/jpeg,image/png,image/webp" class="admin-input">
                     <p class="mt-2 text-xs text-slate-400">Fallback lama. Leave empty to keep current image.</p>
                     @if($pageSection->mobile_image_url)<img src="{{ $pageSection->mobile_image_url }}" alt="{{ $pageSection->title }}" class="mt-3 h-32 w-full rounded-lg border object-cover">@endif
                 </div>
@@ -131,30 +130,30 @@
             @endif
 
             @if($supportsLegacyImages)
-                <div><label class="form-label">Legacy image path</label><input type="text" name="image_path" value="{{ old('image_path', $pageSection->image) }}" class="{{ $inputClass }}"></div>
-                <div><label class="form-label">Legacy mobile image path</label><input type="text" name="mobile_image_path" value="{{ old('mobile_image_path', $pageSection->mobile_image) }}" class="{{ $inputClass }}"></div>
+                <div><label class="admin-form-label">Legacy image path</label><input type="text" name="image_path" value="{{ old('image_path', $pageSection->image) }}" class="admin-input"></div>
+                <div><label class="admin-form-label">Legacy mobile image path</label><input type="text" name="mobile_image_path" value="{{ old('mobile_image_path', $pageSection->mobile_image) }}" class="admin-input"></div>
             @endif
 
             @if($allowsGallery)
                 <div class="md:col-span-2">
-                    <label class="form-label">Section gallery images</label>
-                    <input type="file" name="media_uploads[]" accept="image/jpeg,image/png,image/webp" multiple class="{{ $inputClass }}" @disabled($remainingSlots === 0)>
+                    <label class="admin-form-label">Section gallery images</label>
+                    <input type="file" name="media_uploads[]" accept="image/jpeg,image/png,image/webp" multiple class="admin-input" @disabled($remainingSlots === 0)>
                     <p class="mt-2 text-xs text-slate-400">Upload up to {{ \App\Models\PageSection::MEDIA_LIMIT }} images. Remaining slots: {{ $remainingSlots }}.</p>
-                    @error('media_uploads') <p class="form-error">{{ $message }}</p> @enderror
-                    @error('media_uploads.*') <p class="form-error">{{ $message }}</p> @enderror
+                    @error('media_uploads') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
+                    @error('media_uploads.*') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
                 </div>
             @endif
 
             <div>
-                <label class="form-label">Animation</label>
-                <select name="animation" class="{{ $inputClass }}">
+                <label class="admin-form-label">Animation</label>
+                <select name="animation" class="admin-input">
                     @foreach(\App\Models\PageSection::ANIMATION_OPTIONS as $option)
                         <option value="{{ $option }}" @selected($animation === $option)>{{ ucwords(str_replace('-', ' ', $option)) }}</option>
                     @endforeach
                 </select>
             </div>
-            <div><label class="form-label">Sort order</label><input type="number" name="sort_order" min="0" value="{{ old('sort_order', $pageSection->sort_order) }}" class="{{ $inputClass }}"></div>
-            <div class="md:col-span-2"><label class="form-label">Extra data JSON</label><textarea name="extra_data" rows="6" class="{{ $inputClass }}">{{ $extraData }}</textarea></div>
+            <div><label class="admin-form-label">Sort order</label><input type="number" name="sort_order" min="0" value="{{ old('sort_order', $pageSection->sort_order) }}" class="admin-input"></div>
+            <div class="md:col-span-2"><label class="admin-form-label">Extra data JSON</label><textarea name="extra_data" rows="6" class="admin-textarea">{{ $extraData }}</textarea></div>
             <label class="flex items-center gap-3"><input type="checkbox" name="is_active" value="1" @checked(old('is_active', $pageSection->is_active))><span class="text-sm font-semibold text-slate-700">Active</span></label>
             </div>
             <div class="flex flex-col gap-3 border-t border-slate-100 pt-5 sm:flex-row sm:items-center">

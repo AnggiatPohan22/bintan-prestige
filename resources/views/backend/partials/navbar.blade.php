@@ -3,13 +3,22 @@
     $pageTitle = match (true) {
         request()->routeIs('admin.products.*') => 'Products',
         request()->routeIs('admin.page-sections.*') => 'Page Sections',
-        request()->routeIs('admin.settings.*') => 'Global Assets',
+        request()->routeIs('admin.settings.*') => 'Settings',
         request()->routeIs('admin.users.*') => 'Admin Users',
         request()->routeIs('admin.faqs.*') => 'FAQs',
         request()->routeIs('admin.categories.*') => 'Categories',
         request()->routeIs('admin.destinations.*') => 'Destinations',
         request()->routeIs('admin.themes.*') => 'Themes',
-        default => 'Admin Dashboard',
+        request()->routeIs('admin.pages.*') => 'Pages',
+        request()->routeIs('admin.media.*') => 'Media Library',
+        request()->routeIs('admin.menus.*', 'admin.menu-items.*') => 'Menus',
+        request()->routeIs('admin.forms.*', 'admin.form-submissions.*') => 'Forms',
+        request()->routeIs('admin.seo.*') => 'SEO',
+        request()->routeIs('admin.analytics.*') => 'Analytics',
+        request()->routeIs('admin.plugins.*') => 'Plugins',
+        request()->routeIs('admin.audit-logs.*') => 'Audit Log',
+        request()->routeIs('admin.dashboard') => 'Dashboard',
+        default => 'Admin',
     };
     $pageEyebrow = str($routeName)
         ->replace('admin.', '')
@@ -27,27 +36,26 @@
     <div class="admin-topbar__main">
         <div class="admin-topbar__title-group">
             <p class="admin-topbar__breadcrumb">
-                Admin
-                <span aria-hidden="true">/</span>
-                {{ $pageEyebrow }}
+                <span class="text-slate-500">Bintan Prestige</span>
+                <span class="text-slate-300" aria-hidden="true">/</span>
+                <span class="text-slate-600 font-semibold">{{ $pageTitle }}</span>
             </p>
-
-            <h2 class="admin-topbar__title">
-                {{ $pageTitle }}
-            </h2>
         </div>
 
         <div class="admin-topbar__actions">
-            <div class="admin-topbar__search" role="search">
+            <button
+                type="button"
+                class="admin-topbar__search cursor-pointer"
+                role="search"
+                aria-label="Open command palette"
+                x-on:click="$dispatch('keydown', { ctrlKey: true, key: 'k', preventDefault: () => {} })"
+                x-data
+                @click.prevent="document.dispatchEvent(new KeyboardEvent('keydown', { ctrlKey: true, key: 'k', bubbles: true }))"
+            >
                 <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
-                <input
-                    type="search"
-                    aria-label="Search admin content"
-                    placeholder="Search admin..."
-                    disabled
-                >
-                <span>UI only</span>
-            </div>
+                <span class="flex-1 text-left text-sm font-semibold text-slate-400">Search admin...</span>
+                <span>Ctrl K</span>
+            </button>
 
             <button
                 type="button"

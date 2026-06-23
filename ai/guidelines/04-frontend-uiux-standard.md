@@ -5,7 +5,7 @@ Keep the public Bintan Prestige website premium, fast, readable, mobile-first, a
 
 ## Required References
 - Master rule: `AGENTS.md`
-- Related skills: `frontend-skill.md`, `uiux-skill.md`, `design-system-skill.md`, `component-library-skill.md`
+- Related skills: `frontend-design-skill.md` (consolidated), `DESIGN-SYSTEM.md` (root), `COMPONENT-LIBRARY.md`
 - Related guidelines: `03-backend-data-processing.md`, `07-seo-ai-discovery.md`, `08-performance-optimization.md`
 
 ## Rules

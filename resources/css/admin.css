@@ -402,7 +402,7 @@
 
         @apply w-0
         shrink-0
-        lg:w-72;
+        lg:w-64;
     }
 
     .admin-sidebar-toggle {
@@ -412,19 +412,21 @@
         top-4
         z-40
         flex
-        h-11
-        w-11
+        h-10
+        w-10
         items-center
         justify-center
-        rounded-2xl
+        rounded-xl
         border
         border-slate-200
         bg-white
-        text-indigo-600
-        shadow-lg
-        shadow-slate-200/70
+        text-slate-600
+        shadow-md
+        shadow-slate-200/60
         transition
+        hover:border-indigo-200
         hover:bg-indigo-50
+        hover:text-indigo-600
         lg:hidden;
     }
 
@@ -433,7 +435,7 @@
         @apply fixed
         inset-0
         z-40
-        bg-slate-950/40
+        bg-slate-950/60
         backdrop-blur-sm
         lg:hidden;
     }
@@ -446,22 +448,18 @@
         z-50
         flex
         h-screen
-        w-72
+        w-64
         shrink-0
         flex-col
         overflow-y-auto
-        border-r
-        border-indigo-100
-        bg-white
-        shadow-2xl
-        shadow-slate-900/10
+        bg-slate-900
         transition-transform
         duration-300
+        ease-in-out
         lg:sticky
         lg:top-0
         lg:z-auto
-        lg:translate-x-0
-        lg:shadow-lg;
+        lg:translate-x-0;
     }
 
     .admin-sidebar__brand {
@@ -470,37 +468,37 @@
         items-center
         gap-3
         border-b
-        border-slate-100
-        px-5
-        py-5;
+        border-white/10
+        px-4
+        py-4;
     }
 
     .admin-sidebar__brand-mark {
 
         @apply flex
-        h-12
-        w-12
+        h-10
+        w-10
         shrink-0
         items-center
         justify-center
-        rounded-2xl
+        rounded-xl
         bg-gradient-to-br
-        from-indigo-600
+        from-indigo-500
         via-purple-600
-        to-amber-300
+        to-pink-500
         text-sm
         font-black
         text-white
         shadow-lg
-        shadow-indigo-200;
+        shadow-indigo-900/50;
     }
 
     .admin-sidebar__title {
 
         @apply truncate
-        text-lg
+        text-sm
         font-extrabold
-        text-slate-950;
+        text-white;
     }
 
     .admin-sidebar__subtitle {
@@ -508,23 +506,23 @@
         @apply mt-0.5
         truncate
         text-xs
-        font-semibold
-        text-slate-400;
+        font-medium
+        text-slate-500;
     }
 
     .admin-sidebar__close {
 
         @apply ml-auto
         flex
-        h-9
-        w-9
+        h-8
+        w-8
         items-center
         justify-center
-        rounded-xl
-        text-slate-400
+        rounded-lg
+        text-slate-500
         transition
-        hover:bg-slate-100
-        hover:text-slate-700
+        hover:bg-white/10
+        hover:text-white
         lg:hidden;
     }
 
@@ -533,22 +531,30 @@
         @apply flex
         flex-1
         flex-col
-        gap-1.5
-        px-4
-        py-5;
+        gap-0.5
+        px-3
+        py-4
+        pb-8;
     }
 
     .admin-sidebar__section-label {
 
-        @apply px-3
-        pb-1
-        pt-4
-        text-[11px]
+        @apply px-2.5
+        pb-1.5
+        pt-5
+        text-[10px]
         font-black
         uppercase
         tracking-widest
-        text-slate-400
-        first:pt-0;
+        text-slate-600
+        first:pt-2;
+    }
+
+    .admin-sidebar__divider {
+
+        @apply my-2
+        border-t
+        border-white/10;
     }
 
     .admin-sidebar__link {
@@ -556,70 +562,48 @@
         @apply relative
         flex
         items-center
-        gap-3
-        rounded-2xl
-        px-3
-        py-3
+        gap-2.5
+        rounded-lg
+        px-2.5
+        py-2
         text-sm
-        font-bold
-        text-slate-600
+        font-medium
+        text-slate-400
         transition
-        duration-200
-        hover:bg-indigo-50
-        hover:text-indigo-700;
-    }
-
-    .admin-sidebar__link::before {
-
-        content: "";
-
-        @apply absolute
-        inset-y-2
-        left-0
-        w-1
-        rounded-full
-        bg-transparent
-        transition;
+        duration-150
+        hover:bg-white/5
+        hover:text-white;
     }
 
     .admin-sidebar__link--active {
 
-        @apply bg-indigo-50
-        text-indigo-700
-        shadow-sm
-        ring-1
-        ring-indigo-100;
-    }
-
-    .admin-sidebar__link--active::before {
-
-        @apply bg-amber-400;
+        @apply bg-indigo-600
+        text-white
+        shadow-md
+        shadow-indigo-900/50;
     }
 
     .admin-sidebar__icon {
 
         @apply flex
-        h-9
-        w-9
+        h-8
+        w-8
         shrink-0
         items-center
         justify-center
-        rounded-xl
-        bg-slate-100
-        text-sm
+        rounded-lg
+        bg-white/5
+        text-[13px]
         text-slate-500
         transition
-        group-hover:bg-white
-        group-hover:text-indigo-600;
+        group-hover:bg-white/10
+        group-hover:text-slate-200;
     }
 
     .admin-sidebar__link--active .admin-sidebar__icon {
 
-        @apply bg-white
-        text-indigo-600
-        shadow-sm
-        ring-1
-        ring-indigo-100;
+        @apply bg-white/20
+        text-white;
     }
 
     .admin-topbar {
@@ -628,27 +612,26 @@
         top-0
         z-30
         border-b
-        border-slate-200
-        bg-white/90
+        border-slate-100
+        bg-white/95
         backdrop-blur-xl;
     }
 
     .admin-topbar__main {
 
         @apply flex
-        flex-col
-        gap-4
-        px-6
-        py-4
-        lg:flex-row
-        lg:items-center
-        lg:justify-between;
+        h-14
+        items-center
+        gap-3
+        px-4
+        lg:px-6;
     }
 
     .admin-topbar__title-group {
 
         @apply min-w-0
-        pl-12
+        flex-1
+        pl-10
         lg:pl-0;
     }
 
@@ -657,35 +640,28 @@
         @apply flex
         flex-wrap
         items-center
-        gap-2
+        gap-1.5
         text-xs
-        font-bold
-        uppercase
-        tracking-widest
+        font-semibold
         text-slate-400;
     }
 
     .admin-topbar__breadcrumb span {
 
-        @apply text-amber-400;
+        @apply text-slate-300;
     }
 
     .admin-topbar__title {
 
-        @apply mt-1
-        truncate
-        text-2xl
-        font-extrabold
-        text-slate-950;
+        @apply hidden;
     }
 
     .admin-topbar__actions {
 
         @apply flex
-        min-w-0
-        flex-wrap
         items-center
-        gap-3;
+        gap-2
+        ml-auto;
     }
 
     .admin-topbar__search {
@@ -693,19 +669,21 @@
         @apply hidden
         min-w-0
         items-center
-        gap-3
-        rounded-2xl
+        gap-2
+        rounded-lg
         border
         border-slate-200
         bg-slate-50
-        px-4
-        py-2.5
+        px-3
+        py-2
         text-sm
         text-slate-400
-        ring-1
-        ring-transparent
+        transition
+        hover:border-slate-300
+        hover:bg-white
         lg:flex
-        xl:w-80;
+        lg:w-56
+        xl:w-72;
     }
 
     .admin-topbar__search input {
@@ -724,14 +702,12 @@
 
     .admin-topbar__search span {
 
-        @apply rounded-full
+        @apply rounded-md
         bg-white
-        px-2
-        py-1
+        px-1.5
+        py-0.5
         text-[10px]
-        font-black
-        uppercase
-        tracking-wide
+        font-bold
         text-slate-400
         ring-1
         ring-slate-200;
@@ -741,31 +717,26 @@
 
         @apply relative
         flex
-        h-11
-        w-11
+        h-9
+        w-9
         items-center
         justify-center
-        rounded-2xl
-        border
-        border-slate-200
-        bg-white
+        rounded-lg
         text-slate-500
-        shadow-sm
         transition
-        hover:border-indigo-200
-        hover:bg-indigo-50
-        hover:text-indigo-600;
+        hover:bg-slate-100
+        hover:text-slate-700;
     }
 
     .admin-topbar__notification-dot {
 
         @apply absolute
-        right-2.5
-        top-2.5
-        h-2
-        w-2
+        right-2
+        top-2
+        h-1.5
+        w-1.5
         rounded-full
-        bg-amber-400
+        bg-red-500
         ring-2
         ring-white;
     }
@@ -779,37 +750,31 @@
 
         @apply flex
         items-center
-        gap-3
-        rounded-2xl
-        border
-        border-slate-200
-        bg-white
+        gap-2
+        rounded-lg
         px-2
-        py-2
+        py-1.5
         text-left
-        shadow-sm
         transition
-        hover:border-indigo-200
-        hover:bg-indigo-50;
+        hover:bg-slate-100;
     }
 
     .admin-user-menu__avatar {
 
         @apply flex
-        h-10
-        w-10
+        h-8
+        w-8
         shrink-0
         items-center
         justify-center
-        rounded-2xl
+        rounded-lg
         bg-gradient-to-br
-        from-indigo-600
+        from-indigo-500
         via-purple-600
-        to-amber-300
+        to-pink-500
         text-xs
         font-black
-        text-white
-        shadow-sm;
+        text-white;
     }
 
     .admin-user-menu__identity {
@@ -822,26 +787,24 @@
 
     .admin-user-menu__identity span {
 
-        @apply max-w-36
+        @apply max-w-32
         truncate
         text-sm
-        font-extrabold
+        font-semibold
         text-slate-800;
     }
 
     .admin-user-menu__identity small {
 
         @apply text-xs
-        font-semibold
         text-slate-400;
     }
 
     .admin-user-menu__chevron {
 
         @apply hidden
-        px-1
         text-xs
-        text-slate-400
+        text-slate-300
         sm:block;
     }
 
@@ -851,15 +814,15 @@
         right-0
         top-full
         z-50
-        mt-3
-        w-72
+        mt-2
+        w-64
         overflow-hidden
-        rounded-2xl
+        rounded-xl
         border
         border-slate-200
         bg-white
-        p-2
-        shadow-2xl
+        p-1.5
+        shadow-xl
         shadow-slate-900/10;
     }
 
@@ -868,7 +831,7 @@
         @apply flex
         items-center
         gap-3
-        rounded-2xl
+        rounded-lg
         bg-slate-50
         p-3;
     }
@@ -877,7 +840,7 @@
 
         @apply truncate
         text-sm
-        font-extrabold
+        font-semibold
         text-slate-900;
     }
 
@@ -886,25 +849,131 @@
         @apply block
         truncate
         text-xs
-        font-semibold
-        text-slate-400;
+        text-slate-500;
     }
 
     .admin-user-menu__logout {
 
-        @apply mt-2
+        @apply mt-1
         flex
         w-full
         items-center
         gap-3
-        rounded-2xl
-        px-4
-        py-3
+        rounded-lg
+        px-3
+        py-2.5
         text-sm
-        font-bold
+        font-medium
         text-red-600
         transition
         hover:bg-red-50;
+    }
+
+    /* ==========================
+       SIDEBAR COLLAPSIBLE GROUPS
+    ========================== */
+
+    .admin-sidebar__group-btn {
+
+        @apply relative
+        flex
+        w-full
+        items-center
+        gap-2.5
+        rounded-lg
+        px-2.5
+        py-2
+        text-sm
+        font-medium
+        text-slate-400
+        transition
+        duration-150
+        hover:bg-white/5
+        hover:text-white;
+    }
+
+    .admin-sidebar__group-btn--active {
+
+        @apply text-slate-200;
+    }
+
+    .admin-sidebar__group-btn--active .admin-sidebar__icon {
+
+        @apply bg-indigo-500/20
+        text-indigo-400;
+    }
+
+    .admin-sidebar__chevron {
+
+        @apply text-[11px]
+        text-slate-600
+        transition-transform
+        duration-200;
+    }
+
+    .admin-sidebar__children {
+
+        @apply ml-3
+        mt-0.5
+        space-y-0.5
+        border-l
+        border-white/10
+        pl-2;
+    }
+
+    .admin-sidebar__child {
+
+        @apply flex
+        items-center
+        gap-2
+        rounded-lg
+        px-3
+        py-1.5
+        text-sm
+        font-medium
+        text-slate-500
+        transition
+        duration-150
+        hover:bg-white/5
+        hover:text-slate-300;
+    }
+
+    .admin-sidebar__child--active {
+
+        @apply bg-indigo-500/15
+        font-semibold
+        text-indigo-400;
+    }
+
+    .admin-form-hint {
+
+        @apply mt-1
+        text-xs
+        text-slate-400;
+    }
+
+    .admin-alert-success,
+    .admin-alert-danger {
+
+        @apply rounded-xl
+        border
+        px-4
+        py-3
+        text-sm;
+    }
+
+    .admin-alert-success {
+
+        @apply border-emerald-200
+        bg-emerald-50
+        text-emerald-800;
+    }
+
+    .admin-alert-danger {
+
+        @apply border-red-200
+        bg-red-50
+        text-red-800;
     }
 
     .admin-dashboard-shell {

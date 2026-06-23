@@ -11,6 +11,19 @@
     <meta charset="UTF-8">
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0">
+    {{-- Only injected for admin previews (full-tab or srcdoc iframe).
+         Ensures root-relative asset paths resolve correctly inside an srcdoc document
+         where the base URL would otherwise be about:srcdoc. --}}
+    @if($preview ?? false)
+    <base href="{{ url('/') }}/">
+    @endif
+    @if($builderCanvas ?? false)
+    {{-- Builder canvas only: drop the page-level min-h-screen so the page reports
+         its natural height. This lets the builder size the frame to the real
+         content and scroll the canvas down to the very bottom of the footer.
+         The live site and the new-tab preview keep min-h-screen (unaffected). --}}
+    <style>.cms-page{min-height:0!important}</style>
+    @endif
 
     <title>
         {{ $documentTitle }}
