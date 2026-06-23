@@ -313,7 +313,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 item.type = 'button';
                 item.className =
-                    'h-11 w-11 flex items-center justify-center rounded-xl border border-slate-200 hover:bg-slate-50';
+                    'h-11 w-11 flex items-center justify-center rounded-xl border border-slate-200 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500';
 
                 item.innerHTML =
                     `<i class="fa-solid ${icon} text-lg"></i>`;

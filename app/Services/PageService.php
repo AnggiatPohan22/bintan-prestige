@@ -94,7 +94,7 @@ class PageService
         PageRevision::create([
             'page_id'          => $page->id,
             'revision_number'  => $lastNumber + 1,
-            'content_snapshot' => $page->blocks()->get(['block_type', 'label', 'data', 'sort_order', 'is_visible'])->toArray(),
+            'content_snapshot' => $page->blocks()->get(['id', 'parent_block_id', 'block_type', 'label', 'data', 'sort_order', 'is_visible'])->toArray(),
             'meta_snapshot'    => $page->only(['title', 'slug', 'status', 'publish_at', 'template_id', 'meta_title', 'meta_description']),
             'created_by'       => $authorId ?? Auth::id(),
             'created_at'       => now(),
@@ -122,9 +122,20 @@ class PageService
         $copy->og_image   = null;
         $copy->save();
 
-        $page->blocks()->get()->each(
-            fn ($block) => $block->replicate()->fill(['page_id' => $copy->id])->save()
-        );
+        $blockMap = [];
+        $blocks = $page->blocks()->get();
+
+        foreach ($blocks as $block) {
+            $duplicate = $block->replicate(['parent_block_id']);
+            $duplicate->fill(['page_id' => $copy->id, 'parent_block_id' => null])->save();
+            $blockMap[$block->id] = $duplicate;
+        }
+
+        foreach ($blocks as $block) {
+            if ($block->parent_block_id !== null && isset($blockMap[$block->parent_block_id])) {
+                $blockMap[$block->id]->update(['parent_block_id' => $blockMap[$block->parent_block_id]->id]);
+            }
+        }
 
         return $copy;
     }

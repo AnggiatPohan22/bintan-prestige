@@ -10,7 +10,7 @@ managed from one admin dashboard. Backend controls everything.
 - `ai/skills/backend-skill.md` — Laravel MVC patterns
 - `ai/skills/database-architecture-skill.md` — schema and migration rules
 - `ai/skills/admin-dashboard-skill.md` — admin UI patterns
-- `ai/skills/frontend-skill.md` — frontend rendering patterns
+- `ai/skills/frontend-design-skill.md` — frontend rendering patterns
 
 ---
 

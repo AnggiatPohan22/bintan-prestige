@@ -247,9 +247,146 @@ class GenericPageRenderingTest extends TestCase
             ->assertSee('loading="lazy"', false);
     }
 
+    public function test_a3_heading_button_group_and_video_blocks_render_accessible_markup(): void
+    {
+        $page = $this->page('published');
+
+        foreach ([
+            ['heading', ['text' => 'Plan Your Bintan Escape', 'level' => 'h3', 'alignment' => 'center']],
+            ['button_group', ['buttons' => [['text' => 'Explore Tours', 'url' => '/products', 'style' => 'primary']], 'alignment' => 'center']],
+            ['video_embed', ['url' => 'https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ', 'title' => 'Bintan travel film', 'caption' => 'Discover the island', 'aspect_ratio' => '16-9']],
+        ] as $sortOrder => [$type, $data]) {
+            PageBlock::create([
+                'page_id' => $page->id,
+                'block_type' => $type,
+                'label' => ucfirst(str_replace('_', ' ', $type)),
+                'data' => $data,
+                'sort_order' => $sortOrder,
+                'is_visible' => true,
+            ]);
+        }
+
+        $this->get(route('pages.show', $page->slug))
+            ->assertOk()
+            ->assertSee('<h3', false)
+            ->assertSee('Plan Your Bintan Escape')
+            ->assertSee('aria-label="Action links"', false)
+            ->assertSee('href="/products"', false)
+            ->assertSee('src="https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"', false)
+            ->assertSee('title="Bintan travel film"', false)
+            ->assertSee('loading="lazy"', false)
+            ->assertSee('Discover the island');
+    }
+
+    public function test_a3_travel_blocks_render_structured_responsive_markup(): void
+    {
+        $page = $this->page('published');
+
+        foreach ([
+            ['stats', ['heading' => 'Bintan by the numbers', 'items' => [['value' => '10+', 'label' => 'Years', 'description' => 'Local expertise']]]],
+            ['tour_itinerary', ['heading' => 'Two-day escape', 'items' => [['marker' => 'Day 1', 'title' => 'Lagoi arrival', 'description' => 'Transfer and check-in.']]]],
+            ['pricing_table', ['heading' => 'Packages', 'plans' => [[
+                'name' => 'Island Explorer', 'currency' => 'IDR', 'price' => '1,500,000', 'period' => 'per person',
+                'features' => ['Private transfer'], 'button_text' => 'Book now', 'button_url' => '/contact', 'featured' => true,
+            ]]]],
+        ] as $sortOrder => [$type, $data]) {
+            PageBlock::create([
+                'page_id' => $page->id,
+                'block_type' => $type,
+                'label' => ucfirst(str_replace('_', ' ', $type)),
+                'data' => $data,
+                'sort_order' => $sortOrder,
+                'is_visible' => true,
+            ]);
+        }
+
+        $this->get(route('pages.show', $page->slug))
+            ->assertOk()
+            ->assertSee('<dl', false)
+            ->assertSee('Bintan by the numbers')
+            ->assertSee('<ol', false)
+            ->assertSee('Lagoi arrival')
+            ->assertSee('<article', false)
+            ->assertSee('Island Explorer')
+            ->assertSee('href="/contact"', false)
+            ->assertSee('Featured');
+    }
+
+    public function test_nested_group_and_columns_render_children_once_in_tree_order(): void
+    {
+        $page = $this->page('published');
+        $columns = PageBlock::create([
+            'page_id' => $page->id, 'block_type' => 'columns', 'label' => 'Two columns',
+            'data' => ['columns' => 2, 'gap' => 'md', 'stack_mobile' => true], 'sort_order' => 0, 'is_visible' => true,
+        ]);
+        $group = PageBlock::create([
+            'page_id' => $page->id, 'parent_block_id' => $columns->id, 'block_type' => 'group', 'label' => 'First column',
+            'data' => ['width' => 'full', 'spacing' => 'none'], 'sort_order' => 0, 'is_visible' => true,
+        ]);
+        PageBlock::create([
+            'page_id' => $page->id, 'parent_block_id' => $group->id, 'block_type' => 'heading', 'label' => 'Nested heading',
+            'data' => ['text' => 'Nested Bintan Content', 'level' => 'h3'], 'sort_order' => 0, 'is_visible' => true,
+        ]);
+
+        $response = $this->get(route('pages.show', $page->slug))->assertOk();
+        $response->assertSee('aria-label="Two columns"', false)
+            ->assertSee('aria-label="First column"', false)
+            ->assertSee('<h3', false)
+            ->assertSee('Nested Bintan Content');
+        $this->assertSame(1, substr_count($response->getContent(), 'Nested Bintan Content'));
+    }
+
+    public function test_preview_payload_accepts_a_sanitized_nested_block_tree(): void
+    {
+        $page = $this->page('draft');
+
+        $this->actingAs(User::factory()->admin()->create())
+            ->post(route('admin.pages.preview-payload', $page), [
+                'blocks' => [[
+                    'block_type' => 'group', 'label' => 'Payload group', 'data' => ['width' => 'contained'],
+                    'children' => [[
+                        'block_type' => 'heading', 'label' => 'Payload heading',
+                        'data' => ['text' => 'Unsaved Nested Preview', 'level' => 'h2'],
+                    ]],
+                ]],
+            ])
+            ->assertOk()
+            ->assertSee('Unsaved Nested Preview')
+            ->assertSee('<meta name="robots" content="noindex, nofollow">', false);
+    }
+
+    public function test_preview_payload_rejects_invalid_container_children(): void
+    {
+        $page = $this->page('draft');
+        $admin = User::factory()->admin()->create();
+
+        $this->actingAs($admin)
+            ->from(route('admin.pages.edit', $page))
+            ->post(route('admin.pages.preview-payload', $page), [
+                'blocks' => [[
+                    'block_type' => 'columns',
+                    'children' => [['block_type' => 'heading', 'data' => ['text' => 'Invalid direct child']]],
+                ]],
+            ])
+            ->assertRedirect(route('admin.pages.edit', $page))
+            ->assertSessionHasErrors('blocks');
+
+        $this->actingAs($admin)
+            ->from(route('admin.pages.edit', $page))
+            ->post(route('admin.pages.preview-payload', $page), [
+                'blocks' => [[
+                    'block_type' => 'heading',
+                    'data' => ['text' => 'Leaf'],
+                    'children' => [['block_type' => 'text', 'data' => ['heading' => 'Invalid nested child']]],
+                ]],
+            ])
+            ->assertRedirect(route('admin.pages.edit', $page))
+            ->assertSessionHasErrors('blocks');
+    }
+
     public function test_empty_content_blocks_render_no_public_wrapper(): void
     {
-        foreach (['hero', 'text', 'image', 'gallery', 'cta', 'products_grid', 'faq', 'testimonials', 'map'] as $type) {
+        foreach (['group', 'columns', 'hero', 'heading', 'text', 'image', 'gallery', 'video_embed', 'button_group', 'stats', 'tour_itinerary', 'pricing_table', 'cta', 'products_grid', 'faq', 'testimonials', 'map'] as $type) {
             $block = new PageBlock([
                 'block_type' => $type,
                 'data' => [],

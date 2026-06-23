@@ -58,7 +58,7 @@
                                     id="cf_{{ $formDef->id }}_{{ $fieldName }}"
                                     name="{{ $fieldName }}"
                                     rows="4"
-                                    class="w-full rounded-lg border border-slate-300 px-4 py-2.5 text-sm text-slate-900 focus:border-indigo-500 focus:ring-indigo-500 @error($fieldName) border-red-400 @enderror"
+                                    class="w-full rounded-lg border border-slate-300 px-4 py-2.5 text-sm text-slate-900 focus:border-[var(--frontend-gold)] focus:ring-[var(--frontend-gold)] @error($fieldName) border-red-400 @enderror"
                                     {{ $required ? 'required' : '' }}
                                 >{{ old($fieldName) }}</textarea>
 
@@ -66,7 +66,7 @@
                                 <select
                                     id="cf_{{ $formDef->id }}_{{ $fieldName }}"
                                     name="{{ $fieldName }}"
-                                    class="w-full rounded-lg border border-slate-300 px-4 py-2.5 text-sm text-slate-900 focus:border-indigo-500 focus:ring-indigo-500"
+                                    class="w-full rounded-lg border border-slate-300 px-4 py-2.5 text-sm text-slate-900 focus:border-[var(--frontend-gold)] focus:ring-[var(--frontend-gold)]"
                                     {{ $required ? 'required' : '' }}
                                 >
                                     <option value="">— Select —</option>
@@ -104,7 +104,7 @@
                                     id="cf_{{ $formDef->id }}_{{ $fieldName }}"
                                     name="{{ $fieldName }}"
                                     value="{{ old($fieldName) }}"
-                                    class="w-full rounded-lg border border-slate-300 px-4 py-2.5 text-sm text-slate-900 focus:border-indigo-500 focus:ring-indigo-500 @error($fieldName) border-red-400 @enderror"
+                                    class="w-full rounded-lg border border-slate-300 px-4 py-2.5 text-sm text-slate-900 focus:border-[var(--frontend-gold)] focus:ring-[var(--frontend-gold)] @error($fieldName) border-red-400 @enderror"
                                     {{ $required ? 'required' : '' }}
                                 >
                             @endif
@@ -115,7 +115,7 @@
                         </div>
                     @endforeach
 
-                    <button type="submit" class="rounded-lg bg-indigo-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700 transition-colors">
+                    <button type="submit" class="rounded-full bg-[var(--frontend-gold,#c8a24a)] px-6 py-2.5 text-sm font-semibold text-[var(--frontend-black,#090806)] transition hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-[var(--frontend-gold)] focus:ring-offset-2">
                         {{ $formDef->submitLabel() }}
                     </button>
                 </form>

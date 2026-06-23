@@ -161,7 +161,7 @@
 
             <div class="flex items-center justify-between border-b border-slate-100 px-5 py-4">
                 <h2 class="font-bold text-slate-900" x-text="mode === 'edit' ? 'Edit menu item' : 'Add menu item'"></h2>
-                <button type="button" x-on:click="close()" class="grid h-8 w-8 place-items-center rounded-full text-slate-400 hover:bg-slate-100 hover:text-slate-700">
+                <button type="button" x-on:click="close()" class="grid h-8 w-8 place-items-center rounded-full text-slate-400 hover:bg-slate-100 hover:text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500" aria-label="Close panel">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>

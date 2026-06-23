@@ -7,12 +7,13 @@ use App\Http\Requests\Admin\StorePageRequest;
 use App\Http\Requests\Admin\UpdatePageRequest;
 use App\Models\Category;
 use App\Models\Destination;
-use App\Models\Page;
 use App\Models\FormDefinition;
+use App\Models\Page;
 use App\Models\PageBlock;
 use App\Models\PageRevision;
 use App\Models\PageTemplate;
 use App\Services\PageService;
+use Illuminate\Support\Facades\DB;
 use App\Support\PageTemplateRegistry;
 use Illuminate\Http\Request;
 
@@ -68,7 +69,7 @@ class PageController extends Controller
         return view('backend.pages.edit', [
             'page'            => $page,
             'revisions'       => $revisions,
-            'blockTypes'      => PageBlockController::BLOCK_TYPES,
+            'blockTypes'      => PageBlockController::blockTypes(),
             'categories'      => Category::orderBy('name')->get(['id', 'name']),
             'destinations'    => Destination::orderBy('name')->get(['id', 'name']),
             'templates'       => PageTemplate::active()->whereIn('blade_file', PageTemplateRegistry::keys())->ordered()->get(['id', 'name']),
@@ -128,15 +129,48 @@ class PageController extends Controller
         // Restore blocks: wipe current, recreate from snapshot.
         $page->blocks()->delete();
 
-        foreach ($revision->content_snapshot as $blockData) {
-            PageBlock::create([
-                'page_id'    => $page->id,
-                'block_type' => $blockData['block_type'],
-                'label'      => $blockData['label'] ?? null,
-                'data'       => $blockData['data'] ?? null,
-                'sort_order' => $blockData['sort_order'] ?? 0,
-                'is_visible' => $blockData['is_visible'] ?? true,
+        $restoredBlocks = [];
+        $snapshotIdToIndex = collect($revision->content_snapshot)
+            ->mapWithKeys(fn (array $blockData, int $index): array => isset($blockData['id']) ? [(int) $blockData['id'] => $index] : [])
+            ->all();
+
+        foreach ($revision->content_snapshot as $snapshotIndex => $blockData) {
+            $restoredBlocks[$snapshotIndex] = PageBlock::create([
+                'page_id'         => $page->id,
+                'parent_block_id' => null,
+                'block_type'      => $blockData['block_type'],
+                'label'           => $blockData['label'] ?? null,
+                'data'            => $blockData['data'] ?? null,
+                'sort_order'      => $blockData['sort_order'] ?? 0,
+                'is_visible'      => $blockData['is_visible'] ?? true,
             ]);
+        }
+
+        // Remap parent IDs in one upsert instead of N individual updates.
+        $parentRows = [];
+        foreach ($revision->content_snapshot as $snapshotIndex => $blockData) {
+            $parentSnapshotId = $blockData['parent_block_id'] ?? null;
+            $parentIndex = $parentSnapshotId !== null ? ($snapshotIdToIndex[(int) $parentSnapshotId] ?? null) : null;
+
+            if ($parentIndex !== null && isset($restoredBlocks[$parentIndex])) {
+                $parentRows[] = [
+                    'id'              => $restoredBlocks[$snapshotIndex]->id,
+                    'parent_block_id' => $restoredBlocks[$parentIndex]->id,
+                ];
+            }
+        }
+
+        if (! empty($parentRows)) {
+            // Build a single CASE-WHEN update instead of N individual UPDATE queries.
+            // IDs are all integers from our own database — no injection risk.
+            $cases = collect($parentRows)
+                ->map(fn (array $row): string => "WHEN {$row['id']} THEN {$row['parent_block_id']}")
+                ->join(' ');
+            $childIds = array_column($parentRows, 'id');
+
+            DB::table('page_blocks')
+                ->whereIn('id', $childIds)
+                ->update(['parent_block_id' => DB::raw("CASE id {$cases} END")]);
         }
 
         return redirect()

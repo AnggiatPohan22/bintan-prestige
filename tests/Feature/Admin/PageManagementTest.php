@@ -158,6 +158,28 @@ class PageManagementTest extends TestCase
         $this->assertDatabaseMissing('page_blocks', ['page_id' => $first->id]);
     }
 
+    public function test_page_duplicate_preserves_nested_block_mapping_without_reusing_source_ids(): void
+    {
+        $page = Page::create(['title' => 'Nested Source', 'slug' => 'nested-source', 'status' => 'draft']);
+        $group = PageBlock::create([
+            'page_id' => $page->id, 'block_type' => 'group', 'label' => 'Source Group',
+            'data' => ['width' => 'contained'], 'sort_order' => 0, 'is_visible' => true,
+        ]);
+        PageBlock::create([
+            'page_id' => $page->id, 'parent_block_id' => $group->id, 'block_type' => 'heading',
+            'label' => 'Nested Heading', 'data' => ['text' => 'Hello'], 'sort_order' => 0, 'is_visible' => true,
+        ]);
+
+        $response = $this->actingAs($this->admin())->post(route('admin.pages.duplicate', $page));
+        $copy = Page::where('id', '!=', $page->id)->firstOrFail();
+        $response->assertRedirect(route('admin.pages.edit', $copy));
+
+        $copyGroup = $copy->blocks()->where('block_type', 'group')->firstOrFail();
+        $copyHeading = $copy->blocks()->where('block_type', 'heading')->firstOrFail();
+        $this->assertNotSame($group->id, $copyGroup->id);
+        $this->assertSame($copyGroup->id, $copyHeading->parent_block_id);
+    }
+
     public function test_create_page_only_lists_active_templates_in_display_order(): void
     {
         PageTemplate::create([

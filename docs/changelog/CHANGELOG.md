@@ -2,6 +2,121 @@
 
 All notable project documentation and baseline improvement steps are tracked here.
 
+## 2026-06-23 — Phase 5: Visual Page Builder
+
+### Phase 5 Stage A — Foundation Hardening
+
+**A1 Backend Readiness Audit**
+- Audited all Phase 4 controllers, models, and services for Phase 5 readiness.
+- No breaking issues found; deferred items documented.
+
+**A2 Admin Dashboard UX Refactor**
+- Refactored admin sidebar into 6 named groups (Content, Products & Tours, Forms, Appearance, Marketing, System).
+- Added shared admin components: `x-admin.data-table`, `x-admin.form-shell`, `x-admin.publish-box`, `x-admin.command-palette`.
+
+**A3 Block Library Expansion**
+- Added 8 new block types: `heading`, `stats`, `button_group`, `columns`, `group`, `tour_itinerary`, `pricing_table`, `video_embed`.
+- Added frontend render Blade files for all new types.
+- Block registry now covers 19 types across 5 categories.
+
+**A4 Content & Data Efficiency**
+- Resolved N+1 on page block tree loading with eager loading of `children`.
+- Block type config loaded from Laravel config cache (not per-block DB queries).
+
+**A5 Frontend Polish**
+- Added CSS custom property theme token system (`--color-primary`, `--font-heading`, etc.).
+- `ThemeService` injects active theme tokens into `<head>` on every frontend render.
+
+### Phase 5 Stage B — Visual Page Builder
+
+**B0 Architecture Decision**
+- Decided: iframe + `srcdoc` live preview; full tree save on each save action; Alpine.js store for all client state; `@alpinejs/sort` for drag-drop; fixed `20:60:20` panel grid.
+- `builder_templates` separate from `page_templates` (layout shells).
+
+**B1 Builder Shell & Canvas**
+- Implemented `GET /admin/pages/{page}/builder` → `PageBuilderController@show`.
+- 3-panel layout: left block inserter, center iframe canvas, right settings panel.
+- Fixed-viewport flex grid (`20:60:20`). No JS scaling.
+
+**B2 Block Insertion & Ordering**
+- Add-block inserter with block type search/filter.
+- Drag-drop reordering via `@alpinejs/sort` + manual drag-drop nesting.
+- Nesting: `group` / `columns` can contain child blocks (max depth 2).
+
+**B3 Block Settings Panel**
+- Schema-driven right panel reading `config/blocks.php` fields array.
+- All 19 block types fully configurable via panel.
+- Field types: text, select, toggle, color, range, image, repeater, list, box, background, richtext, code, showIf conditions.
+- Tabbed layout/style/advanced for Group/Columns.
+
+**B4 Inline Editing**
+- `contenteditable` in canvas iframe for heading/text/hero/cta blocks.
+- On blur → writes to Alpine store → schedules 800ms debounced preview refresh.
+- Server-side sanitization: `InlineContentSanitizer::plaintext()` / `::richtext()`.
+
+**B5 Reusable Patterns**
+- `builder_patterns` table and `BuilderPatternService`.
+- Save block/container subtree as named pattern; insert with re-generated `_cid`s.
+- `BuilderPatternController`: `GET/POST/GET/DELETE /admin/builder-patterns`.
+
+**B6 Templates Integration**
+- `builder_templates` table and `BuilderTemplateService`.
+- Save full page block forest as reusable template.
+- Apply template replaces in-memory canvas after user confirmation.
+- `BuilderTemplateController`: `GET/GET/POST/DELETE /admin/builder-templates`.
+- All tree persistence (save, patterns, templates) routes through `BuilderTreeSanitizer`.
+
+**B7 Responsive Preview Controls**
+- Device toggle buttons (Desktop / Tablet / Mobile) in topbar.
+- Pure CSS `max-width` device sizing (no JS scaling).
+- Per-block `hide_desktop` / `hide_tablet` / `hide_mobile` Advanced tab controls.
+- Status bar below canvas shows active device label.
+- Badge in block list shows when a block is hidden on any device.
+
+### Phase 5 Stage C — Release Audit
+
+**C1 Static Analysis & Code Quality**
+- PHPStan level 5: 0 errors.
+- Test suite: 627 tests / 3206 assertions / 0 failures.
+- Phase 5 added: +31 tests / +441 assertions over Phase 4 baseline.
+
+**C2 Performance Audit**
+- All public routes ≤300ms warm-run.
+- No N+1 queries. All Phase 5 DB indexes verified.
+- Asset bundles: 212 KB CSS + 87 KB JS (uncompressed).
+
+**C3 Functional Smoke Test**
+- All 9 public routes: 200 OK.
+- Draft page access correctly returns 404.
+- All admin routes redirect to login (unauthenticated).
+- 19/19 block types registered and view files present.
+- InlineContentSanitizer, BuilderTreeSanitizer, BlockStyle: all functional.
+- Phase 1–4 regression: intact.
+
+**C4 Architecture Documentation**
+- Created `docs/modules/visual-builder.md` (developer reference).
+- Updated `docs/visual-builder-structure.md` with B7 section and change history.
+- Added Phase 5 CHANGELOG entry.
+- Completed Phase 6 Preparation Notes in handoff doc.
+
+### Database changes (Phase 5)
+
+| Migration | Description |
+|-----------|-------------|
+| `2026_06_21_000003_add_parent_block_id_to_page_blocks_table` | Adds `parent_block_id` FK for block nesting |
+| `2026_06_22_000004_create_builder_patterns_table` | Reusable block patterns library |
+| `2026_06_22_000005_create_builder_templates_table` | Reusable page template library |
+
+### Test coverage (Phase 5 additions)
+
+- `tests/Feature/Admin/BuilderPatternTest.php`
+- `tests/Feature/Admin/BuilderTemplateTest.php`
+- `tests/Feature/Admin/PageBlockManagementTest.php` (Phase 5 additions)
+- `tests/Feature/Admin/PageManagementTest.php` (Phase 5 additions)
+- `tests/Feature/Frontend/GenericPageRenderingTest.php` (Phase 5 block render additions)
+
+---
+
 ## 2026-06-13
 
 ### STEP FRONTEND-04D - Homepage Renderer Consolidation & Tests

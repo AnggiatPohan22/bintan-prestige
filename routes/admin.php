@@ -2,27 +2,30 @@
 
 use App\Http\Controllers\Admin\AnalyticsDashboardController;
 use App\Http\Controllers\Admin\AuditLogController;
-use App\Http\Controllers\Admin\RedirectController;
-use App\Http\Controllers\Admin\SeoRobotsController;
-use App\Http\Controllers\Admin\FormDefinitionController;
-use App\Http\Controllers\Admin\FormSubmissionController;
-use App\Http\Controllers\Admin\PluginController;
+use App\Http\Controllers\Admin\BuilderPatternController;
+use App\Http\Controllers\Admin\BuilderTemplateController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DestinationController;
 use App\Http\Controllers\Admin\FaqController;
+use App\Http\Controllers\Admin\FormDefinitionController;
+use App\Http\Controllers\Admin\FormSubmissionController;
 use App\Http\Controllers\Admin\MediaController;
 use App\Http\Controllers\Admin\MenuController;
 use App\Http\Controllers\Admin\MenuItemController;
 use App\Http\Controllers\Admin\PageBlockController;
+use App\Http\Controllers\Admin\PageBuilderController;
 use App\Http\Controllers\Admin\PageController;
 use App\Http\Controllers\Admin\PageSectionController;
+use App\Http\Controllers\Admin\PluginController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\ProductFaqController;
 use App\Http\Controllers\Admin\ProductFeatureController;
 use App\Http\Controllers\Admin\ProductHighlightController;
 use App\Http\Controllers\Admin\ProductItineraryController;
 use App\Http\Controllers\Admin\ProductNoteController;
+use App\Http\Controllers\Admin\RedirectController;
+use App\Http\Controllers\Admin\SeoRobotsController;
 use App\Http\Controllers\Admin\SiteSettingController;
 use App\Http\Controllers\Admin\ThemeController;
 use App\Http\Controllers\Admin\UserManagementController;
@@ -219,8 +222,40 @@ Route::middleware(['auth', 'admin'])
         Route::get('pages/{page}/preview', [FrontendPageController::class, 'preview'])
             ->name('pages.preview');
 
+        Route::post('pages/{page}/preview-payload', [FrontendPageController::class, 'previewPayload'])
+            ->name('pages.preview-payload');
+
+        Route::get('pages/{page}/builder', [PageBuilderController::class, 'show'])
+            ->name('pages.builder');
+        Route::post('pages/{page}/builder/templates', [BuilderTemplateController::class, 'store'])
+            ->name('builder-templates.store');
+
+        Route::get('builder-templates', [BuilderTemplateController::class, 'index'])
+            ->name('builder-templates.index');
+        Route::get('builder-templates/{builderTemplate}', [BuilderTemplateController::class, 'show'])
+            ->name('builder-templates.show');
+        Route::delete('builder-templates/{builderTemplate}', [BuilderTemplateController::class, 'destroy'])
+            ->name('builder-templates.destroy');
+
+        Route::get('builder-patterns', [BuilderPatternController::class, 'index'])
+            ->name('builder-patterns.index');
+        Route::post('builder-patterns', [BuilderPatternController::class, 'store'])
+            ->name('builder-patterns.store');
+        Route::get('builder-patterns/{builderPattern}', [BuilderPatternController::class, 'show'])
+            ->name('builder-patterns.show');
+        Route::delete('builder-patterns/{builderPattern}', [BuilderPatternController::class, 'destroy'])
+            ->name('builder-patterns.destroy');
+
         Route::resource('pages', PageController::class)
             ->except(['show']);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Block Type Registry (JSON API for visual builder)
+        |--------------------------------------------------------------------------
+        */
+        Route::get('api/block-types', [PageBlockController::class, 'apiTypes'])
+            ->name('api.block-types');
 
         /*
         |--------------------------------------------------------------------------
@@ -235,6 +270,7 @@ Route::middleware(['auth', 'admin'])
                 Route::delete('{block}', [PageBlockController::class, 'destroy'])->name('destroy');
                 Route::post('reorder', [PageBlockController::class, 'reorder'])->name('reorder');
                 Route::post('{block}/toggle-visible', [PageBlockController::class, 'toggleVisible'])->name('toggle-visible');
+                Route::post('save-tree', [PageBuilderController::class, 'saveTree'])->name('save-tree');
             });
 
         /*

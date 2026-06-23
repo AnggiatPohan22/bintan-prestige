@@ -1,11 +1,3 @@
-@php
-    $inputClass = 'w-full rounded-xl border bg-white px-4 py-3 text-sm
-    transition duration-200 outline-none focus:ring-4';
-
-    $normalClass = 'border-slate-300 focus:border-emerald-500 focus:ring-emerald-100 shadow-sm';
-
-    $errorClass = 'border-red-500 bg-red-50 focus:border-red-500 focus:ring-red-100 shadow-md shadow-red-100';
-@endphp
 
 <div class="admin-page">
 
@@ -89,7 +81,7 @@
                             >
 
                             @error('name')
-                                <p class="form-error">{{ $message }}</p>
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
                         </div>
 
@@ -170,7 +162,7 @@
                             </p>
 
                             @error('whatsapp_number')
-                                <p class="form-error">{{ $message }}</p>
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
                         </div>
 
@@ -193,7 +185,7 @@
                             </p>
 
                             @error('duration')
-                                <p class="form-error">{{ $message }}</p>
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
                         </div>
 
@@ -212,7 +204,7 @@
                             >
 
                             @error('meeting_point')
-                                <p class="form-error">{{ $message }}</p>
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
                         </div>
 
@@ -230,7 +222,7 @@
                             >{{ old('short_description', $product->short_description ?? '') }}</textarea>
 
                             @error('short_description')
-                                <p class="form-error">{{ $message }}</p>
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
                         </div>
 
@@ -248,7 +240,7 @@
                             >{{ old('description', $product->description ?? '') }}</textarea>
 
                             @error('description')
-                                <p class="form-error">{{ $message }}</p>
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
                         </div>
 
@@ -349,7 +341,7 @@
                             </p>
 
                             @error('idr_price')
-                                <p class="form-error">{{ $message }}</p>
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
                         </div>
 
@@ -373,7 +365,7 @@
                             </p>
 
                             @error('sgd_price')
-                                <p class="form-error">{{ $message }}</p>
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
                         </div>
                     </div>
@@ -410,7 +402,7 @@
                                     class="admin-input {{ $errors->has('thumbnail') ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : '' }}">
 
                                 @error('thumbnail')
-                                    <p class="form-error">{{ $message }}</p>
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
 
                                 <div class="mt-3 space-y-1 text-xs leading-5 text-slate-400">

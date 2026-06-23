@@ -96,6 +96,42 @@ class PageRevisionTest extends TestCase
         $this->assertEquals('Hero Block', $revision->content_snapshot[0]['label']);
     }
 
+    /** @test */
+    public function test_revision_restore_preserves_nested_parent_mapping(): void
+    {
+        $page = Page::factory()->create(['title' => 'Nested', 'slug' => 'nested', 'status' => 'draft']);
+        $group = PageBlock::factory()->create([
+            'page_id'    => $page->id,
+            'block_type' => 'group',
+            'label'      => 'Group',
+            'sort_order' => 0,
+        ]);
+        PageBlock::factory()->create([
+            'page_id'         => $page->id,
+            'parent_block_id' => $group->id,
+            'block_type'      => 'heading',
+            'label'           => 'Child',
+            'data'            => ['text' => 'Nested'],
+            'sort_order'      => 0,
+        ]);
+
+        $this->actingAs($this->admin)->put(route('admin.pages.update', $page), [
+            'title'  => 'Nested updated',
+            'slug'   => 'nested',
+            'status' => 'draft',
+        ]);
+        $revision = PageRevision::where('page_id', $page->id)->firstOrFail();
+
+        $page->blocks()->delete();
+        $this->actingAs($this->admin)->post(route('admin.pages.revisions.restore', [$page, $revision]));
+
+        $restoredGroup = $page->blocks()->where('block_type', 'group')->firstOrFail();
+        $restoredChild = $page->blocks()->where('block_type', 'heading')->firstOrFail();
+
+        $this->assertSame($restoredGroup->id, $restoredChild->parent_block_id);
+        $this->assertNotSame($group->id, $restoredGroup->id);
+    }
+
     // =========================================================================
     // K4 — revision_number increments
     // =========================================================================

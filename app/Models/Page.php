@@ -38,6 +38,12 @@ class Page extends Model
         return $this->hasMany(PageBlock::class)->orderBy('sort_order');
     }
 
+    /** @return HasMany<PageBlock, $this> */
+    public function rootBlocks(): HasMany
+    {
+        return $this->hasMany(PageBlock::class)->whereNull('parent_block_id')->orderBy('sort_order');
+    }
+
     /** @return HasMany<PageRevision, $this> */
     public function revisions(): HasMany
     {

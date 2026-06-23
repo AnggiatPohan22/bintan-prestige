@@ -10,7 +10,7 @@ Admin edits blocks. Frontend renders the correct Blade partial per block type.
 - `ai/skills/page-module-skill.md` — pages are the parent of blocks
 - `ai/skills/cms-architect-skill.md` — block type schema definitions
 - `ai/skills/backend-skill.md` — Laravel MVC patterns
-- `ai/skills/frontend-skill.md` — frontend rendering and brand rules
+- `ai/skills/frontend-design-skill.md` — frontend rendering and brand rules
 - `ai/guidelines/05-admin-dashboard-cms-builder.md` — admin UX rules
 
 ---
@@ -201,7 +201,7 @@ frontend/blocks/divider.blade.php
 
 Rules per frontend block partial:
 - Use `$data['key'] ?? ''` — never assume a key exists in JSON
-- Use brand CSS classes from `frontend-skill.md` (black/gold/white luxury theme)
+- Use brand CSS classes from `frontend-design-skill.md` (black/gold/white luxury theme)
 - `products_grid` block queries `Product` model with `category_id`/`destination_id` filters
 - `faq` block resolves `faq_ids[]` via `Faq::whereIn('id', $data['faq_ids'])->get()`
 - Empty/invalid blocks render nothing (no errors, no empty divs)
