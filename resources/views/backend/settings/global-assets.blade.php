@@ -41,6 +41,10 @@
 
                 <div class="mt-5 grid grid-cols-1 gap-5 xl:grid-cols-2">
                     @foreach($logoVariants as $variant)
+                        @php
+                            $asset = $siteLogos[$variant['key']] ?? null;
+                            $slug = $variant['slug'];
+                        @endphp
 
                         <div class="rounded-xl border border-slate-200 bg-white p-4">
                             <div class="flex flex-col gap-4 md:flex-row">
@@ -89,6 +93,7 @@
 
                 <div class="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">
                     @foreach($logoVariants as $variant)
+                        @php $asset = $siteLogos[$variant['key']] ?? null; @endphp
                         <div class="rounded-xl border border-slate-200 p-4">
                             <div class="text-sm font-bold text-slate-800">{{ $variant['label'] }}</div>
                             <div class="mt-1 text-xs text-slate-400">{{ $variant['key'] }}</div>
@@ -179,6 +184,7 @@
 
                             <div class="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-2">
                                 @foreach($fields as $field)
+                                    @php $value = $brandColors[$field['slug']] ?? $field['default']; @endphp
                                     <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
                                         <div class="flex items-start justify-between gap-4">
                                             <div>
@@ -275,6 +281,7 @@
 
                 <div class="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-2">
                     @foreach($businessIdentityFields as $field)
+                        @php $value = $businessIdentity[$field['slug']] ?? $field['default'] ?? ''; @endphp
                         <div class="rounded-xl border border-slate-200 bg-white p-4 {{ $field['type'] === 'textarea' ? 'lg:col-span-2' : '' }}">
                             <label class="form-label">{{ $field['label'] }}</label>
 
@@ -307,6 +314,7 @@
 
                 <div class="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-2">
                     @foreach($contactInformationFields as $field)
+                        @php $value = $contactInformation[$field['slug']] ?? $field['default'] ?? ''; @endphp
                         <div class="rounded-xl border border-slate-200 bg-white p-4 {{ $field['type'] === 'textarea' ? 'lg:col-span-2' : '' }}">
                             <label class="form-label">{{ $field['label'] }}</label>
 
@@ -339,6 +347,7 @@
 
                 <div class="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-2">
                     @foreach($socialMediaLinkFields as $field)
+                        @php $value = $socialMediaLinks[$field['slug']] ?? ''; @endphp
                         <div class="rounded-xl border border-slate-200 bg-white p-4">
                             <label class="form-label">{{ $field['label'] }} URL</label>
                             <input type="url" name="social_media_links[{{ $field['slug'] }}]" value="{{ $value }}" class="admin-input" placeholder="https://...">
@@ -477,6 +486,10 @@
 
                         <div class="grid grid-cols-1 gap-5 border-t border-slate-200 bg-slate-50 p-4 lg:grid-cols-2">
                     @foreach($navigationBasicFields as $field)
+                        @php
+                            $value = $navigationSettings[$field['slug']] ?? $field['default'] ?? '';
+                            $checkedValue = (bool) ($navigationSettings[$field['slug']] ?? false);
+                        @endphp
 
                         <div class="rounded-xl border border-slate-200 bg-white p-4 {{ $field['type'] === 'boolean' ? 'lg:col-span-2' : '' }}">
                             @if($field['type'] === 'boolean')
@@ -512,6 +525,7 @@
 
                     <div class="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
                         @foreach($navigationColorFields as $field)
+                            @php $value = $navigationSettings[$field['slug']] ?? $field['default']; @endphp
                             <div class="rounded-xl border border-slate-200 bg-slate-50 p-3">
                                 <div class="flex items-start justify-between gap-3">
                                     <div>
@@ -590,6 +604,10 @@
 
                         <div class="grid grid-cols-1 gap-5 border-t border-slate-200 bg-slate-50 p-4 lg:grid-cols-2">
                             @foreach($footerFields as $field)
+                                @php
+                                    $value = $footerSettings[$field['slug']] ?? $field['default'] ?? '';
+                                    $checkedValue = (bool) ($footerSettings[$field['slug']] ?? false);
+                                @endphp
 
                                 <div class="rounded-xl border border-slate-200 bg-white p-4 {{ $field['type'] === 'boolean' ? '' : 'lg:col-span-2' }}">
                                     @if($field['type'] === 'boolean')
@@ -888,6 +906,10 @@
 
                 <div class="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-2">
                     @foreach($seoDefaultFields as $field)
+                        @php
+                            $value = $seoDefaultSettings[$field['slug']] ?? $field['default'] ?? '';
+                            $checkedValue = (bool) ($seoDefaultSettings[$field['slug']] ?? false);
+                        @endphp
 
                         <div class="rounded-xl border border-slate-200 bg-white p-4 {{ in_array($field['type'], ['textarea', 'boolean'], true) ? 'lg:col-span-2' : '' }}">
                             @if($field['type'] === 'boolean')
@@ -976,6 +998,10 @@
 
                             <div class="grid grid-cols-1 gap-4 border-t border-slate-100 p-4 lg:grid-cols-2">
                                 @foreach($fields as $field)
+                                    @php
+                                        $value = $trackingIntegrationSettings[$field['slug']] ?? $field['default'] ?? '';
+                                        $checkedValue = (bool) ($trackingIntegrationSettings[$field['slug']] ?? false);
+                                    @endphp
 
                                     <div class="rounded-xl border border-slate-200 bg-slate-50 p-4 {{ $field['type'] === 'textarea' ? 'lg:col-span-2' : '' }}">
                                         @if($field['type'] === 'boolean')
@@ -1069,6 +1095,10 @@
 
                             <div class="grid grid-cols-1 gap-4 border-t border-slate-100 p-4 lg:grid-cols-2">
                                 @foreach($fields as $field)
+                                    @php
+                                        $value = $bookingCtaSettings[$field['slug']] ?? $field['default'] ?? '';
+                                        $checkedValue = (bool) ($bookingCtaSettings[$field['slug']] ?? false);
+                                    @endphp
 
                                     <div class="rounded-xl border border-slate-200 bg-slate-50 p-4 {{ $field['type'] === 'textarea' ? 'lg:col-span-2' : '' }}">
                                         @if($field['type'] === 'boolean')
@@ -1235,6 +1265,10 @@
             </form>
 
             @foreach($defaultMediaVariants as $variant)
+                @php
+                    $asset = $defaultMediaAssets[$variant['key']] ?? null;
+                    $slug = $variant['slug'];
+                @endphp
 
                 @if($asset?->url)
                     <form id="delete-default-media-{{ $slug }}" method="POST" action="{{ route('admin.settings.global-assets.default-media.destroy', $slug) }}" class="hidden">
@@ -1347,6 +1381,10 @@
 
                             <div class="grid grid-cols-1 gap-4 border-t border-slate-100 p-4 lg:grid-cols-2">
                                 @foreach($fields as $field)
+                                    @php
+                                        $value = $structuredDataSettings[$field['slug']] ?? $field['default'] ?? '';
+                                        $checkedValue = (bool) ($structuredDataSettings[$field['slug']] ?? false);
+                                    @endphp
 
                                     <div class="rounded-xl border border-slate-200 bg-slate-50 p-4 {{ $field['type'] === 'textarea' ? 'lg:col-span-2' : '' }}">
                                         @if($field['type'] === 'boolean')
