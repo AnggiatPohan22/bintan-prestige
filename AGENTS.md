@@ -19,8 +19,9 @@ Build a WordPress-like CMS where the complete website — pages, navigation,
 layout, content blocks, and appearance — is fully managed from one admin
 dashboard. No hardcoded frontend content. Backend controls everything.
 
-**Current Phase:** Phase 5 — Visual Builder (next)
-Phase 4 (Plugin & Module System) complete at v4.0.0 (2026-06-21).
+**Current Phase:** Phase 6 — Flexible Content Modeling (next)
+Phase 5 (Visual Page Builder) complete — 2026-06-23.
+Phase 4 (Plugin & Module System) complete at v4.0.0 — 2026-06-21.
 
 ---
 
@@ -99,10 +100,36 @@ analytics dashboard plugin, plugin security & sandboxing.
 - Test suite: 596 tests / 2765 assertions / 0 failures
 - PHPStan: level 5 / 0 errors / no ignores / no baseline
 
-**Phase 5 — CURRENT 🔨**
+**Phase 5 — COMPLETE ✅** (feature/phase-5-stage-b-visual-builder — 2026-06-23)
 Visual Page Builder & Foundation Hardening.
-Stage A: admin UX refactor, block library expansion, backend readiness, efficiency review, frontend polish.
-Stage B: drag-and-drop builder, live preview, inline editing, reusable patterns.
+
+- **Stage A — Foundation Hardening:** admin UX refactor (sidebar groups, shared components),
+  block library expansion (8 new block types → 19 total), backend readiness audit,
+  N+1 resolution + eager loading, frontend design token polish.
+
+- **Stage B — Visual Page Builder:** full-viewport drag-and-drop builder
+  (`GET /admin/pages/{page}/builder`), live iframe preview with 800ms debounce,
+  schema-driven block settings panel (all 19 types), inline editing with server-side
+  HTML sanitization (`InlineContentSanitizer`), reusable pattern library
+  (`builder_patterns`), page template library (`builder_templates`), responsive preview
+  controls (Desktop/Tablet/Mobile) with per-block hide-on-device support.
+
+- **Stage C — Release Audit:** three automated audit stages + final documentation.
+  - **C1 Static Analysis & Code Quality:** PHPStan level 5 (0 errors), full test suite
+    (627 tests / 3206 assertions / 0 failures), dead code scan, `{!! !!}` safety audit.
+  - **C2 Performance Audit:** all public routes ≤300ms warm-run, no N+1 queries,
+    all Phase 5 DB indexes verified, asset bundle size checked.
+  - **C3 Functional Smoke Test:** HTTP route checks (9 public + draft 404 guard +
+    admin auth guard), block registry + view files verified (19/19), sanitizers tested
+    functionally, Phase 5 migrations confirmed Ran, Phase 1–4 regression confirmed intact.
+    10 manual QA items documented (require browser + admin login).
+  - **C4 Architecture Documentation:** `docs/modules/visual-builder.md` created
+    (developer reference), `docs/visual-builder-structure.md` updated, Phase 5 CHANGELOG
+    entry added, Phase 6 preparation notes finalized.
+
+- Test suite: 627 tests / 3206 assertions / 0 failures (+31 tests / +441 assertions over Phase 4)
+- PHPStan: level 5 / 0 errors / no ignores / no baseline
+- Release Gate: PASS (pending 10 manual QA items + production env pre-flight)
 
 **Phase 6 — FUTURE**
 Flexible Content Modeling — custom content types & fields from admin.
