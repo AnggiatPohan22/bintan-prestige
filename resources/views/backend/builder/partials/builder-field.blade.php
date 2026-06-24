@@ -1,4 +1,4 @@
-{{--
+﻿{{--
     Reusable single field control for the Block Settings panel (B3).
     Renders ONE control bound to an Alpine lvalue — works at the top level and
     inside repeater rows. The caller renders the top label (except toggle, which
@@ -141,19 +141,19 @@
     <div class="grid grid-cols-4 gap-1.5">
         <div>
             <input type="number" x-model.number="{{ $model }}.top" x-on:input="scheduleRefresh()" placeholder="0" class="builder-input px-1.5 text-center" title="Top">
-            <p class="mt-0.5 text-center text-[9px] uppercase tracking-wide text-slate-600">Top</p>
+            <p class="mt-0.5 text-center text-[9px] uppercase tracking-wide text-slate-400">Top</p>
         </div>
         <div>
             <input type="number" x-model.number="{{ $model }}.right" x-on:input="scheduleRefresh()" placeholder="0" class="builder-input px-1.5 text-center" title="Right">
-            <p class="mt-0.5 text-center text-[9px] uppercase tracking-wide text-slate-600">Right</p>
+            <p class="mt-0.5 text-center text-[9px] uppercase tracking-wide text-slate-400">Right</p>
         </div>
         <div>
             <input type="number" x-model.number="{{ $model }}.bottom" x-on:input="scheduleRefresh()" placeholder="0" class="builder-input px-1.5 text-center" title="Bottom">
-            <p class="mt-0.5 text-center text-[9px] uppercase tracking-wide text-slate-600">Bottom</p>
+            <p class="mt-0.5 text-center text-[9px] uppercase tracking-wide text-slate-400">Bottom</p>
         </div>
         <div>
             <input type="number" x-model.number="{{ $model }}.left" x-on:input="scheduleRefresh()" placeholder="0" class="builder-input px-1.5 text-center" title="Left">
-            <p class="mt-0.5 text-center text-[9px] uppercase tracking-wide text-slate-600">Left</p>
+            <p class="mt-0.5 text-center text-[9px] uppercase tracking-wide text-slate-400">Left</p>
         </div>
     </div>
 </template>

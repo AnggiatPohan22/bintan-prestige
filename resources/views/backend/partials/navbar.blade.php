@@ -1,4 +1,4 @@
-@php
+﻿@php
     $routeName = request()->route()?->getName() ?? 'admin.dashboard';
     $pageTitle = match (true) {
         request()->routeIs('admin.products.*') => 'Products',
@@ -36,9 +36,9 @@
     <div class="admin-topbar__main">
         <div class="admin-topbar__title-group">
             <p class="admin-topbar__breadcrumb">
-                <span class="text-slate-500">Bintan Prestige</span>
+                <span class="text-slate-400">Bintan Prestige</span>
                 <span class="text-slate-300" aria-hidden="true">/</span>
-                <span class="text-slate-600 font-semibold">{{ $pageTitle }}</span>
+                <span class="text-slate-400 font-semibold">{{ $pageTitle }}</span>
             </p>
         </div>
 

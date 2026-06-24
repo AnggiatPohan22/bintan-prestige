@@ -1,4 +1,4 @@
-@php
+﻿@php
     $action = $form
         ? route('admin.forms.update', $form)
         : route('admin.forms.store');
@@ -30,7 +30,7 @@
     {{-- ── Basic Info ──────────────────────────────────────────────────────── --}}
     <div class="admin-card mb-6">
         <div class="admin-card-header">
-            <h2 class="text-base font-extrabold text-slate-900">Form Details</h2>
+            <h2 class="text-base font-extrabold text-slate-100">Form Details</h2>
         </div>
         <div class="admin-card-body space-y-5">
             <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
@@ -51,7 +51,7 @@
     {{-- ── Field Builder ───────────────────────────────────────────────────── --}}
     <div class="admin-card mb-6">
         <div class="admin-card-header flex items-center justify-between">
-            <h2 class="text-base font-extrabold text-slate-900">Form Fields</h2>
+            <h2 class="text-base font-extrabold text-slate-100">Form Fields</h2>
             <button type="button" x-on:click="addField()" class="admin-btn-secondary text-sm">
                 + Add Field
             </button>
@@ -64,9 +64,9 @@
 
             <div class="space-y-3">
                 <template x-for="(field, index) in fields" :key="index">
-                    <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                    <div class="rounded-xl border border-slate-200 bg-slate-800 p-4">
                         <div class="mb-3 flex items-center justify-between">
-                            <span class="text-xs font-semibold uppercase tracking-wide text-slate-500" x-text="'Field ' + (index + 1)"></span>
+                            <span class="text-xs font-semibold uppercase tracking-wide text-slate-400" x-text="'Field ' + (index + 1)"></span>
                             <button type="button" x-on:click="removeField(index)" class="text-xs text-red-500 hover:text-red-700">
                                 <i class="fa-solid fa-trash mr-1"></i> Remove
                             </button>
@@ -94,7 +94,7 @@
                                 <input type="text" x-model="field.name" class="admin-input font-mono text-sm" placeholder="auto">
                             </div>
                             <div class="flex items-end gap-2">
-                                <label class="flex cursor-pointer items-center gap-2 text-sm text-slate-700">
+                                <label class="flex cursor-pointer items-center gap-2 text-sm text-slate-300">
                                     <input type="checkbox" x-model="field.required" class="rounded border-slate-300">
                                     Required
                                 </label>
@@ -117,7 +117,7 @@
     {{-- ── Settings ────────────────────────────────────────────────────────── --}}
     <div class="admin-card mb-6">
         <div class="admin-card-header">
-            <h2 class="text-base font-extrabold text-slate-900">Form Settings</h2>
+            <h2 class="text-base font-extrabold text-slate-100">Form Settings</h2>
         </div>
         <div class="admin-card-body space-y-5">
             <div class="grid grid-cols-1 gap-5 md:grid-cols-2">

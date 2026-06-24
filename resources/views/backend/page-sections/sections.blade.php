@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+﻿@extends('layouts.admin')
 
 @section('content')
 
@@ -22,11 +22,11 @@
                 </p>
             </div>
 
-            <div class="flex flex-col gap-2 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+            <div class="flex flex-col gap-2 rounded-2xl border border-slate-200 bg-slate-800 px-4 py-3">
                 <span class="text-[11px] font-black uppercase tracking-widest text-slate-400">
                     Selected page key
                 </span>
-                <span class="text-sm font-extrabold text-slate-800">
+                <span class="text-sm font-extrabold text-slate-100">
                     {{ $pageKey }}
                 </span>
             </div>
@@ -37,11 +37,11 @@
         <div class="admin-card-header">
             <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                    <h2 class="text-lg font-extrabold text-slate-900">
+                    <h2 class="text-lg font-extrabold text-slate-100">
                         Section List
                     </h2>
 
-                    <p class="mt-1 text-sm leading-6 text-slate-500">
+                    <p class="mt-1 text-sm leading-6 text-slate-400">
                         Manage editable sections for this selected frontend page.
                     </p>
                 </div>
@@ -81,13 +81,13 @@
                             $supportsImageInput = \App\Support\PageSectionRegistry::supportsImageInput($section->section_key);
                         @endphp
                         <tr class="admin-table-row align-top">
-                            <td class="px-5 py-5 text-sm font-medium leading-6 text-slate-700">
+                            <td class="px-5 py-5 text-sm font-medium leading-6 text-slate-300">
                                 <span class="block break-words">{{ $section->page_key }}</span>
                             </td>
-                            <td class="px-5 py-5 text-sm leading-6 text-slate-600">
-                                <span class="block break-words font-medium text-slate-700">{{ $section->section_key }}</span>
+                            <td class="px-5 py-5 text-sm leading-6 text-slate-400">
+                                <span class="block break-words font-medium text-slate-300">{{ $section->section_key }}</span>
                                 @if($supportsImageInput)
-                                    <span class="mt-2 inline-flex rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-semibold leading-none text-slate-500">
+                                    <span class="mt-2 inline-flex rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-semibold leading-none text-slate-400">
                                         {{ $section->media_count }} / {{ \App\Models\PageSection::MEDIA_LIMIT }} media item(s)
                                     </span>
                                 @else
@@ -96,10 +96,10 @@
                                     </span>
                                 @endif
                             </td>
-                            <td class="px-5 py-5 text-sm leading-6 text-slate-600">
+                            <td class="px-5 py-5 text-sm leading-6 text-slate-400">
                                 <span class="block break-words">{{ $section->label ?: '-' }}</span>
                             </td>
-                            <td class="px-5 py-5 text-sm font-semibold leading-6 text-slate-800">
+                            <td class="px-5 py-5 text-sm font-semibold leading-6 text-slate-100">
                                 <span class="block break-words">{{ $section->title ?: '-' }}</span>
                             </td>
                             <td class="px-5 py-5">
@@ -107,7 +107,7 @@
                                     {{ $section->is_active ? 'Active' : 'Inactive' }}
                                 </span>
                             </td>
-                            <td class="px-5 py-5 text-sm leading-6 text-slate-600">{{ $section->sort_order }}</td>
+                            <td class="px-5 py-5 text-sm leading-6 text-slate-400">{{ $section->sort_order }}</td>
                             <td class="px-5 py-5 text-right">
                                 <a
                                     href="{{ route('admin.page-sections.edit', $section) }}"

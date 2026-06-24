@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+﻿@extends('layouts.admin')
 
 @section('content')
 
@@ -207,8 +207,8 @@
                     @endforeach
                 </div>
             @else
-                <div class="rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-5 py-10 text-center">
-                    <p class="text-sm font-semibold text-slate-500">
+                <div class="rounded-2xl border border-dashed border-slate-300 bg-slate-800 px-5 py-10 text-center">
+                    <p class="text-sm font-semibold text-slate-400">
                         No products found yet.
                     </p>
 

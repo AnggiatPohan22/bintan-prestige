@@ -1,11 +1,11 @@
-<div class="admin-form-card">
+﻿<div class="admin-form-card">
     <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-            <h1 class="text-2xl font-bold text-slate-800">
+            <h1 class="text-2xl font-bold text-slate-100">
                 {{ isset($category) ? 'Edit Category' : 'Create Category' }}
             </h1>
 
-            <p class="mt-1 text-sm text-slate-500">
+            <p class="mt-1 text-sm text-slate-400">
                 {{ isset($category) ? 'Update category information.' : 'Create a new product category.' }}
             </p>
         </div>
@@ -84,7 +84,7 @@
                 class="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
                 @checked(old('is_active', $category->is_active ?? true))
             >
-            <span class="text-sm font-medium text-slate-700">
+            <span class="text-sm font-medium text-slate-300">
                 Active category
             </span>
         </label>

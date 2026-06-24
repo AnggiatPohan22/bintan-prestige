@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+﻿@extends('layouts.admin')
 
 @php
     /* Flatten schema → ['--css-var' => currentValue] for Alpine shared state. */
@@ -19,14 +19,14 @@
     <div class="mb-6 flex flex-wrap items-start justify-between gap-4">
         <div>
             <a href="{{ route('admin.themes.index') }}"
-               class="mb-1 inline-flex items-center gap-1 text-xs text-slate-400 hover:text-slate-600">
+               class="mb-1 inline-flex items-center gap-1 text-xs text-slate-400 hover:text-slate-400">
                 <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
                 Back to Themes
             </a>
-            <h1 class="text-lg font-extrabold text-slate-900">
+            <h1 class="text-lg font-extrabold text-slate-100">
                 Customize: {{ $theme->name }}
             </h1>
-            <p class="mt-0.5 text-sm text-slate-500">
+            <p class="mt-0.5 text-sm text-slate-400">
                 Override design tokens for this theme. Changes preview live on the right before you save.
             </p>
         </div>
@@ -52,13 +52,13 @@
 
         {{-- No schema defined --}}
         <div class="admin-empty-state py-10">
-            <div class="mx-auto mb-4 grid h-14 w-14 place-items-center rounded-2xl bg-slate-100 text-2xl text-slate-400">
+            <div class="mx-auto mb-4 grid h-14 w-14 place-items-center rounded-2xl bg-slate-800 text-2xl text-slate-400">
                 <i class="fa-solid fa-code" aria-hidden="true"></i>
             </div>
-            <p class="font-semibold text-slate-700">No customizable tokens defined</p>
+            <p class="font-semibold text-slate-300">No customizable tokens defined</p>
             <p class="mt-1 max-w-xs text-center text-sm text-slate-400">
-                Add a <code class="rounded bg-slate-100 px-1 py-0.5 text-xs">customization_schema</code>
-                section to this theme's <code class="rounded bg-slate-100 px-1 py-0.5 text-xs">theme.json</code>
+                Add a <code class="rounded bg-slate-800 px-1 py-0.5 text-xs">customization_schema</code>
+                section to this theme's <code class="rounded bg-slate-800 px-1 py-0.5 text-xs">theme.json</code>
                 to expose design tokens here.
             </p>
         </div>
@@ -79,10 +79,10 @@
 
                         {{-- Google Font Picker --}}
                         @if(!empty($fontList))
-                        <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
+                        <div class="rounded-2xl border border-slate-700 bg-slate-800 p-5"
                              x-data="googleFontPicker(@js($fontList), @js($overrides['_google_font'] ?? ''))">
 
-                            <h2 class="mb-4 text-xs font-bold uppercase tracking-wider text-slate-500">
+                            <h2 class="mb-4 text-xs font-bold uppercase tracking-wider text-slate-400">
                                 Google Font <span class="ml-1 font-normal normal-case text-slate-400">(Body)</span>
                             </h2>
 
@@ -110,10 +110,10 @@
                             </select>
 
                             {{-- Live preview --}}
-                            <div class="rounded-lg border border-slate-100 bg-slate-50 px-4 py-3">
+                            <div class="rounded-lg border border-slate-700/50 bg-slate-800 px-4 py-3">
                                 <p class="mb-1 text-xs text-slate-400">Preview</p>
                                 <p x-ref="previewText"
-                                   class="text-base text-slate-800 transition-all duration-200">
+                                   class="text-base text-slate-100 transition-all duration-200">
                                     The quick brown fox jumps over the lazy dog
                                 </p>
                             </div>
@@ -121,7 +121,7 @@
                             @if(!empty($overrides['_google_font']))
                                 <p class="mt-2 text-xs text-slate-400">
                                     Current:
-                                    <span class="font-mono font-medium text-slate-600">
+                                    <span class="font-mono font-medium text-slate-400">
                                         {{ $overrides['_google_font'] }}
                                     </span>
                                 </p>
@@ -130,9 +130,9 @@
                         @endif
 
                         @foreach($schema as $groupKey => $group)
-                            <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                            <div class="rounded-2xl border border-slate-700 bg-slate-800 p-5">
 
-                                <h2 class="mb-4 text-xs font-bold uppercase tracking-wider text-slate-500">
+                                <h2 class="mb-4 text-xs font-bold uppercase tracking-wider text-slate-400">
                                     {{ $group['label'] ?? ucfirst($groupKey) }}
                                 </h2>
 
@@ -144,7 +144,7 @@
                                         @endphp
 
                                         <div>
-                                            <label class="mb-1.5 block text-xs font-medium text-slate-600">
+                                            <label class="mb-1.5 block text-xs font-medium text-slate-400">
                                                 {{ $token['label'] ?? $key }}
                                                 <span class="ml-1 font-mono text-xs font-normal text-slate-400">{{ $key }}</span>
                                             </label>
@@ -154,7 +154,7 @@
                                                     <input
                                                         type="color"
                                                         x-model="tokens[@js($key)]"
-                                                        class="h-9 w-9 cursor-pointer rounded-lg border border-slate-200 p-0.5"
+                                                        class="h-9 w-9 cursor-pointer rounded-lg border border-slate-700 p-0.5"
                                                         aria-label="Color picker for {{ $token['label'] ?? $key }}"
                                                     >
                                                     <input
@@ -192,7 +192,7 @@
                     </div>
 
                     {{-- Save / Reset --}}
-                    <div class="mt-5 flex flex-wrap items-center gap-3 border-t border-slate-100 pt-5">
+                    <div class="mt-5 flex flex-wrap items-center gap-3 border-t border-slate-700/50 pt-5">
                         <button type="submit" class="admin-btn-primary">
                             <i class="fa-solid fa-floppy-disk mr-1.5" aria-hidden="true"></i>
                             Save Customization
@@ -229,7 +229,7 @@
 
                     {{-- Preview toolbar --}}
                     <div class="mb-2 flex items-center justify-between gap-3">
-                        <span class="text-xs font-semibold text-slate-500 uppercase tracking-wide">
+                        <span class="text-xs font-semibold text-slate-400 uppercase tracking-wide">
                             Live Preview
                         </span>
 
@@ -259,22 +259,22 @@
                     <div class="mb-2 flex items-center gap-1">
                         <button type="button"
                                 @click="setViewport('desktop')"
-                                :class="viewport === 'desktop' ? 'bg-slate-800 text-white' : 'bg-white text-slate-500 hover:bg-slate-100'"
-                                class="rounded-lg border border-slate-200 px-2 py-1 text-xs transition"
+                                :class="viewport === 'desktop' ? 'bg-slate-800 text-white' : 'bg-slate-700 text-slate-400 hover:bg-slate-700'"
+                                class="rounded-lg border border-slate-700 px-2 py-1 text-xs transition"
                                 title="Desktop view">
                             <i class="fa-solid fa-desktop" aria-hidden="true"></i>
                         </button>
                         <button type="button"
                                 @click="setViewport('tablet')"
-                                :class="viewport === 'tablet' ? 'bg-slate-800 text-white' : 'bg-white text-slate-500 hover:bg-slate-100'"
-                                class="rounded-lg border border-slate-200 px-2 py-1 text-xs transition"
+                                :class="viewport === 'tablet' ? 'bg-slate-800 text-white' : 'bg-slate-700 text-slate-400 hover:bg-slate-700'"
+                                class="rounded-lg border border-slate-700 px-2 py-1 text-xs transition"
                                 title="Tablet view">
                             <i class="fa-solid fa-tablet-screen-button" aria-hidden="true"></i>
                         </button>
                         <button type="button"
                                 @click="setViewport('mobile')"
-                                :class="viewport === 'mobile' ? 'bg-slate-800 text-white' : 'bg-white text-slate-500 hover:bg-slate-100'"
-                                class="rounded-lg border border-slate-200 px-2 py-1 text-xs transition"
+                                :class="viewport === 'mobile' ? 'bg-slate-800 text-white' : 'bg-slate-700 text-slate-400 hover:bg-slate-700'"
+                                class="rounded-lg border border-slate-700 px-2 py-1 text-xs transition"
                                 title="Mobile view">
                             <i class="fa-solid fa-mobile-screen-button" aria-hidden="true"></i>
                         </button>
@@ -290,7 +290,7 @@
 
                     {{-- Iframe wrapper --}}
                     <div
-                        class="overflow-hidden rounded-2xl border border-slate-200 bg-slate-100 shadow-sm transition-all duration-200"
+                        class="overflow-hidden rounded-2xl border border-slate-700 bg-slate-800 transition-all duration-200"
                         :style="viewportStyle"
                     >
                         <iframe

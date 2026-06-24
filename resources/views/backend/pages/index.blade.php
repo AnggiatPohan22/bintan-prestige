@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+﻿@extends('layouts.admin')
 
 @section('content')
 <div class="admin-page">
@@ -46,7 +46,7 @@
     <div class="admin-card">
         <div class="admin-card-header">
             <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <h2 class="text-lg font-extrabold text-slate-900">All Pages</h2>
+                <h2 class="text-lg font-extrabold text-slate-100">All Pages</h2>
                 <span class="admin-badge-info">{{ $pages->total() }} page(s)</span>
             </div>
         </div>
@@ -68,7 +68,7 @@
                         @forelse($pages as $page)
                             <tr class="admin-table-row">
                                 <td class="px-4 py-4">
-                                    <div class="font-semibold text-slate-800">
+                                    <div class="font-semibold text-slate-100">
                                         {{ $page->title }}
                                     </div>
                                     <div class="mt-1 text-xs text-slate-400">
@@ -91,11 +91,11 @@
                                     @endif
                                 </td>
 
-                                <td class="px-4 py-4 text-sm text-slate-500">
+                                <td class="px-4 py-4 text-sm text-slate-400">
                                     {{ $page->sort_order }}
                                 </td>
 
-                                <td class="px-4 py-4 text-sm text-slate-500">
+                                <td class="px-4 py-4 text-sm text-slate-400">
                                     {{ $page->updated_at->format('d M Y') }}
                                 </td>
 
@@ -164,7 +164,7 @@
                             <tr>
                                 <td colspan="5" class="px-4 py-10">
                                     <div class="admin-empty-state">
-                                        <p class="font-medium text-slate-600">No pages found.</p>
+                                        <p class="font-medium text-slate-400">No pages found.</p>
                                         <p class="mt-1 text-sm text-slate-400">
                                             <a href="{{ route('admin.pages.create') }}" class="text-indigo-600 hover:underline">
                                                 Create your first page

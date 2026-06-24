@@ -1,12 +1,12 @@
-<div class="admin-card">
+﻿<div class="admin-card">
     <div class="admin-card-header">
         <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
-                <h3 class="text-lg font-extrabold text-slate-900">
+                <h3 class="text-lg font-extrabold text-slate-100">
                     Product FAQs
                 </h3>
 
-                <p class="mt-1 text-sm leading-6 text-slate-500">
+                <p class="mt-1 text-sm leading-6 text-slate-400">
                     Manage common guest questions for this product.
                 </p>
             </div>
@@ -45,10 +45,10 @@
             @csrf
 
             <div>
-                <h4 class="text-base font-extrabold text-slate-900">
+                <h4 class="text-base font-extrabold text-slate-100">
                     Add FAQ
                 </h4>
-                <p class="mt-1 text-sm text-slate-500">
+                <p class="mt-1 text-sm text-slate-400">
                     Add short answers guests can scan before booking.
                 </p>
             </div>
@@ -97,7 +97,7 @@
         </form>
 
         <div class="my-6 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-            <h3 class="font-semibold text-slate-800">
+            <h3 class="font-semibold text-slate-100">
                 FAQ List
             </h3>
 
@@ -121,12 +121,12 @@
                                 {{ $faq->sort_order }}
                             </span>
 
-                            <h4 class="font-semibold text-slate-800 leading-snug">
+                            <h4 class="font-semibold text-slate-100 leading-snug">
                                 {{ $faq->question }}
                             </h4>
                         </div>
 
-                        <p class="text-sm text-slate-500 leading-relaxed whitespace-pre-line">
+                        <p class="text-sm text-slate-400 leading-relaxed whitespace-pre-line">
                             {{ $faq->answer }}
                         </p>
                     </div>
@@ -165,13 +165,13 @@
                     >
                         <div class="mx-auto mt-16 max-w-2xl rounded-2xl bg-white p-6 shadow-2xl">
                             <div class="mb-5 flex items-center justify-between gap-4">
-                                <h3 class="text-lg font-bold text-slate-800">
+                                <h3 class="text-lg font-bold text-slate-100">
                                     Edit FAQ
                                 </h3>
 
                                 <button
                                     type="button"
-                                    class="rounded-lg px-3 py-2 text-slate-400 hover:bg-slate-100"
+                                    class="rounded-lg px-3 py-2 text-slate-400 hover:bg-slate-700"
                                     data-modal-close
                                 >
                                     X

@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+﻿@extends('layouts.admin')
 
 @section('content')
 
@@ -6,11 +6,11 @@
 
     <div class="mb-6">
         <a href="{{ route('admin.themes.widgets.index', $theme) }}"
-           class="mb-1 inline-flex items-center gap-1 text-xs text-slate-400 hover:text-slate-600">
+           class="mb-1 inline-flex items-center gap-1 text-xs text-slate-400 hover:text-slate-400">
             <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
             Back to Widgets
         </a>
-        <h1 class="text-lg font-extrabold text-slate-900">Add Widget — {{ $theme->name }}</h1>
+        <h1 class="text-lg font-extrabold text-slate-100">Add Widget — {{ $theme->name }}</h1>
     </div>
 
     <form

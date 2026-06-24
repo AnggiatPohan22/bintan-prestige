@@ -1,4 +1,4 @@
-@php
+﻿@php
     $failedBlockId = old('_block_id');
     $hasBlockErrors = old('_editor_context') === 'blocks' && $errors->any();
 @endphp
@@ -103,7 +103,7 @@
                             @foreach($swapped as $bid)
                                 <input type="hidden" name="ids[]" value="{{ $bid }}">
                             @endforeach
-                            <button type="submit" class="rounded p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500" aria-label="Move {{ $block->label }} up" title="Move up">
+                            <button type="submit" class="rounded p-2 text-slate-400 hover:bg-slate-700 hover:text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500" aria-label="Move {{ $block->label }} up" title="Move up">
                                 <i class="fa-solid fa-chevron-up text-xs" aria-hidden="true"></i>
                             </button>
                         </form>
@@ -125,7 +125,7 @@
                             @foreach($swapped as $bid)
                                 <input type="hidden" name="ids[]" value="{{ $bid }}">
                             @endforeach
-                            <button type="submit" class="rounded p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500" aria-label="Move {{ $block->label }} down" title="Move down">
+                            <button type="submit" class="rounded p-2 text-slate-400 hover:bg-slate-700 hover:text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500" aria-label="Move {{ $block->label }} down" title="Move down">
                                 <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
                             </button>
                         </form>
@@ -147,7 +147,7 @@
 
                 <div class="min-w-0 flex-1">
                     <span class="admin-badge-info shrink-0 font-mono text-xs">{{ $block->block_type }}</span>
-                    <p class="mt-1 truncate text-sm font-semibold text-slate-700">{{ $block->label }}</p>
+                    <p class="mt-1 truncate text-sm font-semibold text-slate-300">{{ $block->label }}</p>
                     <p class="mt-0.5 text-xs {{ $block->is_visible ? 'text-emerald-600' : 'text-slate-400' }}">
                         {{ $block->is_visible ? 'Visible on page' : 'Hidden from page' }}
                     </p>
@@ -245,7 +245,7 @@
                                 </option>
                             @endforeach
                         </select>
-                        <p class="mt-1 text-xs text-slate-500">Columns accept Group blocks as column slots. Other blocks can be nested inside Groups.</p>
+                        <p class="mt-1 text-xs text-slate-400">Columns accept Group blocks as column slots. Other blocks can be nested inside Groups.</p>
                     </div>
 
                     @include(
@@ -277,7 +277,7 @@
             <span class="mx-auto grid h-12 w-12 place-items-center rounded-full bg-indigo-50 text-indigo-500" aria-hidden="true">
                 <i class="fa-solid fa-layer-group"></i>
             </span>
-            <p class="mt-3 font-semibold text-slate-700">Build this page one block at a time.</p>
+            <p class="mt-3 font-semibold text-slate-300">Build this page one block at a time.</p>
             <p class="mx-auto mt-1 max-w-md text-sm text-slate-400">Choose a block type above. You can edit, preview media, show or hide, and reorder it later with the keyboard-friendly Up and Down controls.</p>
             <a href="#block_type" class="admin-btn-primary mt-4 inline-flex">Choose the first block</a>
         </div>

@@ -1,4 +1,4 @@
-<div
+﻿<div
     x-data="{
         open: false,
         target: null,
@@ -21,9 +21,9 @@
         <button type="button" class="absolute inset-0 bg-slate-950/50" aria-label="Close media picker"
                 x-on:click="open = false; target = null"></button>
 
-        <div class="absolute inset-4 overflow-hidden rounded-2xl bg-white shadow-2xl md:inset-10">
-            <div class="flex items-center justify-between border-b border-slate-200 px-4 py-3">
-                <h2 class="font-bold text-slate-900">Choose from Media Library</h2>
+        <div class="absolute inset-4 overflow-hidden rounded-2xl bg-slate-800 shadow-2xl md:inset-10">
+            <div class="flex items-center justify-between border-b border-slate-700 px-4 py-3">
+                <h2 class="font-bold text-slate-100">Choose from Media Library</h2>
                 <button type="button" class="admin-btn-secondary px-3 py-1.5 text-xs"
                         x-on:click="open = false; target = null">Close</button>
             </div>

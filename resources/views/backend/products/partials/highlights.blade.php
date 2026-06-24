@@ -1,12 +1,12 @@
-<div class="admin-card">
+﻿<div class="admin-card">
     <div class="admin-card-header">
         <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
-                <h3 class="text-lg font-extrabold text-slate-900">
+                <h3 class="text-lg font-extrabold text-slate-100">
                     Product Highlights
                 </h3>
 
-                <p class="mt-1 text-sm leading-6 text-slate-500">
+                <p class="mt-1 text-sm leading-6 text-slate-400">
                     Add short selling points shown on the product detail page.
                 </p>
             </div>
@@ -44,10 +44,10 @@
             @csrf
 
             <div>
-                <h4 class="text-base font-extrabold text-slate-900">
+                <h4 class="text-base font-extrabold text-slate-100">
                     Add Highlight
                 </h4>
-                <p class="mt-1 text-sm text-slate-500">
+                <p class="mt-1 text-sm text-slate-400">
                     Keep each highlight concise and action-oriented.
                 </p>
             </div>
@@ -72,7 +72,7 @@
                     class="admin-input flex items-center justify-between"
                 >
                     <span class="flex items-center gap-3">
-                        <i id="selectedIcon" class="fa-solid fa-car text-slate-600"></i>
+                        <i id="selectedIcon" class="fa-solid fa-car text-slate-400"></i>
                         <span id="selectedIconText">Choose icon</span>
                     </span>
 
@@ -133,7 +133,7 @@
                             </div>
 
                             <div class="min-w-0">
-                                <p class="font-semibold text-slate-800">
+                                <p class="font-semibold text-slate-100">
                                     {{ $highlight->title }}
                                 </p>
 
@@ -177,13 +177,13 @@
                         >
                         <div class="mx-auto mt-16 max-w-lg rounded-2xl bg-white p-6 shadow-2xl">
                             <div class="mb-5 flex items-center justify-between gap-4">
-                                <h3 class="text-lg font-bold text-slate-800">
+                                <h3 class="text-lg font-bold text-slate-100">
                                     Edit Highlight
                                 </h3>
 
                                 <button
                                     type="button"
-                                    class="rounded-lg px-3 py-2 text-slate-400 hover:bg-slate-100"
+                                    class="rounded-lg px-3 py-2 text-slate-400 hover:bg-slate-700"
                                     data-modal-close
                                 >
                                     X
@@ -313,7 +313,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 item.type = 'button';
                 item.className =
-                    'h-11 w-11 flex items-center justify-center rounded-xl border border-slate-200 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500';
+                    'h-11 w-11 flex items-center justify-center rounded-xl border border-slate-200 hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500';
 
                 item.innerHTML =
                     `<i class="fa-solid ${icon} text-lg"></i>`;

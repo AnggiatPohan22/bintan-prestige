@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+﻿@extends('layouts.admin')
 
 @section('content')
 <div class="admin-page">
@@ -26,11 +26,11 @@
             @forelse($forms as $form)
                 <tr class="admin-table-row">
                     <td class="px-4 py-4">
-                        <div class="font-semibold text-slate-800">{{ $form->name }}</div>
+                        <div class="font-semibold text-slate-100">{{ $form->name }}</div>
                         <div class="mt-1 font-mono text-xs text-slate-400">{{ $form->slug }}</div>
                     </td>
 
-                    <td class="px-4 py-4 text-sm text-slate-600">
+                    <td class="px-4 py-4 text-sm text-slate-400">
                         {{ count($form->fields) }} field(s)
                     </td>
 
@@ -73,7 +73,7 @@
                 <tr>
                     <td colspan="4" class="px-4 py-10">
                         <div class="admin-empty-state">
-                            <p class="font-medium text-slate-600">No forms yet.</p>
+                            <p class="font-medium text-slate-400">No forms yet.</p>
                             <p class="mt-1 text-sm text-slate-400">
                                 <a href="{{ route('admin.forms.create') }}" class="text-indigo-600 hover:underline">
                                     Create your first form

@@ -13,6 +13,16 @@
 
     @include('partials.site-favicon')
 
+    {{-- Inline styles run immediately on HTML parse, before @vite CSS loads.
+         Prevents: (1) white flash while external CSS is fetching,
+                   (2) Alpine x-cloak elements flashing visible,
+                   (3) .hidden fixed overlays intercepting first click. --}}
+    <style>
+        html, body { background: #020617; }
+        [x-cloak]  { display: none !important; }
+        .hidden    { display: none !important; }
+    </style>
+
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     @include('partials.site-brand-colors')

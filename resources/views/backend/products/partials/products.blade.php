@@ -1,4 +1,4 @@
-            {{-- Product Name --}}
+﻿            {{-- Product Name --}}
             <div>
 
                 <label class="form-label">
@@ -32,7 +32,7 @@
             {{-- Slug --}}
             <div>
 
-                <label class="block mb-2 text-sm font-semibold text-slate-700">
+                <label class="block mb-2 text-sm font-semibold text-slate-300">
                     Slug
                 </label>
 
@@ -53,7 +53,7 @@
             {{-- Short Description --}}
             <div>
 
-                <label class="block mb-2 text-sm font-semibold text-slate-700">
+                <label class="block mb-2 text-sm font-semibold text-slate-300">
                     Short Description
                     <span class="text-red-500">*</span>
                 </label>
@@ -79,7 +79,7 @@
             {{-- Meeting Point --}}
             <div>
 
-                <label class="block mb-2 text-sm font-semibold text-slate-700">
+                <label class="block mb-2 text-sm font-semibold text-slate-300">
                     Meeting Point
                     <span class="text-red-500">*</span>
                 </label>
@@ -130,7 +130,7 @@
 
             {{--Duration --}}
             <div>
-                <label class="block mb-2 text-sm font-semibold text-slate-700">
+                <label class="block mb-2 text-sm font-semibold text-slate-300">
                     Duration
                     <span class="text-red-500">*</span>
                 </label>
@@ -155,7 +155,7 @@
             {{-- WhatsApp --}}
             <div>
 
-                <label class="block mb-2 text-sm font-semibold text-slate-700">
+                <label class="block mb-2 text-sm font-semibold text-slate-300">
                     WhatsApp Contact
                     <span class="text-red-500">*</span>
                 </label>
@@ -296,11 +296,11 @@
                 <div class="flex items-center justify-between">
 
                     <div>
-                        <h4 class="font-semibold text-slate-700">
+                        <h4 class="font-semibold text-slate-300">
                             Featured Product
                         </h4>
 
-                        <p class="text-sm text-slate-500">
+                        <p class="text-sm text-slate-400">
                             Show on featured section
                         </p>
                     </div>

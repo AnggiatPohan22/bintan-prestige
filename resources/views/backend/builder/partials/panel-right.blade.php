@@ -1,4 +1,4 @@
-{{-- ── RIGHT PANEL: Block Settings (B3) ────────────────────
+﻿{{-- ── RIGHT PANEL: Block Settings (B3) ────────────────────
      lg+: in-flow grid column at 20% (lg:w-[20%]). Below lg: overlay drawer.
      Schema-driven: renders the selected block's `fields` (config/blocks.php)
      and binds each control to the live tree node via x-model. Editing a field
@@ -14,7 +14,7 @@
 >
 
     <div class="flex shrink-0 items-center justify-between border-b border-slate-800 px-4 py-3">
-        <p class="text-xs font-semibold uppercase tracking-widest text-slate-500">Block Settings</p>
+        <p class="text-xs font-semibold uppercase tracking-widest text-slate-400">Block Settings</p>
         <span
             x-show="selectedNode()"
             x-text="selectedNode()?.type"
@@ -26,10 +26,10 @@
     {{-- EMPTY STATE — no block selected --}}
     <div
         x-show="!selectedNode()"
-        class="flex flex-1 flex-col items-center justify-center gap-3 p-6 text-center text-slate-600"
+        class="flex flex-1 flex-col items-center justify-center gap-3 p-6 text-center text-slate-400"
     >
         <i class="fa-solid fa-arrow-pointer text-3xl"></i>
-        <p class="text-sm">Select a block in the <strong class="text-slate-500">Block List</strong> to edit its settings.</p>
+        <p class="text-sm">Select a block in the <strong class="text-slate-400">Block List</strong> to edit its settings.</p>
     </div>
 
     {{-- SETTINGS FORM — schema-driven from the selected block's fields.
@@ -61,7 +61,7 @@
         {{-- No editable fields for this block type --}}
         <p
             x-show="fieldsFor(selectedNode().type).length === 0"
-            class="rounded-lg border border-dashed border-slate-700 px-3 py-4 text-center text-xs text-slate-500"
+            class="rounded-lg border border-dashed border-slate-700 px-3 py-4 text-center text-xs text-slate-400"
             x-cloak
         >
             This block has no inline settings yet.
@@ -100,7 +100,7 @@
                                     <span class="text-[11px] font-semibold text-slate-400"
                                           x-text="(field.itemLabel || 'Item') + ' ' + (idx + 1)"></span>
                                     <button type="button" title="Remove"
-                                            class="text-slate-500 transition-colors hover:text-red-400"
+                                            class="text-slate-400 transition-colors hover:text-red-400"
                                             x-on:click="repeaterRemove(field, idx)">
                                         <i class="fa-solid fa-trash-can text-xs"></i>
                                     </button>
@@ -131,7 +131,7 @@
                                 <input type="text" class="builder-input"
                                        x-model="repeaterArr(field)[idx]" x-on:input="scheduleRefresh()"
                                        :placeholder="field.placeholder || ''">
-                                <button type="button" class="px-1 text-slate-500 hover:text-red-400"
+                                <button type="button" class="px-1 text-slate-400 hover:text-red-400"
                                         x-on:click="listRemove(field, idx)" title="Remove">
                                     <i class="fa-solid fa-xmark"></i>
                                 </button>
@@ -157,7 +157,7 @@
                 <p
                     x-show="field.help"
                     x-text="field.help"
-                    class="mt-1 text-[11px] leading-snug text-slate-500"
+                    class="mt-1 text-[11px] leading-snug text-slate-400"
                 ></p>
             </div>
         </template>
@@ -192,7 +192,7 @@
                     <button type="button"
                             x-on:click="saveSelectedPattern()"
                             :disabled="isSavingPattern || !patternDraft.name.trim()"
-                            class="flex-1 rounded-md bg-amber-500 px-3 py-2 text-xs font-semibold text-slate-950 disabled:cursor-not-allowed disabled:opacity-40">
+                            class="flex-1 rounded-md bg-amber-500 px-3 py-2 text-xs font-semibold text-slate-100 disabled:cursor-not-allowed disabled:opacity-40">
                         <i class="fa-solid fa-spinner fa-spin mr-1" x-show="isSavingPattern"></i>
                         <span x-text="isSavingPattern ? 'Savingâ€¦' : 'Save Pattern'"></span>
                     </button>

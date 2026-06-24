@@ -1,4 +1,4 @@
-{{-- ══════════════════════════════════════════════════════
+﻿{{-- ══════════════════════════════════════════════════════
      TOP BAR — fixed height (flex-none); never scrolls.
      Controls: back, page info/status, panel toggles, device toggles, preview, save.
 ══════════════════════════════════════════════════════ --}}
@@ -16,7 +16,7 @@
 
         <div class="min-w-0">
             <p class="truncate text-sm font-semibold text-white">{{ $page->title }}</p>
-            <p class="truncate text-xs text-slate-500">/pages/{{ $page->slug }}</p>
+            <p class="truncate text-xs text-slate-400">/pages/{{ $page->slug }}</p>
         </div>
 
         @if($page->isPublished())
@@ -51,14 +51,14 @@
             <button
                 type="button"
                 x-on:click="leftCollapsed = !leftCollapsed"
-                :class="leftCollapsed ? 'text-slate-500 hover:text-slate-300' : 'bg-slate-700 text-white'"
+                :class="leftCollapsed ? 'text-slate-400 hover:text-slate-300' : 'bg-slate-700 text-white'"
                 class="flex h-7 w-7 items-center justify-center rounded text-xs transition-colors"
                 title="Toggle blocks panel"
             ><i class="fa-solid fa-table-columns"></i></button>
             <button
                 type="button"
                 x-on:click="rightCollapsed = !rightCollapsed"
-                :class="rightCollapsed ? 'text-slate-500 hover:text-slate-300' : 'bg-slate-700 text-white'"
+                :class="rightCollapsed ? 'text-slate-400 hover:text-slate-300' : 'bg-slate-700 text-white'"
                 class="flex h-7 w-7 items-center justify-center rounded text-xs transition-colors"
                 title="Toggle settings panel"
             ><i class="fa-solid fa-sliders"></i></button>
@@ -69,21 +69,21 @@
             <button
                 type="button"
                 x-on:click="previewMode = 'desktop'"
-                :class="previewMode === 'desktop' ? 'bg-slate-700 text-white' : 'text-slate-500 hover:text-slate-300'"
+                :class="previewMode === 'desktop' ? 'bg-slate-700 text-white' : 'text-slate-400 hover:text-slate-300'"
                 class="flex h-7 w-7 items-center justify-center rounded text-xs transition-colors"
                 title="Desktop (fluid)"
             ><i class="fa-solid fa-desktop"></i></button>
             <button
                 type="button"
                 x-on:click="previewMode = 'tablet'"
-                :class="previewMode === 'tablet' ? 'bg-slate-700 text-white' : 'text-slate-500 hover:text-slate-300'"
+                :class="previewMode === 'tablet' ? 'bg-slate-700 text-white' : 'text-slate-400 hover:text-slate-300'"
                 class="flex h-7 w-7 items-center justify-center rounded text-xs transition-colors"
                 title="Tablet (768px)"
             ><i class="fa-solid fa-tablet-screen-button"></i></button>
             <button
                 type="button"
                 x-on:click="previewMode = 'mobile'"
-                :class="previewMode === 'mobile' ? 'bg-slate-700 text-white' : 'text-slate-500 hover:text-slate-300'"
+                :class="previewMode === 'mobile' ? 'bg-slate-700 text-white' : 'text-slate-400 hover:text-slate-300'"
                 class="flex h-7 w-7 items-center justify-center rounded text-xs transition-colors"
                 title="Mobile (375px)"
             ><i class="fa-solid fa-mobile-screen-button"></i></button>

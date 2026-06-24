@@ -1,4 +1,4 @@
-<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+﻿<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
     <div class="md:col-span-2">
         <label class="admin-form-label">YouTube or Vimeo URL</label>
         <input
@@ -8,7 +8,7 @@
             class="admin-input"
             placeholder="https://www.youtube.com/watch?v=..."
         >
-        <p class="mt-1 text-xs text-slate-500">Only YouTube and Vimeo URLs are accepted. The saved URL is converted to a safe embed URL.</p>
+        <p class="mt-1 text-xs text-slate-400">Only YouTube and Vimeo URLs are accepted. The saved URL is converted to a safe embed URL.</p>
     </div>
 
     <div>

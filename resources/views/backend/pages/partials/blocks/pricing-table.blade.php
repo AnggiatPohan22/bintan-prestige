@@ -1,4 +1,4 @@
-<div class="space-y-4" x-data="pricingTableBlock(@js($block->data['plans'] ?? []))">
+﻿<div class="space-y-4" x-data="pricingTableBlock(@js($block->data['plans'] ?? []))">
     <div>
         <label class="admin-form-label">Section Heading</label>
         <input type="text" name="data[heading]" value="{{ old('data.heading', $block->data['heading'] ?? '') }}" class="admin-input" maxlength="255" placeholder="Choose your package">
@@ -59,7 +59,7 @@
             </div>
 
             <div class="flex items-center justify-between gap-3">
-                <label class="flex items-center gap-2 text-sm font-medium text-slate-700">
+                <label class="flex items-center gap-2 text-sm font-medium text-slate-300">
                     <input type="hidden" :name="`data[plans][${planIndex}][featured]`" value="0">
                     <input type="checkbox" :name="`data[plans][${planIndex}][featured]`" value="1" x-model="plan.featured" class="rounded border-slate-300">
                     Highlight this plan

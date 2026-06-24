@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+﻿@extends('layouts.admin')
 
 @section('content')
 <div class="admin-page">
@@ -16,7 +16,7 @@
         <div class="admin-card-body">
             <form method="GET" class="flex flex-wrap gap-3 items-end">
                 <div class="flex flex-col gap-1">
-                    <label class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Admin User</label>
+                    <label class="text-xs font-semibold text-slate-400 uppercase tracking-wide">Admin User</label>
                     <select name="user_id" class="admin-input w-44" onchange="this.form.submit()">
                         <option value="">All Users</option>
                         @foreach($adminUsers as $u)
@@ -28,7 +28,7 @@
                 </div>
 
                 <div class="flex flex-col gap-1">
-                    <label class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Action</label>
+                    <label class="text-xs font-semibold text-slate-400 uppercase tracking-wide">Action</label>
                     <select name="action" class="admin-input w-36" onchange="this.form.submit()">
                         <option value="">All Actions</option>
                         @foreach($actions as $action)
@@ -40,7 +40,7 @@
                 </div>
 
                 <div class="flex flex-col gap-1">
-                    <label class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Type</label>
+                    <label class="text-xs font-semibold text-slate-400 uppercase tracking-wide">Type</label>
                     <select name="type" class="admin-input w-36" onchange="this.form.submit()">
                         <option value="">All Types</option>
                         @foreach($types as $type)
@@ -52,7 +52,7 @@
                 </div>
 
                 <div class="flex flex-col gap-1">
-                    <label class="text-xs font-semibold text-slate-500 uppercase tracking-wide">From</label>
+                    <label class="text-xs font-semibold text-slate-400 uppercase tracking-wide">From</label>
                     <input
                         type="date"
                         name="date_from"
@@ -63,7 +63,7 @@
                 </div>
 
                 <div class="flex flex-col gap-1">
-                    <label class="text-xs font-semibold text-slate-500 uppercase tracking-wide">To</label>
+                    <label class="text-xs font-semibold text-slate-400 uppercase tracking-wide">To</label>
                     <input
                         type="date"
                         name="date_to"
@@ -85,7 +85,7 @@
     <div class="admin-card">
         <div class="admin-card-header">
             <div class="flex items-center justify-between">
-                <h2 class="text-lg font-extrabold text-slate-900">Activity</h2>
+                <h2 class="text-lg font-extrabold text-slate-100">Activity</h2>
                 <span class="admin-badge-info">{{ $logs->total() }} entries</span>
             </div>
         </div>
@@ -106,13 +106,13 @@
                     <tbody>
                         @forelse($logs as $log)
                             <tr class="admin-table-row" x-data="{ open: false }">
-                                <td class="px-4 py-3 text-sm text-slate-500 whitespace-nowrap">
+                                <td class="px-4 py-3 text-sm text-slate-400 whitespace-nowrap">
                                     {{ $log->created_at->format('d M Y') }}
                                     <div class="text-xs text-slate-400">{{ $log->created_at->format('H:i') }}</div>
                                 </td>
 
                                 <td class="px-4 py-3">
-                                    <div class="text-sm font-medium text-slate-800">
+                                    <div class="text-sm font-medium text-slate-100">
                                         {{ $log->user?->name ?? '—' }}
                                     </div>
                                     <div class="text-xs text-slate-400">{{ $log->ip_address }}</div>
@@ -131,7 +131,7 @@
                                 </td>
 
                                 <td class="px-4 py-3">
-                                    <div class="text-sm font-medium text-slate-700">
+                                    <div class="text-sm font-medium text-slate-300">
                                         {{ $log->auditable_type }}
                                         @if($log->auditable_id)
                                             <span class="text-slate-400">#{{ $log->auditable_id }}</span>
@@ -177,7 +177,7 @@
                             <tr>
                                 <td colspan="5" class="px-4 py-10">
                                     <div class="admin-empty-state">
-                                        <p class="font-medium text-slate-600">No audit log entries found.</p>
+                                        <p class="font-medium text-slate-400">No audit log entries found.</p>
                                         <p class="mt-1 text-sm text-slate-400">
                                             Activity will appear here as admins make changes.
                                         </p>

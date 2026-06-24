@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+﻿@extends('layouts.admin')
 
 @section('content')
 <div class="admin-page">
@@ -27,8 +27,8 @@
         <x-slot:tbody>
             @forelse($redirects as $redirect)
                 <tr class="admin-table-row">
-                    <td class="px-4 py-4 font-mono text-sm text-slate-700">{{ $redirect->from_url }}</td>
-                    <td class="max-w-xs truncate px-4 py-4 font-mono text-sm text-slate-500">{{ $redirect->to_url }}</td>
+                    <td class="px-4 py-4 font-mono text-sm text-slate-300">{{ $redirect->from_url }}</td>
+                    <td class="max-w-xs truncate px-4 py-4 font-mono text-sm text-slate-400">{{ $redirect->to_url }}</td>
                     <td class="px-4 py-4">
                         <span class="admin-badge-{{ $redirect->status_code === 301 ? 'info' : 'warning' }}">
                             {{ $redirect->status_code }}

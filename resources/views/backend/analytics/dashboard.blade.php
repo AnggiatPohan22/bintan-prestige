@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+﻿@extends('layouts.admin')
 
 @section('content')
 <div class="admin-page">
@@ -37,7 +37,7 @@
         </div>
 
         @if($topPages->isEmpty())
-            <div class="admin-card-body text-slate-500 text-sm">
+            <div class="admin-card-body text-slate-400 text-sm">
                 No data yet. Page views are aggregated nightly.
             </div>
         @else
@@ -67,7 +67,7 @@
                                     @endif
                                 </td>
                                 <td class="text-right font-medium">{{ number_format($stat->total_views) }}</td>
-                                <td class="text-right text-slate-600">{{ number_format($stat->total_uniques) }}</td>
+                                <td class="text-right text-slate-400">{{ number_format($stat->total_uniques) }}</td>
                             </tr>
                         @endforeach
                     </tbody>

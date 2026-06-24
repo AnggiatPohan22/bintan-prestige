@@ -1,12 +1,12 @@
-<div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+﻿<div class="grid grid-cols-1 md:grid-cols-2 gap-5">
 
     {{-- Booking Button --}}
     <div class="md:col-span-2">
-        <h3 class="text-lg font-bold text-slate-800">
+        <h3 class="text-lg font-bold text-slate-100">
             Booking Button
         </h3>
 
-        <p class="text-sm text-slate-500">
+        <p class="text-sm text-slate-400">
             Control booking text shown on the product page.
         </p>
     </div>
@@ -55,11 +55,11 @@
 
     {{-- Pickup Information --}}
     <div class="md:col-span-2 pt-5 border-t">
-        <h3 class="text-lg font-bold text-slate-800">
+        <h3 class="text-lg font-bold text-slate-100">
             Pickup Information
         </h3>
 
-        <p class="text-sm text-slate-500">
+        <p class="text-sm text-slate-400">
             Explain pickup availability and pickup rules.
         </p>
     </div>
@@ -68,11 +68,11 @@
         <div class="flex items-center justify-between">
 
             <div>
-                <h4 class="font-semibold text-slate-700">
+                <h4 class="font-semibold text-slate-300">
                     Pickup Available
                 </h4>
 
-                <p class="text-sm text-slate-500">
+                <p class="text-sm text-slate-400">
                     Enable if this product supports pickup service.
                 </p>
             </div>
@@ -138,11 +138,11 @@
 
     {{-- Google / Social Preview --}}
     <div class="md:col-span-2 pt-5 border-t">
-        <h3 class="text-lg font-bold text-slate-800">
+        <h3 class="text-lg font-bold text-slate-100">
             Google / Social Preview
         </h3>
 
-        <p class="text-sm text-slate-500">
+        <p class="text-sm text-slate-400">
             Optional settings for Google search and link sharing.
         </p>
     </div>

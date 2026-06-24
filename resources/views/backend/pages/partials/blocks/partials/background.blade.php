@@ -1,4 +1,4 @@
-{{--
+﻿{{--
     Shared background options partial — include at the bottom of every block form.
     Reads/writes: data[background][color|image|position|repeat|size|opacity]
 --}}
@@ -46,7 +46,7 @@
     <button
         type="button"
         x-on:click="bgOpen = !bgOpen"
-        class="flex w-full items-center justify-between py-2 text-sm font-semibold text-slate-600"
+        class="flex w-full items-center justify-between py-2 text-sm font-semibold text-slate-400"
     >
         <span>
             <i class="fa-solid fa-palette mr-1 text-slate-400"></i>

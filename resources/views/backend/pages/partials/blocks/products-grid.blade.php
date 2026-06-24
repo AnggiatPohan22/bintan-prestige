@@ -1,4 +1,4 @@
-<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+﻿<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
     <div>
         <label class="admin-form-label">Filter by Category</label>
         <select name="data[category_id]" class="admin-input">
@@ -46,7 +46,7 @@
             class="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
             @checked($block->data['show_price'] ?? true)
         >
-        <label for="show_price_{{ $block->id }}" class="text-sm font-medium text-slate-700">
+        <label for="show_price_{{ $block->id }}" class="text-sm font-medium text-slate-300">
             Show price on product cards
         </label>
     </div>

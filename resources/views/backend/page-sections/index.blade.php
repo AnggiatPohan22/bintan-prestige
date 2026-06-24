@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+﻿@extends('layouts.admin')
 
 @section('content')
 
@@ -83,11 +83,11 @@
             <div class="admin-card-header">
                 <div class="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
                     <div>
-                        <h2 class="text-lg font-extrabold text-slate-900">
+                        <h2 class="text-lg font-extrabold text-slate-100">
                             Page Filter
                         </h2>
 
-                        <p class="mt-1 text-sm leading-6 text-slate-500">
+                        <p class="mt-1 text-sm leading-6 text-slate-400">
                             Registered frontend pages are synced automatically. Section order follows the frontend mapping when available.
                         </p>
                     </div>
@@ -120,14 +120,14 @@
                             class="inline-flex shrink-0 items-center gap-2 rounded-full border px-4 py-2 text-sm font-bold transition"
                             x-bind:class="activeGroup === '{{ $group }}'
                                 ? 'border-indigo-200 bg-indigo-600 text-white shadow-sm shadow-indigo-100'
-                                : 'border-slate-200 bg-white text-slate-600 hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700'"
+                                : 'border-slate-700 bg-slate-800/50 text-slate-400 hover:border-violet-500/30 hover:bg-violet-900/10 hover:text-violet-300'"
                         >
                             {{ $group }}
                             <span
                                 class="rounded-full px-2 py-0.5 text-[11px]"
                                 x-bind:class="activeGroup === '{{ $group }}'
                                     ? 'bg-white/20 text-white'
-                                    : 'bg-slate-100 text-slate-500'"
+                                    : 'bg-slate-800 text-slate-400'"
                             >
                                 {{ $groupCount }}
                             </span>
@@ -140,15 +140,15 @@
                         @continue($group === 'All' || ! $groupedPageOptions->has($group))
 
                         <section
-                            class="rounded-2xl border border-slate-200 bg-slate-50/70 p-4"
+                            class="rounded-2xl border border-slate-700 bg-slate-800/70 p-4"
                             x-show="activeGroup === 'All' || activeGroup === '{{ $group }}'"
                         >
                             <div class="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                                 <div>
-                                    <h3 class="text-sm font-extrabold uppercase tracking-wide text-slate-700">
+                                    <h3 class="text-sm font-extrabold uppercase tracking-wide text-slate-300">
                                         {{ $group }}
                                     </h3>
-                                    <p class="mt-1 text-xs leading-5 text-slate-500">
+                                    <p class="mt-1 text-xs leading-5 text-slate-400">
                                         {{ $groupedPageOptions->get($group)->count() }} registered page(s)
                                     </p>
                                 </div>
@@ -169,22 +169,22 @@
                                     @endphp
 
                                     <div
-                                        class="flex min-h-40 flex-col rounded-2xl border p-4 text-left transition {{ $isActivePage ? 'border-indigo-200 bg-white text-indigo-800 shadow-sm ring-2 ring-indigo-100' : 'border-slate-200 bg-white text-slate-600 hover:border-indigo-200 hover:bg-indigo-50/60' }}"
+                                        class="flex min-h-40 flex-col rounded-2xl border p-4 text-left transition {{ $isActivePage ? 'border-violet-500/50 bg-violet-900/20 text-violet-200 ring-2 ring-violet-500/20' : 'border-slate-700 bg-slate-800/50 text-slate-400 hover:border-violet-500/30 hover:bg-violet-900/10' }}"
                                         data-group="{{ $page['filter_group'] }}"
                                         data-search="{{ $searchText }}"
                                         x-show="matchesCard($el)"
                                     >
-                                        <span class="text-[11px] font-bold uppercase tracking-wide {{ $isActivePage ? 'text-indigo-600' : 'text-slate-400' }}">
+                                        <span class="text-[11px] font-bold uppercase tracking-wide {{ $isActivePage ? 'text-violet-400' : 'text-slate-400' }}">
                                             {{ $page['filter_group'] }}
                                         </span>
                                         <span class="mt-1 text-sm font-extrabold">
                                             {{ $page['label'] }}
                                         </span>
-                                        <span class="mt-1 line-clamp-2 text-xs leading-5 {{ $isActivePage ? 'text-indigo-700' : 'text-slate-500' }}">
+                                        <span class="mt-1 line-clamp-2 text-xs leading-5 {{ $isActivePage ? 'text-violet-300' : 'text-slate-400' }}">
                                             {{ $page['description'] }}
                                         </span>
                                         <span class="mt-auto pt-4">
-                                            <span class="rounded-full px-2.5 py-1 text-[11px] font-bold {{ $page['exists'] ? 'bg-slate-50 text-slate-600 ring-1 ring-slate-200' : 'bg-amber-50 text-amber-700 ring-1 ring-amber-100' }}">
+                                            <span class="rounded-full px-2.5 py-1 text-[11px] font-bold {{ $page['exists'] ? 'bg-slate-800 text-slate-400 ring-1 ring-slate-200' : 'bg-amber-50 text-amber-700 ring-1 ring-amber-100' }}">
                                                 {{ $pageKey }}
                                             </span>
                                         </span>

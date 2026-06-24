@@ -1,4 +1,4 @@
-<div
+﻿<div
     class="grid grid-cols-1 gap-4 md:grid-cols-2"
     x-data="imageUploader(@js(old('data.image', $block->data['image'] ?? '')), 'hero-image-{{ $block->id }}')"
     x-on:media-picker-selected.window="selectMedia($event.detail)"
@@ -62,13 +62,13 @@
         <button
             type="button"
             x-on:click="heroStyleOpen = !heroStyleOpen"
-            class="flex w-full items-center justify-between py-2 text-sm font-semibold text-slate-600"
+            class="flex w-full items-center justify-between py-2 text-sm font-semibold text-slate-400"
         >
             <span><i class="fa-solid fa-sliders mr-1 text-slate-400"></i> Hero Styling</span>
             <i class="fa-solid fa-chevron-down text-xs text-slate-400 transition-transform" :class="heroStyleOpen ? 'rotate-180' : ''"></i>
         </button>
 
-        <div x-show="heroStyleOpen" x-cloak class="mt-3 grid grid-cols-1 gap-4 rounded-xl border border-slate-100 bg-slate-50 p-4 md:grid-cols-2">
+        <div x-show="heroStyleOpen" x-cloak class="mt-3 grid grid-cols-1 gap-4 rounded-xl border border-slate-100 bg-slate-800 p-4 md:grid-cols-2">
 
             {{-- Background Color --}}
             <div>
@@ -140,7 +140,7 @@
                         class="rounded border-slate-300"
                         @checked(filter_var($block->data['has_overlay'] ?? true, FILTER_VALIDATE_BOOLEAN))
                     >
-                    <span class="text-sm font-medium text-slate-700">Enable gradient overlay</span>
+                    <span class="text-sm font-medium text-slate-300">Enable gradient overlay</span>
                 </label>
                 <p class="text-xs text-slate-400">Adds a dark gradient so text stays readable over bright images.</p>
             </div>

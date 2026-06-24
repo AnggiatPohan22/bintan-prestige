@@ -1,4 +1,4 @@
-
+﻿
 <div class="admin-page">
 
     <div class="admin-page-header">
@@ -52,12 +52,12 @@
         >
 
             <summary
-                class="cursor-pointer border-b border-slate-100 bg-slate-50 px-6 py-5"
+                class="cursor-pointer border-b border-slate-100 bg-slate-800 px-6 py-5"
             >
-                <span class="block text-lg font-extrabold text-slate-900">
+                <span class="block text-lg font-extrabold text-slate-100">
                     Basic Information
                 </span>
-                <span class="mt-1 block text-sm leading-6 text-slate-500">
+                <span class="mt-1 block text-sm leading-6 text-slate-400">
                     Manage the primary product identity, booking context, and publishing state.
                 </span>
             </summary>
@@ -269,11 +269,11 @@
                         <div class="rounded-xl border border-slate-200 p-4 shadow-sm">
                             <div class="flex items-center justify-between gap-4">
                                 <div>
-                                    <h4 class="font-semibold text-slate-700">
+                                    <h4 class="font-semibold text-slate-300">
                                         Featured Product
                                     </h4>
 
-                                    <p class="text-sm text-slate-500">
+                                    <p class="text-sm text-slate-400">
                                         Show on featured section.
                                     </p>
                                 </div>
@@ -310,11 +310,11 @@
 
                 <section class="admin-card">
                     <div class="admin-card-header">
-                        <h3 class="text-lg font-extrabold text-slate-900">
+                        <h3 class="text-lg font-extrabold text-slate-100">
                             Pricing
                         </h3>
 
-                        <p class="mt-1 text-sm leading-6 text-slate-500">
+                        <p class="mt-1 text-sm leading-6 text-slate-400">
                             Set product prices for local and international markets.
                         </p>
                     </div>
@@ -375,11 +375,11 @@
                     <div class="admin-card-header">
                         <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                             <div>
-                                <h3 class="text-lg font-extrabold text-slate-900">
+                                <h3 class="text-lg font-extrabold text-slate-100">
                                     Thumbnail Image
                                 </h3>
 
-                                <p class="mt-1 text-sm leading-6 text-slate-500">
+                                <p class="mt-1 text-sm leading-6 text-slate-400">
                                     Used as the main product card image.
                                 </p>
                             </div>
@@ -413,7 +413,7 @@
 
                             <div>
                                 @if(isset($product) && $product->thumbnail)
-                                    <div class="rounded-2xl border border-slate-200 bg-slate-50 p-3">
+                                    <div class="rounded-2xl border border-slate-200 bg-slate-800 p-3">
                                         <img src="{{ asset('storage/'.$product->thumbnail) }}"
                                             class="aspect-[3/2] w-full rounded-xl border border-slate-200 object-cover shadow-sm">
 
@@ -427,7 +427,7 @@
                                         </button>
                                     </div>
                                 @else
-                                    <div class="flex aspect-[3/2] w-full items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-slate-50 text-sm font-semibold text-slate-400">
+                                    <div class="flex aspect-[3/2] w-full items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-slate-800 text-sm font-semibold text-slate-400">
                                         No thumbnail
                                     </div>
                                 @endif
@@ -440,11 +440,11 @@
                     <div class="admin-card-header">
                         <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                             <div>
-                                <h3 class="text-lg font-extrabold text-slate-900">
+                                <h3 class="text-lg font-extrabold text-slate-100">
                                     Product Gallery
                                 </h3>
 
-                                <p class="mt-1 text-sm leading-6 text-slate-500">
+                                <p class="mt-1 text-sm leading-6 text-slate-400">
                                     Upload supporting images for the product detail page.
                                 </p>
                             </div>
@@ -681,25 +681,25 @@
 
         <div class="admin-card">
             <div class="admin-card-header">
-                <h2 class="text-xl font-extrabold text-slate-900">
+                <h2 class="text-xl font-extrabold text-slate-100">
                     Product Detail Content
                 </h2>
 
-                <p class="mt-1 text-sm text-slate-500">
+                <p class="mt-1 text-sm text-slate-400">
                     Manage highlights, features, FAQs, itineraries, and notes for this product.
                 </p>
             </div>
         </div>
 
         <div class="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
-            <div class="rounded-2xl border border-slate-200 bg-slate-50 p-5">
+            <div class="rounded-2xl border border-slate-200 bg-slate-800 p-5">
                 <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                     <div>
-                        <h3 class="font-semibold text-slate-800">
+                        <h3 class="font-semibold text-slate-100">
                             Frontend Readiness
                         </h3>
 
-                        <p class="mt-1 text-sm text-slate-500">
+                        <p class="mt-1 text-sm text-slate-400">
                             Use this checklist before publishing so the frontend content is complete.
                         </p>
                     </div>
@@ -736,7 +736,7 @@
                                 {{ $item['ready'] ? 'OK' : '!' }}
                             </span>
 
-                            <span class="text-sm font-medium text-slate-700">
+                            <span class="text-sm font-medium text-slate-300">
                                 {{ $item['label'] }}
                             </span>
                         </a>
@@ -745,11 +745,11 @@
             </div>
 
             <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-                <h3 class="font-semibold text-slate-800">
+                <h3 class="font-semibold text-slate-100">
                     Tour Package Structure
                 </h3>
 
-                <div class="mt-4 space-y-2 text-sm text-slate-600">
+                <div class="mt-4 space-y-2 text-sm text-slate-400">
                     @foreach($contentChecklist as $item)
                         <div class="flex items-center justify-between gap-3">
                             <span class="flex items-center gap-2">
@@ -855,7 +855,7 @@
                     @include('backend.products.partials.search-booking')
 
                     <div class="flex flex-col gap-3 border-t border-slate-200 pt-5 sm:flex-row sm:items-center sm:justify-between">
-                        <p class="text-sm text-slate-500">
+                        <p class="text-sm text-slate-400">
                             Save these settings separately from the main product information.
                         </p>
 

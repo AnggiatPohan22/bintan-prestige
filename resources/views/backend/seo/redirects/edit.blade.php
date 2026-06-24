@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+﻿@extends('layouts.admin')
 
 @section('content')
 <div class="admin-page">
@@ -42,7 +42,7 @@
                 <div class="flex items-center gap-2">
                     <input id="is_active" name="is_active" type="checkbox" class="admin-checkbox" value="1"
                            @checked(old('is_active', $redirect->is_active))>
-                    <label for="is_active" class="text-sm text-slate-700">Active</label>
+                    <label for="is_active" class="text-sm text-slate-300">Active</label>
                 </div>
 
                 <div class="pt-2">

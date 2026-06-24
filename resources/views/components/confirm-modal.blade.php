@@ -1,39 +1,34 @@
 <div
     id="confirmModal"
-    class="hidden fixed inset-0 z-50
-    bg-black/40 backdrop-blur-sm
-    flex items-center justify-center"
+    class="admin-modal-overlay hidden"
 >
 
-    <div class="bg-white rounded-3xl w-full max-w-md p-6 shadow-2xl">
+    <div class="admin-modal-panel max-w-md">
 
-        <h3 class="text-xl font-bold text-slate-800">
-            Confirm Update
-        </h3>
+        <div class="admin-modal-header">
+            <h3 class="text-base font-bold text-slate-100">
+                Confirm Action
+            </h3>
+        </div>
 
-        <p
-            id="confirmText"
-            class="text-slate-500 mt-2"
-        >
-        </p>
+        <div class="admin-modal-body">
+            <p id="confirmText"></p>
+        </div>
 
-        <div class="flex justify-end gap-3 mt-6">
+        <div class="admin-modal-footer">
 
             <button
                 onclick="closeConfirmModal()"
-                class="px-5 py-2 rounded-xl border
-                hover:bg-slate-100"
+                class="admin-btn-secondary"
             >
                 Cancel
             </button>
 
             <button
                 id="confirmYesBtn"
-                class="px-5 py-2 rounded-xl
-                bg-emerald-600 text-white
-                hover:bg-emerald-700 shadow-md"
+                class="admin-btn-danger"
             >
-                Yes, Update
+                Yes, Confirm
             </button>
 
         </div>

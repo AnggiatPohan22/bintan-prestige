@@ -1,4 +1,4 @@
-{{-- ── CENTER PANEL: Live Preview (device width, internal scroll) ───
+﻿{{-- ── CENTER PANEL: Live Preview (device width, internal scroll) ───
      Fills the space between the panels (flex-1 → 60% when both panels open).
      The iframe is the only scroll container: it holds the full page at the
      selected device WIDTH (desktop fluid / tablet 768 / mobile 375) and fills
@@ -31,7 +31,7 @@
     </div>
 
     {{-- B7: Canvas status bar — shows active device mode and viewport width. --}}
-    <div class="flex h-7 shrink-0 items-center justify-center gap-2 border-t border-slate-700/50 bg-slate-900/80 text-xs text-slate-500">
+    <div class="flex h-7 shrink-0 items-center justify-center gap-2 border-t border-slate-700/50 bg-slate-900/80 text-xs text-slate-400">
         <i class="fa-solid fa-desktop"              x-show="previewMode === 'desktop'"></i>
         <i class="fa-solid fa-tablet-screen-button" x-show="previewMode === 'tablet'"  x-cloak></i>
         <i class="fa-solid fa-mobile-screen-button" x-show="previewMode === 'mobile'"  x-cloak></i>
@@ -54,7 +54,7 @@
     {{-- Empty state --}}
     <div
         x-show="tree.length === 0 && !isRefreshing"
-        class="absolute inset-0 z-10 flex flex-col items-center justify-center gap-4 text-slate-600"
+        class="absolute inset-0 z-10 flex flex-col items-center justify-center gap-4 text-slate-400"
         x-cloak
     >
         <i class="fa-solid fa-layer-group text-5xl"></i>

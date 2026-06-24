@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+﻿@extends('layouts.admin')
 
 @section('content')
 
@@ -6,12 +6,12 @@
 
     <div class="mb-6">
         <a href="{{ route('admin.themes.widgets.index', $theme) }}"
-           class="mb-1 inline-flex items-center gap-1 text-xs text-slate-400 hover:text-slate-600">
+           class="mb-1 inline-flex items-center gap-1 text-xs text-slate-400 hover:text-slate-400">
             <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
             Back to Widgets
         </a>
-        <h1 class="text-lg font-extrabold text-slate-900">Edit Widget — {{ $theme->name }}</h1>
-        <p class="mt-0.5 text-sm text-slate-500">
+        <h1 class="text-lg font-extrabold text-slate-100">Edit Widget — {{ $theme->name }}</h1>
+        <p class="mt-0.5 text-sm text-slate-400">
             Type: <span class="font-medium">{{ $widget->typeLabel() }}</span>
             &middot;
             Area: <span class="font-medium">{{ $areas[$widget->area]['label'] ?? $widget->area }}</span>

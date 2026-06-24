@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+﻿@extends('layouts.admin')
 
 @section('content')
 
@@ -14,20 +14,20 @@
 >
 
     {{-- ─── Sticky Page Header ─────────────────────────────────────────── --}}
-    <div class="sticky top-0 z-20 -mx-4 mb-6 border-b border-slate-200 bg-white px-4 py-4 shadow-sm sm:-mx-6 sm:px-6">
+    <div class="sticky top-0 z-20 -mx-4 mb-6 border-b border-slate-700 bg-slate-800 px-4 py-4 sm:-mx-6 sm:px-6">
         <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
 
             <div class="min-w-0">
                 <div class="flex flex-wrap items-center gap-2">
                     <a
                         href="{{ route('admin.pages.index') }}"
-                        class="text-slate-400 hover:text-slate-600"
+                        class="text-slate-400 hover:text-slate-400"
                         title="Back to Pages"
                     >
                         <i class="fa-solid fa-arrow-left text-sm"></i>
                     </a>
 
-                    <h1 class="truncate text-lg font-extrabold text-slate-900">
+                    <h1 class="truncate text-lg font-extrabold text-slate-100">
                         {{ $page->title }}
                     </h1>
 
@@ -96,14 +96,14 @@
     <div class="space-y-3">
 
         {{-- 1. Basic Information --}}
-        <div class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+        <div class="overflow-hidden rounded-xl border border-slate-700 bg-slate-800">
             <button
                 type="button"
                 class="flex w-full items-center justify-between px-6 py-4 text-left"
                 x-on:click="active = active === 'basic' ? null : 'basic'"
             >
                 <div>
-                    <span class="font-extrabold text-slate-900">Basic Information</span>
+                    <span class="font-extrabold text-slate-100">Basic Information</span>
                     <span class="ml-2 text-sm text-slate-400">Title, slug, status, sort order</span>
                 </div>
                 <i
@@ -112,7 +112,7 @@
                 ></i>
             </button>
 
-            <div x-show="active === 'basic'" x-cloak class="border-t border-slate-100">
+            <div x-show="active === 'basic'" x-cloak class="border-t border-slate-700/50">
                 <div class="px-6 py-6">
                     <form
                         action="{{ route('admin.pages.update', $page) }}"
@@ -170,7 +170,7 @@
                                 @error('status')
                                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
-                                <div class="mt-2 space-y-1 text-xs text-slate-500">
+                                <div class="mt-2 space-y-1 text-xs text-slate-400">
                                     <p><strong class="text-amber-700">Draft:</strong> admin preview only; unavailable on the public URL and hidden from managed menus.</p>
                                     <p><strong class="text-emerald-700">Published:</strong> live on the public URL and eligible for managed menus.</p>
                                 </div>
@@ -227,7 +227,7 @@
                             </div>
                         </div>
 
-                        <div class="flex flex-col gap-3 border-t border-slate-100 pt-4 sm:flex-row">
+                        <div class="flex flex-col gap-3 border-t border-slate-700/50 pt-4 sm:flex-row">
                             <button type="submit" class="admin-btn-primary">Save Basic Info</button>
                         </div>
                     </form>
@@ -236,14 +236,14 @@
         </div>
 
         {{-- 2. SEO Settings --}}
-        <div class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+        <div class="overflow-hidden rounded-xl border border-slate-700 bg-slate-800">
             <button
                 type="button"
                 class="flex w-full items-center justify-between px-6 py-4 text-left"
                 x-on:click="active = active === 'seo' ? null : 'seo'"
             >
                 <div>
-                    <span class="font-extrabold text-slate-900">SEO Settings</span>
+                    <span class="font-extrabold text-slate-100">SEO Settings</span>
                     <span class="ml-2 text-sm text-slate-400">Meta title, description, OG image</span>
                 </div>
                 <i
@@ -252,7 +252,7 @@
                 ></i>
             </button>
 
-            <div x-show="active === 'seo'" x-cloak class="border-t border-slate-100">
+            <div x-show="active === 'seo'" x-cloak class="border-t border-slate-700/50">
                 <div class="px-6 py-6">
                     <form
                         action="{{ route('admin.pages.update', $page) }}"
@@ -306,7 +306,7 @@
                                         alt="OG image"
                                         class="h-20 w-36 rounded-lg object-cover shadow"
                                     >
-                                    <p class="text-sm text-slate-500">Current OG image. Upload a new one to replace it.</p>
+                                    <p class="text-sm text-slate-400">Current OG image. Upload a new one to replace it.</p>
                                 </div>
                             @endif
 
@@ -330,7 +330,7 @@
                             <p class="admin-form-hint">Override robots meta tag for this page only.</p>
                         </div>
 
-                        <div class="flex gap-3 border-t border-slate-100 pt-4">
+                        <div class="flex gap-3 border-t border-slate-700/50 pt-4">
                             <button type="submit" class="admin-btn-primary">Save SEO</button>
                         </div>
                     </form>
@@ -339,14 +339,14 @@
         </div>
 
         {{-- 3. Content Blocks --}}
-        <div class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+        <div class="overflow-hidden rounded-xl border border-slate-700 bg-slate-800">
             <button
                 type="button"
                 class="flex w-full items-center justify-between px-6 py-4 text-left"
                 x-on:click="active = active === 'blocks' ? null : 'blocks'"
             >
                 <div>
-                    <span class="font-extrabold text-slate-900">Content Blocks</span>
+                    <span class="font-extrabold text-slate-100">Content Blocks</span>
                     <span class="ml-2 text-sm text-slate-400">{{ $page->blocks->count() }} block(s) — hero, text, image, gallery, and more</span>
                 </div>
                 <i
@@ -355,7 +355,7 @@
                 ></i>
             </button>
 
-            <div x-show="active === 'blocks'" x-cloak class="border-t border-slate-100">
+            <div x-show="active === 'blocks'" x-cloak class="border-t border-slate-700/50">
                 <div class="p-4">
                     @include('backend.pages.partials.block-editor', [
                         'page'         => $page,
@@ -370,14 +370,14 @@
 
         {{-- 4. Revisions --}}
         @if($revisions->isNotEmpty())
-        <div class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+        <div class="overflow-hidden rounded-xl border border-slate-700 bg-slate-800">
             <button
                 type="button"
                 class="flex w-full items-center justify-between px-6 py-4 text-left"
                 x-on:click="active = active === 'revisions' ? null : 'revisions'"
             >
                 <div>
-                    <span class="font-extrabold text-slate-900">Revisions</span>
+                    <span class="font-extrabold text-slate-100">Revisions</span>
                     <span class="ml-2 text-sm text-slate-400">{{ $revisions->count() }} saved snapshot(s) — restore any previous state</span>
                 </div>
                 <i
@@ -386,8 +386,8 @@
                 ></i>
             </button>
 
-            <div x-show="active === 'revisions'" x-cloak class="border-t border-slate-100">
-                <div class="divide-y divide-slate-100">
+            <div x-show="active === 'revisions'" x-cloak class="border-t border-slate-700/50">
+                <div class="divide-y divide-slate-700/50">
                     @foreach($revisions as $revision)
                         <div
                             class="flex flex-col gap-3 px-6 py-4 sm:flex-row sm:items-center sm:justify-between"
@@ -395,7 +395,7 @@
                         >
                             <div class="min-w-0">
                                 <div class="flex flex-wrap items-center gap-2">
-                                    <span class="text-sm font-semibold text-slate-800">
+                                    <span class="text-sm font-semibold text-slate-100">
                                         Revision #{{ $revision->revision_number }}
                                     </span>
                                     <span class="text-xs text-slate-400">
@@ -430,7 +430,7 @@
                                 {{-- Restore --}}
                                 <button
                                     type="button"
-                                    class="rounded-lg border border-indigo-200 bg-indigo-50 px-3 py-1.5 text-xs font-semibold text-indigo-700 hover:bg-indigo-100 transition-colors"
+                                    class="rounded-lg border border-violet-500/30 bg-violet-900/20 px-3 py-1.5 text-xs font-semibold text-violet-400 hover:bg-violet-900/30 transition-colors"
                                     x-on:click="restoreOpen = true"
                                 >
                                     <i class="fa-solid fa-rotate-left mr-1" aria-hidden="true"></i>
@@ -444,14 +444,14 @@
                                 x-cloak x-show="previewOpen" x-transition.opacity
                             >
                                 <div
-                                    class="flex max-h-[80vh] w-full max-w-lg flex-col overflow-hidden rounded-2xl bg-white shadow-xl"
+                                    class="flex max-h-[80vh] w-full max-w-lg flex-col overflow-hidden rounded-2xl bg-slate-800 shadow-xl"
                                     x-on:click.outside="previewOpen = false"
                                 >
-                                    <div class="flex items-center justify-between border-b border-slate-100 px-6 py-4">
-                                        <h3 class="font-bold text-slate-900">
+                                    <div class="flex items-center justify-between border-b border-slate-700/50 px-6 py-4">
+                                        <h3 class="font-bold text-slate-100">
                                             Revision #{{ $revision->revision_number }} Preview
                                         </h3>
-                                        <button type="button" x-on:click="previewOpen = false" class="text-slate-400 hover:text-slate-600">
+                                        <button type="button" x-on:click="previewOpen = false" class="text-slate-400 hover:text-slate-400">
                                             <i class="fa-solid fa-xmark" aria-hidden="true"></i>
                                         </button>
                                     </div>
@@ -464,7 +464,7 @@
                                                         @if(!empty($revision->meta_snapshot[$key]))
                                                             <div class="flex gap-2">
                                                                 <dt class="w-24 shrink-0 text-slate-400">{{ $label }}</dt>
-                                                                <dd class="min-w-0 truncate font-medium text-slate-700">{{ $revision->meta_snapshot[$key] }}</dd>
+                                                                <dd class="min-w-0 truncate font-medium text-slate-300">{{ $revision->meta_snapshot[$key] }}</dd>
                                                             </div>
                                                         @endif
                                                     @endforeach
@@ -479,11 +479,11 @@
                                                 </p>
                                                 <ol class="space-y-1">
                                                     @foreach($revision->content_snapshot as $i => $block)
-                                                        <li class="flex items-center gap-2 rounded-lg bg-slate-50 px-3 py-2">
+                                                        <li class="flex items-center gap-2 rounded-lg bg-slate-800 px-3 py-2">
                                                             <span class="w-5 shrink-0 text-center text-xs text-slate-400">{{ $i + 1 }}</span>
-                                                            <span class="rounded bg-slate-200 px-1.5 py-0.5 text-xs font-mono text-slate-600">{{ $block['block_type'] }}</span>
+                                                            <span class="rounded bg-slate-200 px-1.5 py-0.5 text-xs font-mono text-slate-400">{{ $block['block_type'] }}</span>
                                                             @if(!empty($block['label']))
-                                                                <span class="min-w-0 truncate text-xs text-slate-500">{{ $block['label'] }}</span>
+                                                                <span class="min-w-0 truncate text-xs text-slate-400">{{ $block['label'] }}</span>
                                                             @endif
                                                             @if(!($block['is_visible'] ?? true))
                                                                 <span class="ml-auto rounded bg-amber-100 px-1 py-0.5 text-xs text-amber-600">hidden</span>
@@ -496,7 +496,7 @@
                                             <p class="text-xs text-slate-400">No blocks in this revision.</p>
                                         @endif
                                     </div>
-                                    <div class="border-t border-slate-100 px-6 py-3">
+                                    <div class="border-t border-slate-700/50 px-6 py-3">
                                         <button type="button" class="admin-btn-secondary py-1.5 text-sm w-full" x-on:click="previewOpen = false">
                                             Close
                                         </button>
@@ -510,11 +510,11 @@
                                 x-cloak x-show="restoreOpen" x-transition.opacity
                             >
                                 <div
-                                    class="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl"
+                                    class="w-full max-w-sm rounded-2xl bg-slate-800 p-6 shadow-xl"
                                     x-on:click.outside="restoreOpen = false"
                                 >
-                                    <h3 class="mb-2 text-base font-bold text-slate-900">Restore Revision</h3>
-                                    <p class="mb-5 text-sm text-slate-500">
+                                    <h3 class="mb-2 text-base font-bold text-slate-100">Restore Revision</h3>
+                                    <p class="mb-5 text-sm text-slate-400">
                                         Restore this page to
                                         <strong>Revision #{{ $revision->revision_number }}</strong>
                                         ({{ $revision->created_at->format('d M Y, H:i') }})?
@@ -539,7 +539,7 @@
         @endif
 
         {{-- 5. Danger Zone --}}
-        <div class="overflow-hidden rounded-xl border border-red-100 bg-white shadow-sm">
+        <div class="overflow-hidden rounded-xl border border-red-100 bg-slate-800">
             <button
                 type="button"
                 class="flex w-full items-center justify-between px-6 py-4 text-left"
@@ -558,8 +558,8 @@
             <div x-show="active === 'danger'" x-cloak class="border-t border-red-50">
                 <div class="flex flex-col gap-4 px-6 py-5 sm:flex-row sm:items-center sm:justify-between">
                     <div>
-                        <p class="text-sm font-medium text-slate-700">Delete this page</p>
-                        <p class="text-sm text-slate-500">This action is permanent and cannot be undone. All blocks will be deleted.</p>
+                        <p class="text-sm font-medium text-slate-300">Delete this page</p>
+                        <p class="text-sm text-slate-400">This action is permanent and cannot be undone. All blocks will be deleted.</p>
                     </div>
 
                     <form

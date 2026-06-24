@@ -1,12 +1,12 @@
-<div id="notes-section" class="admin-card">
+﻿<div id="notes-section" class="admin-card">
     <div class="admin-card-header">
         <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
-                <h3 class="text-lg font-extrabold text-slate-900">
+                <h3 class="text-lg font-extrabold text-slate-100">
                     Product Notes
                 </h3>
 
-                <p class="mt-1 text-sm leading-6 text-slate-500">
+                <p class="mt-1 text-sm leading-6 text-slate-400">
                     Add important reminders, rules, and guest-facing notes.
                 </p>
             </div>
@@ -43,10 +43,10 @@
                 @csrf
 
                 <div>
-                    <h4 class="text-base font-extrabold text-slate-900">
+                    <h4 class="text-base font-extrabold text-slate-100">
                         Add Note
                     </h4>
-                    <p class="mt-1 text-sm text-slate-500">
+                    <p class="mt-1 text-sm text-slate-400">
                         Keep notes concise and easy for guests to scan.
                     </p>
                 </div>
@@ -106,21 +106,21 @@
                                 <div class="min-w-0 flex-1">
                                     <div class="mb-2 flex flex-wrap items-center gap-2">
                                         @if($note->title)
-                                            <h4 class="font-semibold leading-snug text-slate-800">
+                                            <h4 class="font-semibold leading-snug text-slate-100">
                                                 {{ $note->title }}
                                             </h4>
                                         @else
-                                            <h4 class="font-semibold leading-snug text-slate-800">
+                                            <h4 class="font-semibold leading-snug text-slate-100">
                                                 Product Note
                                             </h4>
                                         @endif
 
-                                        <span class="rounded-full bg-slate-100 px-2 py-1 text-[11px] font-medium text-slate-500">
+                                        <span class="rounded-full bg-slate-800 px-2 py-1 text-[11px] font-medium text-slate-400">
                                             #{{ $note->sort_order }}
                                         </span>
                                     </div>
 
-                                    <p class="whitespace-pre-line text-sm leading-relaxed text-slate-500">
+                                    <p class="whitespace-pre-line text-sm leading-relaxed text-slate-400">
                                         {{ $note->description }}
                                     </p>
                                 </div>
@@ -160,13 +160,13 @@
                             >
                                 <div class="mx-auto mt-16 max-w-2xl rounded-2xl bg-white p-6 shadow-2xl">
                                     <div class="mb-5 flex items-center justify-between gap-4">
-                                        <h3 class="text-lg font-bold text-slate-800">
+                                        <h3 class="text-lg font-bold text-slate-100">
                                             Edit Note
                                         </h3>
 
                                         <button
                                             type="button"
-                                            class="rounded-lg px-3 py-2 text-slate-400 hover:bg-slate-100"
+                                            class="rounded-lg px-3 py-2 text-slate-400 hover:bg-slate-700"
                                             data-modal-close
                                         >
                                             X

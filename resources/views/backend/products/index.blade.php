@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+﻿@extends('layouts.admin')
 
 @section('content')
 
@@ -30,7 +30,7 @@
         <div class="admin-card-header">
             <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div class="flex flex-wrap items-center gap-3">
-                    <h2 class="text-lg font-extrabold text-slate-900">
+                    <h2 class="text-lg font-extrabold text-slate-100">
                         Product List
                     </h2>
 
@@ -46,7 +46,7 @@
         </div>
 
         <div class="admin-card-body">
-            <form method="GET" action="{{ route('admin.products.index') }}" class="mb-6 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+            <form method="GET" action="{{ route('admin.products.index') }}" class="mb-6 rounded-2xl border border-slate-200 bg-slate-800 p-4">
                 <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-[minmax(0,1.2fr)_minmax(180px,0.8fr)_minmax(180px,0.8fr)_minmax(150px,0.55fr)_auto] xl:items-end">
                     <div>
                         <label for="product-search" class="admin-form-label">
@@ -184,13 +184,13 @@
                                         alt="{{ $product->name }}"
                                     >
                                 @else
-                                    <div class="flex aspect-[7/6] h-20 w-24 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-slate-100 text-xs font-bold text-slate-400 sm:h-24 sm:w-28">
+                                    <div class="flex aspect-[7/6] h-20 w-24 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-slate-800 text-xs font-bold text-slate-400 sm:h-24 sm:w-28">
                                         No Image
                                     </div>
                                 @endif
 
                                 <div class="min-w-0 flex-1 self-center">
-                                    <h3 class="break-words text-base font-extrabold leading-6 text-slate-950 sm:text-lg">
+                                    <h3 class="break-words text-base font-extrabold leading-6 text-slate-100 sm:text-lg">
                                         {{ $product->name }}
                                     </h3>
 
@@ -202,11 +202,11 @@
                                         {{ $product->images_count }} gallery image(s)
                                     </div>
 
-                                    <div class="mt-3 flex flex-wrap gap-2 text-[11px] font-bold text-slate-500 sm:hidden">
-                                        <span class="rounded-full bg-slate-100 px-2.5 py-1">
+                                    <div class="mt-3 flex flex-wrap gap-2 text-[11px] font-bold text-slate-400 sm:hidden">
+                                        <span class="rounded-full bg-slate-800 px-2.5 py-1">
                                             {{ $product->category->name }}
                                         </span>
-                                        <span class="rounded-full bg-slate-100 px-2.5 py-1">
+                                        <span class="rounded-full bg-slate-800 px-2.5 py-1">
                                             {{ $product->destination->name }}
                                         </span>
                                     </div>
@@ -227,13 +227,13 @@
 
                             <div class="min-w-0 overflow-x-auto py-1">
                                 <div class="flex w-max items-center gap-3 text-center text-xs xl:w-auto xl:justify-start">
-                                    <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white/80 font-black text-slate-600 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-indigo-50" title="{{ $product->features_count }} feature(s)" aria-label="{{ $product->features_count }} feature(s)">
+                                    <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white/80 font-black text-slate-400 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-indigo-50" title="{{ $product->features_count }} feature(s)" aria-label="{{ $product->features_count }} feature(s)">
                                         <i class="fa-solid fa-list-check" aria-hidden="true"></i>
                                     </span>
-                                    <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white/80 font-black text-slate-600 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-indigo-50" title="{{ $product->itineraries_count }} itinerary item(s)" aria-label="{{ $product->itineraries_count }} itinerary item(s)">
+                                    <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white/80 font-black text-slate-400 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-indigo-50" title="{{ $product->itineraries_count }} itinerary item(s)" aria-label="{{ $product->itineraries_count }} itinerary item(s)">
                                         <i class="fa-solid fa-route" aria-hidden="true"></i>
                                     </span>
-                                    <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white/80 font-black text-slate-600 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-indigo-50" title="{{ $product->faqs_count }} FAQ item(s)" aria-label="{{ $product->faqs_count }} FAQ item(s)">
+                                    <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white/80 font-black text-slate-400 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-indigo-50" title="{{ $product->faqs_count }} FAQ item(s)" aria-label="{{ $product->faqs_count }} FAQ item(s)">
                                         <i class="fa-solid fa-circle-question" aria-hidden="true"></i>
                                     </span>
                                     <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-amber-200 text-xs font-black shadow-sm transition-all duration-200 hover:-translate-y-0.5 {{ $hasCoreFeatures ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700' }}" title="{{ $hasCoreFeatures ? 'Core features ready' : 'Need included and excluded features' }}" aria-label="{{ $hasCoreFeatures ? 'Core features ready' : 'Need included and excluded features' }}">
@@ -246,7 +246,7 @@
                                 </div>
                             </div>
 
-                            <div class="grid min-w-0 gap-3 rounded-2xl border border-slate-100 bg-slate-50/80 p-3 sm:grid-cols-[minmax(0,1fr)_auto] xl:items-center">
+                            <div class="grid min-w-0 gap-3 rounded-2xl border border-slate-100 bg-slate-800/80 p-3 sm:grid-cols-[minmax(0,1fr)_auto] xl:items-center">
                                 <div class="min-w-0 self-center">
                                     <button
                                         onclick="openConfirmModal(
@@ -295,10 +295,10 @@
                     </article>
                 @empty
                     <div class="admin-empty-state">
-                        <div class="text-base font-extrabold text-slate-700">
+                        <div class="text-base font-extrabold text-slate-300">
                             No products found
                         </div>
-                        <p class="mt-2 text-sm font-medium text-slate-500">
+                        <p class="mt-2 text-sm font-medium text-slate-400">
                             Try adjusting your filters or search keyword.
                         </p>
                         <a

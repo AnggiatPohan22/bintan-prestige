@@ -1,19 +1,19 @@
-@extends('layouts.admin')
+﻿@extends('layouts.admin')
 
 @section('content')
 
-<div class="min-w-0 rounded-xl bg-white p-6 shadow">
+<div class="min-w-0 rounded-xl bg-slate-800 p-6">
     <div class="mb-6">
-        <h1 class="text-2xl font-bold text-slate-800">Global Assets</h1>
-        <p class="mt-1 text-sm text-slate-500">Manage assets that are shared by frontend header, footer, and homepage sections.</p>
+        <h1 class="text-2xl font-bold text-slate-100">Global Assets</h1>
+        <p class="mt-1 text-sm text-slate-400">Manage assets that are shared by frontend header, footer, and homepage sections.</p>
     </div>
 
-    <div class="mb-6 max-w-full overflow-x-auto border-b border-slate-200 pb-4">
+    <div class="mb-6 max-w-full overflow-x-auto border-b border-slate-700 pb-4">
         <div class="flex min-w-max gap-2 whitespace-nowrap">
         @foreach($assetTabs as $tab)
             <a
                 href="{{ route('admin.settings.global-assets.edit', ['tab' => $tab['key']]) }}"
-                class="shrink-0 rounded-lg border px-4 py-3 text-sm font-semibold transition {{ $activeTab === $tab['key'] ? 'border-indigo-500 bg-indigo-50 text-indigo-700' : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50' }}"
+                class="shrink-0 rounded-lg border px-4 py-3 text-sm font-semibold transition {{ $activeTab === $tab['key'] ? 'border-violet-500 bg-violet-900/20 text-violet-300' : 'border-slate-700 bg-slate-800 text-slate-400 hover:bg-slate-700' }}"
             >
                 {{ $tab['label'] }}
             </a>
@@ -23,21 +23,21 @@
 
     @foreach($assetTabs as $tab)
         @if($activeTab === $tab['key'])
-            <div class="mb-5 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
-                <h2 class="text-base font-bold text-slate-800">{{ $tab['label'] }}</h2>
-                <p class="mt-1 text-sm text-slate-500">{{ $tab['description'] }}</p>
+            <div class="mb-5 rounded-xl border border-slate-700 bg-slate-800 px-4 py-3">
+                <h2 class="text-base font-bold text-slate-100">{{ $tab['label'] }}</h2>
+                <p class="mt-1 text-sm text-slate-400">{{ $tab['description'] }}</p>
             </div>
         @endif
     @endforeach
 
     <div class="grid min-w-0 grid-cols-1 gap-6">
         @if($activeTab === 'site-logo')
-            <form method="POST" action="{{ route('admin.settings.global-assets.site-logo.update') }}" enctype="multipart/form-data" class="rounded-xl border border-slate-200 bg-slate-50 p-5">
+            <form method="POST" action="{{ route('admin.settings.global-assets.site-logo.update') }}" enctype="multipart/form-data" class="rounded-xl border border-slate-700 bg-slate-800 p-5">
                 @csrf
                 @method('PUT')
 
-                <h2 class="text-lg font-bold text-slate-800">Site Logo Variants</h2>
-                <p class="mt-1 text-sm text-slate-500">Manage the logo assets used across frontend header, footer, homepage sections, and future compact placements.</p>
+                <h2 class="text-lg font-bold text-slate-100">Site Logo Variants</h2>
+                <p class="mt-1 text-sm text-slate-400">Manage the logo assets used across frontend header, footer, homepage sections, and future compact placements.</p>
 
                 <div class="mt-5 grid grid-cols-1 gap-5 xl:grid-cols-2">
                     @foreach($logoVariants as $variant)
@@ -46,21 +46,21 @@
                             $slug = $variant['slug'];
                         @endphp
 
-                        <div class="rounded-xl border border-slate-200 bg-white p-4">
+                        <div class="rounded-xl border border-slate-700 bg-slate-800 p-4">
                             <div class="flex flex-col gap-4 md:flex-row">
                                 <div class="md:w-44">
                                     @if($asset?->url)
                                         <img src="{{ $asset->url }}" alt="{{ $asset->alt }}" class="h-32 w-full rounded-lg border bg-white object-contain p-4">
                                     @else
-                                        <div class="flex h-32 items-center justify-center rounded-lg border border-dashed bg-slate-50 text-xs font-bold uppercase text-slate-400">
+                                        <div class="flex h-32 items-center justify-center rounded-lg border border-dashed bg-slate-800 text-xs font-bold uppercase text-slate-400">
                                             No logo
                                         </div>
                                     @endif
                                 </div>
 
                                 <div class="min-w-0 flex-1">
-                                    <h3 class="text-base font-bold text-slate-800">{{ $variant['label'] }}</h3>
-                                    <p class="mt-1 text-xs text-slate-500">{{ $variant['hint'] }}</p>
+                                    <h3 class="text-base font-bold text-slate-100">{{ $variant['label'] }}</h3>
+                                    <p class="mt-1 text-xs text-slate-400">{{ $variant['hint'] }}</p>
                                     <p class="mt-2 text-[11px] font-semibold uppercase text-slate-400">{{ $variant['key'] }}</p>
 
                                     <div class="mt-4 space-y-3">
@@ -82,20 +82,20 @@
                     @endforeach
                 </div>
 
-                <div class="mt-5 flex items-center gap-3 border-t border-slate-200 pt-5">
+                <div class="mt-5 flex items-center gap-3 border-t border-slate-700 pt-5">
                     <button type="submit" class="admin-btn-primary">Save Logo Variants</button>
                 </div>
             </form>
 
-            <div class="rounded-xl border border-slate-200 bg-white p-5">
-                <h2 class="text-lg font-bold text-slate-800">Delete Logo Variant</h2>
-                <p class="mt-1 text-sm text-slate-500">Deleting a variant clears its file and marks that asset inactive. Frontend will use the next fallback.</p>
+            <div class="rounded-xl border border-slate-700 bg-slate-800 p-5">
+                <h2 class="text-lg font-bold text-slate-100">Delete Logo Variant</h2>
+                <p class="mt-1 text-sm text-slate-400">Deleting a variant clears its file and marks that asset inactive. Frontend will use the next fallback.</p>
 
                 <div class="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">
                     @foreach($logoVariants as $variant)
                         @php $asset = $siteLogos[$variant['key']] ?? null; @endphp
-                        <div class="rounded-xl border border-slate-200 p-4">
-                            <div class="text-sm font-bold text-slate-800">{{ $variant['label'] }}</div>
+                        <div class="rounded-xl border border-slate-700 bg-slate-800 p-4">
+                            <div class="text-sm font-bold text-slate-100">{{ $variant['label'] }}</div>
                             <div class="mt-1 text-xs text-slate-400">{{ $variant['key'] }}</div>
 
                             @if($asset?->url)
@@ -105,7 +105,7 @@
                                     <button type="submit" onclick="return confirm('Delete this logo variant?')" class="w-full rounded-lg border border-red-200 px-4 py-3 text-sm font-semibold text-red-600 transition hover:bg-red-50">Delete</button>
                                 </form>
                             @else
-                                <div class="mt-4 rounded-lg border border-dashed bg-slate-50 px-4 py-3 text-center text-xs font-semibold text-slate-400">Not uploaded</div>
+                                <div class="mt-4 rounded-lg border border-dashed bg-slate-800 px-4 py-3 text-center text-xs font-semibold text-slate-400">Not uploaded</div>
                             @endif
                         </div>
                     @endforeach
@@ -115,12 +115,12 @@
 
         @if($activeTab === 'favicon')
             <div class="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
-            <form method="POST" action="{{ route('admin.settings.global-assets.favicon.update') }}" enctype="multipart/form-data" class="rounded-xl border border-slate-200 bg-slate-50 p-5">
+            <form method="POST" action="{{ route('admin.settings.global-assets.favicon.update') }}" enctype="multipart/form-data" class="rounded-xl border border-slate-700 bg-slate-800 p-5">
                 @csrf
                 @method('PUT')
 
-                <h2 class="text-lg font-bold text-slate-800">Browser Favicon</h2>
-                <p class="mt-1 text-sm text-slate-500">{{ $faviconConfig['hint'] }}</p>
+                <h2 class="text-lg font-bold text-slate-100">Browser Favicon</h2>
+                <p class="mt-1 text-sm text-slate-400">{{ $faviconConfig['hint'] }}</p>
                 <p class="mt-2 text-[11px] font-semibold uppercase text-slate-400">{{ $faviconConfig['key'] }}</p>
 
                 <div class="mt-5 space-y-4">
@@ -138,18 +138,18 @@
                     </div>
                 </div>
 
-                <div class="mt-5 flex items-center gap-3 border-t border-slate-200 pt-5">
+                <div class="mt-5 flex items-center gap-3 border-t border-slate-700 pt-5">
                     <button type="submit" class="admin-btn-primary">Save Favicon</button>
                 </div>
             </form>
 
-            <div class="rounded-xl border border-slate-200 bg-white p-5">
-                <h2 class="text-lg font-bold text-slate-800">Current Favicon</h2>
+            <div class="rounded-xl border border-slate-700 bg-slate-800 p-5">
+                <h2 class="text-lg font-bold text-slate-100">Current Favicon</h2>
 
                 @if($favicon?->url)
-                    <div class="mt-4 rounded-xl border bg-slate-50 p-4">
+                    <div class="mt-4 rounded-xl border bg-slate-800 p-4">
                         <img src="{{ $favicon->url }}" alt="{{ $favicon->alt }}" class="h-28 w-full rounded-lg border bg-white object-contain p-4">
-                        <div class="mt-3 text-xs text-slate-500">
+                        <div class="mt-3 text-xs text-slate-400">
                             <div><span class="font-semibold">Key:</span> {{ $favicon->key }}</div>
                             <div><span class="font-semibold">Alt:</span> {{ $favicon->alt ?: '-' }}</div>
                         </div>
@@ -161,7 +161,7 @@
                         <button type="submit" onclick="return confirm('Delete the browser favicon?')" class="w-full rounded-lg border border-red-200 px-4 py-3 text-sm font-semibold text-red-600 transition hover:bg-red-50">Delete Favicon</button>
                     </form>
                 @else
-                    <div class="mt-4 flex h-28 items-center justify-center rounded-xl border border-dashed bg-slate-50 text-sm font-semibold text-slate-400">
+                    <div class="mt-4 flex h-28 items-center justify-center rounded-xl border border-dashed bg-slate-800 text-sm font-semibold text-slate-400">
                         No favicon uploaded
                     </div>
                 @endif
@@ -170,35 +170,35 @@
         @endif
 
         @if($activeTab === 'brand-colors')
-            <form method="POST" action="{{ route('admin.settings.global-assets.brand-colors.update') }}" class="rounded-xl border border-slate-200 bg-slate-50 p-5">
+            <form method="POST" action="{{ route('admin.settings.global-assets.brand-colors.update') }}" class="rounded-xl border border-slate-700 bg-slate-800 p-5">
                 @csrf
                 @method('PUT')
 
-                <h2 class="text-lg font-bold text-slate-800">Brand Colors</h2>
-                <p class="mt-1 text-sm text-slate-500">These colors feed frontend CSS variables used by shared theme, buttons, and brand surfaces.</p>
+                <h2 class="text-lg font-bold text-slate-100">Brand Colors</h2>
+                <p class="mt-1 text-sm text-slate-400">These colors feed frontend CSS variables used by shared theme, buttons, and brand surfaces.</p>
 
                 <div class="mt-5 space-y-5">
                     @foreach(collect($brandColorFields)->groupBy('group_label') as $groupLabel => $fields)
-                        <div class="rounded-xl border border-slate-200 bg-white p-4">
-                            <h3 class="text-base font-bold text-slate-800">{{ $groupLabel }}</h3>
+                        <div class="rounded-xl border border-slate-700 bg-slate-800 p-4">
+                            <h3 class="text-base font-bold text-slate-100">{{ $groupLabel }}</h3>
 
                             <div class="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-2">
                                 @foreach($fields as $field)
                                     @php $value = $brandColors[$field['slug']] ?? $field['default']; @endphp
-                                    <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                                    <div class="rounded-xl border border-slate-700 bg-slate-800 p-4">
                                         <div class="flex items-start justify-between gap-4">
                                             <div>
-                                                <h4 class="text-sm font-bold text-slate-800">{{ $field['label'] }}</h4>
-                                                <p class="mt-1 text-xs text-slate-500">{{ $field['hint'] }}</p>
+                                                <h4 class="text-sm font-bold text-slate-100">{{ $field['label'] }}</h4>
+                                                <p class="mt-1 text-xs text-slate-400">{{ $field['hint'] }}</p>
                                                 <p class="mt-2 text-[11px] font-semibold uppercase text-slate-400">{{ $field['key'] }}</p>
                                             </div>
 
-                                            <span class="h-12 w-12 shrink-0 rounded-lg border border-slate-200" style="background: {{ $value }}"></span>
+                                            <span class="h-12 w-12 shrink-0 rounded-lg border border-slate-700" style="background: {{ $value }}"></span>
                                         </div>
 
                                         <div class="mt-4 grid grid-cols-[72px_minmax(0,1fr)] gap-3">
                                             <input type="color" name="brand_colors[{{ $field['slug'] }}]" value="{{ $value }}" class="h-12 w-full cursor-pointer rounded-lg border border-slate-300 bg-white p-1">
-                                            <input type="text" value="{{ $value }}" disabled class="admin-input bg-slate-100 font-mono uppercase">
+                                            <input type="text" value="{{ $value }}" disabled class="admin-input bg-slate-800 font-mono uppercase">
                                         </div>
 
                                         @error("brand_colors.{$field['slug']}") <p class="form-error">{{ $message }}</p> @enderror
@@ -209,7 +209,7 @@
                     @endforeach
                 </div>
 
-                <div class="mt-5 flex items-center gap-3 border-t border-slate-200 pt-5">
+                <div class="mt-5 flex items-center gap-3 border-t border-slate-700 pt-5">
                     <button type="submit" class="admin-btn-primary">Save Brand Colors</button>
                 </div>
             </form>
@@ -217,12 +217,12 @@
 
         @if($activeTab === 'social-share-image')
             <div class="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
-                <form method="POST" action="{{ route('admin.settings.global-assets.social-share-image.update') }}" enctype="multipart/form-data" class="rounded-xl border border-slate-200 bg-slate-50 p-5">
+                <form method="POST" action="{{ route('admin.settings.global-assets.social-share-image.update') }}" enctype="multipart/form-data" class="rounded-xl border border-slate-700 bg-slate-800 p-5">
                     @csrf
                     @method('PUT')
 
-                    <h2 class="text-lg font-bold text-slate-800">Default Social Share Image</h2>
-                    <p class="mt-1 text-sm text-slate-500">{{ $socialShareConfig['hint'] }}</p>
+                    <h2 class="text-lg font-bold text-slate-100">Default Social Share Image</h2>
+                    <p class="mt-1 text-sm text-slate-400">{{ $socialShareConfig['hint'] }}</p>
                     <p class="mt-2 text-[11px] font-semibold uppercase text-slate-400">{{ $socialShareConfig['key'] }}</p>
 
                     <div class="mt-5 space-y-4">
@@ -240,18 +240,18 @@
                         </div>
                     </div>
 
-                    <div class="mt-5 flex items-center gap-3 border-t border-slate-200 pt-5">
+                    <div class="mt-5 flex items-center gap-3 border-t border-slate-700 pt-5">
                         <button type="submit" class="admin-btn-primary">Save Social Share Image</button>
                     </div>
                 </form>
 
-                <div class="rounded-xl border border-slate-200 bg-white p-5">
-                    <h2 class="text-lg font-bold text-slate-800">Current Image</h2>
+                <div class="rounded-xl border border-slate-700 bg-slate-800 p-5">
+                    <h2 class="text-lg font-bold text-slate-100">Current Image</h2>
 
                     @if($socialShareImage?->url)
-                        <div class="mt-4 rounded-xl border bg-slate-50 p-4">
+                        <div class="mt-4 rounded-xl border bg-slate-800 p-4">
                             <img src="{{ $socialShareImage->url }}" alt="{{ $socialShareImage->alt }}" class="aspect-[1200/630] w-full rounded-lg border bg-white object-cover">
-                            <div class="mt-3 text-xs text-slate-500">
+                            <div class="mt-3 text-xs text-slate-400">
                                 <div><span class="font-semibold">Key:</span> {{ $socialShareImage->key }}</div>
                                 <div><span class="font-semibold">Alt:</span> {{ $socialShareImage->alt ?: '-' }}</div>
                             </div>
@@ -263,7 +263,7 @@
                             <button type="submit" onclick="return confirm('Delete the default social share image?')" class="w-full rounded-lg border border-red-200 px-4 py-3 text-sm font-semibold text-red-600 transition hover:bg-red-50">Delete Image</button>
                         </form>
                     @else
-                        <div class="mt-4 flex aspect-[1200/630] items-center justify-center rounded-xl border border-dashed bg-slate-50 text-sm font-semibold text-slate-400">
+                        <div class="mt-4 flex aspect-[1200/630] items-center justify-center rounded-xl border border-dashed bg-slate-800 text-sm font-semibold text-slate-400">
                             No social share image uploaded
                         </div>
                     @endif
@@ -272,17 +272,17 @@
         @endif
 
         @if($activeTab === 'business-identity')
-            <form method="POST" action="{{ route('admin.settings.global-assets.business-identity.update') }}" class="rounded-xl border border-slate-200 bg-slate-50 p-5">
+            <form method="POST" action="{{ route('admin.settings.global-assets.business-identity.update') }}" class="rounded-xl border border-slate-700 bg-slate-800 p-5">
                 @csrf
                 @method('PUT')
 
-                <h2 class="text-lg font-bold text-slate-800">Business Identity</h2>
-                <p class="mt-1 text-sm text-slate-500">These values are reused by the frontend header, footer, default metadata, and future structured data.</p>
+                <h2 class="text-lg font-bold text-slate-100">Business Identity</h2>
+                <p class="mt-1 text-sm text-slate-400">These values are reused by the frontend header, footer, default metadata, and future structured data.</p>
 
                 <div class="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-2">
                     @foreach($businessIdentityFields as $field)
                         @php $value = $businessIdentity[$field['slug']] ?? $field['default'] ?? ''; @endphp
-                        <div class="rounded-xl border border-slate-200 bg-white p-4 {{ $field['type'] === 'textarea' ? 'lg:col-span-2' : '' }}">
+                        <div class="rounded-xl border border-slate-700 bg-slate-800 p-4 {{ $field['type'] === 'textarea' ? 'lg:col-span-2' : '' }}">
                             <label class="form-label">{{ $field['label'] }}</label>
 
                             @if($field['type'] === 'textarea')
@@ -291,31 +291,31 @@
                                 <input type="text" name="business_identity[{{ $field['slug'] }}]" value="{{ $value }}" class="admin-input">
                             @endif
 
-                            <p class="mt-2 text-xs text-slate-500">{{ $field['hint'] }}</p>
+                            <p class="mt-2 text-xs text-slate-400">{{ $field['hint'] }}</p>
                             <p class="mt-2 text-[11px] font-semibold uppercase text-slate-400">{{ $field['key'] }}</p>
                             @error("business_identity.{$field['slug']}") <p class="form-error">{{ $message }}</p> @enderror
                         </div>
                     @endforeach
                 </div>
 
-                <div class="mt-5 flex items-center gap-3 border-t border-slate-200 pt-5">
+                <div class="mt-5 flex items-center gap-3 border-t border-slate-700 pt-5">
                     <button type="submit" class="admin-btn-primary">Save Business Identity</button>
                 </div>
             </form>
         @endif
 
         @if($activeTab === 'contact-information')
-            <form method="POST" action="{{ route('admin.settings.global-assets.contact-information.update') }}" class="rounded-xl border border-slate-200 bg-slate-50 p-5">
+            <form method="POST" action="{{ route('admin.settings.global-assets.contact-information.update') }}" class="rounded-xl border border-slate-700 bg-slate-800 p-5">
                 @csrf
                 @method('PUT')
 
-                <h2 class="text-lg font-bold text-slate-800">Contact Information</h2>
-                <p class="mt-1 text-sm text-slate-500">These values are reused by footer information, WhatsApp CTAs, and future contact sections.</p>
+                <h2 class="text-lg font-bold text-slate-100">Contact Information</h2>
+                <p class="mt-1 text-sm text-slate-400">These values are reused by footer information, WhatsApp CTAs, and future contact sections.</p>
 
                 <div class="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-2">
                     @foreach($contactInformationFields as $field)
                         @php $value = $contactInformation[$field['slug']] ?? $field['default'] ?? ''; @endphp
-                        <div class="rounded-xl border border-slate-200 bg-white p-4 {{ $field['type'] === 'textarea' ? 'lg:col-span-2' : '' }}">
+                        <div class="rounded-xl border border-slate-700 bg-slate-800 p-4 {{ $field['type'] === 'textarea' ? 'lg:col-span-2' : '' }}">
                             <label class="form-label">{{ $field['label'] }}</label>
 
                             @if($field['type'] === 'textarea')
@@ -324,34 +324,34 @@
                                 <input type="{{ in_array($field['type'], ['email', 'url'], true) ? $field['type'] : 'text' }}" name="contact_information[{{ $field['slug'] }}]" value="{{ $value }}" class="admin-input">
                             @endif
 
-                            <p class="mt-2 text-xs text-slate-500">{{ $field['hint'] }}</p>
+                            <p class="mt-2 text-xs text-slate-400">{{ $field['hint'] }}</p>
                             <p class="mt-2 text-[11px] font-semibold uppercase text-slate-400">{{ $field['key'] }}</p>
                             @error("contact_information.{$field['slug']}") <p class="form-error">{{ $message }}</p> @enderror
                         </div>
                     @endforeach
                 </div>
 
-                <div class="mt-5 flex items-center gap-3 border-t border-slate-200 pt-5">
+                <div class="mt-5 flex items-center gap-3 border-t border-slate-700 pt-5">
                     <button type="submit" class="admin-btn-primary">Save Contact Information</button>
                 </div>
             </form>
         @endif
 
         @if($activeTab === 'social-media-links')
-            <form method="POST" action="{{ route('admin.settings.global-assets.social-media-links.update') }}" class="rounded-xl border border-slate-200 bg-slate-50 p-5">
+            <form method="POST" action="{{ route('admin.settings.global-assets.social-media-links.update') }}" class="rounded-xl border border-slate-700 bg-slate-800 p-5">
                 @csrf
                 @method('PUT')
 
-                <h2 class="text-lg font-bold text-slate-800">Social Media Links</h2>
-                <p class="mt-1 text-sm text-slate-500">Only links with a URL will be rendered in the frontend footer and future menus.</p>
+                <h2 class="text-lg font-bold text-slate-100">Social Media Links</h2>
+                <p class="mt-1 text-sm text-slate-400">Only links with a URL will be rendered in the frontend footer and future menus.</p>
 
                 <div class="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-2">
                     @foreach($socialMediaLinkFields as $field)
                         @php $value = $socialMediaLinks[$field['slug']] ?? ''; @endphp
-                        <div class="rounded-xl border border-slate-200 bg-white p-4">
+                        <div class="rounded-xl border border-slate-700 bg-slate-800 p-4">
                             <label class="form-label">{{ $field['label'] }} URL</label>
                             <input type="url" name="social_media_links[{{ $field['slug'] }}]" value="{{ $value }}" class="admin-input" placeholder="https://...">
-                            <p class="mt-2 text-xs text-slate-500">Frontend icon label: {{ $field['abbr'] }}</p>
+                            <p class="mt-2 text-xs text-slate-400">Frontend icon label: {{ $field['abbr'] }}</p>
                             <p class="mt-2 text-[11px] font-semibold uppercase text-slate-400">{{ $field['key'] }}</p>
                             @error("social_media_links.{$field['slug']}") <p class="form-error">{{ $message }}</p> @enderror
                         </div>
@@ -365,18 +365,18 @@
                     }
                 @endphp
 
-                <div class="mt-6 rounded-xl border border-slate-200 bg-white p-4">
+                <div class="mt-6 rounded-xl border border-slate-700 bg-slate-800 p-4">
                     <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                         <div>
-                            <h3 class="text-base font-bold text-slate-800">Custom Social Links</h3>
-                            <p class="mt-1 text-sm text-slate-500">Add extra platforms that are not listed above.</p>
+                            <h3 class="text-base font-bold text-slate-100">Custom Social Links</h3>
+                            <p class="mt-1 text-sm text-slate-400">Add extra platforms that are not listed above.</p>
                         </div>
                         <button type="button" data-add-social-link class="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700">Add Link</button>
                     </div>
 
                     <div class="mt-4 space-y-3" data-social-links-list>
                         @foreach($customSocialLinks as $index => $customLink)
-                            <div class="grid grid-cols-1 gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4 lg:grid-cols-[minmax(0,1fr)_120px_minmax(0,1.4fr)_auto]" data-social-link-row>
+                            <div class="grid grid-cols-1 gap-3 rounded-xl border border-slate-700 bg-slate-800 p-4 lg:grid-cols-[minmax(0,1fr)_120px_minmax(0,1.4fr)_auto]" data-social-link-row>
                                 <div>
                                     <label class="form-label">Label</label>
                                     <input type="text" name="custom_social_links[{{ $index }}][label]" value="{{ $customLink['label'] ?? '' }}" class="admin-input" placeholder="Pinterest">
@@ -400,13 +400,13 @@
                     </div>
                 </div>
 
-                <div class="mt-5 flex items-center gap-3 border-t border-slate-200 pt-5">
+                <div class="mt-5 flex items-center gap-3 border-t border-slate-700 pt-5">
                     <button type="submit" class="admin-btn-primary">Save Social Media Links</button>
                 </div>
             </form>
 
             <template data-social-link-template>
-                <div class="grid grid-cols-1 gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4 lg:grid-cols-[minmax(0,1fr)_120px_minmax(0,1.4fr)_auto]" data-social-link-row>
+                <div class="grid grid-cols-1 gap-3 rounded-xl border border-slate-700 bg-slate-800 p-4 lg:grid-cols-[minmax(0,1fr)_120px_minmax(0,1.4fr)_auto]" data-social-link-row>
                     <div>
                         <label class="form-label">Label</label>
                         <input type="text" data-name="label" class="admin-input" placeholder="Pinterest">
@@ -458,18 +458,18 @@
         @endif
 
         @if($activeTab === 'navigation-settings')
-            <form method="POST" action="{{ route('admin.settings.global-assets.navigation-settings.update') }}" class="rounded-xl border border-slate-200 bg-slate-50 p-5">
+            <form method="POST" action="{{ route('admin.settings.global-assets.navigation-settings.update') }}" class="rounded-xl border border-slate-700 bg-slate-800 p-5">
                 @csrf
                 @method('PUT')
 
-                <h2 class="text-lg font-bold text-slate-800">Header Navigation</h2>
-                <p class="mt-1 text-sm text-slate-500">Controls the header’s appearance — CTA, sticky behavior, and menu colors.</p>
+                <h2 class="text-lg font-bold text-slate-100">Header Navigation</h2>
+                <p class="mt-1 text-sm text-slate-400">Controls the header’s appearance — CTA, sticky behavior, and menu colors.</p>
 
-                <div class="mt-4 flex items-start gap-3 rounded-xl border border-indigo-200 bg-indigo-50 p-4">
-                    <i class="fa-solid fa-circle-info mt-0.5 text-indigo-500"></i>
+                <div class="mt-4 flex items-start gap-3 rounded-xl border border-violet-500/30 bg-violet-900/20 p-4">
+                    <i class="fa-solid fa-circle-info mt-0.5 text-violet-400"></i>
                     <div class="text-sm">
-                        <p class="font-semibold text-indigo-800">Menu links are managed in the Menu Manager.</p>
-                        <p class="mt-1 text-indigo-700">
+                        <p class="font-semibold text-violet-200">Menu links are managed in the Menu Manager.</p>
+                        <p class="mt-1 text-violet-300">
                             These settings control appearance only. To add, edit, reorder, or set link types for
                             header items, use
                             <a href="{{ route('admin.menus.index') }}" class="font-semibold underline">Menu Manager &rarr;</a>
@@ -479,33 +479,33 @@
 
 
                 <div class="mt-5 space-y-3" data-navigation-accordion>
-                    <details class="rounded-xl border border-slate-200 bg-white" open>
-                        <summary class="cursor-pointer list-none rounded-xl px-4 py-4 text-base font-bold text-slate-800 transition hover:bg-slate-50">
+                    <details class="rounded-xl border border-slate-700 bg-slate-800" open>
+                        <summary class="cursor-pointer list-none rounded-xl px-4 py-4 text-base font-bold text-slate-100 transition hover:bg-slate-700">
                             Header Settings
                         </summary>
 
-                        <div class="grid grid-cols-1 gap-5 border-t border-slate-200 bg-slate-50 p-4 lg:grid-cols-2">
+                        <div class="grid grid-cols-1 gap-5 border-t border-slate-700 bg-slate-800 p-4 lg:grid-cols-2">
                     @foreach($navigationBasicFields as $field)
                         @php
                             $value = $navigationSettings[$field['slug']] ?? $field['default'] ?? '';
                             $checkedValue = (bool) ($navigationSettings[$field['slug']] ?? false);
                         @endphp
 
-                        <div class="rounded-xl border border-slate-200 bg-white p-4 {{ $field['type'] === 'boolean' ? 'lg:col-span-2' : '' }}">
+                        <div class="rounded-xl border border-slate-700 bg-slate-800 p-4 {{ $field['type'] === 'boolean' ? 'lg:col-span-2' : '' }}">
                             @if($field['type'] === 'boolean')
                                 <input type="hidden" name="navigation_settings[{{ $field['slug'] }}]" value="0">
                                 <label class="flex items-start gap-3">
                                     <input type="checkbox" name="navigation_settings[{{ $field['slug'] }}]" value="1" @checked($checkedValue) class="mt-1 h-5 w-5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500">
                                     <span>
-                                        <span class="block text-sm font-bold text-slate-800">{{ $field['label'] }}</span>
-                                        <span class="mt-1 block text-xs text-slate-500">{{ $field['hint'] }}</span>
+                                        <span class="block text-sm font-bold text-slate-100">{{ $field['label'] }}</span>
+                                        <span class="mt-1 block text-xs text-slate-400">{{ $field['hint'] }}</span>
                                         <span class="mt-2 block text-[11px] font-semibold uppercase text-slate-400">{{ $field['key'] }}</span>
                                     </span>
                                 </label>
                             @else
                                 <label class="form-label">{{ $field['label'] }}</label>
                                 <input type="text" name="navigation_settings[{{ $field['slug'] }}]" value="{{ $value }}" class="admin-input" placeholder="{{ $field['default'] }}">
-                                <p class="mt-2 text-xs text-slate-500">{{ $field['hint'] }}</p>
+                                <p class="mt-2 text-xs text-slate-400">{{ $field['hint'] }}</p>
                                 <p class="mt-2 text-[11px] font-semibold uppercase text-slate-400">{{ $field['key'] }}</p>
                             @endif
 
@@ -515,29 +515,29 @@
                         </div>
                     </details>
 
-                    <details class="rounded-xl border border-slate-200 bg-white">
-                        <summary class="cursor-pointer list-none rounded-xl px-4 py-4 text-base font-bold text-slate-800 transition hover:bg-slate-50">
+                    <details class="rounded-xl border border-slate-700 bg-slate-800">
+                        <summary class="cursor-pointer list-none rounded-xl px-4 py-4 text-base font-bold text-slate-100 transition hover:bg-slate-700">
                             Menu Colors
                         </summary>
 
-                        <div class="border-t border-slate-200 bg-slate-50 p-4">
-                            <p class="text-sm text-slate-500">Compact color controls for header menu text, hover, active, and dropdown states.</p>
+                        <div class="border-t border-slate-700 bg-slate-800 p-4">
+                            <p class="text-sm text-slate-400">Compact color controls for header menu text, hover, active, and dropdown states.</p>
 
                     <div class="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
                         @foreach($navigationColorFields as $field)
                             @php $value = $navigationSettings[$field['slug']] ?? $field['default']; @endphp
-                            <div class="rounded-xl border border-slate-200 bg-slate-50 p-3">
+                            <div class="rounded-xl border border-slate-700 bg-slate-800 p-3">
                                 <div class="flex items-start justify-between gap-3">
                                     <div>
-                                        <label class="text-sm font-bold text-slate-800">{{ $field['label'] }}</label>
-                                        <p class="mt-1 text-xs text-slate-500">{{ $field['hint'] }}</p>
+                                        <label class="text-sm font-bold text-slate-100">{{ $field['label'] }}</label>
+                                        <p class="mt-1 text-xs text-slate-400">{{ $field['hint'] }}</p>
                                     </div>
-                                    <span class="h-10 w-10 shrink-0 rounded-lg border border-slate-200" style="background: {{ $value }}"></span>
+                                    <span class="h-10 w-10 shrink-0 rounded-lg border border-slate-700" style="background: {{ $value }}"></span>
                                 </div>
 
                                 <div class="mt-3 grid grid-cols-[56px_minmax(0,1fr)] gap-2">
                                     <input type="color" name="navigation_settings[{{ $field['slug'] }}]" value="{{ $value }}" class="h-11 w-full cursor-pointer rounded-lg border border-slate-300 bg-white p-1">
-                                    <input type="text" value="{{ $value }}" disabled class="admin-input bg-slate-100 py-2 font-mono uppercase">
+                                    <input type="text" value="{{ $value }}" disabled class="admin-input bg-slate-800 py-2 font-mono uppercase">
                                 </div>
 
                                 <p class="mt-2 text-[11px] font-semibold uppercase text-slate-400">{{ $field['key'] }}</p>
@@ -550,7 +550,7 @@
 
                 </div>
 
-                <div class="mt-5 flex items-center gap-3 border-t border-slate-200 pt-5">
+                <div class="mt-5 flex items-center gap-3 border-t border-slate-700 pt-5">
                     <button type="submit" class="admin-btn-primary">Save Header Navigation</button>
                 </div>
             </form>
@@ -577,18 +577,18 @@
         @endif
 
         @if($activeTab === 'footer-settings')
-            <form method="POST" action="{{ route('admin.settings.global-assets.footer-settings.update') }}" class="rounded-xl border border-slate-200 bg-slate-50 p-5">
+            <form method="POST" action="{{ route('admin.settings.global-assets.footer-settings.update') }}" class="rounded-xl border border-slate-700 bg-slate-800 p-5">
                 @csrf
                 @method('PUT')
 
-                <h2 class="text-lg font-bold text-slate-800">Footer Settings</h2>
-                <p class="mt-1 text-sm text-slate-500">Manage footer-specific display settings and menus while contact and social data stay global.</p>
+                <h2 class="text-lg font-bold text-slate-100">Footer Settings</h2>
+                <p class="mt-1 text-sm text-slate-400">Manage footer-specific display settings and menus while contact and social data stay global.</p>
 
-                <div class="mt-4 flex items-start gap-3 rounded-xl border border-indigo-200 bg-indigo-50 p-4">
-                    <i class="fa-solid fa-circle-info mt-0.5 text-indigo-500"></i>
+                <div class="mt-4 flex items-start gap-3 rounded-xl border border-violet-500/30 bg-violet-900/20 p-4">
+                    <i class="fa-solid fa-circle-info mt-0.5 text-violet-400"></i>
                     <div class="text-sm">
-                        <p class="font-semibold text-indigo-800">Footer links are managed in the Menu Manager.</p>
-                        <p class="mt-1 text-indigo-700">
+                        <p class="font-semibold text-violet-200">Footer links are managed in the Menu Manager.</p>
+                        <p class="mt-1 text-violet-300">
                             These settings control footer display, logo, and layout blocks only. Manage the
                             <strong>Quick Links</strong> and <strong>Utility Links</strong> in
                             <a href="{{ route('admin.menus.index') }}" class="font-semibold underline">Menu Manager &rarr;</a>
@@ -597,26 +597,26 @@
                 </div>
 
                 <div class="mt-5 space-y-3" data-footer-accordion>
-                    <details class="rounded-xl border border-slate-200 bg-white" open>
-                        <summary class="cursor-pointer list-none rounded-xl px-4 py-4 text-base font-bold text-slate-800 transition hover:bg-slate-50">
+                    <details class="rounded-xl border border-slate-700 bg-slate-800" open>
+                        <summary class="cursor-pointer list-none rounded-xl px-4 py-4 text-base font-bold text-slate-100 transition hover:bg-slate-700">
                             Footer Display
                         </summary>
 
-                        <div class="grid grid-cols-1 gap-5 border-t border-slate-200 bg-slate-50 p-4 lg:grid-cols-2">
+                        <div class="grid grid-cols-1 gap-5 border-t border-slate-700 bg-slate-800 p-4 lg:grid-cols-2">
                             @foreach($footerFields as $field)
                                 @php
                                     $value = $footerSettings[$field['slug']] ?? $field['default'] ?? '';
                                     $checkedValue = (bool) ($footerSettings[$field['slug']] ?? false);
                                 @endphp
 
-                                <div class="rounded-xl border border-slate-200 bg-white p-4 {{ $field['type'] === 'boolean' ? '' : 'lg:col-span-2' }}">
+                                <div class="rounded-xl border border-slate-700 bg-slate-800 p-4 {{ $field['type'] === 'boolean' ? '' : 'lg:col-span-2' }}">
                                     @if($field['type'] === 'boolean')
                                         <input type="hidden" name="footer_settings[{{ $field['slug'] }}]" value="0">
                                         <label class="flex items-start gap-3">
                                             <input type="checkbox" name="footer_settings[{{ $field['slug'] }}]" value="1" @checked($checkedValue) class="mt-1 h-5 w-5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500">
                                             <span>
-                                                <span class="block text-sm font-bold text-slate-800">{{ $field['label'] }}</span>
-                                                <span class="mt-1 block text-xs text-slate-500">{{ $field['hint'] }}</span>
+                                                <span class="block text-sm font-bold text-slate-100">{{ $field['label'] }}</span>
+                                                <span class="mt-1 block text-xs text-slate-400">{{ $field['hint'] }}</span>
                                                 <span class="mt-2 block text-[11px] font-semibold uppercase text-slate-400">{{ $field['key'] }}</span>
                                             </span>
                                         </label>
@@ -627,12 +627,12 @@
                                                 <option value="{{ $optionValue }}" @selected($value === $optionValue)>{{ $optionLabel }}</option>
                                             @endforeach
                                         </select>
-                                        <p class="mt-2 text-xs text-slate-500">{{ $field['hint'] }}</p>
+                                        <p class="mt-2 text-xs text-slate-400">{{ $field['hint'] }}</p>
                                         <p class="mt-2 text-[11px] font-semibold uppercase text-slate-400">{{ $field['key'] }}</p>
                                     @else
                                         <label class="form-label">{{ $field['label'] }}</label>
                                         <input type="text" name="footer_settings[{{ $field['slug'] }}]" value="{{ $value }}" class="admin-input" placeholder="{{ $field['default'] }}">
-                                        <p class="mt-2 text-xs text-slate-500">{{ $field['hint'] }}</p>
+                                        <p class="mt-2 text-xs text-slate-400">{{ $field['hint'] }}</p>
                                         <p class="mt-2 text-[11px] font-semibold uppercase text-slate-400">{{ $field['key'] }}</p>
                                     @endif
 
@@ -648,16 +648,16 @@
                         $footerWidthOptions = \App\Support\FooterSettings::widthOptions();
                     @endphp
 
-                    <details class="rounded-xl border border-slate-200 bg-white">
-                        <summary class="cursor-pointer list-none rounded-xl px-4 py-4 text-base font-bold text-slate-800 transition hover:bg-slate-50">
+                    <details class="rounded-xl border border-slate-700 bg-slate-800">
+                        <summary class="cursor-pointer list-none rounded-xl px-4 py-4 text-base font-bold text-slate-100 transition hover:bg-slate-700">
                             Layout Blocks
                         </summary>
 
-                        <div class="border-t border-slate-200 bg-slate-50 p-4">
+                        <div class="border-t border-slate-700 bg-slate-800 p-4">
                             <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                                 <div>
-                                    <p class="text-sm text-slate-500">Arrange footer columns, choose block width, and enable maps or custom text blocks.</p>
-                                    <p class="mt-1 text-xs font-semibold text-slate-500" data-footer-layout-status>Active layout capacity: 0 / 3 columns.</p>
+                                    <p class="text-sm text-slate-400">Arrange footer columns, choose block width, and enable maps or custom text blocks.</p>
+                                    <p class="mt-1 text-xs font-semibold text-slate-400" data-footer-layout-status>Active layout capacity: 0 / 3 columns.</p>
                                     @error('footer_layout_blocks') <p class="form-error mt-2">{{ $message }}</p> @enderror
                                 </div>
                                 <button type="button" data-add-footer-block class="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700">Add Block</button>
@@ -665,7 +665,7 @@
 
                             <div class="mt-4 space-y-3" data-footer-blocks-list>
                                 @foreach($footerLayoutBlocks as $index => $block)
-                                    <div class="rounded-xl border border-slate-200 bg-white p-4" data-footer-block-row>
+                                    <div class="rounded-xl border border-slate-700 bg-slate-800 p-4" data-footer-block-row>
                                         <div class="grid grid-cols-1 gap-3 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_150px_140px_220px]">
                                             <div>
                                                 <label class="form-label">Type</label>
@@ -687,13 +687,13 @@
                                                     @endforeach
                                                 </select>
                                             </div>
-                                            <label class="flex items-center gap-2 pt-8 text-sm font-semibold text-slate-700">
+                                            <label class="flex items-center gap-2 pt-8 text-sm font-semibold text-slate-300">
                                                 <input type="checkbox" name="footer_layout_blocks[{{ $index }}][is_active]" data-field="is_active" data-footer-layout-control value="1" @checked((bool) ($block['is_active'] ?? false)) class="h-5 w-5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500">
                                                 Active
                                             </label>
                                             <div class="flex flex-wrap items-end gap-2">
-                                                <button type="button" data-move-footer-block="up" class="rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-600 transition hover:bg-slate-50">Move Up</button>
-                                                <button type="button" data-move-footer-block="down" class="rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-600 transition hover:bg-slate-50">Move Down</button>
+                                                <button type="button" data-move-footer-block="up" class="rounded-lg border border-slate-700 px-3 py-2 text-xs font-semibold text-slate-400 transition hover:bg-slate-700">Move Up</button>
+                                                <button type="button" data-move-footer-block="down" class="rounded-lg border border-slate-700 px-3 py-2 text-xs font-semibold text-slate-400 transition hover:bg-slate-700">Move Down</button>
                                                 <button type="button" data-remove-footer-block class="rounded-lg border border-red-200 px-3 py-2 text-xs font-semibold text-red-600 transition hover:bg-red-50">Remove</button>
                                             </div>
                                         </div>
@@ -714,15 +714,17 @@
                         </div>
                     </details>
 
+
+
                 </div>
 
-                <div class="mt-5 flex items-center gap-3 border-t border-slate-200 pt-5">
+                <div class="mt-5 flex items-center gap-3 border-t border-slate-700 pt-5">
                     <button type="submit" class="admin-btn-primary">Save Footer Settings</button>
                 </div>
             </form>
 
             <template data-footer-block-template>
-                <div class="rounded-xl border border-slate-200 bg-white p-4" data-footer-block-row>
+                <div class="rounded-xl border border-slate-700 bg-slate-800 p-4" data-footer-block-row>
                     <div class="grid grid-cols-1 gap-3 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_150px_140px_220px]">
                         <div>
                             <label class="form-label">Type</label>
@@ -744,13 +746,13 @@
                                 @endforeach
                             </select>
                         </div>
-                        <label class="flex items-center gap-2 pt-8 text-sm font-semibold text-slate-700">
+                        <label class="flex items-center gap-2 pt-8 text-sm font-semibold text-slate-300">
                             <input type="checkbox" data-field="is_active" data-footer-layout-control value="1" checked class="h-5 w-5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500">
                             Active
                         </label>
                         <div class="flex flex-wrap items-end gap-2">
-                            <button type="button" data-move-footer-block="up" class="rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-600 transition hover:bg-slate-50">Move Up</button>
-                            <button type="button" data-move-footer-block="down" class="rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-600 transition hover:bg-slate-50">Move Down</button>
+                            <button type="button" data-move-footer-block="up" class="rounded-lg border border-slate-700 px-3 py-2 text-xs font-semibold text-slate-400 transition hover:bg-slate-700">Move Up</button>
+                            <button type="button" data-move-footer-block="down" class="rounded-lg border border-slate-700 px-3 py-2 text-xs font-semibold text-slate-400 transition hover:bg-slate-700">Move Down</button>
                             <button type="button" data-remove-footer-block class="rounded-lg border border-red-200 px-3 py-2 text-xs font-semibold text-red-600 transition hover:bg-red-50">Remove</button>
                         </div>
                     </div>
@@ -816,7 +818,7 @@
                         if (status) {
                             status.textContent = `Active layout capacity: ${activeWidth} / 3 columns.`;
                             status.classList.toggle('text-red-600', isOverCapacity);
-                            status.classList.toggle('text-slate-500', !isOverCapacity);
+                            status.classList.toggle('text-slate-400', !isOverCapacity);
                         }
 
                         if (submitButton) {
@@ -897,12 +899,12 @@
         @endif
 
         @if($activeTab === 'seo-default')
-            <form method="POST" action="{{ route('admin.settings.global-assets.seo-default.update') }}" enctype="multipart/form-data" class="rounded-xl border border-slate-200 bg-slate-50 p-5">
+            <form method="POST" action="{{ route('admin.settings.global-assets.seo-default.update') }}" enctype="multipart/form-data" class="rounded-xl border border-slate-700 bg-slate-800 p-5">
                 @csrf
                 @method('PUT')
 
-                <h2 class="text-lg font-bold text-slate-800">SEO Default</h2>
-                <p class="mt-1 text-sm text-slate-500">Global fallback SEO for pages and products that do not provide their own metadata.</p>
+                <h2 class="text-lg font-bold text-slate-100">SEO Default</h2>
+                <p class="mt-1 text-sm text-slate-400">Global fallback SEO for pages and products that do not provide their own metadata.</p>
 
                 <div class="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-2">
                     @foreach($seoDefaultFields as $field)
@@ -911,14 +913,14 @@
                             $checkedValue = (bool) ($seoDefaultSettings[$field['slug']] ?? false);
                         @endphp
 
-                        <div class="rounded-xl border border-slate-200 bg-white p-4 {{ in_array($field['type'], ['textarea', 'boolean'], true) ? 'lg:col-span-2' : '' }}">
+                        <div class="rounded-xl border border-slate-700 bg-slate-800 p-4 {{ in_array($field['type'], ['textarea', 'boolean'], true) ? 'lg:col-span-2' : '' }}">
                             @if($field['type'] === 'boolean')
                                 <input type="hidden" name="seo_default[{{ $field['slug'] }}]" value="0">
                                 <label class="flex items-start gap-3">
                                     <input type="checkbox" name="seo_default[{{ $field['slug'] }}]" value="1" @checked($checkedValue) class="mt-1 h-5 w-5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500">
                                     <span>
-                                        <span class="block text-sm font-bold text-slate-800">{{ $field['label'] }}</span>
-                                        <span class="mt-1 block text-xs text-slate-500">{{ $field['hint'] }}</span>
+                                        <span class="block text-sm font-bold text-slate-100">{{ $field['label'] }}</span>
+                                        <span class="mt-1 block text-xs text-slate-400">{{ $field['hint'] }}</span>
                                         <span class="mt-2 block text-[11px] font-semibold uppercase text-slate-400">{{ $field['key'] }}</span>
                                     </span>
                                 </label>
@@ -929,17 +931,17 @@
                                         <option value="{{ $optionValue }}" @selected($value === $optionValue)>{{ $optionLabel }}</option>
                                     @endforeach
                                 </select>
-                                <p class="mt-2 text-xs text-slate-500">{{ $field['hint'] }}</p>
+                                <p class="mt-2 text-xs text-slate-400">{{ $field['hint'] }}</p>
                                 <p class="mt-2 text-[11px] font-semibold uppercase text-slate-400">{{ $field['key'] }}</p>
                             @elseif($field['type'] === 'textarea')
                                 <label class="form-label">{{ $field['label'] }}</label>
                                 <textarea name="seo_default[{{ $field['slug'] }}]" rows="3" class="admin-input">{{ $value }}</textarea>
-                                <p class="mt-2 text-xs text-slate-500">{{ $field['hint'] }}</p>
+                                <p class="mt-2 text-xs text-slate-400">{{ $field['hint'] }}</p>
                                 <p class="mt-2 text-[11px] font-semibold uppercase text-slate-400">{{ $field['key'] }}</p>
                             @else
                                 <label class="form-label">{{ $field['label'] }}</label>
                                 <input type="{{ $field['type'] === 'url' ? 'url' : 'text' }}" name="seo_default[{{ $field['slug'] }}]" value="{{ $value }}" class="admin-input" placeholder="{{ $field['default'] }}">
-                                <p class="mt-2 text-xs text-slate-500">{{ $field['hint'] }}</p>
+                                <p class="mt-2 text-xs text-slate-400">{{ $field['hint'] }}</p>
                                 <p class="mt-2 text-[11px] font-semibold uppercase text-slate-400">{{ $field['key'] }}</p>
                             @endif
 
@@ -949,16 +951,16 @@
                 </div>
 
                 <div class="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
-                    <div class="rounded-xl border border-slate-200 bg-white p-4">
+                    <div class="rounded-xl border border-slate-700 bg-slate-800 p-4">
                         <label class="form-label">Default OG image</label>
                         <input type="file" name="seo_default_og_image" accept="image/jpeg,image/png,image/webp" class="admin-input">
-                        <p class="mt-2 text-xs text-slate-500">Fallback social preview image when a product or page does not provide one. Recommended size: 1200 x 630 px.</p>
+                        <p class="mt-2 text-xs text-slate-400">Fallback social preview image when a product or page does not provide one. Recommended size: 1200 x 630 px.</p>
                         <p class="mt-2 text-[11px] font-semibold uppercase text-slate-400">{{ \App\Support\SeoDefaultSettings::OG_IMAGE_KEY }}</p>
                         @error('seo_default_og_image') <p class="form-error">{{ $message }}</p> @enderror
                     </div>
 
-                    <div class="rounded-xl border border-slate-200 bg-white p-4">
-                        <h3 class="text-base font-bold text-slate-800">Current OG Image</h3>
+                    <div class="rounded-xl border border-slate-700 bg-slate-800 p-4">
+                        <h3 class="text-base font-bold text-slate-100">Current OG Image</h3>
 
                         @if($seoDefaultOgImage?->url)
                             <img src="{{ $seoDefaultOgImage->url }}" alt="{{ $seoDefaultOgImage->alt }}" class="mt-4 aspect-[1200/630] w-full rounded-lg border bg-white object-cover">
@@ -968,49 +970,49 @@
                                 <button type="submit" onclick="return confirm('Delete the default SEO OG image?')" class="w-full rounded-lg border border-red-200 px-4 py-3 text-sm font-semibold text-red-600 transition hover:bg-red-50">Delete OG Image</button>
                             </form>
                         @else
-                            <div class="mt-4 flex aspect-[1200/630] items-center justify-center rounded-xl border border-dashed bg-slate-50 text-sm font-semibold text-slate-400">
+                            <div class="mt-4 flex aspect-[1200/630] items-center justify-center rounded-xl border border-dashed bg-slate-800 text-sm font-semibold text-slate-400">
                                 No SEO OG image uploaded
                             </div>
                         @endif
                     </div>
                 </div>
 
-                <div class="mt-5 flex items-center gap-3 border-t border-slate-200 pt-5">
+                <div class="mt-5 flex items-center gap-3 border-t border-slate-700 pt-5">
                     <button type="submit" class="admin-btn-primary">Save SEO Default</button>
                 </div>
             </form>
         @endif
 
         @if($activeTab === 'tracking-integrations')
-            <form method="POST" action="{{ route('admin.settings.global-assets.tracking-integrations.update') }}" class="rounded-xl border border-slate-200 bg-slate-50 p-5">
+            <form method="POST" action="{{ route('admin.settings.global-assets.tracking-integrations.update') }}" class="rounded-xl border border-slate-700 bg-slate-800 p-5">
                 @csrf
                 @method('PUT')
 
-                <h2 class="text-lg font-bold text-slate-800">Tracking / Integrations</h2>
-                <p class="mt-1 text-sm text-slate-500">Manage analytics scripts, verification tags, custom integrations, and WhatsApp CTA click events from one global source.</p>
+                <h2 class="text-lg font-bold text-slate-100">Tracking / Integrations</h2>
+                <p class="mt-1 text-sm text-slate-400">Manage analytics scripts, verification tags, custom integrations, and WhatsApp CTA click events from one global source.</p>
 
                 <div class="mt-5 space-y-3" data-tracking-accordion>
                     @foreach($trackingSections as $sectionName => $fields)
-                        <details class="rounded-xl border border-slate-200 bg-white" @if($loop->first) open @endif>
-                            <summary class="cursor-pointer px-4 py-3 text-sm font-bold text-slate-800">
+                        <details class="rounded-xl border border-slate-700 bg-slate-800" @if($loop->first) open @endif>
+                            <summary class="cursor-pointer px-4 py-3 text-sm font-bold text-slate-100">
                                 {{ $sectionName }}
                             </summary>
 
-                            <div class="grid grid-cols-1 gap-4 border-t border-slate-100 p-4 lg:grid-cols-2">
+                            <div class="grid grid-cols-1 gap-4 border-t border-slate-700/50 p-4 lg:grid-cols-2">
                                 @foreach($fields as $field)
                                     @php
                                         $value = $trackingIntegrationSettings[$field['slug']] ?? $field['default'] ?? '';
                                         $checkedValue = (bool) ($trackingIntegrationSettings[$field['slug']] ?? false);
                                     @endphp
 
-                                    <div class="rounded-xl border border-slate-200 bg-slate-50 p-4 {{ $field['type'] === 'textarea' ? 'lg:col-span-2' : '' }}">
+                                    <div class="rounded-xl border border-slate-700 bg-slate-800 p-4 {{ $field['type'] === 'textarea' ? 'lg:col-span-2' : '' }}">
                                         @if($field['type'] === 'boolean')
                                             <input type="hidden" name="tracking_integrations[{{ $field['slug'] }}]" value="0">
                                             <label class="flex items-start gap-3">
                                                 <input type="checkbox" name="tracking_integrations[{{ $field['slug'] }}]" value="1" @checked($checkedValue) class="mt-1 h-5 w-5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500">
                                                 <span>
-                                                    <span class="block text-sm font-bold text-slate-800">{{ $field['label'] }}</span>
-                                                    <span class="mt-1 block text-xs text-slate-500">{{ $field['hint'] }}</span>
+                                                    <span class="block text-sm font-bold text-slate-100">{{ $field['label'] }}</span>
+                                                    <span class="mt-1 block text-xs text-slate-400">{{ $field['hint'] }}</span>
                                                     <span class="mt-2 block text-[11px] font-semibold uppercase text-slate-400">{{ $field['key'] }}</span>
                                                 </span>
                                             </label>
@@ -1021,17 +1023,17 @@
                                                     <option value="{{ $optionValue }}" @selected($value === $optionValue)>{{ $optionLabel }}</option>
                                                 @endforeach
                                             </select>
-                                            <p class="mt-2 text-xs text-slate-500">{{ $field['hint'] }}</p>
+                                            <p class="mt-2 text-xs text-slate-400">{{ $field['hint'] }}</p>
                                             <p class="mt-2 text-[11px] font-semibold uppercase text-slate-400">{{ $field['key'] }}</p>
                                         @elseif($field['type'] === 'textarea')
                                             <label class="form-label">{{ $field['label'] }}</label>
                                             <textarea name="tracking_integrations[{{ $field['slug'] }}]" rows="5" class="admin-input" placeholder="{{ $field['hint'] }}">{{ $value }}</textarea>
-                                            <p class="mt-2 text-xs text-slate-500">{{ $field['hint'] }}</p>
+                                            <p class="mt-2 text-xs text-slate-400">{{ $field['hint'] }}</p>
                                             <p class="mt-2 text-[11px] font-semibold uppercase text-slate-400">{{ $field['key'] }}</p>
                                         @else
                                             <label class="form-label">{{ $field['label'] }}</label>
                                             <input type="text" name="tracking_integrations[{{ $field['slug'] }}]" value="{{ $value }}" class="admin-input" placeholder="{{ $field['default'] }}">
-                                            <p class="mt-2 text-xs text-slate-500">{{ $field['hint'] }}</p>
+                                            <p class="mt-2 text-xs text-slate-400">{{ $field['hint'] }}</p>
                                             <p class="mt-2 text-[11px] font-semibold uppercase text-slate-400">{{ $field['key'] }}</p>
                                         @endif
 
@@ -1043,7 +1045,7 @@
                     @endforeach
                 </div>
 
-                <div class="mt-5 flex items-center gap-3 border-t border-slate-200 pt-5">
+                <div class="mt-5 flex items-center gap-3 border-t border-slate-700 pt-5">
                     <button type="submit" class="admin-btn-primary">Save Tracking / Integrations</button>
                 </div>
             </form>
@@ -1074,12 +1076,12 @@
         @endif
 
         @if($activeTab === 'booking-cta')
-            <form method="POST" action="{{ route('admin.settings.global-assets.booking-cta.update') }}" class="rounded-xl border border-slate-200 bg-slate-50 p-5">
+            <form method="POST" action="{{ route('admin.settings.global-assets.booking-cta.update') }}" class="rounded-xl border border-slate-700 bg-slate-800 p-5">
                 @csrf
                 @method('PUT')
 
-                <h2 class="text-lg font-bold text-slate-800">Booking / CTA</h2>
-                <p class="mt-1 text-sm text-slate-500">Manage global booking labels, WhatsApp destination, message templates, and frontend CTA placements without changing product or contact tables.</p>
+                <h2 class="text-lg font-bold text-slate-100">Booking / CTA</h2>
+                <p class="mt-1 text-sm text-slate-400">Manage global booking labels, WhatsApp destination, message templates, and frontend CTA placements without changing product or contact tables.</p>
 
                 <div class="mt-5 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
                     <p class="font-bold">Fallback priority</p>
@@ -1088,26 +1090,26 @@
 
                 <div class="mt-5 space-y-3" data-booking-cta-accordion>
                     @foreach($bookingCtaSections as $sectionName => $fields)
-                        <details class="rounded-xl border border-slate-200 bg-white" @if($loop->first) open @endif>
-                            <summary class="cursor-pointer px-4 py-3 text-sm font-bold text-slate-800">
+                        <details class="rounded-xl border border-slate-700 bg-slate-800" @if($loop->first) open @endif>
+                            <summary class="cursor-pointer px-4 py-3 text-sm font-bold text-slate-100">
                                 {{ $sectionName }}
                             </summary>
 
-                            <div class="grid grid-cols-1 gap-4 border-t border-slate-100 p-4 lg:grid-cols-2">
+                            <div class="grid grid-cols-1 gap-4 border-t border-slate-700/50 p-4 lg:grid-cols-2">
                                 @foreach($fields as $field)
                                     @php
                                         $value = $bookingCtaSettings[$field['slug']] ?? $field['default'] ?? '';
                                         $checkedValue = (bool) ($bookingCtaSettings[$field['slug']] ?? false);
                                     @endphp
 
-                                    <div class="rounded-xl border border-slate-200 bg-slate-50 p-4 {{ $field['type'] === 'textarea' ? 'lg:col-span-2' : '' }}">
+                                    <div class="rounded-xl border border-slate-700 bg-slate-800 p-4 {{ $field['type'] === 'textarea' ? 'lg:col-span-2' : '' }}">
                                         @if($field['type'] === 'boolean')
                                             <input type="hidden" name="booking_cta[{{ $field['slug'] }}]" value="0">
                                             <label class="flex items-start gap-3">
                                                 <input type="checkbox" name="booking_cta[{{ $field['slug'] }}]" value="1" @checked($checkedValue) class="mt-1 h-5 w-5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500">
                                                 <span>
-                                                    <span class="block text-sm font-bold text-slate-800">{{ $field['label'] }}</span>
-                                                    <span class="mt-1 block text-xs text-slate-500">{{ $field['hint'] }}</span>
+                                                    <span class="block text-sm font-bold text-slate-100">{{ $field['label'] }}</span>
+                                                    <span class="mt-1 block text-xs text-slate-400">{{ $field['hint'] }}</span>
                                                     <span class="mt-2 block text-[11px] font-semibold uppercase text-slate-400">{{ $field['key'] }}</span>
                                                 </span>
                                             </label>
@@ -1118,17 +1120,17 @@
                                                     <option value="{{ $optionValue }}" @selected($value === $optionValue)>{{ $optionLabel }}</option>
                                                 @endforeach
                                             </select>
-                                            <p class="mt-2 text-xs text-slate-500">{{ $field['hint'] }}</p>
+                                            <p class="mt-2 text-xs text-slate-400">{{ $field['hint'] }}</p>
                                             <p class="mt-2 text-[11px] font-semibold uppercase text-slate-400">{{ $field['key'] }}</p>
                                         @elseif($field['type'] === 'textarea')
                                             <label class="form-label">{{ $field['label'] }}</label>
                                             <textarea name="booking_cta[{{ $field['slug'] }}]" rows="4" class="admin-input" placeholder="{{ $field['hint'] }}">{{ $value }}</textarea>
-                                            <p class="mt-2 text-xs text-slate-500">{{ $field['hint'] }}</p>
+                                            <p class="mt-2 text-xs text-slate-400">{{ $field['hint'] }}</p>
                                             <p class="mt-2 text-[11px] font-semibold uppercase text-slate-400">{{ $field['key'] }}</p>
                                         @else
                                             <label class="form-label">{{ $field['label'] }}</label>
                                             <input type="text" name="booking_cta[{{ $field['slug'] }}]" value="{{ $value }}" class="admin-input" placeholder="{{ $field['default'] }}">
-                                            <p class="mt-2 text-xs text-slate-500">{{ $field['hint'] }}</p>
+                                            <p class="mt-2 text-xs text-slate-400">{{ $field['hint'] }}</p>
                                             <p class="mt-2 text-[11px] font-semibold uppercase text-slate-400">{{ $field['key'] }}</p>
                                         @endif
 
@@ -1140,7 +1142,7 @@
                     @endforeach
                 </div>
 
-                <div class="mt-5 flex items-center gap-3 border-t border-slate-200 pt-5">
+                <div class="mt-5 flex items-center gap-3 border-t border-slate-700 pt-5">
                     <button type="submit" class="admin-btn-primary">Save Booking / CTA</button>
                 </div>
             </form>
@@ -1171,12 +1173,12 @@
         @endif
 
         @if($activeTab === 'default-media')
-            <form method="POST" action="{{ route('admin.settings.global-assets.default-media.update') }}" enctype="multipart/form-data" class="rounded-xl border border-slate-200 bg-slate-50 p-5">
+            <form method="POST" action="{{ route('admin.settings.global-assets.default-media.update') }}" enctype="multipart/form-data" class="rounded-xl border border-slate-700 bg-slate-800 p-5">
                 @csrf
                 @method('PUT')
 
-                <h2 class="text-lg font-bold text-slate-800">Default Media / Placeholder Assets</h2>
-                <p class="mt-1 text-sm text-slate-500">Upload fallback images used only when product, destination, section, hero, or avatar media is missing.</p>
+                <h2 class="text-lg font-bold text-slate-100">Default Media / Placeholder Assets</h2>
+                <p class="mt-1 text-sm text-slate-400">Upload fallback images used only when product, destination, section, hero, or avatar media is missing.</p>
 
                 <div class="mt-5 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
                     <p class="font-bold">Fallback priority</p>
@@ -1191,39 +1193,39 @@
                             $fitValue = old("default_media_fits.$slug", $defaultMediaSettings[$slug]['fit'] ?? \App\Support\DefaultMediaAssets::defaultFit($slug));
                         @endphp
 
-                        <div class="rounded-xl border border-slate-200 bg-white p-4" data-default-media-card>
+                        <div class="rounded-xl border border-slate-700 bg-slate-800 p-4" data-default-media-card>
                             <div class="flex flex-col gap-4 md:flex-row">
                                 <div class="md:w-48">
-                                    <div class="rounded-lg border bg-white p-2">
+                                    <div class="rounded-lg border border-slate-700 bg-slate-700 p-2">
                                         <img
                                             src="{{ $asset?->url }}"
                                             alt="{{ $asset?->alt ?: $variant['label'] }}"
-                                            class="aspect-[4/3] w-full rounded-md bg-slate-50 object-cover {{ $asset?->url ? '' : 'hidden' }}"
+                                            class="aspect-[4/3] w-full rounded-md bg-slate-800 object-cover {{ $asset?->url ? '' : 'hidden' }}"
                                             data-default-media-preview
                                             data-current-src="{{ $asset?->url }}"
                                             data-current-alt="{{ $asset?->alt ?: $variant['label'] }}"
                                         >
 
-                                        <div class="{{ $asset?->url ? 'hidden' : 'flex' }} aspect-[4/3] w-full items-center justify-center rounded-md border border-dashed bg-slate-50 text-xs font-bold uppercase text-slate-400" data-default-media-empty>
+                                        <div class="{{ $asset?->url ? 'hidden' : 'flex' }} aspect-[4/3] w-full items-center justify-center rounded-md border border-dashed bg-slate-800 text-xs font-bold uppercase text-slate-400" data-default-media-empty>
                                             No image
                                         </div>
                                     </div>
 
-                                    <div class="mt-3 rounded-lg border {{ $asset?->url ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : 'border-slate-200 bg-slate-50 text-slate-500' }} px-3 py-2 text-xs font-semibold" data-default-media-status data-saved-status="{{ $asset?->url ? 'Saved image active' : 'No image uploaded' }}">
+                                    <div class="mt-3 rounded-lg border {{ $asset?->url ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : 'border-slate-700 bg-slate-800 text-slate-400' }} px-3 py-2 text-xs font-semibold" data-default-media-status data-saved-status="{{ $asset?->url ? 'Saved image active' : 'No image uploaded' }}">
                                         {{ $asset?->url ? 'Saved image active' : 'No image uploaded' }}
                                     </div>
                                 </div>
 
                                 <div class="min-w-0 flex-1">
-                                    <h3 class="text-base font-bold text-slate-800">{{ $variant['label'] }}</h3>
-                                    <p class="mt-1 text-xs text-slate-500">{{ $variant['hint'] }}</p>
+                                    <h3 class="text-base font-bold text-slate-100">{{ $variant['label'] }}</h3>
+                                    <p class="mt-1 text-xs text-slate-400">{{ $variant['hint'] }}</p>
                                     <p class="mt-2 text-[11px] font-semibold uppercase text-slate-400">{{ $variant['key'] }}</p>
 
                                     <div class="mt-4 space-y-3">
                                         <div>
                                             <label class="form-label">Upload image</label>
                                             <input type="file" name="default_media[{{ $slug }}]" accept="image/jpeg,image/png,image/webp" class="admin-input" data-default-media-input>
-                                            <button type="button" class="mt-3 hidden w-full rounded-lg border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-600 transition hover:bg-slate-50" data-default-media-clear>
+                                            <button type="button" class="mt-3 hidden w-full rounded-lg border border-slate-700 px-4 py-2 text-sm font-semibold text-slate-400 transition hover:bg-slate-700" data-default-media-clear>
                                                 Clear selected image
                                             </button>
                                             @error("default_media.$slug") <p class="form-error">{{ $message }}</p> @enderror
@@ -1242,7 +1244,7 @@
                                                     <option value="{{ $optionValue }}" @selected($fitValue === $optionValue)>{{ $optionLabel }}</option>
                                                 @endforeach
                                             </select>
-                                            <p class="mt-2 text-xs text-slate-500">Controls how this placeholder image fills its frontend frame.</p>
+                                            <p class="mt-2 text-xs text-slate-400">Controls how this placeholder image fills its frontend frame.</p>
                                             @error("default_media_fits.$slug") <p class="form-error">{{ $message }}</p> @enderror
                                         </div>
                                     </div>
@@ -1250,16 +1252,16 @@
                             </div>
 
                             @if($asset?->url)
-                                <div class="mt-4 border-t border-slate-100 pt-4">
+                                <div class="mt-4 border-t border-slate-700/50 pt-4">
                                     <button type="submit" form="delete-default-media-{{ $slug }}" onclick="return confirm('Delete this uploaded placeholder and return this variant to the system fallback?')" class="w-full rounded-lg border border-red-200 px-4 py-3 text-sm font-semibold text-red-600 transition hover:bg-red-50">Delete / Reset to system fallback</button>
-                                    <p class="mt-2 text-xs text-slate-500">This removes the saved upload and returns this placeholder to the Laravel/system fallback.</p>
+                                    <p class="mt-2 text-xs text-slate-400">This removes the saved upload and returns this placeholder to the Laravel/system fallback.</p>
                                 </div>
                             @endif
                         </div>
                     @endforeach
                 </div>
 
-                <div class="mt-5 flex items-center gap-3 border-t border-slate-200 pt-5">
+                <div class="mt-5 flex items-center gap-3 border-t border-slate-700 pt-5">
                     <button type="submit" class="admin-btn-primary">Save Default Media</button>
                 </div>
             </form>
@@ -1305,8 +1307,8 @@
                             status.classList.toggle('bg-amber-50', mode === 'pending');
                             status.classList.toggle('text-amber-700', mode === 'pending');
                             status.classList.toggle('border-slate-200', mode === 'empty');
-                            status.classList.toggle('bg-slate-50', mode === 'empty');
-                            status.classList.toggle('text-slate-500', mode === 'empty');
+                            status.classList.toggle('bg-slate-800', mode === 'empty');
+                            status.classList.toggle('text-slate-400', mode === 'empty');
                         };
 
                         const revokePreview = () => {
@@ -1359,12 +1361,12 @@
         @endif
 
         @if($activeTab === 'structured-data')
-            <form method="POST" action="{{ route('admin.settings.global-assets.structured-data.update') }}" class="rounded-xl border border-slate-200 bg-slate-50 p-5">
+            <form method="POST" action="{{ route('admin.settings.global-assets.structured-data.update') }}" class="rounded-xl border border-slate-700 bg-slate-800 p-5">
                 @csrf
                 @method('PUT')
 
-                <h2 class="text-lg font-bold text-slate-800">Structured Data / Business Schema</h2>
-                <p class="mt-1 text-sm text-slate-500">Help search engines understand your business identity, website, breadcrumbs, and product/tour pages.</p>
+                <h2 class="text-lg font-bold text-slate-100">Structured Data / Business Schema</h2>
+                <p class="mt-1 text-sm text-slate-400">Help search engines understand your business identity, website, breadcrumbs, and product/tour pages.</p>
 
                 <div class="mt-5 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
                     <p class="font-bold">Simple rule</p>
@@ -1374,26 +1376,26 @@
 
                 <div class="mt-5 space-y-3" data-structured-data-accordion>
                     @foreach($structuredDataSections as $sectionName => $fields)
-                        <details class="rounded-xl border border-slate-200 bg-white" @if($loop->first) open @endif>
-                            <summary class="cursor-pointer px-4 py-3 text-sm font-bold text-slate-800">
+                        <details class="rounded-xl border border-slate-700 bg-slate-800" @if($loop->first) open @endif>
+                            <summary class="cursor-pointer px-4 py-3 text-sm font-bold text-slate-100">
                                 {{ $sectionName }}
                             </summary>
 
-                            <div class="grid grid-cols-1 gap-4 border-t border-slate-100 p-4 lg:grid-cols-2">
+                            <div class="grid grid-cols-1 gap-4 border-t border-slate-700/50 p-4 lg:grid-cols-2">
                                 @foreach($fields as $field)
                                     @php
                                         $value = $structuredDataSettings[$field['slug']] ?? $field['default'] ?? '';
                                         $checkedValue = (bool) ($structuredDataSettings[$field['slug']] ?? false);
                                     @endphp
 
-                                    <div class="rounded-xl border border-slate-200 bg-slate-50 p-4 {{ $field['type'] === 'textarea' ? 'lg:col-span-2' : '' }}">
+                                    <div class="rounded-xl border border-slate-700 bg-slate-800 p-4 {{ $field['type'] === 'textarea' ? 'lg:col-span-2' : '' }}">
                                         @if($field['type'] === 'boolean')
                                             <input type="hidden" name="structured_data[{{ $field['slug'] }}]" value="0">
                                             <label class="flex items-start gap-3">
                                                 <input type="checkbox" name="structured_data[{{ $field['slug'] }}]" value="1" @checked($checkedValue) class="mt-1 h-5 w-5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500">
                                                 <span>
-                                                    <span class="block text-sm font-bold text-slate-800">{{ $field['label'] }}</span>
-                                                    <span class="mt-1 block text-xs text-slate-500">{{ $field['hint'] }}</span>
+                                                    <span class="block text-sm font-bold text-slate-100">{{ $field['label'] }}</span>
+                                                    <span class="mt-1 block text-xs text-slate-400">{{ $field['hint'] }}</span>
                                                     <span class="mt-2 block text-[11px] font-semibold uppercase text-slate-400">{{ $field['key'] }}</span>
                                                 </span>
                                             </label>
@@ -1404,17 +1406,17 @@
                                                     <option value="{{ $optionValue }}" @selected($value === $optionValue)>{{ $optionLabel }}</option>
                                                 @endforeach
                                             </select>
-                                            <p class="mt-2 text-xs text-slate-500">{{ $field['hint'] }}</p>
+                                            <p class="mt-2 text-xs text-slate-400">{{ $field['hint'] }}</p>
                                             <p class="mt-2 text-[11px] font-semibold uppercase text-slate-400">{{ $field['key'] }}</p>
                                         @elseif($field['type'] === 'textarea')
                                             <label class="form-label">{{ $field['label'] }}</label>
                                             <textarea name="structured_data[{{ $field['slug'] }}]" rows="4" class="admin-input" placeholder="{{ $field['hint'] }}">{{ $value }}</textarea>
-                                            <p class="mt-2 text-xs text-slate-500">{{ $field['hint'] }}</p>
+                                            <p class="mt-2 text-xs text-slate-400">{{ $field['hint'] }}</p>
                                             <p class="mt-2 text-[11px] font-semibold uppercase text-slate-400">{{ $field['key'] }}</p>
                                         @else
                                             <label class="form-label">{{ $field['label'] }}</label>
                                             <input type="text" name="structured_data[{{ $field['slug'] }}]" value="{{ $value }}" class="admin-input" placeholder="{{ $field['default'] }}">
-                                            <p class="mt-2 text-xs text-slate-500">{{ $field['hint'] }}</p>
+                                            <p class="mt-2 text-xs text-slate-400">{{ $field['hint'] }}</p>
                                             <p class="mt-2 text-[11px] font-semibold uppercase text-slate-400">{{ $field['key'] }}</p>
                                         @endif
 
@@ -1426,12 +1428,12 @@
                     @endforeach
                 </div>
 
-                <div class="mt-5 rounded-xl border border-slate-200 bg-white p-4 text-sm text-slate-600">
-                    <p class="font-bold text-slate-800">What this renders</p>
+                <div class="mt-5 rounded-xl border border-slate-700 bg-slate-800 p-4 text-sm text-slate-400">
+                    <p class="font-bold text-slate-100">What this renders</p>
                     <p class="mt-1">One JSON-LD graph containing business schema, website schema, breadcrumbs, and product schema when enabled. It replaces the old standalone SEO Default organization script to avoid duplicate schema.</p>
                 </div>
 
-                <div class="mt-5 flex items-center gap-3 border-t border-slate-200 pt-5">
+                <div class="mt-5 flex items-center gap-3 border-t border-slate-700 pt-5">
                     <button type="submit" class="admin-btn-primary">Save Structured Data</button>
                 </div>
             </form>

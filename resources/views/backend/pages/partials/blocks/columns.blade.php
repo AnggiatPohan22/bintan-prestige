@@ -1,4 +1,4 @@
-<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+﻿<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
     <div>
         <label class="admin-form-label">Column Count</label>
         <select name="data[columns]" class="admin-input">
@@ -17,7 +17,7 @@
     </div>
     <div class="md:col-span-2">
         <input type="hidden" name="data[stack_mobile]" value="0">
-        <label class="flex items-center gap-2 text-sm font-medium text-slate-700">
+        <label class="flex items-center gap-2 text-sm font-medium text-slate-300">
             <input type="checkbox" name="data[stack_mobile]" value="1" class="rounded border-slate-300" @checked((bool) ($block->data['stack_mobile'] ?? true))>
             Stack columns vertically on mobile
         </label>

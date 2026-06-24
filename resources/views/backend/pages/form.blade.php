@@ -1,4 +1,4 @@
-<form
+﻿<form
     action="{{ isset($page)
         ? route('admin.pages.update', $page)
         : route('admin.pages.store') }}"
@@ -74,7 +74,7 @@
                 @error('status')
                     <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                 @enderror
-                <div class="mt-2 space-y-1 text-xs text-slate-500">
+                <div class="mt-2 space-y-1 text-xs text-slate-400">
                     <p><strong class="text-amber-700">Draft:</strong> admin preview only; unavailable on the public URL and hidden from managed menus.</p>
                     <p><strong class="text-emerald-700">Published:</strong> live on the public URL and eligible for managed menus.</p>
                 </div>
@@ -166,7 +166,7 @@
                             alt="OG image preview"
                             class="h-20 w-36 rounded-lg object-cover shadow"
                         >
-                        <p class="text-sm text-slate-500">
+                        <p class="text-sm text-slate-400">
                             Current OG image. Upload a new one to replace it.
                         </p>
                     </div>
