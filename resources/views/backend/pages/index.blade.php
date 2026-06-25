@@ -135,7 +135,7 @@
                                             @csrf
                                             <button
                                                 type="submit"
-                                                onclick="return confirm('Duplicate \"{{ addslashes($page->title) }}\"?')"
+                                                data-confirm="Duplicate \"{{ addslashes($page->title) }}\"?"
                                                 class="admin-btn-soft px-4 py-2"
                                             >
                                                 Duplicate
@@ -151,7 +151,7 @@
 
                                             <button
                                                 type="submit"
-                                                onclick="return confirm('Delete this page permanently?')"
+                                                data-confirm="Delete this page permanently?"
                                                 class="admin-btn-danger px-4 py-2"
                                             >
                                                 Delete

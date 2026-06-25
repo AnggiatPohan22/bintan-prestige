@@ -187,7 +187,7 @@
                                             <button
                                                 type="submit"
                                                 class="admin-btn-danger w-full sm:w-auto"
-                                                onclick="return confirm('Delete itinerary?')"
+                                                data-confirm="Delete itinerary?"
                                             >
                                                 Delete
                                             </button>

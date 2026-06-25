@@ -35,7 +35,7 @@
             <form method="POST" action="{{ route('admin.media.orphans.destroy') }}">
                 @csrf
                 @method('DELETE')
-                <button type="submit" class="admin-btn-secondary whitespace-nowrap" onclick="return confirm('Remove all confirmed orphaned media files?')">
+                <button type="submit" class="admin-btn-secondary whitespace-nowrap" data-confirm="Remove all confirmed orphaned media files?">
                     Clean orphan files
                 </button>
             </form>
@@ -142,7 +142,7 @@
 
             {{-- Delete --}}
             <div class="border-t border-admin/50 px-5 py-4">
-                <form method="POST" :action="`${updateBase}/${selected.id}`" x-on:submit="return confirm('Delete this media file? This cannot be undone.')">
+                <form method="POST" :action="`${updateBase}/${selected.id}`" data-confirm-submit="Delete this media file? This cannot be undone.">
                     @csrf
                     @method('DELETE')
                     <button type="submit" class="admin-btn-danger w-full disabled:cursor-not-allowed disabled:opacity-50" :disabled="selected.usageCount > 0">

@@ -65,7 +65,7 @@
                             </form>
                             <form method="POST" action="{{ route('admin.form-submissions.destroy', $submission) }}">
                                 @csrf @method('DELETE')
-                                <button type="submit" onclick="return confirm('Delete this submission?')" class="admin-btn-danger px-3 py-1.5 text-xs">
+                                <button type="submit" data-confirm="Delete this submission?" class="admin-btn-danger px-3 py-1.5 text-xs">
                                     <i class="fa-solid fa-trash"></i>
                                 </button>
                             </form>

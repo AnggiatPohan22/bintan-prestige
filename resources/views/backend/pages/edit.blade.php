@@ -570,7 +570,7 @@
                         @method('DELETE')
                         <button
                             type="submit"
-                            onclick="return confirm('Permanently delete this page? This cannot be undone.')"
+                            data-confirm="Permanently delete this page? This cannot be undone."
                             class="admin-btn-danger whitespace-nowrap"
                         >
                             Delete Page

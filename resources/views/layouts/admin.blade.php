@@ -76,43 +76,115 @@
 @stack('scripts')
 
 <script>
-let confirmUrl = null;
+/* ─── Confirm Modal ─────────────────────────────────────────────── */
+let _confirmCallback = null;
 
+function adminConfirm(target, message, options = {}) {
+    const title    = options.title    || 'Konfirmasi Hapus';
+    const btnLabel = options.btnLabel || 'Hapus';
+    const icon     = options.icon     || 'fa-trash';
+    const danger   = options.danger   !== false;
+
+    document.getElementById('confirmModalTitle').innerText = title;
+    document.getElementById('confirmText').innerText       = message;
+    document.getElementById('confirmYesLabel').innerText   = btnLabel;
+
+    const iconEl = document.getElementById('confirmModalIcon');
+    iconEl.className = `flex h-9 w-9 shrink-0 items-center justify-center rounded-full ${danger ? 'bg-red-100 text-red-600' : 'bg-amber-100 text-amber-600'}`;
+    iconEl.querySelector('i').className = `fa-solid ${icon} text-sm`;
+
+    const yesBtn = document.getElementById('confirmYesBtn');
+    yesBtn.className = danger ? 'admin-btn-danger' : 'admin-btn-primary';
+
+    if (typeof target === 'function') {
+        _confirmCallback = target;
+    } else if (target instanceof HTMLFormElement) {
+        _confirmCallback = () => target.submit();
+    } else if (typeof target === 'string') {
+        // Legacy: URL-based (PATCH fetch)
+        _confirmCallback = () => {
+            fetch(target, {
+                method: 'PATCH',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json',
+                }
+            }).then(() => location.reload());
+        };
+    }
+
+    document.getElementById('confirmModal').classList.remove('hidden');
+    document.getElementById('confirmYesBtn').focus();
+}
+
+// Backwards-compat alias used by some older patterns
 function openConfirmModal(url, text) {
-
-    confirmUrl = url;
-
-    document
-        .getElementById('confirmText')
-        .innerText = text;
-
-    document
-        .getElementById('confirmModal')
-        .classList.remove('hidden');
+    adminConfirm(url, text, { title: 'Confirm Action', btnLabel: 'Yes, Confirm' });
 }
 
 function closeConfirmModal() {
-
-    document
-        .getElementById('confirmModal')
-        .classList.add('hidden');
+    document.getElementById('confirmModal').classList.add('hidden');
+    _confirmCallback = null;
 }
 
-document
-.getElementById('confirmYesBtn')
-.addEventListener('click', function () {
+document.getElementById('confirmYesBtn').addEventListener('click', function () {
+    closeConfirmModal();
+    if (_confirmCallback) _confirmCallback();
+});
 
-    fetch(confirmUrl, {
-        method: 'PATCH',
-        headers: {
-            'X-CSRF-TOKEN':
-                document.querySelector(
-                    'meta[name="csrf-token"]'
-                ).content,
-            'Accept': 'application/json'
+// Close on backdrop click
+document.getElementById('confirmModal').addEventListener('click', function (e) {
+    if (e.target === this) closeConfirmModal();
+});
+
+// Close on Escape key
+document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && !document.getElementById('confirmModal').classList.contains('hidden')) {
+        closeConfirmModal();
+    }
+});
+
+/* ─── data-confirm delegation ───────────────────────────────────── *
+ * Add data-confirm="message" to any button/submit → auto-intercept.
+ * Add data-confirm-submit="message" to any form → auto-intercept submit.
+ * Supports optional data-confirm-title, data-confirm-btn overrides.
+ * ─────────────────────────────────────────────────────────────────*/
+document.addEventListener('click', function (e) {
+    const btn = e.target.closest('[data-confirm]');
+    if (!btn) return;
+    e.preventDefault();
+    e.stopPropagation();
+
+    const form = btn.form || btn.closest('form');
+    adminConfirm(
+        form || (() => {}),
+        btn.getAttribute('data-confirm'),
+        {
+            title:    btn.getAttribute('data-confirm-title')  || undefined,
+            btnLabel: btn.getAttribute('data-confirm-btn')    || undefined,
         }
-    })
-    .then(() => location.reload());
+    );
+}, true); // capture phase so it fires before Alpine
+
+document.addEventListener('submit', function (e) {
+    const form = e.target;
+    const msg  = form.getAttribute('data-confirm-submit');
+    if (!msg) return;
+    e.preventDefault();
+
+    adminConfirm(
+        () => {
+            form.removeAttribute('data-confirm-submit');
+            form.submit();
+            // Restore after submit for multi-use forms
+            setTimeout(() => form.setAttribute('data-confirm-submit', msg), 100);
+        },
+        msg,
+        {
+            title:    form.getAttribute('data-confirm-title') || undefined,
+            btnLabel: form.getAttribute('data-confirm-btn')   || undefined,
+        }
+    );
 });
 </script>
 

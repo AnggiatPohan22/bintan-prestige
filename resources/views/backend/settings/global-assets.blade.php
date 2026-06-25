@@ -102,7 +102,7 @@
                                 <form method="POST" action="{{ route('admin.settings.global-assets.site-logo.destroy', $variant['slug']) }}" class="mt-4">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" onclick="return confirm('Delete this logo variant?')" class="w-full rounded-lg border border-red-200 px-4 py-3 text-sm font-semibold text-red-600 transition hover:bg-red-50">Delete</button>
+                                    <button type="submit" data-confirm="Delete this logo variant?" class="w-full rounded-lg border border-red-200 px-4 py-3 text-sm font-semibold text-red-600 transition hover:bg-red-50">Delete</button>
                                 </form>
                             @else
                                 <div class="mt-4 rounded-lg border border-dashed bg-admin-card px-4 py-3 text-center text-xs font-semibold text-admin-secondary">Not uploaded</div>
@@ -158,7 +158,7 @@
                     <form method="POST" action="{{ route('admin.settings.global-assets.favicon.destroy') }}" class="mt-4">
                         @csrf
                         @method('DELETE')
-                        <button type="submit" onclick="return confirm('Delete the browser favicon?')" class="w-full rounded-lg border border-red-200 px-4 py-3 text-sm font-semibold text-red-600 transition hover:bg-red-50">Delete Favicon</button>
+                        <button type="submit" data-confirm="Delete the browser favicon?" class="w-full rounded-lg border border-red-200 px-4 py-3 text-sm font-semibold text-red-600 transition hover:bg-red-50">Delete Favicon</button>
                     </form>
                 @else
                     <div class="mt-4 flex h-28 items-center justify-center rounded-xl border border-dashed bg-admin-card text-sm font-semibold text-admin-secondary">
@@ -260,7 +260,7 @@
                         <form method="POST" action="{{ route('admin.settings.global-assets.social-share-image.destroy') }}" class="mt-4">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" onclick="return confirm('Delete the default social share image?')" class="w-full rounded-lg border border-red-200 px-4 py-3 text-sm font-semibold text-red-600 transition hover:bg-red-50">Delete Image</button>
+                            <button type="submit" data-confirm="Delete the default social share image?" class="w-full rounded-lg border border-red-200 px-4 py-3 text-sm font-semibold text-red-600 transition hover:bg-red-50">Delete Image</button>
                         </form>
                     @else
                         <div class="mt-4 flex aspect-[1200/630] items-center justify-center rounded-xl border border-dashed bg-admin-card text-sm font-semibold text-admin-secondary">
@@ -967,7 +967,7 @@
                             <form method="POST" action="{{ route('admin.settings.global-assets.seo-default.og-image.destroy') }}" class="mt-4">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" onclick="return confirm('Delete the default SEO OG image?')" class="w-full rounded-lg border border-red-200 px-4 py-3 text-sm font-semibold text-red-600 transition hover:bg-red-50">Delete OG Image</button>
+                                <button type="submit" data-confirm="Delete the default SEO OG image?" class="w-full rounded-lg border border-red-200 px-4 py-3 text-sm font-semibold text-red-600 transition hover:bg-red-50">Delete OG Image</button>
                             </form>
                         @else
                             <div class="mt-4 flex aspect-[1200/630] items-center justify-center rounded-xl border border-dashed bg-admin-card text-sm font-semibold text-admin-secondary">
@@ -1253,7 +1253,7 @@
 
                             @if($asset?->url)
                                 <div class="mt-4 border-t border-admin/50 pt-4">
-                                    <button type="submit" form="delete-default-media-{{ $slug }}" onclick="return confirm('Delete this uploaded placeholder and return this variant to the system fallback?')" class="w-full rounded-lg border border-red-200 px-4 py-3 text-sm font-semibold text-red-600 transition hover:bg-red-50">Delete / Reset to system fallback</button>
+                                    <button type="submit" form="delete-default-media-{{ $slug }}" data-confirm="Delete this uploaded placeholder and return this variant to the system fallback?" class="w-full rounded-lg border border-red-200 px-4 py-3 text-sm font-semibold text-red-600 transition hover:bg-red-50">Delete / Reset to system fallback</button>
                                     <p class="mt-2 text-xs text-admin-secondary">This removes the saved upload and returns this placeholder to the Laravel/system fallback.</p>
                                 </div>
                             @endif

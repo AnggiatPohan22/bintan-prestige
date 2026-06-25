@@ -138,6 +138,10 @@
 
             {{-- Save + Reset --}}
             <div class="mt-4 space-y-2 border-t border-admin pt-3">
+                <div class="mb-1 flex items-center gap-1 text-[10px] text-admin-muted">
+                    <i class="fa-solid" :class="activeMode==='dark' ? 'fa-moon' : 'fa-sun'" aria-hidden="true"></i>
+                    <span x-text="activeMode==='dark' ? 'Menyimpan Mode Night' : 'Menyimpan Mode Light'"></span>
+                </div>
                 <button
                     type="button"
                     @click="savePalette()"
@@ -147,7 +151,7 @@
                     <i class="fa-solid fa-floppy-disk" aria-hidden="true" x-show="!saving && !saved"></i>
                     <i class="fa-solid fa-spinner fa-spin" aria-hidden="true" x-show="saving" x-cloak></i>
                     <i class="fa-solid fa-check" aria-hidden="true" x-show="saved" x-cloak></i>
-                    <span x-text="saving ? 'Menyimpan…' : (saved ? 'Tersimpan!' : 'Simpan')"></span>
+                    <span x-text="saving ? 'Menyimpan…' : (saved ? savedLabel : 'Simpan')"></span>
                 </button>
 
                 <form method="POST" action="{{ route('admin.settings.appearance.reset') }}"
@@ -392,11 +396,12 @@
 function customizerV2(config) {
     return {
         // ── State ──────────────────────────────────────────
-        activeMode:    config.initialMode === 'light' ? 'light' : 'dark',
+        activeMode:    localStorage.getItem('customizer_mode') || (config.initialMode === 'light' ? 'light' : 'dark'),
         activeSection: 'surfaces',
         activePreset:  null,
-        saving: false,
-        saved:  false,
+        saving:     false,
+        saved:      false,
+        savedLabel: '',
 
         // ── Config (server-rendered) ───────────────────────
         sections:       config.sections,
@@ -414,6 +419,7 @@ function customizerV2(config) {
 
         // ── Init ───────────────────────────────────────────
         init() {
+            this.activePreset = this.detectPreset(this.activeMode);
             this.applyLivePreview();
         },
 
@@ -426,10 +432,24 @@ function customizerV2(config) {
             return typeof val === 'string' && val.trim().startsWith('#');
         },
 
+        // Detect if current editing tokens exactly match any preset for given mode.
+        detectPreset(mode) {
+            const current = this.editing[mode];
+            for (const [key, preset] of Object.entries(this.presets)) {
+                if (preset.mode !== mode) continue;
+                const tokens = preset.tokens;
+                if (Object.keys(tokens).every(k => tokens[k] === current[k])) {
+                    return key;
+                }
+            }
+            return null;
+        },
+
         // ── Mode switch ────────────────────────────────────
         setMode(mode) {
             this.activeMode   = mode;
-            this.activePreset = null;
+            this.activePreset = this.detectPreset(mode);
+            localStorage.setItem('customizer_mode', mode);
             this.applyLivePreview();
         },
 
@@ -486,8 +506,9 @@ function customizerV2(config) {
                 });
 
                 if (res.ok) {
+                    this.savedLabel = this.activeMode === 'dark' ? 'Mode Night tersimpan!' : 'Mode Light tersimpan!';
                     this.saved = true;
-                    setTimeout(() => { this.saved = false; }, 2500);
+                    setTimeout(() => { this.saved = false; }, 3000);
                 } else {
                     alert('Gagal menyimpan. Silakan coba lagi.');
                 }
@@ -500,10 +521,11 @@ function customizerV2(config) {
 
         // ── Reset via form submit ──────────────────────────
         resetPalette(formEl) {
-            if (!confirm('Reset semua pengaturan tampilan ke default?\n\nKedua mode (Night & Light) dikembalikan ke preset bawaan.')) {
-                return;
-            }
-            formEl.submit();
+            adminConfirm(
+                () => formEl.submit(),
+                'Reset semua pengaturan tampilan ke default? Kedua mode (Night & Light) dikembalikan ke preset bawaan.',
+                { title: 'Reset Tampilan', btnLabel: 'Ya, Reset', icon: 'fa-rotate-left', danger: false }
+            );
         },
     };
 }

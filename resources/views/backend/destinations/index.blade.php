@@ -87,7 +87,7 @@
                                 @method('DELETE')
                                 <button
                                     type="submit"
-                                    onclick="return confirm('Move this destination to archive?')"
+                                    data-confirm="Move this destination to archive?"
                                     class="admin-btn-danger px-4 py-2"
                                 >
                                     Archive
@@ -148,7 +148,7 @@
                                 @method('DELETE')
                                 <button
                                     type="submit"
-                                    onclick="return confirm('Permanently delete this destination?')"
+                                    data-confirm="Permanently delete this destination?"
                                     class="admin-btn-danger px-4 py-2"
                                 >
                                     Delete Permanent

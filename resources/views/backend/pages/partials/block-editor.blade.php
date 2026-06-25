@@ -186,7 +186,7 @@
                         @method('DELETE')
                         <button
                             type="submit"
-                            onclick='return confirm(@js('Delete the block "'.$block->label.'"? This permanently removes its content and cannot be undone.'))'
+                            data-confirm="Hapus block &quot;{{ $block->label }}&quot;? Konten akan dihapus permanen dan tidak bisa dikembalikan."
                             class="admin-btn-danger px-3 py-1.5 text-xs"
                             aria-label="Delete {{ $block->label }}"
                         >

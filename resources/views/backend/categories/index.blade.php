@@ -71,7 +71,7 @@
                                 @method('DELETE')
                                 <button
                                     type="submit"
-                                    onclick="return confirm('Move this category to archive?')"
+                                    data-confirm="Move this category to archive?"
                                     class="admin-btn-danger px-4 py-2"
                                 >
                                     Archive
@@ -132,7 +132,7 @@
                                 @method('DELETE')
                                 <button
                                     type="submit"
-                                    onclick="return confirm('Permanently delete this category?')"
+                                    data-confirm="Permanently delete this category?"
                                     class="admin-btn-danger px-4 py-2"
                                 >
                                     Delete Permanent

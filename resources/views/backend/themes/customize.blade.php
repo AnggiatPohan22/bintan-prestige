@@ -208,7 +208,7 @@
                         <form
                             method="POST"
                             action="{{ route('admin.themes.customization.destroy', $theme) }}"
-                            onsubmit="return confirm('Reset all customization for {{ addslashes($theme->name) }} to schema defaults?')"
+                            data-confirm-submit="Reset all customization for {{ addslashes($theme->name) }} to schema defaults?"
                             class="ml-auto"
                         >
                             @csrf

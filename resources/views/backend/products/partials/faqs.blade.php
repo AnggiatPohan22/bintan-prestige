@@ -151,7 +151,7 @@
                             <button
                                 type="submit"
                                 class="admin-btn-danger w-full sm:w-auto"
-                                onclick="return confirm('Delete FAQ?')"
+                                data-confirm="Delete FAQ?"
                             >
                                 Delete
                             </button>

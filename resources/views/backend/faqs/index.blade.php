@@ -67,7 +67,7 @@
                                 @method('DELETE')
                                 <button
                                     type="submit"
-                                    onclick="return confirm('Delete this FAQ?')"
+                                    data-confirm="Delete this FAQ?"
                                     class="admin-btn-danger px-4 py-2"
                                 >
                                     Delete

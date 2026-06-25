@@ -462,7 +462,7 @@
                                     type="submit"
                                     form="delete-gallery-image-{{ $image->id }}"
                                     class="w-full rounded-lg border border-red-200 px-3 py-2 text-xs font-semibold text-red-600 hover:opacity-75"
-                                    onclick="return confirm('Delete this gallery image?')"
+                                    data-confirm="Delete this gallery image?"
                                 >
                                     Delete Image
                                 </button>
@@ -496,7 +496,7 @@
                     type="submit"
                     form="delete-product-thumbnail"
                     class="mt-3 rounded-lg border border-red-200 px-4 py-2 text-sm font-semibold text-red-600 hover:opacity-75"
-                    onclick="return confirm('Remove current thumbnail?')"
+                    data-confirm="Remove current thumbnail?"
                 >
                     Remove Thumbnail
                 </button>

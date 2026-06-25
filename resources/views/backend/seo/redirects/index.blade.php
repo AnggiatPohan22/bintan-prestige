@@ -47,7 +47,7 @@
                             <a href="{{ route('admin.seo.redirects.edit', $redirect) }}" class="admin-btn-soft px-3 py-2 text-xs">
                                 Edit
                             </a>
-                            <form method="POST" action="{{ route('admin.seo.redirects.destroy', $redirect) }}" onsubmit="return confirm('Delete this redirect?')">
+                            <form method="POST" action="{{ route('admin.seo.redirects.destroy', $redirect) }}" data-confirm-submit="Delete this redirect?">
                                 @csrf @method('DELETE')
                                 <button type="submit" class="admin-btn-danger px-3 py-2 text-xs">Delete</button>
                             </form>

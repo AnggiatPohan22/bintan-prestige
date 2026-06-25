@@ -281,7 +281,7 @@
 
                                         <button
                                             type="submit"
-                                            onclick="return confirm('Delete this product?')"
+                                            data-confirm="Delete this product?"
                                             class="flex h-11 w-11 items-center justify-center rounded-full border border-red-100 bg-admin-card text-red-600 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:opacity-75"
                                             title="Delete product"
                                             aria-label="Delete product"

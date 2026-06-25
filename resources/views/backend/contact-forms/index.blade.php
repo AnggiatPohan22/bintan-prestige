@@ -60,7 +60,7 @@
                                 @csrf @method('DELETE')
                                 <button
                                     type="submit"
-                                    onclick="return confirm('Delete form &quot;{{ addslashes($form->name) }}&quot; and all its submissions?')"
+                                    data-confirm="Delete form &quot;{{ addslashes($form->name) }}&quot; and all its submissions?"
                                     class="admin-btn-danger px-3 py-1.5 text-xs"
                                 >
                                     Delete

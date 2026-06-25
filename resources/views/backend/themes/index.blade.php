@@ -237,7 +237,7 @@
                                     method="POST"
                                     action="{{ route('admin.themes.activate', $theme) }}"
                                     class="flex-1"
-                                    onsubmit="return confirm('Activate \'{{ addslashes($theme->name) }}\'? This will change the live site appearance.')"
+                                    data-confirm-submit="Aktifkan tema &quot;{{ htmlspecialchars($theme->name, ENT_QUOTES) }}&quot;? Tampilan live site akan berubah."
                                 >
                                     @csrf
                                     @method('PATCH')

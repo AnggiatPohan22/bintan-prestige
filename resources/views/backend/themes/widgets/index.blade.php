@@ -128,7 +128,7 @@
 
                                     {{-- Delete --}}
                                     <form method="POST" action="{{ route('admin.themes.widgets.destroy', [$theme, $widget]) }}"
-                                          onsubmit="return confirm('Delete this widget?')">
+                                          data-confirm-submit="Delete this widget?">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="shrink-0 text-sm text-red-500 hover:text-red-700">
