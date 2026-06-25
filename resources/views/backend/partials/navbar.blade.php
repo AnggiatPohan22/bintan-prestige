@@ -60,8 +60,8 @@
             <button
                 type="button"
                 class="admin-topbar__icon-button"
-                x-data="adminUiModeToggle(@js($adminUiMode ?? 'auto'))"
-                x-on:click="cycle"
+                x-data="adminUiModeToggle(@js($adminUiMode ?? 'dark'))"
+                x-on:click="toggle"
                 x-bind:aria-label="label"
                 x-bind:title="label"
             >

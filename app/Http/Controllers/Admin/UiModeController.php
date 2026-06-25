@@ -13,7 +13,7 @@ class UiModeController extends Controller
     public function update(Request $request): Response
     {
         $data = $request->validate([
-            'ui_mode' => ['required', Rule::in(User::UI_MODES)],
+            'ui_mode' => ['required', Rule::in([User::UI_MODE_DARK, User::UI_MODE_LIGHT])],
         ]);
 
         $user = $request->user();

@@ -1301,13 +1301,13 @@ html[data-admin-mode="light"] {
     --admin-primary-soft:   #EDE9FE;
     --admin-primary-glow:   rgba(124, 58, 237, 0.15);
 
-    /* Sidebar — tetap dark di "light classic" */
-    --admin-sidebar-bg:           #0F172A;
-    --admin-sidebar-border:       rgba(255, 255, 255, 0.06);
-    --admin-sidebar-text:         #64748B;
-    --admin-sidebar-text-hover:   #CBD5E1;
-    --admin-sidebar-active-bg:    rgba(124, 58, 237, 0.20);
-    --admin-sidebar-active-text:  #C4B5FD;
+    /* Sidebar — light mode: ikut mode utama (whole interface flips together) */
+    --admin-sidebar-bg:           #FFFFFF;
+    --admin-sidebar-border:       #E2E8F0;
+    --admin-sidebar-text:         #475569;
+    --admin-sidebar-text-hover:   #0F172A;
+    --admin-sidebar-active-bg:    rgba(124, 58, 237, 0.10);
+    --admin-sidebar-active-text:  #6D28D9;
     --admin-sidebar-active-border:#7C3AED;
 }
 

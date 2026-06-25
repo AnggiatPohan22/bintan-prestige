@@ -7,32 +7,30 @@ import { initFrontend } from './frontend';
 Alpine.plugin(sort);
 window.Alpine = Alpine;
 
-// Per-user admin UI mode toggle (auto -> dark -> light -> auto).
+// Per-user admin UI mode toggle (dark <-> light).
 // Updates <html data-admin-mode> instantly + persists via POST.
 Alpine.data('adminUiModeToggle', (initial) => ({
-    mode: initial || 'auto',
+    // Anything other than explicit 'light' (including legacy 'auto') starts as dark.
+    mode: initial === 'light' ? 'light' : 'dark',
 
     init() {
         this.applyDom();
     },
 
     get iconClass() {
-        if (this.mode === 'dark')  return 'fa-moon';
-        if (this.mode === 'light') return 'fa-sun';
-        return 'fa-circle-half-stroke';
+        return this.mode === 'light' ? 'fa-sun' : 'fa-moon';
     },
 
     get label() {
-        if (this.mode === 'dark')  return 'Theme: Dark (click for Light)';
-        if (this.mode === 'light') return 'Theme: Light (click for Auto)';
-        return 'Theme: Auto (click for Dark)';
+        return this.mode === 'light'
+            ? 'Theme: Light (click for Night)'
+            : 'Theme: Night (click for Light)';
     },
 
-    cycle() {
-        const next = this.mode === 'auto' ? 'dark' : this.mode === 'dark' ? 'light' : 'auto';
-        this.mode = next;
+    toggle() {
+        this.mode = this.mode === 'light' ? 'dark' : 'light';
         this.applyDom();
-        this.persist(next);
+        this.persist(this.mode);
     },
 
     applyDom() {
