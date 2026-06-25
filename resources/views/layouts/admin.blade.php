@@ -58,9 +58,6 @@
             {{-- Flash Alert --}}
             <x-flash-alert />
 
-            {{-- Confirm Modal --}}
-            <x-confirm-modal />
-
             @yield('content')
 
             </div>
@@ -72,6 +69,9 @@
     <x-admin.command-palette />
 
 </div>
+
+{{-- Confirm / Delete Modal — direct child of body so position:fixed inset-0 covers full viewport --}}
+<x-confirm-modal />
 
 @stack('scripts')
 

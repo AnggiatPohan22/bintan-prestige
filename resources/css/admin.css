@@ -522,7 +522,8 @@
     ========================== */
 
     .admin-modal-overlay {
-        @apply fixed inset-0 z-50 flex items-center justify-center p-4;
+        @apply fixed inset-0 flex items-center justify-center p-4;
+        z-index:         9999;
         background:      var(--admin-modal-overlay, rgba(2, 6, 23, 0.75));
         backdrop-filter: blur(8px);
     }

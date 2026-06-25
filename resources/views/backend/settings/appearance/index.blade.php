@@ -15,6 +15,10 @@
     $seedLight = ! empty($lightTokens) ? $lightTokens : ($presets['full-light']['tokens'] ?? []);
 @endphp
 
+{{-- Signal to adminUiModeToggle (app.js) that this page owns data-admin-mode.
+     Must run BEFORE Alpine initialises so the navbar init() can read the flag. --}}
+<script>window._customizerActive = true;</script>
+
 <div x-data="customizerV2({
     initialMode:    @js($initialMode),
     darkTokens:     @js($seedDark),
@@ -421,6 +425,13 @@ function customizerV2(config) {
         init() {
             this.activePreset = this.detectPreset(this.activeMode);
             this.applyLivePreview();
+
+            // Sync with topbar toggle: when user clicks the Night/Light button
+            // in the navbar while on this page, customizer handles the mode switch
+            // so both components stay in sync without fighting over data-admin-mode.
+            window.addEventListener('customizer:set-mode', (e) => {
+                this.setMode(e.detail);
+            });
         },
 
         // ── Helpers ────────────────────────────────────────
@@ -474,14 +485,26 @@ function customizerV2(config) {
             const tokens = this.editing[this.activeMode];
             const root   = document.documentElement;
 
+            // 1. Set/clear mode attribute first (activates/deactivates CSS selectors)
             if (this.activeMode === 'light') {
                 root.setAttribute('data-admin-mode', 'light');
             } else {
                 root.removeAttribute('data-admin-mode');
             }
 
+            // 2. Wipe ALL stale --admin-* inline vars from any previous mode preview
+            //    so opposite-mode stylesheet rules can take effect cleanly, then
+            //    re-paint only the active mode's tokens.
+            const style = root.style;
+            const toRemove = [];
+            for (let i = 0; i < style.length; i++) {
+                if (style[i].startsWith('--admin-')) toRemove.push(style[i]);
+            }
+            toRemove.forEach(p => style.removeProperty(p));
+
+            // 3. Paint current-mode tokens inline (highest specificity — always wins)
             Object.entries(tokens).forEach(([key, value]) => {
-                if (value) root.style.setProperty(`--admin-${key}`, value);
+                if (value) style.setProperty(`--admin-${key}`, value);
             });
         },
 

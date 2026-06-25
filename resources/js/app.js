@@ -9,12 +9,19 @@ window.Alpine = Alpine;
 
 // Per-user admin UI mode toggle (dark <-> light).
 // Updates <html data-admin-mode> instantly + persists via POST.
+//
+// When the Customizer v2 page is active (window._customizerActive = true),
+// this component defers all DOM manipulation to the customizer so the two
+// don't fight over data-admin-mode / inline CSS vars.  The customizer sets
+// the flag via an inline <script> that runs before Alpine starts.
 Alpine.data('adminUiModeToggle', (initial) => ({
-    // Anything other than explicit 'light' (including legacy 'auto') starts as dark.
     mode: initial === 'light' ? 'light' : 'dark',
 
     init() {
-        this.applyDom();
+        // Customizer owns data-admin-mode on that page — skip here.
+        if (!window._customizerActive) {
+            this.applyDom();
+        }
     },
 
     get iconClass() {
@@ -29,7 +36,17 @@ Alpine.data('adminUiModeToggle', (initial) => ({
 
     toggle() {
         this.mode = this.mode === 'light' ? 'dark' : 'light';
-        this.applyDom();
+
+        if (window._customizerActive) {
+            // Delegate DOM change to customizer so it can apply inline vars
+            // for the correct mode and avoid stale-var conflicts.
+            window.dispatchEvent(
+                new CustomEvent('customizer:set-mode', { detail: this.mode })
+            );
+        } else {
+            this.applyDom();
+        }
+
         this.persist(this.mode);
     },
 
