@@ -60,6 +60,17 @@
             <button
                 type="button"
                 class="admin-topbar__icon-button"
+                x-data="adminUiModeToggle(@js($adminUiMode ?? 'auto'))"
+                x-on:click="cycle"
+                x-bind:aria-label="label"
+                x-bind:title="label"
+            >
+                <i class="fa-regular" x-bind:class="iconClass" aria-hidden="true"></i>
+            </button>
+
+            <button
+                type="button"
+                class="admin-topbar__icon-button"
                 aria-label="Notifications"
             >
                 <i class="fa-regular fa-bell" aria-hidden="true"></i>

@@ -28,6 +28,7 @@ use App\Http\Controllers\Admin\ProductNoteController;
 use App\Http\Controllers\Admin\RedirectController;
 use App\Http\Controllers\Admin\SeoRobotsController;
 use App\Http\Controllers\Admin\SiteSettingController;
+use App\Http\Controllers\Admin\UiModeController;
 use App\Http\Controllers\Admin\ThemeController;
 use App\Http\Controllers\Admin\UserManagementController;
 use App\Http\Controllers\Admin\WidgetController;
@@ -161,6 +162,10 @@ Route::middleware(['auth', 'admin'])
                 Route::post('/reset', [DashboardAppearanceController::class, 'reset'])
                     ->name('reset');
             });
+
+        // Per-user UI mode toggle — available to every authenticated admin user.
+        Route::post('settings/ui-mode', [UiModeController::class, 'update'])
+            ->name('settings.ui-mode.update');
 
         Route::get('page-sections', [PageSectionController::class, 'index'])
             ->name('page-sections.index');
