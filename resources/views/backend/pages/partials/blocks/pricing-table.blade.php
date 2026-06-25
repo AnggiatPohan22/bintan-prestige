@@ -59,7 +59,7 @@
             </div>
 
             <div class="flex items-center justify-between gap-3">
-                <label class="flex items-center gap-2 text-sm font-medium text-slate-300">
+                <label class="flex items-center gap-2 text-sm font-medium text-admin-secondary">
                     <input type="hidden" :name="`data[plans][${planIndex}][featured]`" value="0">
                     <input type="checkbox" :name="`data[plans][${planIndex}][featured]`" value="1" x-model="plan.featured" class="rounded border-admin">
                     Highlight this plan

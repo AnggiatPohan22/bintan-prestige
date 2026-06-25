@@ -6,7 +6,7 @@
     <div class="admin-modal-panel max-w-md">
 
         <div class="admin-modal-header">
-            <h3 class="text-base font-bold text-slate-100">
+            <h3 class="text-base font-bold text-admin-primary">
                 Confirm Action
             </h3>
         </div>

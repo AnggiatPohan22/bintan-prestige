@@ -94,7 +94,7 @@
                                 class="admin-input"
                             >
 
-                            <p class="mt-2 text-xs text-slate-400">
+                            <p class="mt-2 text-xs text-admin-secondary">
                                 Optional. Leave empty to auto-generate from product name.
                             </p>
                         </div>
@@ -155,7 +155,7 @@
                                 class="admin-input {{ $errors->has('whatsapp_number') ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : '' }}"
                             >
 
-                            <p class="mt-2 text-xs text-slate-400">
+                            <p class="mt-2 text-xs text-admin-secondary">
                                 Used for the booking CTA on the product page.
                             </p>
 
@@ -178,7 +178,7 @@
                                 class="admin-input {{ $errors->has('duration') ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : '' }}"
                             >
 
-                            <p class="mt-2 text-xs text-slate-400">
+                            <p class="mt-2 text-xs text-admin-secondary">
                                 Example: 3 hours, Half day, or Full day.
                             </p>
 
@@ -291,7 +291,7 @@
                                         {{ old('is_featured', $product->is_featured ?? false) ? 'checked' : '' }}
                                     >
 
-                                    <div class="relative h-6 w-12 rounded-full bg-slate-300
+                                    <div class="relative h-6 w-12 rounded-full bg-admin-surface
                                         peer peer-checked:bg-indigo-600
                                         after:absolute after:left-[2px]
                                         after:top-[2px]
@@ -334,7 +334,7 @@
                                 placeholder="500000"
                                 class="admin-input {{ $errors->has('idr_price') ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : '' }}">
 
-                            <p class="mt-2 text-xs text-slate-400">
+                            <p class="mt-2 text-xs text-admin-secondary">
                                 Main local market price.
                             </p>
 
@@ -358,7 +358,7 @@
                                 ) }}"
                                 class="admin-input {{ $errors->has('sgd_price') ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : '' }}">
 
-                            <p class="mt-2 text-xs text-slate-400">
+                            <p class="mt-2 text-xs text-admin-secondary">
                                 Singapore/international market price.
                             </p>
 
@@ -403,7 +403,7 @@
                                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
 
-                                <div class="mt-3 space-y-1 text-xs leading-5 text-slate-400">
+                                <div class="mt-3 space-y-1 text-xs leading-5 text-admin-secondary">
                                     <p>Recommended size: 1200x800px or larger.</p>
                                     <p>Leave thumbnail empty to auto-use first gallery image.</p>
                                 </div>
@@ -418,7 +418,7 @@
                                         <button
                                             type="submit"
                                             form="delete-product-thumbnail"
-                                            class="mt-3 w-full rounded-lg border border-red-200 px-4 py-2 text-sm font-semibold text-red-600 hover:bg-red-50"
+                                            class="mt-3 w-full rounded-lg border border-red-200 px-4 py-2 text-sm font-semibold text-red-600 hover:opacity-75"
                                             onclick="return confirm('Remove current thumbnail?')"
                                         >
                                             Remove Thumbnail
@@ -465,7 +465,7 @@
                                 multiple
                                 class="admin-input">
 
-                            <div class="mt-3 space-y-1 text-xs leading-5 text-slate-400">
+                            <div class="mt-3 space-y-1 text-xs leading-5 text-admin-secondary">
                                 <p>Maximum 10 gallery images.</p>
                                 <p>Recommended format: JPG, PNG, WEBP.</p>
                                 <p>Recommended size: 1200x800px or larger.</p>
@@ -533,7 +533,7 @@
 
         {{-- ACTION BUTTON --}}
         <div
-            class="flex flex-col gap-3 border-t border-slate-100 pt-5 sm:flex-row sm:items-center"
+            class="flex flex-col gap-3 border-t border-admin pt-5 sm:flex-row sm:items-center"
         >
 
             <button
@@ -852,8 +852,8 @@
 
                     @include('backend.products.partials.search-booking')
 
-                    <div class="flex flex-col gap-3 border-t border-slate-200 pt-5 sm:flex-row sm:items-center sm:justify-between">
-                        <p class="text-sm text-slate-400">
+                    <div class="flex flex-col gap-3 border-t border-admin pt-5 sm:flex-row sm:items-center sm:justify-between">
+                        <p class="text-sm text-admin-secondary">
                             Save these settings separately from the main product information.
                         </p>
 

@@ -32,7 +32,7 @@
             {{-- Slug --}}
             <div>
 
-                <label class="block mb-2 text-sm font-semibold text-slate-300">
+                <label class="block mb-2 text-sm font-semibold text-admin-secondary">
                     Slug
                 </label>
 
@@ -44,7 +44,7 @@
                     class="{{ $inputClass }} {{ $normalClass }}"
                 >
 
-                <p class="mt-2 text-xs text-slate-400">
+                <p class="mt-2 text-xs text-admin-secondary">
                     Optional — leave empty for auto generate
                 </p>
 
@@ -53,7 +53,7 @@
             {{-- Short Description --}}
             <div>
 
-                <label class="block mb-2 text-sm font-semibold text-slate-300">
+                <label class="block mb-2 text-sm font-semibold text-admin-secondary">
                     Short Description
                     <span class="text-red-500">*</span>
                 </label>
@@ -79,7 +79,7 @@
             {{-- Meeting Point --}}
             <div>
 
-                <label class="block mb-2 text-sm font-semibold text-slate-300">
+                <label class="block mb-2 text-sm font-semibold text-admin-secondary">
                     Meeting Point
                     <span class="text-red-500">*</span>
                 </label>
@@ -130,7 +130,7 @@
 
             {{--Duration --}}
             <div>
-                <label class="block mb-2 text-sm font-semibold text-slate-300">
+                <label class="block mb-2 text-sm font-semibold text-admin-secondary">
                     Duration
                     <span class="text-red-500">*</span>
                 </label>
@@ -155,7 +155,7 @@
             {{-- WhatsApp --}}
             <div>
 
-                <label class="block mb-2 text-sm font-semibold text-slate-300">
+                <label class="block mb-2 text-sm font-semibold text-admin-secondary">
                     WhatsApp Contact
                     <span class="text-red-500">*</span>
                 </label>
@@ -291,16 +291,16 @@
             </div>
 
             {{-- Featured --}}
-            <div class="rounded-xl border border-slate-200 p-4 shadow-sm">
+            <div class="rounded-xl border border-admin p-4 shadow-sm">
 
                 <div class="flex items-center justify-between">
 
                     <div>
-                        <h4 class="font-semibold text-slate-300">
+                        <h4 class="font-semibold text-admin-secondary">
                             Featured Product
                         </h4>
 
-                        <p class="text-sm text-slate-400">
+                        <p class="text-sm text-admin-secondary">
                             Show on featured section
                         </p>
                     </div>
@@ -324,7 +324,7 @@
                             ) ? 'checked' : '' }}
                         >
 
-                        <div class="relative w-12 h-6 bg-slate-300 rounded-full
+                        <div class="relative w-12 h-6 bg-admin-surface rounded-full
                             peer peer-checked:bg-emerald-600
                             after:content-['']
                             after:absolute after:left-[2px]
@@ -394,7 +394,7 @@
                         {{ $message }}
                     </p>
                 @enderror
-                <p class="mt-2 text-xs text-slate-400">
+                <p class="mt-2 text-xs text-admin-secondary">
                     Leave thumbnail empty to auto-use first gallery image.
                 </p>
 
@@ -433,7 +433,7 @@
 
                     @foreach($product->images as $image)
 
-                        <div class="relative overflow-hidden rounded-xl border bg-white shadow">
+                        <div class="relative overflow-hidden rounded-xl border bg-admin-card shadow">
 
                             <img
                                 src="{{ asset(
@@ -461,7 +461,7 @@
                                 <button
                                     type="submit"
                                     form="delete-gallery-image-{{ $image->id }}"
-                                    class="w-full rounded-lg border border-red-200 px-3 py-2 text-xs font-semibold text-red-600 hover:bg-red-50"
+                                    class="w-full rounded-lg border border-red-200 px-3 py-2 text-xs font-semibold text-red-600 hover:opacity-75"
                                     onclick="return confirm('Delete this gallery image?')"
                                 >
                                     Delete Image
@@ -495,7 +495,7 @@
                 <button
                     type="submit"
                     form="delete-product-thumbnail"
-                    class="mt-3 rounded-lg border border-red-200 px-4 py-2 text-sm font-semibold text-red-600 hover:bg-red-50"
+                    class="mt-3 rounded-lg border border-red-200 px-4 py-2 text-sm font-semibold text-red-600 hover:opacity-75"
                     onclick="return confirm('Remove current thumbnail?')"
                 >
                     Remove Thumbnail

@@ -108,7 +108,7 @@
                             </button>
                         </form>
                     @else
-                        <button type="button" disabled class="rounded p-2 text-slate-200" aria-label="{{ $block->label }} is already first">
+                        <button type="button" disabled class="rounded p-2 text-admin-secondary" aria-label="{{ $block->label }} is already first">
                             <i class="fa-solid fa-chevron-up text-xs" aria-hidden="true"></i>
                         </button>
                     @endif
@@ -130,7 +130,7 @@
                             </button>
                         </form>
                     @else
-                        <button type="button" disabled class="rounded p-2 text-slate-200" aria-label="{{ $block->label }} is already last">
+                        <button type="button" disabled class="rounded p-2 text-admin-secondary" aria-label="{{ $block->label }} is already last">
                             <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
                         </button>
                     @endif
@@ -147,7 +147,7 @@
 
                 <div class="min-w-0 flex-1">
                     <span class="admin-badge-info shrink-0 font-mono text-xs">{{ $block->block_type }}</span>
-                    <p class="mt-1 truncate text-sm font-semibold text-slate-300">{{ $block->label }}</p>
+                    <p class="mt-1 truncate text-sm font-semibold text-admin-secondary">{{ $block->label }}</p>
                     <p class="mt-0.5 text-xs {{ $block->is_visible ? 'text-emerald-600' : 'text-admin-secondary' }}">
                         {{ $block->is_visible ? 'Visible on page' : 'Hidden from page' }}
                     </p>
@@ -277,7 +277,7 @@
             <span class="mx-auto grid h-12 w-12 place-items-center rounded-full bg-indigo-50 text-indigo-500" aria-hidden="true">
                 <i class="fa-solid fa-layer-group"></i>
             </span>
-            <p class="mt-3 font-semibold text-slate-300">Build this page one block at a time.</p>
+            <p class="mt-3 font-semibold text-admin-secondary">Build this page one block at a time.</p>
             <p class="mx-auto mt-1 max-w-md text-sm text-admin-secondary">Choose a block type above. You can edit, preview media, show or hide, and reorder it later with the keyboard-friendly Up and Down controls.</p>
             <a href="#block_type" class="admin-btn-primary mt-4 inline-flex">Choose the first block</a>
         </div>

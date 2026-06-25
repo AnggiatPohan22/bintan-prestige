@@ -14,7 +14,7 @@
     {{-- ============ IMAGES ============ --}}
     <section class="rounded-xl border border-admin bg-admin-card/60 p-4">
         <header class="mb-3 flex items-center justify-between gap-2">
-            <h4 class="text-sm font-semibold text-slate-300">
+            <h4 class="text-sm font-semibold text-admin-secondary">
                 <i class="fa-solid fa-images mr-1 text-admin-secondary"></i>
                 Images
                 <span class="ml-1 font-normal text-admin-secondary" x-text="'(' + images.length + ')'"></span>
@@ -59,7 +59,7 @@
                 >
                     <img x-show="img.src" :src="imgPreview(img.src)" class="h-full w-full object-cover" x-cloak>
                     <div x-show="!img.src" class="flex h-full w-full items-center justify-center" x-cloak>
-                        <i class="fa-solid fa-image text-slate-300"></i>
+                        <i class="fa-solid fa-image text-admin-secondary"></i>
                     </div>
                     <span class="absolute left-1 top-1 rounded bg-black/60 px-1.5 text-[10px] font-semibold text-white"
                           x-text="i + 1"></span>
@@ -87,19 +87,19 @@
                     </span>
                     <div class="flex items-center gap-0.5">
                         <button type="button" x-on:click="move(selected, -1)" :disabled="selected === 0"
-                                class="rounded p-1.5 text-admin-secondary hover:bg-slate-700 hover:text-slate-200 disabled:opacity-30" title="Move left">
+                                class="rounded p-1.5 text-admin-secondary hover:opacity-75 hover:text-admin-secondary disabled:opacity-30" title="Move left">
                             <i class="fa-solid fa-arrow-left text-xs"></i>
                         </button>
                         <button type="button" x-on:click="move(selected, 1)" :disabled="selected === images.length - 1"
-                                class="rounded p-1.5 text-admin-secondary hover:bg-slate-700 hover:text-slate-200 disabled:opacity-30" title="Move right">
+                                class="rounded p-1.5 text-admin-secondary hover:opacity-75 hover:text-admin-secondary disabled:opacity-30" title="Move right">
                             <i class="fa-solid fa-arrow-right text-xs"></i>
                         </button>
                         <button type="button" x-on:click="removeImage(selected)"
-                                class="rounded p-1.5 text-red-400 hover:bg-red-50 hover:text-red-600" title="Remove">
+                                class="rounded p-1.5 text-red-400 hover:opacity-75 hover:text-red-600" title="Remove">
                             <i class="fa-solid fa-trash text-xs"></i>
                         </button>
                         <button type="button" x-on:click="selected = null"
-                                class="rounded p-1.5 text-admin-secondary hover:bg-slate-700 hover:text-slate-200" title="Close">
+                                class="rounded p-1.5 text-admin-secondary hover:opacity-75 hover:text-admin-secondary" title="Close">
                             <i class="fa-solid fa-xmark text-xs"></i>
                         </button>
                     </div>
@@ -121,7 +121,7 @@
 
     {{-- ============ DISPLAY OPTIONS ============ --}}
     <section class="rounded-xl border border-admin p-4">
-        <h4 class="mb-3 text-sm font-semibold text-slate-300">
+        <h4 class="mb-3 text-sm font-semibold text-admin-secondary">
             <i class="fa-solid fa-sliders mr-1 text-admin-secondary"></i>Display Options
         </h4>
 
@@ -164,19 +164,19 @@
                 <input type="hidden" name="data[show_captions]" value="0">
                 <input type="checkbox" name="data[show_captions]" value="1" class="rounded border-admin"
                        @checked($block->data['show_captions'] ?? false)>
-                <span class="text-sm text-slate-300">Per-image captions</span>
+                <span class="text-sm text-admin-secondary">Per-image captions</span>
             </label>
             <label class="flex items-center gap-2">
                 <input type="hidden" name="data[lightbox_enabled]" value="0">
                 <input type="checkbox" name="data[lightbox_enabled]" value="1" class="rounded border-admin"
                        @checked($block->data['lightbox_enabled'] ?? true)>
-                <span class="text-sm text-slate-300">Lightbox on click</span>
+                <span class="text-sm text-admin-secondary">Lightbox on click</span>
             </label>
             <label class="flex items-center gap-2">
                 <input type="hidden" name="data[autoplay]" value="0">
                 <input type="checkbox" name="data[autoplay]" value="1" class="rounded border-admin"
                        @checked($block->data['autoplay'] ?? false)>
-                <span class="text-sm text-slate-300">Autoplay carousel</span>
+                <span class="text-sm text-admin-secondary">Autoplay carousel</span>
             </label>
         </div>
     </section>

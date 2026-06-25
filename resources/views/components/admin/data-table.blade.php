@@ -12,7 +12,7 @@
         <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div class="flex flex-wrap items-center gap-3">
                 @if($title)
-                    <h2 class="text-lg font-extrabold text-slate-100">{{ $title }}</h2>
+                    <h2 class="text-lg font-extrabold text-admin-primary">{{ $title }}</h2>
                 @endif
                 @if($count !== null)
                     <span class="admin-badge-{{ $countBadge }}">{{ $count }} item(s)</span>

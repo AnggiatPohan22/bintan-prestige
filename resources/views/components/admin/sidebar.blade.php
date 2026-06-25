@@ -205,7 +205,7 @@ $groups = [
                     <a href="{{ route('sitemap') }}" target="_blank" rel="noopener"
                        class="group admin-sidebar__child">
                         Sitemap
-                        <i class="fa-solid fa-arrow-up-right-from-square ml-auto text-[10px] text-slate-400" aria-hidden="true"></i>
+                        <i class="fa-solid fa-arrow-up-right-from-square ml-auto text-[10px] text-admin-secondary" aria-hidden="true"></i>
                     </a>
                 </div>
             </div>

@@ -46,7 +46,7 @@
             class="rounded border-admin text-indigo-600 focus:ring-indigo-500"
             @checked($block->data['show_price'] ?? true)
         >
-        <label for="show_price_{{ $block->id }}" class="text-sm font-medium text-slate-300">
+        <label for="show_price_{{ $block->id }}" class="text-sm font-medium text-admin-secondary">
             Show price on product cards
         </label>
     </div>

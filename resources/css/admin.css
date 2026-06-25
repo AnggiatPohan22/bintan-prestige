@@ -651,6 +651,10 @@
         border-color: var(--admin-sidebar-active-border);
         color:        var(--admin-sidebar-active-text);
     }
+    .admin-sidebar-toggle:focus-visible {
+        outline: 2px solid var(--admin-primary);
+        outline-offset: 2px;
+    }
 
     .admin-sidebar-backdrop {
         @apply fixed inset-0 z-40 lg:hidden;
@@ -697,6 +701,7 @@
         color: var(--admin-text-muted);
     }
     .admin-sidebar__close:hover { color: var(--admin-text-primary); }
+    .admin-sidebar__close:focus-visible { outline: 2px solid var(--admin-primary); outline-offset: 2px; }
 
     .admin-sidebar__nav {
         @apply flex flex-1 flex-col gap-0.5 px-3 py-4 pb-8;
@@ -756,6 +761,10 @@
     .admin-sidebar__group-btn:hover {
         background: rgba(255, 255, 255, 0.05);
         color:      var(--admin-sidebar-text-hover);
+    }
+    .admin-sidebar__group-btn:focus-visible {
+        outline: 2px solid var(--admin-primary);
+        outline-offset: 2px;
     }
 
     .admin-sidebar__group-btn--active {
@@ -1241,6 +1250,7 @@
     .text-admin-primary   { color: var(--admin-text-primary); }
     .text-admin-secondary { color: var(--admin-text-secondary); }
     .text-admin-muted     { color: var(--admin-text-muted); }
+    .bg-admin-base        { background: var(--admin-bg-base); }
     .bg-admin-card        { background: var(--admin-bg-card); }
     .bg-admin-surface     { background: var(--admin-bg-hover); }
     .border-admin         { border-color: var(--admin-border); }

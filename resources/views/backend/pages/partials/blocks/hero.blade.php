@@ -140,7 +140,7 @@
                         class="rounded border-admin"
                         @checked(filter_var($block->data['has_overlay'] ?? true, FILTER_VALIDATE_BOOLEAN))
                     >
-                    <span class="text-sm font-medium text-slate-300">Enable gradient overlay</span>
+                    <span class="text-sm font-medium text-admin-secondary">Enable gradient overlay</span>
                 </label>
                 <p class="text-xs text-admin-secondary">Adds a dark gradient so text stays readable over bright images.</p>
             </div>

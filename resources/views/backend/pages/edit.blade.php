@@ -464,7 +464,7 @@
                                                         @if(!empty($revision->meta_snapshot[$key]))
                                                             <div class="flex gap-2">
                                                                 <dt class="w-24 shrink-0 text-admin-secondary">{{ $label }}</dt>
-                                                                <dd class="min-w-0 truncate font-medium text-slate-300">{{ $revision->meta_snapshot[$key] }}</dd>
+                                                                <dd class="min-w-0 truncate font-medium text-admin-secondary">{{ $revision->meta_snapshot[$key] }}</dd>
                                                             </div>
                                                         @endif
                                                     @endforeach
@@ -558,7 +558,7 @@
             <div x-show="active === 'danger'" x-cloak class="border-t border-red-50">
                 <div class="flex flex-col gap-4 px-6 py-5 sm:flex-row sm:items-center sm:justify-between">
                     <div>
-                        <p class="text-sm font-medium text-slate-300">Delete this page</p>
+                        <p class="text-sm font-medium text-admin-secondary">Delete this page</p>
                         <p class="text-sm text-admin-secondary">This action is permanent and cannot be undone. All blocks will be deleted.</p>
                     </div>
 

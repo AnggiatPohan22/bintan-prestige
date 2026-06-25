@@ -16,7 +16,7 @@
 
 <div class="admin-card">
     <div class="admin-card-header">
-        <h3 class="text-sm font-bold text-slate-700">Publish</h3>
+        <h3 class="text-sm font-bold text-admin-primary">Publish</h3>
     </div>
 
     <div class="admin-card-body space-y-4">
@@ -53,7 +53,7 @@
             <div>{{ $extra }}</div>
         @endif
 
-        <div class="space-y-2 border-t border-slate-100 pt-4">
+        <div class="space-y-2 border-t border-admin pt-4">
             <button type="submit" class="admin-btn-primary w-full">
                 {{ $submitLabel }}
             </button>
