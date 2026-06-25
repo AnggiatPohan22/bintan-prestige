@@ -126,6 +126,71 @@ primary: #7C3AED
 
 ---
 
+## ⚠️ TAKE NOTED — Bug: `__PHP_Incomplete_Class` (ditemukan & diperbaiki)
+
+### Gejala
+
+```
+App\Services\AdminAppearanceService::getCurrent(): Return value must be of type
+App\Models\AdminDashboardAppearance, __PHP_Incomplete_Class returned.
+```
+
+### Root Cause
+
+`Cache::remember()` pada implementasi awal menyimpan **Eloquent model object**
+(bukan plain data) ke cache (serialized PHP). Saat request berikutnya
+mendapatkan nilai dari cache, PHP men-deserialize object tersebut **sebelum**
+autoloader punya kesempatan load class `AdminDashboardAppearance` — hasilnya
+`__PHP_Incomplete_Class` yang tidak bisa di-cast ke return type.
+
+### Fix (diterapkan)
+
+Cache hanya menyimpan **raw attributes array** (plain PHP `array`, tidak
+bergantung class). Model di-reconstruct saat retrieve:
+
+```php
+// SEBELUM (salah — cache Eloquent object):
+return Cache::remember(self::CACHE_KEY, self::CACHE_TTL, function () {
+    return AdminDashboardAppearance::getCurrent();
+});
+
+// SESUDAH (benar — cache raw attributes):
+$attributes = Cache::remember(self::CACHE_KEY, self::CACHE_TTL, function () {
+    $record = AdminDashboardAppearance::first();
+    return $record?->getAttributes();
+});
+
+if ($attributes) {
+    $model = new AdminDashboardAppearance();
+    $model->setRawAttributes($attributes);
+    $model->exists = true;
+    return $model;
+}
+
+return AdminDashboardAppearance::makeDefault();
+```
+
+### Verifikasi Fix
+
+```bash
+php artisan cache:clear
+php artisan tinker --execute="
+\$svc = app(App\Services\AdminAppearanceService::class);
+\$a = \$svc->getCurrent();
+echo get_class(\$a);    // App\Models\AdminDashboardAppearance ✅
+\$b = \$svc->getCurrent();
+echo get_class(\$b);    // App\Models\AdminDashboardAppearance ✅ (dari cache)
+"
+```
+
+### Aturan Umum untuk Sessions Berikutnya
+
+> **JANGAN** simpan Eloquent model/collection ke Laravel Cache.
+> Selalu cache **plain array** atau **scalar values**, reconstruct model saat
+> retrieve. Ini berlaku untuk service apapun yang pakai `Cache::remember()`.
+
+---
+
 ## Browser Verification
 
 Setelah Step 14 + 15 selesai, cek di DevTools:

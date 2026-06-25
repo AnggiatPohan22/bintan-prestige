@@ -13,9 +13,22 @@ class AdminAppearanceService
 
     public function getCurrent(): AdminDashboardAppearance
     {
-        return Cache::remember(self::CACHE_KEY, self::CACHE_TTL, function () {
-            return AdminDashboardAppearance::getCurrent();
+        // Cache raw attributes array — bukan Eloquent object.
+        // Menyimpan object ke cache menyebabkan __PHP_Incomplete_Class saat
+        // deserialized di request baru sebelum autoloader load class-nya.
+        $attributes = Cache::remember(self::CACHE_KEY, self::CACHE_TTL, function () {
+            $record = AdminDashboardAppearance::first();
+            return $record?->getAttributes();
         });
+
+        if ($attributes) {
+            $model = new AdminDashboardAppearance();
+            $model->setRawAttributes($attributes);
+            $model->exists = true;
+            return $model;
+        }
+
+        return AdminDashboardAppearance::makeDefault();
     }
 
     public function update(array $data, User $user): AdminDashboardAppearance
