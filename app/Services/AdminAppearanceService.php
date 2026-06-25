@@ -68,13 +68,71 @@ class AdminAppearanceService
      */
     public function resolveModeForUser(?User $user): string
     {
-        $global = $this->getCurrent()->mode ?? 'dark';
+        $global = $this->getCurrent()->mode ?? config('admin_palettes.defaults.mode', 'light');
 
         if (! $user || ($user->ui_mode ?? User::UI_MODE_AUTO) === User::UI_MODE_AUTO) {
             return $global;
         }
 
         return $user->ui_mode;
+    }
+
+    /**
+     * Return the token bag (flat hex map) for the requested mode.
+     *
+     * Resolution order:
+     *  1. DB column (`dark_palette` or `light_palette` JSON) if present
+     *  2. Starter preset from config (defaults.dark_preset / defaults.light_preset)
+     *  3. Empty array (the legacy hex columns + admin.css fallback take over)
+     */
+    public function paletteFor(string $mode): array
+    {
+        $a = $this->getCurrent();
+        $column = $mode === 'dark' ? 'dark_palette' : 'light_palette';
+
+        $stored = is_array($a->{$column} ?? null) ? $a->{$column} : [];
+        if (! empty($stored)) {
+            return $stored;
+        }
+
+        $presetKey = config("admin_palettes.defaults.{$mode}_preset");
+        return config("admin_palettes.presets.{$presetKey}.tokens", []);
+    }
+
+    /**
+     * Emit CSS custom-property block for the given resolved mode.
+     *
+     * Selector strategy:
+     *  - dark mode: `:root` — ties with admin.css :root specificity but our
+     *    style tag is appended after the vite bundle so source-order wins.
+     *  - light mode: `html[data-admin-mode="light"]` — ties with admin.css
+     *    light override block specificity (0,0,1,1), source-order wins for
+     *    same reason.
+     *
+     * Returns '' if no token bag (legacy install) — composer falls back to
+     * the original toCssVars() path so the page is never themeless.
+     */
+    public function toCssVarsForMode(string $mode): string
+    {
+        $tokens = $this->paletteFor($mode);
+        if (empty($tokens)) {
+            return '';
+        }
+
+        $lines = [];
+        foreach ($tokens as $key => $value) {
+            // Defense-in-depth: whitelist token keys (alphanumeric + dash)
+            // and value chars (hex, rgba, transparent words). FormRequest
+            // validates user input on save; this guards raw output.
+            if (! preg_match('/^[a-z0-9-]+$/i', $key)) continue;
+            if (! preg_match('/^[#\w\s().,%\/-]+$/', $value)) continue;
+            $lines[] = "            --admin-{$key}: {$value};";
+        }
+
+        $body     = implode("\n", $lines);
+        $selector = $mode === 'light' ? 'html[data-admin-mode="light"]' : ':root';
+
+        return "{$selector} {\n{$body}\n        }";
     }
 
     /**

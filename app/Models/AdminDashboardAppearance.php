@@ -14,13 +14,17 @@ class AdminDashboardAppearance extends Model
         'bg_base', 'bg_card', 'bg_input',
         'custom_vars',
         'preset_name', 'is_default',
+        'dark_palette', 'light_palette',
+        'dark_preset_name', 'light_preset_name',
         'created_by', 'updated_by',
     ];
 
     protected $casts = [
-        'show_gold'   => 'boolean',
-        'is_default'  => 'boolean',
-        'custom_vars' => 'array',
+        'show_gold'     => 'boolean',
+        'is_default'    => 'boolean',
+        'custom_vars'   => 'array',
+        'dark_palette'  => 'array',
+        'light_palette' => 'array',
     ];
 
     public function createdBy(): BelongsTo

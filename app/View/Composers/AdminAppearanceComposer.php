@@ -13,19 +13,26 @@ class AdminAppearanceComposer
 
     public function compose(View $view): void
     {
-        $appearance  = $this->service->getCurrent();
-        $resolved    = $this->service->resolveModeForUser(auth()->user());
+        $appearance = $this->service->getCurrent();
+        $resolved   = $this->service->resolveModeForUser(auth()->user());
 
-        // Inject customizer CSS only when the resolved mode matches the global
-        // preset. If the user overrode to the opposite mode, omit it so the
-        // built-in [data-admin-mode="light"] block in admin.css applies cleanly.
-        $css = $resolved === $appearance->mode
-            ? $this->service->toCssVars($appearance)
-            : null;
+        // Step 19.2+: emit token bag for the *resolved* mode. paletteFor()
+        // returns DB JSON when set, otherwise a starter preset. When the bag
+        // is empty (legacy installs before Step 19.2 ran), toCssVarsForMode()
+        // returns '' and we fall through to the legacy emitter so the page
+        // never renders without theme vars.
+        $modeCss = $this->service->toCssVarsForMode($resolved);
+
+        if ($modeCss === '') {
+            // Legacy path: use stored hex columns, matching old behavior.
+            $modeCss = $resolved === $appearance->mode
+                ? $this->service->toCssVars($appearance)
+                : null;
+        }
 
         $view->with([
             'adminAppearance'    => $appearance,
-            'adminAppearanceCss' => $css,
+            'adminAppearanceCss' => $modeCss,
             'adminUiMode'        => $resolved,
         ]);
     }
