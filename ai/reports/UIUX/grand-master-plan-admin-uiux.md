@@ -2559,27 +2559,27 @@ UI: Customize page jadi tab system (General / Colors / Typography / Components /
 3. **UI minimalis** — tidak ada scroll panjang. Tab mode di atas + section sidebar + 1 editor section visible.
 4. **Sub-step granular** untuk review incremental.
 
-### E.19.1 Tone Palettes (Approved Defaults — Strategy B = retain starter palettes)
+### E.19.1 Tone Palettes — FINAL (locked 2026-06-25 per owner)
 
-**🌙 Night Mode (preset: Command Center Dark)**
+**🌙 Night Mode default (preset: Command Center Dark)**
 ```
 Surfaces:   base #020617 · surface #0F172A · card #1E293B · hover #334155
 Borders:    subtle rgba(255,255,255,.08) · medium rgba(255,255,255,.16)
 Text:       primary #F1F5F9 · secondary #94A3B8 · muted #64748B
-Primary:    #7C3AED · hover #6D28D9 · contrast text #FFFFFF
+Primary:    #166AE9 · hover #1054BC · contrast text #FFFFFF    ← cobalt blue
 Status:     success #10B981 · danger #DC2626 · warning #F59E0B · info #0EA5E9
 ```
 
-**☀ Light Mode (preset: Studio Light)**
+**☀ Light Mode default (preset: Full Light — DEFAULT for new installs)**
 ```
-Surfaces:   base #F8FAFC · surface #FFFFFF · card #FFFFFF · hover #F1F5F9
-Borders:    subtle #E2E8F0 · medium #CBD5E1
+Surfaces:   base #FFFFFF · surface #FAFAFA · card #FFFFFF · hover #F3F4F6
+Borders:    subtle #E5E7EB · medium #D1D5DB
 Text:       primary #0F172A · secondary #475569 · muted #94A3B8
-Primary:    #6D28D9 · hover #5B21B6 · contrast text #FFFFFF
+Primary:    #8B2942 · hover #722F37 · contrast text #FFFFFF    ← deep wine maroon
 Status:     success #047857 · danger #B91C1C · warning #B45309 · info #0369A1
 ```
 
-**Prinsip light mode:** accent geser 1–2 tingkat lebih tua dari versi dark untuk maintain WCAG AA contrast pada surface putih.
+**Prinsip:** primary di-pick supaya bermakna sesuai surface — cobalt blue pop di gelap, deep maroon elegan di terang. Status colors konsisten antar mode (cuma di-shift tone), surfaces/borders/text mengikuti aturan WCAG AA (≥4.5:1 untuk teks).
 
 ### E.19.2 DB Schema Change
 
@@ -2589,9 +2589,18 @@ ALTER TABLE admin_dashboard_appearances
   ADD COLUMN light_palette JSON NULL AFTER dark_palette;
 ```
 
-- Tiap palette ~40 token (surfaces+text+primary+status+buttons+forms+badges+tables+alerts+sidebar)
+- Tiap palette ~45 token (surfaces+text+primary+status+buttons+forms+badges+tables+alerts+modal+topbar+sidebar)
 - Kolom hex lama (primary_color, bg_card, dll) tetap untuk back-compat read fallback
-- Strategy B: 4 preset existing (Command Center Dark, Midnight Navy, Light Classic, Full Light) tetap ada sebagai **starter palette**. Saat user pilih preset → isi dark_palette ATAU light_palette saja (tergantung mode aktif tab).
+- Strategy B: 4 starter presets, dikelompokkan per mode:
+
+| Preset | Kelompok | Mode | Vibe |
+|---|---|---|---|
+| **Full Light** ⭐ DEFAULT | Light starters | light | Pure white airy + maroon accent |
+| **Studio Light** | Light starters | light | Slate-tinted soft + maroon accent |
+| **Maroon** (was "Midnight Navy") | Dark starters | dark | Warm dark surfaces + burgundy accent |
+| **Command Center Dark** | Dark starters | dark | Cool slate dark + cobalt blue accent |
+
+Customizer tab "🌙 Night" tampilkan Dark starters; tab "☀ Light" tampilkan Light starters. Klik preset = isi palette mode aktif. Default new install: `light_palette` = Full Light, `dark_palette` = Command Center Dark.
 
 ### E.19.3 Sub-steps
 
@@ -2621,11 +2630,16 @@ ALTER TABLE admin_dashboard_appearances
 │  │ • Buttons   ●   │  │  │  [Cancel]  [+ Create]              │  │
 │  │ • Forms         │  │  └────────────────────────────────────┘  │
 │  │ • Badges        │  │  Tokens                                  │
-│  │ • Tables        │  │  Primary BG    🟣 [#7C3AED] ✎           │  │
-│  │ • Alerts        │  │  Primary Hover 🟪 [#6D28D9] ✎           │  │
-│  │ • Sidebar       │  │  Danger BG     🔴 [#DC2626] ✎           │  │
-│  └─────────────────┘  │  ...                                     │
+│  │ • Tables        │  │  Primary BG    🔵 [#166AE9] ✎           │  │
+│  │ • Alerts        │  │  Primary Hover 🟦 [#1054BC] ✎           │  │
+│  │ • Modal         │  │  Danger BG     🔴 [#DC2626] ✎           │  │
+│  │ • Topbar        │  │  ...                                     │
+│  │ • Sidebar       │  │                                          │
+│  └─────────────────┘  │                                          │
 └──────────────────────────────────────────────────────────────────┘
+
+10 sections final: Surfaces · Text · Buttons · Forms · Badges · Tables
+· Alerts · Modal · Topbar · Sidebar.
 ```
 
 **Design references:**
