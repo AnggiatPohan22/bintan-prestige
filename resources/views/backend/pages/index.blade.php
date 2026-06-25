@@ -46,7 +46,7 @@
     <div class="admin-card">
         <div class="admin-card-header">
             <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <h2 class="text-lg font-extrabold text-slate-100">All Pages</h2>
+                <h2 class="text-lg font-extrabold text-admin-primary">All Pages</h2>
                 <span class="admin-badge-info">{{ $pages->total() }} page(s)</span>
             </div>
         </div>
@@ -68,10 +68,10 @@
                         @forelse($pages as $page)
                             <tr class="admin-table-row">
                                 <td class="px-4 py-4">
-                                    <div class="font-semibold text-slate-100">
+                                    <div class="font-semibold text-admin-primary">
                                         {{ $page->title }}
                                     </div>
-                                    <div class="mt-1 text-xs text-slate-400">
+                                    <div class="mt-1 text-xs text-admin-secondary">
                                         /pages/{{ $page->slug }}
                                     </div>
                                 </td>
@@ -79,23 +79,23 @@
                                 <td class="px-4 py-4">
                                     @if($page->isPublished())
                                         <span class="admin-badge-success">Published</span>
-                                        <p class="mt-1 max-w-44 text-xs text-slate-400">Live publicly and eligible for managed menus.</p>
+                                        <p class="mt-1 max-w-44 text-xs text-admin-secondary">Live publicly and eligible for managed menus.</p>
                                     @elseif($page->isScheduled())
                                         <span class="admin-badge-warning">Scheduled</span>
-                                        <p class="mt-1 max-w-44 text-xs text-slate-400">
+                                        <p class="mt-1 max-w-44 text-xs text-admin-secondary">
                                             Publishes {{ $page->publish_at->format('d M Y, H:i') }}
                                         </p>
                                     @else
                                         <span class="admin-badge-warning">Draft</span>
-                                        <p class="mt-1 max-w-44 text-xs text-slate-400">Admin preview only; hidden from public pages and menus.</p>
+                                        <p class="mt-1 max-w-44 text-xs text-admin-secondary">Admin preview only; hidden from public pages and menus.</p>
                                     @endif
                                 </td>
 
-                                <td class="px-4 py-4 text-sm text-slate-400">
+                                <td class="px-4 py-4 text-sm text-admin-secondary">
                                     {{ $page->sort_order }}
                                 </td>
 
-                                <td class="px-4 py-4 text-sm text-slate-400">
+                                <td class="px-4 py-4 text-sm text-admin-secondary">
                                     {{ $page->updated_at->format('d M Y') }}
                                 </td>
 
@@ -164,8 +164,8 @@
                             <tr>
                                 <td colspan="5" class="px-4 py-10">
                                     <div class="admin-empty-state">
-                                        <p class="font-medium text-slate-400">No pages found.</p>
-                                        <p class="mt-1 text-sm text-slate-400">
+                                        <p class="font-medium text-admin-secondary">No pages found.</p>
+                                        <p class="mt-1 text-sm text-admin-secondary">
                                             <a href="{{ route('admin.pages.create') }}" class="text-indigo-600 hover:underline">
                                                 Create your first page
                                             </a>

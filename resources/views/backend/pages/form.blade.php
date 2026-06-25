@@ -14,7 +14,7 @@
 
     {{-- Basic --}}
     <div>
-        <h2 class="mb-4 text-sm font-semibold uppercase tracking-widest text-slate-400">
+        <h2 class="mb-4 text-sm font-semibold uppercase tracking-widest text-admin-secondary">
             Basic
         </h2>
 
@@ -50,7 +50,7 @@
                 @error('slug')
                     <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                 @enderror
-                <p class="mt-1 text-xs text-slate-400">
+                <p class="mt-1 text-xs text-admin-secondary">
                     Reserved slugs not allowed: admin, products, api, login, register
                 </p>
             </div>
@@ -74,7 +74,7 @@
                 @error('status')
                     <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                 @enderror
-                <div class="mt-2 space-y-1 text-xs text-slate-400">
+                <div class="mt-2 space-y-1 text-xs text-admin-secondary">
                     <p><strong class="text-amber-700">Draft:</strong> admin preview only; unavailable on the public URL and hidden from managed menus.</p>
                     <p><strong class="text-emerald-700">Published:</strong> live on the public URL and eligible for managed menus.</p>
                 </div>
@@ -93,7 +93,7 @@
                 @error('sort_order')
                     <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                 @enderror
-                <p class="mt-1 text-xs text-slate-400">Lower number appears first.</p>
+                <p class="mt-1 text-xs text-admin-secondary">Lower number appears first.</p>
             </div>
 
             <div>
@@ -113,14 +113,14 @@
                 @error('template_id')
                     <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                 @enderror
-                <p class="mt-1 text-xs text-slate-400">Controls the page's frontend layout.</p>
+                <p class="mt-1 text-xs text-admin-secondary">Controls the page's frontend layout.</p>
             </div>
         </div>
     </div>
 
     {{-- SEO --}}
-    <div class="border-t border-slate-100 pt-6">
-        <h2 class="mb-4 text-sm font-semibold uppercase tracking-widest text-slate-400">
+    <div class="border-t border-admin pt-6">
+        <h2 class="mb-4 text-sm font-semibold uppercase tracking-widest text-admin-secondary">
             SEO
         </h2>
 
@@ -166,7 +166,7 @@
                             alt="OG image preview"
                             class="h-20 w-36 rounded-lg object-cover shadow"
                         >
-                        <p class="text-sm text-slate-400">
+                        <p class="text-sm text-admin-secondary">
                             Current OG image. Upload a new one to replace it.
                         </p>
                     </div>
@@ -182,14 +182,14 @@
                 @error('og_image')
                     <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                 @enderror
-                <p class="mt-1 text-xs text-slate-400">
+                <p class="mt-1 text-xs text-admin-secondary">
                     Max 2MB. Recommended: 1200×630px. Defaults to global OG image if empty.
                 </p>
             </div>
         </div>
     </div>
 
-    <div class="flex flex-col gap-3 border-t border-slate-100 pt-5 sm:flex-row sm:items-center">
+    <div class="flex flex-col gap-3 border-t border-admin pt-5 sm:flex-row sm:items-center">
         <button type="submit" class="admin-btn-primary w-full sm:w-auto">
             {{ isset($page) ? 'Update Page' : 'Create Page' }}
         </button>

@@ -6,7 +6,7 @@
     </div>
 
     <template x-for="(item, i) in items" :key="i">
-        <div class="space-y-2 rounded-lg border border-slate-200 p-3">
+        <div class="space-y-2 rounded-lg border border-admin p-3">
             <div class="grid grid-cols-1 gap-2 md:grid-cols-2">
                 <input
                     type="text"
@@ -43,7 +43,7 @@
         </div>
     </template>
 
-    <p x-show="items.length === 0" class="text-sm text-slate-400">No testimonials yet.</p>
+    <p x-show="items.length === 0" class="text-sm text-admin-secondary">No testimonials yet.</p>
 </div>
 
 <script>

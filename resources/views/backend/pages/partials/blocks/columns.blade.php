@@ -18,7 +18,7 @@
     <div class="md:col-span-2">
         <input type="hidden" name="data[stack_mobile]" value="0">
         <label class="flex items-center gap-2 text-sm font-medium text-slate-300">
-            <input type="checkbox" name="data[stack_mobile]" value="1" class="rounded border-slate-300" @checked((bool) ($block->data['stack_mobile'] ?? true))>
+            <input type="checkbox" name="data[stack_mobile]" value="1" class="rounded border-admin" @checked((bool) ($block->data['stack_mobile'] ?? true))>
             Stack columns vertically on mobile
         </label>
     </div>

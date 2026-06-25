@@ -10,7 +10,7 @@
     </div>
 
     <template x-for="(button, index) in buttons" :key="index">
-        <div class="grid grid-cols-1 gap-3 rounded-lg border border-slate-200 p-3 md:grid-cols-12">
+        <div class="grid grid-cols-1 gap-3 rounded-lg border border-admin p-3 md:grid-cols-12">
             <div class="md:col-span-4">
                 <label class="admin-form-label">Text</label>
                 <input type="text" :name="`data[buttons][${index}][text]`" x-model="button.text" class="admin-input" maxlength="100" placeholder="Explore Tours">
@@ -33,7 +33,7 @@
         </div>
     </template>
 
-    <p x-show="buttons.length === 0" class="text-sm text-slate-400">No buttons yet.</p>
+    <p x-show="buttons.length === 0" class="text-sm text-admin-secondary">No buttons yet.</p>
 
     <div class="max-w-xs">
         <label class="admin-form-label">Alignment</label>

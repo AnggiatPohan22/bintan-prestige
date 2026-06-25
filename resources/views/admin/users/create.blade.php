@@ -109,17 +109,17 @@
                             type="checkbox"
                             name="is_active"
                             value="1"
-                            class="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                            class="rounded border-admin text-indigo-600 focus:ring-indigo-500"
                             @checked(old('is_active', true))
                         >
-                        <span class="text-sm font-semibold text-slate-700">
+                        <span class="text-sm font-semibold text-admin-primary">
                             Active admin account
                         </span>
                     </label>
                 </div>
             </div>
 
-            <div class="flex flex-col gap-3 border-t border-slate-100 pt-5 sm:flex-row sm:items-center">
+            <div class="flex flex-col gap-3 border-t border-admin pt-5 sm:flex-row sm:items-center">
                 <button type="submit" class="admin-btn-primary w-full sm:w-auto">
                     Create Admin
                 </button>

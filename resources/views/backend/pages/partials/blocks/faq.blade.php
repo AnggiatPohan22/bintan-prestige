@@ -16,7 +16,7 @@
         </div>
 
         <template x-for="(item, i) in items" :key="i">
-            <div class="space-y-2 rounded-lg border border-slate-200 p-3">
+            <div class="space-y-2 rounded-lg border border-admin p-3">
                 <input
                     type="text"
                     :name="`data[items][${i}][question]`"
@@ -35,7 +35,7 @@
             </div>
         </template>
 
-        <p x-show="items.length === 0" class="text-sm text-slate-400">No questions yet.</p>
+        <p x-show="items.length === 0" class="text-sm text-admin-secondary">No questions yet.</p>
     </div>
 
     {{-- IDs mode --}}
@@ -48,7 +48,7 @@
             class="admin-input"
             placeholder="e.g. 1,3,5"
         >
-        <p class="mt-1 text-xs text-slate-400">Enter IDs from your FAQ library separated by commas.</p>
+        <p class="mt-1 text-xs text-admin-secondary">Enter IDs from your FAQ library separated by commas.</p>
     </div>
 
 </div>

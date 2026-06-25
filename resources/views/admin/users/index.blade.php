@@ -89,10 +89,10 @@
                         @forelse($users as $managedUser)
                             <tr class="admin-table-row">
                                 <td class="px-4 py-4">
-                                    <div class="font-semibold text-slate-800">
+                                    <div class="font-semibold text-admin-primary">
                                         {{ $managedUser->name }}
                                     </div>
-                                    <div class="mt-1 text-xs text-slate-400">
+                                    <div class="mt-1 text-xs text-admin-secondary">
                                         {{ $managedUser->email }}
                                     </div>
                                 </td>
@@ -109,7 +109,7 @@
                                     </span>
                                 </td>
 
-                                <td class="px-4 py-4 text-sm text-slate-500">
+                                <td class="px-4 py-4 text-sm text-admin-secondary">
                                     {{ $managedUser->created_at?->format('d M Y H:i') }}
                                 </td>
 

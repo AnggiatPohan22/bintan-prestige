@@ -19,7 +19,7 @@
                 <a href="{{ route('admin.forms.create') }}" class="underline">Create a form</a> first.
             </p>
         @else
-            <p class="mt-1 text-xs text-slate-400">
+            <p class="mt-1 text-xs text-admin-secondary">
                 Select the form to embed on this page.
                 <a href="{{ route('admin.forms.index') }}" class="text-indigo-600 hover:underline">Manage forms</a>
             </p>

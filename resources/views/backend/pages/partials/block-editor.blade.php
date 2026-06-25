@@ -85,7 +85,7 @@
         <div
             x-data="{ open: @js($failedBlock), submitting: false }"
             x-init="if (open) $nextTick(() => $refs.editorPanel.querySelector('input:not([type=hidden]), textarea, select')?.focus())"
-            class="scroll-mt-24 rounded-xl border {{ $block->is_visible ? 'border-slate-200' : 'border-slate-100 opacity-60' }} bg-white shadow-sm"
+            class="scroll-mt-24 rounded-xl border {{ $block->is_visible ? 'border-admin' : 'border-admin opacity-60' }} bg-admin-card shadow-sm"
         >
             {{-- Block Header Row --}}
             <div class="flex flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center">
@@ -103,7 +103,7 @@
                             @foreach($swapped as $bid)
                                 <input type="hidden" name="ids[]" value="{{ $bid }}">
                             @endforeach
-                            <button type="submit" class="rounded p-2 text-slate-400 hover:bg-slate-700 hover:text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500" aria-label="Move {{ $block->label }} up" title="Move up">
+                            <button type="submit" class="rounded p-2 text-admin-secondary hover:opacity-75 focus:outline-none focus:ring-2 focus:ring-indigo-500" aria-label="Move {{ $block->label }} up" title="Move up">
                                 <i class="fa-solid fa-chevron-up text-xs" aria-hidden="true"></i>
                             </button>
                         </form>
@@ -125,7 +125,7 @@
                             @foreach($swapped as $bid)
                                 <input type="hidden" name="ids[]" value="{{ $bid }}">
                             @endforeach
-                            <button type="submit" class="rounded p-2 text-slate-400 hover:bg-slate-700 hover:text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500" aria-label="Move {{ $block->label }} down" title="Move down">
+                            <button type="submit" class="rounded p-2 text-admin-secondary hover:opacity-75 focus:outline-none focus:ring-2 focus:ring-indigo-500" aria-label="Move {{ $block->label }} down" title="Move down">
                                 <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
                             </button>
                         </form>
@@ -140,7 +140,7 @@
                     <img
                         src="{{ $previewUrl }}"
                         alt=""
-                        class="h-12 w-16 shrink-0 rounded-lg border border-slate-200 object-cover"
+                        class="h-12 w-16 shrink-0 rounded-lg border border-admin object-cover"
                         loading="lazy"
                     >
                 @endif
@@ -148,7 +148,7 @@
                 <div class="min-w-0 flex-1">
                     <span class="admin-badge-info shrink-0 font-mono text-xs">{{ $block->block_type }}</span>
                     <p class="mt-1 truncate text-sm font-semibold text-slate-300">{{ $block->label }}</p>
-                    <p class="mt-0.5 text-xs {{ $block->is_visible ? 'text-emerald-600' : 'text-slate-400' }}">
+                    <p class="mt-0.5 text-xs {{ $block->is_visible ? 'text-emerald-600' : 'text-admin-secondary' }}">
                         {{ $block->is_visible ? 'Visible on page' : 'Hidden from page' }}
                     </p>
                 </div>
@@ -202,7 +202,7 @@
                 x-ref="editorPanel"
                 x-show="open"
                 x-cloak
-                class="border-t border-slate-100 px-4 pb-4 pt-4"
+                class="border-t border-admin px-4 pb-4 pt-4"
                 x-on:keydown.escape="open = false; document.getElementById('block-toggle-{{ $block->id }}')?.focus()"
             >
                 <form
@@ -245,7 +245,7 @@
                                 </option>
                             @endforeach
                         </select>
-                        <p class="mt-1 text-xs text-slate-400">Columns accept Group blocks as column slots. Other blocks can be nested inside Groups.</p>
+                        <p class="mt-1 text-xs text-admin-secondary">Columns accept Group blocks as column slots. Other blocks can be nested inside Groups.</p>
                     </div>
 
                     @include(
@@ -255,7 +255,7 @@
 
                     @include('backend.pages.partials.blocks.partials.background', ['block' => $block])
 
-                    <div class="flex flex-col gap-3 border-t border-slate-100 pt-3 sm:flex-row">
+                    <div class="flex flex-col gap-3 border-t border-admin pt-3 sm:flex-row">
                         <button type="submit" class="admin-btn-primary w-full sm:w-auto" x-bind:disabled="submitting">
                             <span x-show="! submitting">Save Block</span>
                             <span x-show="submitting" x-cloak>Saving&hellip;</span>
@@ -278,7 +278,7 @@
                 <i class="fa-solid fa-layer-group"></i>
             </span>
             <p class="mt-3 font-semibold text-slate-300">Build this page one block at a time.</p>
-            <p class="mx-auto mt-1 max-w-md text-sm text-slate-400">Choose a block type above. You can edit, preview media, show or hide, and reorder it later with the keyboard-friendly Up and Down controls.</p>
+            <p class="mx-auto mt-1 max-w-md text-sm text-admin-secondary">Choose a block type above. You can edit, preview media, show or hide, and reorder it later with the keyboard-friendly Up and Down controls.</p>
             <a href="#block_type" class="admin-btn-primary mt-4 inline-flex">Choose the first block</a>
         </div>
     @endforelse

@@ -12,12 +12,12 @@
     </template>
 
     {{-- ============ IMAGES ============ --}}
-    <section class="rounded-xl border border-slate-200 bg-slate-800/60 p-4">
+    <section class="rounded-xl border border-admin bg-admin-card/60 p-4">
         <header class="mb-3 flex items-center justify-between gap-2">
             <h4 class="text-sm font-semibold text-slate-300">
-                <i class="fa-solid fa-images mr-1 text-slate-400"></i>
+                <i class="fa-solid fa-images mr-1 text-admin-secondary"></i>
                 Images
-                <span class="ml-1 font-normal text-slate-400" x-text="'(' + images.length + ')'"></span>
+                <span class="ml-1 font-normal text-admin-secondary" x-text="'(' + images.length + ')'"></span>
             </h4>
             <div class="flex gap-2">
                 <label class="admin-btn-primary cursor-pointer px-3 py-1.5 text-xs">
@@ -53,8 +53,8 @@
         <div x-show="images.length" x-cloak class="grid grid-cols-3 gap-2 sm:grid-cols-5 md:grid-cols-6">
             <template x-for="(img, i) in images" :key="i">
                 <div
-                    class="group relative aspect-square cursor-pointer overflow-hidden rounded-lg border bg-white transition"
-                    :class="selected === i ? 'border-indigo-500 ring-2 ring-indigo-300' : 'border-slate-200 hover:border-slate-300'"
+                    class="group relative aspect-square cursor-pointer overflow-hidden rounded-lg border bg-admin-card transition"
+                    :class="selected === i ? 'border-indigo-500 ring-2 ring-indigo-300' : 'border-admin hover:border-admin'"
                     x-on:click="select(i)"
                 >
                     <img x-show="img.src" :src="imgPreview(img.src)" class="h-full w-full object-cover" x-cloak>
@@ -73,25 +73,25 @@
             </template>
         </div>
 
-        <p x-show="images.length === 0" x-cloak class="py-4 text-center text-sm text-slate-400">
+        <p x-show="images.length === 0" x-cloak class="py-4 text-center text-sm text-admin-secondary">
             No images yet — click <span class="font-medium">Upload</span> to add several at once,
             or <span class="font-medium">Add URL</span> to paste a link.
         </p>
 
         {{-- Detail editor for the selected image --}}
         <template x-if="selected !== null && images[selected]">
-            <div class="mt-3 rounded-lg border border-indigo-200 bg-white p-3">
+            <div class="mt-3 rounded-lg border border-indigo-200 bg-admin-card p-3">
                 <div class="mb-2 flex items-center justify-between">
-                    <span class="text-xs font-semibold text-slate-400">
+                    <span class="text-xs font-semibold text-admin-secondary">
                         Image <span x-text="selected + 1"></span> of <span x-text="images.length"></span>
                     </span>
                     <div class="flex items-center gap-0.5">
                         <button type="button" x-on:click="move(selected, -1)" :disabled="selected === 0"
-                                class="rounded p-1.5 text-slate-400 hover:bg-slate-700 hover:text-slate-200 disabled:opacity-30" title="Move left">
+                                class="rounded p-1.5 text-admin-secondary hover:bg-slate-700 hover:text-slate-200 disabled:opacity-30" title="Move left">
                             <i class="fa-solid fa-arrow-left text-xs"></i>
                         </button>
                         <button type="button" x-on:click="move(selected, 1)" :disabled="selected === images.length - 1"
-                                class="rounded p-1.5 text-slate-400 hover:bg-slate-700 hover:text-slate-200 disabled:opacity-30" title="Move right">
+                                class="rounded p-1.5 text-admin-secondary hover:bg-slate-700 hover:text-slate-200 disabled:opacity-30" title="Move right">
                             <i class="fa-solid fa-arrow-right text-xs"></i>
                         </button>
                         <button type="button" x-on:click="removeImage(selected)"
@@ -99,13 +99,13 @@
                             <i class="fa-solid fa-trash text-xs"></i>
                         </button>
                         <button type="button" x-on:click="selected = null"
-                                class="rounded p-1.5 text-slate-400 hover:bg-slate-700 hover:text-slate-200" title="Close">
+                                class="rounded p-1.5 text-admin-secondary hover:bg-slate-700 hover:text-slate-200" title="Close">
                             <i class="fa-solid fa-xmark text-xs"></i>
                         </button>
                     </div>
                 </div>
                 <div class="flex gap-3">
-                    <div class="h-20 w-20 shrink-0 overflow-hidden rounded-md bg-slate-800">
+                    <div class="h-20 w-20 shrink-0 overflow-hidden rounded-md bg-admin-card">
                         <img x-show="images[selected].src" :src="imgPreview(images[selected].src)"
                              class="h-full w-full object-cover" x-cloak>
                     </div>
@@ -120,9 +120,9 @@
     </section>
 
     {{-- ============ DISPLAY OPTIONS ============ --}}
-    <section class="rounded-xl border border-slate-200 p-4">
+    <section class="rounded-xl border border-admin p-4">
         <h4 class="mb-3 text-sm font-semibold text-slate-300">
-            <i class="fa-solid fa-sliders mr-1 text-slate-400"></i>Display Options
+            <i class="fa-solid fa-sliders mr-1 text-admin-secondary"></i>Display Options
         </h4>
 
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
@@ -133,7 +133,7 @@
                         <option value="{{ $col }}" @selected(($block->data['columns'] ?? 3) == $col)>{{ $col }}</option>
                     @endforeach
                 </select>
-                <p class="mt-1 text-xs text-slate-400">Extra rows become a carousel.</p>
+                <p class="mt-1 text-xs text-admin-secondary">Extra rows become a carousel.</p>
             </div>
             <div>
                 <label class="admin-form-label">Spacing</label>
@@ -162,19 +162,19 @@
         <div class="mt-4 flex flex-wrap gap-x-6 gap-y-2">
             <label class="flex items-center gap-2">
                 <input type="hidden" name="data[show_captions]" value="0">
-                <input type="checkbox" name="data[show_captions]" value="1" class="rounded border-slate-300"
+                <input type="checkbox" name="data[show_captions]" value="1" class="rounded border-admin"
                        @checked($block->data['show_captions'] ?? false)>
                 <span class="text-sm text-slate-300">Per-image captions</span>
             </label>
             <label class="flex items-center gap-2">
                 <input type="hidden" name="data[lightbox_enabled]" value="0">
-                <input type="checkbox" name="data[lightbox_enabled]" value="1" class="rounded border-slate-300"
+                <input type="checkbox" name="data[lightbox_enabled]" value="1" class="rounded border-admin"
                        @checked($block->data['lightbox_enabled'] ?? true)>
                 <span class="text-sm text-slate-300">Lightbox on click</span>
             </label>
             <label class="flex items-center gap-2">
                 <input type="hidden" name="data[autoplay]" value="0">
-                <input type="checkbox" name="data[autoplay]" value="1" class="rounded border-slate-300"
+                <input type="checkbox" name="data[autoplay]" value="1" class="rounded border-admin"
                        @checked($block->data['autoplay'] ?? false)>
                 <span class="text-sm text-slate-300">Autoplay carousel</span>
             </label>

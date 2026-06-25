@@ -19,7 +19,7 @@
     </div>
 
     <template x-for="(item, index) in items" :key="index">
-        <div class="grid grid-cols-1 gap-3 rounded-lg border border-slate-200 p-3 md:grid-cols-12">
+        <div class="grid grid-cols-1 gap-3 rounded-lg border border-admin p-3 md:grid-cols-12">
             <div class="md:col-span-2">
                 <label class="admin-form-label">Value</label>
                 <input type="text" :name="`data[items][${index}][value]`" x-model="item.value" class="admin-input" maxlength="50" placeholder="10+">
@@ -38,7 +38,7 @@
         </div>
     </template>
 
-    <p x-show="items.length === 0" class="text-sm text-slate-400">No statistics yet.</p>
+    <p x-show="items.length === 0" class="text-sm text-admin-secondary">No statistics yet.</p>
 </div>
 
 <script>
