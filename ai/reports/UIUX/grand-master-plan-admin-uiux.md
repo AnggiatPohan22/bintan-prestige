@@ -2438,7 +2438,7 @@ Step 8: Testing + Accessibility check
 
 ## Phase E — Per-User Theme System (v2.0)
 
-**Ditambahkan:** 2026-06-25 | **Status:** Owner-approved, Step 17 in progress
+**Ditambahkan:** 2026-06-25 | **Status:** Steps 17–18 ✅ done, Step 19 in planning
 
 ### E.0 Tujuan
 
@@ -2447,15 +2447,15 @@ Saat ini dark/light mode global (1 setting untuk seluruh dashboard). Phase E men
 - **Auto** = ikut preset global yang di-set superadmin.
 - **Superadmin Customize v2**: tambah customization untuk font heading, font body, radius, shadow, badge/alert color, topbar — supaya dashboard ini bisa dipakai untuk theme website yang berbeda tanpa rewrite frame satu-satu.
 
-### E.1 Roadmap (Steps 17–21)
+### E.1 Roadmap (Steps 17–21) — Revised 2026-06-25
 
-| Step | Subject | Output |
-|------|---------|--------|
-| 17 | Per-user DB column + service resolution | Migration `users.ui_mode` + `AdminAppearanceService::resolveModeForUser()` + composer inject |
-| 18 | Topbar toggle button | Alpine.js sun/moon icon → POST `/admin/settings/ui-mode` → instant CSS swap |
-| 19 | Audit semua admin pages | Cleanup sisa hardcoded `bg-white`/`text-slate-*` di luar product module |
-| 20 | Superadmin Customize v2 (expanded tokens) | Tambah kolom `font_heading`, `font_body`, `radius_base`, `card_shadow`, `topbar_bg`, `badge_*` |
-| 21 | Theme presets export/import | Save customizer state ke JSON file untuk reuse antar-website |
+| Step | Subject | Output | Status |
+|------|---------|--------|--------|
+| 17 | Per-user DB column + service resolution | Migration `users.ui_mode` + `resolveModeForUser()` + composer inject | ✅ Done — [handoff](step-17-handoff.md) |
+| 18 | Topbar toggle + whole-interface mode sync | 2-state toggle (Night/Light), sidebar+topbar+content all flip together | ✅ Done — [handoff](step-18-handoff.md) |
+| 19 | **Theme Unification & Customizer v2** (rewrite per owner request) | Tone palette per mode, audit hardcoded colors all admin pages, redesign customizer with tabbed sections + live preview. 7 sub-steps (19.1–19.7). | ⬜ Sub-step 19.1 pending approval |
+| 20 | (Folded into Step 19) | Expanded tokens absorbed into Step 19 token catalogue | — |
+| 21 | Theme presets export/import | Save customizer state ke JSON for reuse | ⬜ Post-19 |
 
 ### E.2 Step 17 — Per-User Mode (Detail)
 
@@ -2545,3 +2545,100 @@ UI: Customize page jadi tab system (General / Colors / Typography / Components /
 ---
 
 *Phase E added 2026-06-25 — owner request: per-user toggle + customizer expansion for theme reuse.*
+
+---
+
+## Phase E.19 — Theme Unification & Customizer v2 (Step 19 detail)
+
+**Added:** 2026-06-25 | **Status:** sub-step 19.1 pending owner approval
+
+### E.19.0 Owner Requirements (verbatim summary)
+
+1. **Sync semua halaman/section** — Night mode = semua frame/form/button gelap, teks terang. Light mode = semua frame/form/button terang, teks gelap. Button warna juga ikut mode (tidak ada warna "neon" terang di light).
+2. **Customize Dashboard wired ke toggle** — superadmin pakai 1 button Customize untuk atur palet **kedua mode**. Section: Surfaces, Text, Buttons, Forms, Badges, Tables, Alerts, Sidebar. Tiap section ada live preview real component.
+3. **UI minimalis** — tidak ada scroll panjang. Tab mode di atas + section sidebar + 1 editor section visible.
+4. **Sub-step granular** untuk review incremental.
+
+### E.19.1 Tone Palettes (Approved Defaults — Strategy B = retain starter palettes)
+
+**🌙 Night Mode (preset: Command Center Dark)**
+```
+Surfaces:   base #020617 · surface #0F172A · card #1E293B · hover #334155
+Borders:    subtle rgba(255,255,255,.08) · medium rgba(255,255,255,.16)
+Text:       primary #F1F5F9 · secondary #94A3B8 · muted #64748B
+Primary:    #7C3AED · hover #6D28D9 · contrast text #FFFFFF
+Status:     success #10B981 · danger #DC2626 · warning #F59E0B · info #0EA5E9
+```
+
+**☀ Light Mode (preset: Studio Light)**
+```
+Surfaces:   base #F8FAFC · surface #FFFFFF · card #FFFFFF · hover #F1F5F9
+Borders:    subtle #E2E8F0 · medium #CBD5E1
+Text:       primary #0F172A · secondary #475569 · muted #94A3B8
+Primary:    #6D28D9 · hover #5B21B6 · contrast text #FFFFFF
+Status:     success #047857 · danger #B91C1C · warning #B45309 · info #0369A1
+```
+
+**Prinsip light mode:** accent geser 1–2 tingkat lebih tua dari versi dark untuk maintain WCAG AA contrast pada surface putih.
+
+### E.19.2 DB Schema Change
+
+```sql
+ALTER TABLE admin_dashboard_appearances
+  ADD COLUMN dark_palette  JSON NULL AFTER mode,
+  ADD COLUMN light_palette JSON NULL AFTER dark_palette;
+```
+
+- Tiap palette ~40 token (surfaces+text+primary+status+buttons+forms+badges+tables+alerts+sidebar)
+- Kolom hex lama (primary_color, bg_card, dll) tetap untuk back-compat read fallback
+- Strategy B: 4 preset existing (Command Center Dark, Midnight Navy, Light Classic, Full Light) tetap ada sebagai **starter palette**. Saat user pilih preset → isi dark_palette ATAU light_palette saja (tergantung mode aktif tab).
+
+### E.19.3 Sub-steps
+
+| Step | Output | Scope |
+|---|---|---|
+| **19.1** | Spec doc final (this section ✅) + sign-off tone palette + preset strategy | Doc only |
+| **19.2** | Migration 2 JSON columns + seed default palettes + service rewrite `toCssVars($mode)` | ~150 LOC |
+| **19.3** | CSS components refactor — all admin-btn-*, admin-input, admin-badge-* drive by tokens | ~200 LOC admin.css |
+| **19.4** | Audit + cleanup pages module: pages, dashboard, users | ~50 file edits |
+| **19.5** | Audit + cleanup remaining: bookings, settings, media, menus, plugins, audit, redirects | ~50 file edits |
+| **19.6** | Customizer v2 UI — mode tabs + section sidebar + live preview per section + color picker | ~400 LOC (Blade + Alpine) |
+| **19.7** | Final QA — screenshot 10 halaman × 2 mode, fix sisa bocoran, accessibility re-check | spot fixes |
+
+### E.19.4 Customizer v2 Layout (Wireframe)
+
+```
+┌──────────────────────────────────────────────────────────────────┐
+│  Customize Dashboard                          [ Save ] [ Reset ] │
+│  ┌────────────────────┬────────────────────┐                     │
+│  │  🌙 Night Mode     │  ☀ Light Mode      │  ← Mode tabs        │
+│  └────────────────────┴────────────────────┘                     │
+├──────────────────────────────────────────────────────────────────┤
+│  Sections             │  ▸  Buttons                              │
+│  ┌─────────────────┐  │  ┌────────────────────────────────────┐  │
+│  │ • Surfaces      │  │  │ Live Preview                       │  │
+│  │ • Text          │  │  │  [Submit]  [Edit]  [Delete]        │  │
+│  │ • Buttons   ●   │  │  │  [Cancel]  [+ Create]              │  │
+│  │ • Forms         │  │  └────────────────────────────────────┘  │
+│  │ • Badges        │  │  Tokens                                  │
+│  │ • Tables        │  │  Primary BG    🟣 [#7C3AED] ✎           │  │
+│  │ • Alerts        │  │  Primary Hover 🟪 [#6D28D9] ✎           │  │
+│  │ • Sidebar       │  │  Danger BG     🔴 [#DC2626] ✎           │  │
+│  └─────────────────┘  │  ...                                     │
+└──────────────────────────────────────────────────────────────────┘
+```
+
+**Design references:**
+- Tailwind UI playground (split form/preview)
+- GitHub Settings → Appearance (tab-based focus)
+- Figma color styles panel (swatch + hex input pattern)
+
+### E.19.5 Backward Compatibility
+
+- Existing 4 presets (`config/admin_appearance_presets.php`) tetap dipakai, dimigrasi jadi seed isi `dark_palette` / `light_palette` JSON.
+- Existing hex columns di-keep selama 19.x, di-deprecate setelah Step 19.7 QA pass.
+- Step 17 `users.ui_mode` tetap controlling. Composer baru meresolve palette = `dark_palette` jika mode=dark, `light_palette` jika mode=light.
+
+---
+
+*Phase E.19 detail added 2026-06-25 — supersedes original Step 19/20 scope. Step 21 (export/import) tetap planned post-19.*

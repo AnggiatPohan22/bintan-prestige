@@ -154,16 +154,28 @@ Solusi: Blade cleanup sudah dilakukan (step 06 — tidak ada lagi dark text di d
 | **15** | Blade UI: Settings > Customize Dashboard | 🟡 Medium | ✅ DONE | [step-15-handoff.md](step-15-handoff.md) |
 | **16** | Alpine.js live preview + Accessibility QA | 🟢 Low | ✅ DONE | [step-16-handoff.md](step-16-handoff.md) |
 
+### FASE E — Per-User Theme System (Added 2026-06-25 per owner request)
+
+| Step | Scope | Risk | Status | Handoff |
+|------|-------|------|--------|---------|
+| **17** | Migration `users.ui_mode` + service `resolveModeForUser()` + composer inject | 🟡 Medium | ✅ DONE | [step-17-handoff.md](step-17-handoff.md) |
+| **18** | Topbar Night/Light toggle (Alpine + endpoint) + whole-interface mode sync (sidebar+topbar+content) | 🟡 Medium | ✅ DONE | [step-18-handoff.md](step-18-handoff.md) |
+| **19** | Theme Unification & Customizer v2 (7 sub-steps 19.1–19.7) | 🔴 High | ⬜ TODO — sub-step 19.1 menunggu approval | (in progress) |
+| **20** | Expanded tokens (font, radius, shadow) — superseded by Step 19 redesign | — | 🟡 Folded into 19 | — |
+| **21** | Theme export/import JSON | 🟢 Low | ⬜ TODO — post-19 | — |
+
 ---
 
-## 🎉 SEMUA 16 STEPS SELESAI
+## 🎯 STATUS RINGKAS — 2026-06-25
 
-**Command Center Dark Admin UI/UX Redesign — Complete**
+**Fase A–D (Steps 1–16):** ✅ Complete — Command Center Dark + global customizer.
 
-Semua fase (A, B, C, D) dan 16 steps telah selesai dan verified.
-Branch: `feature/uiux-command-center-dark` siap untuk PR ke `develop`.
+**Fase E (Steps 17–21):** In progress.
+- ✅ Step 17 done — per-user `users.ui_mode` resolution
+- ✅ Step 18 done — topbar Night/Light toggle, sidebar+content unified per mode
+- 🟡 Step 19 next — theme unification (token tone tuning per mode) + customizer v2 (tabbed sections with live preview). Plan documented; menunggu sub-step 19.1.
 
-**Manual browser test checklist sebelum merge** — lihat `step-16-handoff.md`.
+Branch `feature/uiux-command-center-dark` punya commits 17→18.7; **belum siap PR ke develop** — tunggu Step 19 selesai untuk experience unified.
 
 ---
 
