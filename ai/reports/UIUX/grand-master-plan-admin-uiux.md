@@ -2433,3 +2433,115 @@ Step 8: Testing + Accessibility check
 *Grand Master Plan UI/UX Admin Dashboard — Bintan Prestige CMS*
 *Dibuat: 2026-06-23 | Versi: 1.1 | Status: Ready for Review + Awaiting Owner Approval (Customizer)*
 *Implementasi UI redesign (Section 1–16) dapat dimulai. Customizer (Section 17–22) butuh approval schema.*
+
+---
+
+## Phase E — Per-User Theme System (v2.0)
+
+**Ditambahkan:** 2026-06-25 | **Status:** Owner-approved, Step 17 in progress
+
+### E.0 Tujuan
+
+Saat ini dark/light mode global (1 setting untuk seluruh dashboard). Phase E mengubahnya jadi:
+- **Per-user toggle** di topbar (semua role: superadmin, admin, client). Tiap user pilih dark/light/auto sendiri.
+- **Auto** = ikut preset global yang di-set superadmin.
+- **Superadmin Customize v2**: tambah customization untuk font heading, font body, radius, shadow, badge/alert color, topbar — supaya dashboard ini bisa dipakai untuk theme website yang berbeda tanpa rewrite frame satu-satu.
+
+### E.1 Roadmap (Steps 17–21)
+
+| Step | Subject | Output |
+|------|---------|--------|
+| 17 | Per-user DB column + service resolution | Migration `users.ui_mode` + `AdminAppearanceService::resolveModeForUser()` + composer inject |
+| 18 | Topbar toggle button | Alpine.js sun/moon icon → POST `/admin/settings/ui-mode` → instant CSS swap |
+| 19 | Audit semua admin pages | Cleanup sisa hardcoded `bg-white`/`text-slate-*` di luar product module |
+| 20 | Superadmin Customize v2 (expanded tokens) | Tambah kolom `font_heading`, `font_body`, `radius_base`, `card_shadow`, `topbar_bg`, `badge_*` |
+| 21 | Theme presets export/import | Save customizer state ke JSON file untuk reuse antar-website |
+
+### E.2 Step 17 — Per-User Mode (Detail)
+
+**DB:**
+```sql
+ALTER TABLE users ADD COLUMN ui_mode ENUM('auto','dark','light') NOT NULL DEFAULT 'auto';
+```
+
+**User Model:**
+- `const UI_MODE_AUTO='auto', UI_MODE_DARK='dark', UI_MODE_LIGHT='light'`
+- Default `auto` (ikut global preset)
+
+**AdminAppearanceService — method baru:**
+```php
+public function resolveModeForUser(?User $user): string
+{
+    $global = $this->getCurrent()->mode;          // 'dark' | 'light'
+    if (! $user)                       return $global;
+    if ($user->ui_mode === 'auto')     return $global;
+    return $user->ui_mode;                         // 'dark' | 'light' (user override)
+}
+```
+
+**AdminAppearanceComposer — pass resolved mode:**
+```php
+$view->with([
+    'adminAppearance'    => $appearance,
+    'adminAppearanceCss' => $this->service->toCssVars($appearance),
+    'adminUiMode'        => $this->service->resolveModeForUser(auth()->user()),
+]);
+```
+
+**layouts/admin.blade.php — gunakan `$adminUiMode`:**
+```blade
+<html @if($adminUiMode === 'light') data-admin-mode="light" @endif>
+```
+
+### E.3 Step 18 — Topbar Toggle (Detail)
+
+- Button: sun icon (current=dark, klik → light), moon (current=light, klik → dark)
+- Route: `POST /admin/settings/ui-mode` → `UiModeController@update`
+- FormRequest: `ui_mode` ∈ {auto, dark, light}
+- Response: 204 No Content
+- Frontend: Alpine.js swap `<html data-admin-mode>` attribute langsung tanpa reload, lalu kirim AJAX persist
+
+### E.4 Step 20 — Expanded Tokens (Detail)
+
+| Kolom DB baru | Default dark | Default light | CSS var |
+|---|---|---|---|
+| `font_heading` | "Inter" | "Inter" | `--admin-font-heading` |
+| `font_body` | "Inter" | "Inter" | `--admin-font-body` |
+| `radius_base` | "0.75rem" | "0.75rem" | `--admin-radius-base` |
+| `card_shadow` | "0 1px 3px rgba(0,0,0,0.2)" | "0 1px 3px rgba(15,23,42,0.06)" | `--admin-card-shadow` |
+| `topbar_bg` | `#0F172A` | `#FFFFFF` | `--admin-topbar-bg` |
+| `topbar_border` | `rgba(255,255,255,0.08)` | `#E2E8F0` | `--admin-topbar-border` |
+
+UI: Customize page jadi tab system (General / Colors / Typography / Components / Advanced).
+
+### E.5 Step 21 — Theme Export/Import
+
+- Export button → JSON file `theme-{name}-{date}.json` berisi semua kolom appearance
+- Import field upload JSON → validate schema → preview → confirm → save
+- Pakai untuk migrate setting ke clone repo / website lain
+
+### E.6 Feasibility vs Struktur Sekarang
+
+| Komponen | Status | Upgrade |
+|---|---|---|
+| CSS vars system | ✅ Ada | + font/radius/shadow vars di Step 20 |
+| ViewComposer | ✅ Ada | + `$adminUiMode` di Step 17 |
+| AdminAppearanceService | ✅ Ada | + `resolveModeForUser()` di Step 17 |
+| DB schema | ✅ Ada | + `users.ui_mode` (Step 17), + 6 kolom di `admin_dashboard_appearances` (Step 20) |
+| Topbar HTML | ✅ Ada | + toggle button (Step 18) |
+
+**Tidak ada breaking change.** Existing global mode tetap berfungsi sebagai fallback untuk user dengan `ui_mode='auto'` (default semua user existing).
+
+### E.7 Files Step 17
+
+| File | Aksi |
+|---|---|
+| `database/migrations/2026_06_25_*_add_ui_mode_to_users.php` | Baru |
+| `app/Models/User.php` | + constants UI_MODE_*, fillable |
+| `app/Services/AdminAppearanceService.php` | + `resolveModeForUser()` |
+| `app/View/Composers/AdminAppearanceComposer.php` | + inject `$adminUiMode` |
+| `resources/views/layouts/admin.blade.php` | Gunakan `$adminUiMode` untuk `data-admin-mode` attribute |
+
+---
+
+*Phase E added 2026-06-25 — owner request: per-user toggle + customizer expansion for theme reuse.*

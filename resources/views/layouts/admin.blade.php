@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en"
+    @if(($adminUiMode ?? 'dark') === 'light') data-admin-mode="light" @endif
     @isset($adminAppearance)
-        @if($adminAppearance->mode !== 'dark') data-admin-mode="light" @endif
         @if($adminAppearance->sidebar_style === 'light') data-admin-sidebar="light" @endif
     @endisset
 >
@@ -24,7 +24,7 @@
                    (3) .hidden fixed overlays intercepting first click.
          bg_base from DB — dynamic so theme changes reflect without FOUC. --}}
     <style>
-        html, body { background: {{ $adminAppearance->bg_base ?? '#020617' }}; }
+        html, body { background: {{ ($adminUiMode ?? 'dark') === 'light' ? '#F8FAFC' : ($adminAppearance->bg_base ?? '#020617') }}; }
         [x-cloak]  { display: none !important; }
         .hidden    { display: none !important; }
     </style>

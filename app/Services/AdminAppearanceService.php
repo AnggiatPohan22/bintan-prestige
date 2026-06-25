@@ -62,6 +62,22 @@ class AdminAppearanceService
     }
 
     /**
+     * Resolve actual UI mode (dark|light) for the given user.
+     * Priority: user.ui_mode override -> global preset mode.
+     * 'auto' means the user follows whatever superadmin sets globally.
+     */
+    public function resolveModeForUser(?User $user): string
+    {
+        $global = $this->getCurrent()->mode ?? 'dark';
+
+        if (! $user || ($user->ui_mode ?? User::UI_MODE_AUTO) === User::UI_MODE_AUTO) {
+            return $global;
+        }
+
+        return $user->ui_mode;
+    }
+
+    /**
      * Generate :root CSS string untuk di-inject ke <style id="admin-appearance-vars">
      * di admin.blade.php. Semua hex values sudah divalidasi via FormRequest sebelum masuk DB.
      *
