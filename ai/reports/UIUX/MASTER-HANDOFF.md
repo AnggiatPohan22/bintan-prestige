@@ -142,7 +142,7 @@ Solusi: Blade cleanup sudah dilakukan (step 06 — tidak ada lagi dark text di d
 
 | Step | Scope | Risk | Status | Handoff |
 |------|-------|------|--------|---------|
-| **11** | KPI stat cards + quick links + recent activity | 🟡 Medium | ⬜ TODO | — |
+| **11** | KPI stat cards + quick links + recent activity | 🟡 Medium | ✅ DONE | [step-11-handoff.md](step-11-handoff.md) |
 
 ### FASE D — Appearance Customizer (⚠️ butuh owner approval Step 12)
 
@@ -156,14 +156,14 @@ Solusi: Blade cleanup sudah dilakukan (step 06 — tidak ada lagi dark text di d
 
 ---
 
-## 🔍 NEXT STEP — Step 11: Dashboard Home
+## 🔍 NEXT STEP — Step 12: DB Migration (⚠️ Owner Approval Required)
 
-**File prompt:** `ai/promt/uiux/step-11-dashboard-home.md`
-**Risk:** 🟡 Medium
-**Scope:** KPI stat cards, quick links, recent activity redesign
-**File:** `resources/views/backend/dashboard.blade.php`
+**File prompt:** `ai/promt/uiux/step-12-migration-model.md`
+**Risk:** 🔴 High
+**Scope:** Migration `admin_dashboard_appearances` + Model
 
-⚠️ **Prerequisite:** Fase B (Step 10) selesai ✅
+⚠️ **JANGAN jalankan Step 12 tanpa approval eksplisit owner.**
+Steps 01–11 (Fase A + B + C) sudah selesai. Fase D membutuhkan DB changes.
 
 ---
 
@@ -227,7 +227,7 @@ ai/
     ├── step-08-handoff.md             ✅
     ├── step-09-handoff.md             ✅
     ├── step-10-handoff.md             ✅
-    ├── step-11-handoff.md             ⬜ belum ada
+    ├── step-11-handoff.md             ✅
     ├── step-12-handoff.md             ⬜ belum ada
     ├── step-13-handoff.md             ⬜ belum ada
     ├── step-14-handoff.md             ⬜ belum ada
@@ -294,7 +294,7 @@ Step 01 (CSS vars) ← FOUNDATION SEMUA
             ↓
         Step 10 (Light Mode)     ✅
             ↓
-        Step 11 (Dashboard Home)  ← Blade changes, bukan CSS only
+        Step 11 (Dashboard Home)  ✅ Blade changes, bukan CSS only
             ↓
         [OWNER APPROVAL]
             ↓
