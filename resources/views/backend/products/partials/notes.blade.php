@@ -1,4 +1,4 @@
-﻿<div id="notes-section" class="admin-card">
+<div id="notes-section" class="admin-card">
     <div class="admin-card-header">
         <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
