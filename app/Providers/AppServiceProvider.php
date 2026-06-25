@@ -17,12 +17,14 @@ use App\Observers\ProductObserver;
 use App\Observers\RedirectObserver;
 use App\Observers\ThemeObserver;
 use App\Facades\CmsHooks;
+use App\Services\AdminAppearanceService;
 use App\Services\GlobalSettingsService;
 use App\Services\MenuService;
 use App\Services\Plugin\PluginManager;
 use App\Services\Plugin\PluginRegistry;
 use App\Services\ThemeService;
 use App\Support\HookManager;
+use App\View\Composers\AdminAppearanceComposer;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
@@ -34,6 +36,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+        $this->app->singleton(AdminAppearanceService::class);
         $this->app->singleton(GlobalSettingsService::class);
         $this->app->singleton(ThemeService::class);
         $this->app->singleton(HookManager::class);
@@ -145,6 +148,9 @@ class AppServiceProvider extends ServiceProvider
                 }
             }
         });
+
+        // Inject admin appearance (CSS vars + mode attrs) into every admin layout render
+        View::composer('layouts.admin', AdminAppearanceComposer::class);
 
         CmsHooks::doAction('cms.init');
     }

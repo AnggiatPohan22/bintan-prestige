@@ -1,5 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en"
+    @isset($adminAppearance)
+        @if($adminAppearance->mode !== 'dark') data-admin-mode="light" @endif
+        @if($adminAppearance->sidebar_style === 'light') data-admin-sidebar="light" @endif
+    @endisset
+>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -16,14 +21,25 @@
     {{-- Inline styles run immediately on HTML parse, before @vite CSS loads.
          Prevents: (1) white flash while external CSS is fetching,
                    (2) Alpine x-cloak elements flashing visible,
-                   (3) .hidden fixed overlays intercepting first click. --}}
+                   (3) .hidden fixed overlays intercepting first click.
+         bg_base from DB — dynamic so theme changes reflect without FOUC. --}}
     <style>
-        html, body { background: #020617; }
+        html, body { background: {{ $adminAppearance->bg_base ?? '#020617' }}; }
         [x-cloak]  { display: none !important; }
         .hidden    { display: none !important; }
     </style>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+    {{-- Admin Appearance: CSS Custom Properties dari DB.
+         Override :root vars sesuai tema aktif (preset / custom colors).
+         Dikelola via Settings > Customize Dashboard (super admin only).
+         {!! !!} aman: nilai hex sudah divalidasi via FormRequest sebelum masuk DB. --}}
+    @isset($adminAppearanceCss)
+    <style id="admin-appearance-vars">
+        {!! $adminAppearanceCss !!}
+    </style>
+    @endisset
 
     @include('partials.site-brand-colors')
 </head>
