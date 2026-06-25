@@ -269,7 +269,7 @@
         background: transparent;
     }
     .admin-btn-icon:hover {
-        background: rgba(255, 255, 255, 0.06);
+        background: var(--admin-bg-hover);
         color:      var(--admin-text-secondary);
     }
 
@@ -289,12 +289,12 @@
     }
 
     .admin-btn-secondary {
-        background:   rgba(255, 255, 255, 0.05);
-        color:        var(--admin-text-secondary);
+        background:   var(--admin-btn-secondary-bg, rgba(255, 255, 255, 0.05));
+        color:        var(--admin-btn-secondary-text, var(--admin-text-secondary));
         border:       1px solid var(--admin-border-md);
     }
     .admin-btn-secondary:hover {
-        background:   rgba(255, 255, 255, 0.08);
+        background:   var(--admin-bg-hover);
         border-color: var(--admin-border-strong);
         color:        var(--admin-text-primary);
         transform:    translateY(-1px);
@@ -311,32 +311,34 @@
         box-shadow:  0 1px 2px rgba(0, 0, 0, 0.3);
     }
     .admin-btn-success:hover {
-        background:  #059669;
-        box-shadow:  0 4px 12px rgba(16, 185, 129, 0.35);
+        background:  var(--admin-success);
+        filter:      brightness(0.92);
+        box-shadow:  0 4px 12px var(--admin-primary-glow);
         transform:   translateY(-1px);
     }
     .admin-btn-success:active { transform: translateY(0); }
 
     .admin-btn-danger {
-        background:  var(--admin-danger);
+        background:  var(--admin-btn-danger-bg, var(--admin-danger));
         color:       #FFFFFF;
         box-shadow:  0 1px 2px rgba(0, 0, 0, 0.3);
     }
     .admin-btn-danger:hover {
-        background:  #B91C1C;
-        box-shadow:  0 4px 12px rgba(239, 68, 68, 0.35);
+        background:  var(--admin-btn-danger-hover, var(--admin-danger));
+        filter:      brightness(0.92);
+        box-shadow:  0 4px 12px rgba(0, 0, 0, 0.25);
         transform:   translateY(-1px);
     }
     .admin-btn-danger:active { transform: translateY(0); }
 
     .admin-btn-soft {
         background:   var(--admin-primary-soft);
-        color:        #C4B5FD;
-        border:       1px solid rgba(124, 58, 237, 0.2);
+        color:        var(--admin-primary);
+        border:       1px solid var(--admin-primary-soft);
     }
     .admin-btn-soft:hover {
-        background: rgba(124, 58, 237, 0.22);
-        color:      #DDD6FE;
+        background: var(--admin-primary-glow);
+        color:      var(--admin-primary-hover);
     }
 
 
@@ -370,31 +372,31 @@
     }
 
     .admin-badge-success {
-        background: rgba(16, 185, 129, 0.12);
-        color:      #34D399;
+        background: var(--admin-alert-success-bg, rgba(16, 185, 129, 0.12));
+        color:      var(--admin-success);
     }
     .admin-badge-success::before { background: var(--admin-success); }
 
     .admin-badge-warning {
-        background: rgba(245, 158, 11, 0.12);
-        color:      #FBBF24;
+        background: var(--admin-alert-warning-bg, rgba(245, 158, 11, 0.12));
+        color:      var(--admin-warning);
     }
     .admin-badge-warning::before { background: var(--admin-warning); }
 
     .admin-badge-danger {
-        background: rgba(239, 68, 68, 0.12);
-        color:      #F87171;
+        background: var(--admin-alert-danger-bg, rgba(239, 68, 68, 0.12));
+        color:      var(--admin-danger);
     }
     .admin-badge-danger::before { background: var(--admin-danger); }
 
     .admin-badge-info {
-        background: var(--admin-accent-soft);
-        color:      #22D3EE;
+        background: var(--admin-alert-info-bg, var(--admin-accent-soft));
+        color:      var(--admin-info, var(--admin-accent));
     }
-    .admin-badge-info::before { background: var(--admin-accent); }
+    .admin-badge-info::before { background: var(--admin-info, var(--admin-accent)); }
 
     .admin-badge-neutral {
-        background: rgba(255, 255, 255, 0.06);
+        background: var(--admin-bg-hover);
         color:      var(--admin-text-muted);
     }
     .admin-badge-neutral::before { background: var(--admin-text-muted); }
@@ -416,7 +418,7 @@
 
     .admin-table-header {
         @apply border-b;
-        background:   rgba(15, 23, 42, 0.6);
+        background:   var(--admin-table-header-bg, var(--admin-bg-surface));
         border-color: var(--admin-border);
     }
 
@@ -428,11 +430,11 @@
 
     .admin-table-row {
         @apply border-b transition duration-100 last:border-b-0;
-        border-color: rgba(255, 255, 255, 0.04);
+        border-color: var(--admin-table-border, var(--admin-border));
     }
 
     .admin-table-row:hover {
-        background: rgba(255, 255, 255, 0.02);
+        background: var(--admin-table-row-hover, var(--admin-bg-hover));
     }
 
     .admin-table-row td {
@@ -487,7 +489,7 @@
     .admin-select:is(.error, [aria-invalid="true"]),
     .admin-textarea:is(.error, [aria-invalid="true"]) {
         border-color: var(--admin-danger);
-        box-shadow:   0 0 0 3px rgba(239, 68, 68, 0.15);
+        box-shadow:   0 0 0 3px var(--admin-alert-danger-bg, rgba(239, 68, 68, 0.15));
     }
 
     .admin-select {
@@ -521,16 +523,15 @@
 
     .admin-modal-overlay {
         @apply fixed inset-0 z-50 flex items-center justify-center p-4;
-        background:      rgba(2, 6, 23, 0.75);
+        background:      var(--admin-modal-overlay, rgba(2, 6, 23, 0.75));
         backdrop-filter: blur(8px);
     }
 
     .admin-modal-panel {
         @apply relative w-full max-w-lg overflow-hidden rounded-xl;
-        background:      rgba(15, 23, 42, 0.97);
-        border:          1px solid var(--admin-border-md);
-        box-shadow:      0 25px 60px rgba(0, 0, 0, 0.7),
-                         0 0 0 1px rgba(255, 255, 255, 0.04) inset;
+        background:      var(--admin-modal-bg, var(--admin-bg-card));
+        border:          1px solid var(--admin-modal-border, var(--admin-border-md));
+        box-shadow:      0 25px 60px rgba(0, 0, 0, 0.35);
         backdrop-filter: blur(20px);
     }
 
@@ -547,7 +548,7 @@
     .admin-modal-footer {
         @apply flex items-center justify-end gap-3 px-6 py-4;
         border-top: 1px solid var(--admin-border);
-        background:  rgba(2, 6, 23, 0.3);
+        background:  var(--admin-bg-hover);
     }
 
 
@@ -803,8 +804,8 @@
 
     .admin-topbar {
         @apply sticky top-0 z-30 backdrop-blur-xl;
-        background:    rgba(2, 6, 23, 0.92);
-        border-bottom: 1px solid var(--admin-sidebar-border);
+        background:    var(--admin-topbar-bg, var(--admin-bg-surface));
+        border-bottom: 1px solid var(--admin-topbar-border, var(--admin-border));
     }
 
     .admin-topbar__main {
@@ -835,7 +836,7 @@
     .admin-topbar__search {
         @apply hidden min-w-0 cursor-pointer items-center gap-2 rounded-lg
                px-3 py-2 text-sm transition lg:flex lg:w-56 xl:w-72;
-        background:   rgba(15, 23, 42, 0.8);
+        background:   var(--admin-bg-input);
         border:       1px solid var(--admin-border);
         color:        var(--admin-text-muted);
     }
@@ -847,7 +848,7 @@
     /* Keyboard shortcut badge — only the last span (Ctrl K), not the label text */
     .admin-topbar__search span:last-child {
         @apply rounded-md px-1.5 py-0.5 text-[10px] font-bold;
-        background:   rgba(255, 255, 255, 0.06);
+        background:   var(--admin-bg-hover);
         border:       1px solid var(--admin-border);
         color:        var(--admin-text-muted);
     }
@@ -855,17 +856,17 @@
     .admin-topbar__icon-button {
         @apply relative flex h-9 w-9 items-center justify-center
                rounded-lg transition;
-        color: var(--admin-text-muted);
+        color: var(--admin-topbar-text, var(--admin-text-muted));
     }
     .admin-topbar__icon-button:hover {
-        background: rgba(255, 255, 255, 0.06);
+        background: var(--admin-bg-hover);
         color:      var(--admin-text-secondary);
     }
 
     .admin-topbar__notification-dot {
         @apply absolute right-2 top-2 h-1.5 w-1.5 rounded-full;
         background: var(--admin-danger);
-        box-shadow: 0 0 0 2px rgba(2, 6, 23, 0.9);
+        box-shadow: 0 0 0 2px var(--admin-topbar-bg, var(--admin-bg-surface));
     }
 
 
@@ -955,15 +956,15 @@
     }
 
     .admin-alert-success {
-        background:   rgba(16, 185, 129, 0.10);
-        border-color: rgba(16, 185, 129, 0.25);
-        color:        #34D399;
+        background:   var(--admin-alert-success-bg, rgba(16, 185, 129, 0.10));
+        border-color: var(--admin-success);
+        color:        var(--admin-success);
     }
 
     .admin-alert-danger {
-        background:   rgba(239, 68, 68, 0.10);
-        border-color: rgba(239, 68, 68, 0.25);
-        color:        #F87171;
+        background:   var(--admin-alert-danger-bg, rgba(239, 68, 68, 0.10));
+        border-color: var(--admin-danger);
+        color:        var(--admin-danger);
     }
 
 
@@ -1321,165 +1322,11 @@ html[data-admin-mode="light"] .admin-body {
     background: var(--admin-bg-base);
 }
 
-/* Topbar */
-html[data-admin-mode="light"] .admin-topbar {
-    background: rgba(255, 255, 255, 0.95);
-    border-bottom: 1px solid #E2E8F0;
-    backdrop-filter: blur(12px);
-}
-
-html[data-admin-mode="light"] .admin-topbar__search {
-    background: #F8FAFC;
-    border-color: #E2E8F0;
-    color: #64748B;
-}
-html[data-admin-mode="light"] .admin-topbar__search:hover {
-    border-color: #7C3AED;
-    background: #FFFFFF;
-}
-
-html[data-admin-mode="light"] .admin-topbar__icon-button {
-    color: #64748B;
-}
-html[data-admin-mode="light"] .admin-topbar__icon-button:hover {
-    background: #F1F5F9;
-    color: #0F172A;
-}
-
-html[data-admin-mode="light"] .admin-topbar__breadcrumb {
-    color: #94A3B8;
-}
-html[data-admin-mode="light"] .admin-topbar__breadcrumb span {
-    color: #475569;
-}
-
-html[data-admin-mode="light"] .admin-user-menu__trigger:hover {
-    background: #F1F5F9;
-}
-
-html[data-admin-mode="light"] .admin-user-menu__dropdown {
-    background: rgba(255, 255, 255, 0.98);
-    border-color: #E2E8F0;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
-}
-
-/* Cards & panels */
-html[data-admin-mode="light"] .admin-card {
-    background: #FFFFFF;
-    border-color: #E2E8F0;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
-}
-
-html[data-admin-mode="light"] .admin-card-header {
-    background: #F8FAFC;
-    border-bottom-color: #E2E8F0;
-}
-
-html[data-admin-mode="light"] .admin-form-card {
-    background: #FFFFFF;
-    border-color: #E2E8F0;
-}
-
-html[data-admin-mode="light"] .admin-page-header {
-    background: #FFFFFF;
-    border-color: #E2E8F0;
-}
-
-/* Tables */
-html[data-admin-mode="light"] .admin-table-wrapper {
-    background: #FFFFFF;
-    border-color: #E2E8F0;
-}
-html[data-admin-mode="light"] .admin-table-header {
-    background: #F8FAFC;
-    border-bottom-color: #E2E8F0;
-}
-html[data-admin-mode="light"] .admin-table-header th {
-    color: #94A3B8;
-}
-html[data-admin-mode="light"] .admin-table-row {
-    border-bottom-color: #F1F5F9;
-}
-html[data-admin-mode="light"] .admin-table-row td {
-    color: #475569;
-}
-html[data-admin-mode="light"] .admin-table-row td:first-child {
-    color: #0F172A;
-}
-html[data-admin-mode="light"] .admin-table-row:hover {
-    background: #F8FAFC;
-}
-
-/* Badges — light-optimized contrast */
-html[data-admin-mode="light"] .admin-badge-success {
-    background: #D1FAE5;
-    color: #065F46;
-}
-html[data-admin-mode="light"] .admin-badge-success::before { background: #059669; }
-
-html[data-admin-mode="light"] .admin-badge-warning {
-    background: #FEF3C7;
-    color: #92400E;
-}
-html[data-admin-mode="light"] .admin-badge-warning::before { background: #D97706; }
-
-html[data-admin-mode="light"] .admin-badge-danger {
-    background: #FEE2E2;
-    color: #991B1B;
-}
-html[data-admin-mode="light"] .admin-badge-danger::before { background: #DC2626; }
-
-html[data-admin-mode="light"] .admin-badge-info {
-    background: #ECFEFF;
-    color: #155E75;
-}
-html[data-admin-mode="light"] .admin-badge-info::before { background: #0891B2; }
-
-/* Inputs & forms */
-html[data-admin-mode="light"] .admin-input,
-html[data-admin-mode="light"] .admin-select,
-html[data-admin-mode="light"] .admin-textarea {
-    background: #FFFFFF;
-    border-color: #CBD5E1;
-    color: #0F172A;
-}
-html[data-admin-mode="light"] .admin-input:focus,
-html[data-admin-mode="light"] .admin-select:focus,
-html[data-admin-mode="light"] .admin-textarea:focus {
-    border-color: #7C3AED;
-    box-shadow: 0 0 0 3px rgba(124,58,237,0.12);
-}
-
-html[data-admin-mode="light"] .admin-form-label {
-    color: #475569;
-}
-
-/* Empty state */
-html[data-admin-mode="light"] .admin-empty-state {
-    background: repeating-linear-gradient(
-        45deg,
-        rgba(0,0,0,0.02),
-        rgba(0,0,0,0.02) 1px,
-        transparent 1px,
-        transparent 14px
-    );
-    border-color: #CBD5E1;
-}
-
-/* Modal */
-html[data-admin-mode="light"] .admin-modal-panel {
-    background: #FFFFFF;
-    border-color: #E2E8F0;
-    box-shadow: 0 25px 60px rgba(0,0,0,0.15);
-    backdrop-filter: none;
-}
-html[data-admin-mode="light"] .admin-modal-header {
-    border-bottom-color: #E2E8F0;
-}
-html[data-admin-mode="light"] .admin-modal-footer {
-    border-top-color: #E2E8F0;
-    background: #F8FAFC;
-}
+/* Legacy hardcoded light-mode component overrides removed in Step 19.3 —
+   all admin-* component classes now use --admin-* tokens directly. Token
+   values flip mode-aware via the per-mode emission from
+   AdminAppearanceService::toCssVarsForMode(). See config/admin_palettes.php
+   for the source-of-truth token bag per preset/mode. */
 
 
 /* Legacy [data-admin-sidebar="light"] block removed in Step 18.7 —
