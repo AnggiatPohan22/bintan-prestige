@@ -285,9 +285,15 @@ $groups = [
                 </button>
                 <div x-show="isOpen('settings')" x-cloak class="admin-sidebar__children">
                     <a href="{{ route('admin.settings.global-assets.edit') }}"
-                       class="group admin-sidebar__child {{ Request::routeIs('admin.settings.*') ? 'admin-sidebar__child--active' : '' }}">
+                       class="group admin-sidebar__child {{ Request::routeIs('admin.settings.global-assets.*') ? 'admin-sidebar__child--active' : '' }}">
                         Global Settings
                     </a>
+                    @can('manage-users')
+                    <a href="{{ route('admin.settings.appearance.index') }}"
+                       class="group admin-sidebar__child {{ Request::routeIs('admin.settings.appearance.*') ? 'admin-sidebar__child--active' : '' }}">
+                        Customize Dashboard
+                    </a>
+                    @endcan
                 </div>
             </div>
 

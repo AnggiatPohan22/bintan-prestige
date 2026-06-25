@@ -151,22 +151,15 @@ Solusi: Blade cleanup sudah dilakukan (step 06 — tidak ada lagi dark text di d
 | **12** | Migration `admin_dashboard_appearances` + Model | 🔴 High | ✅ DONE | [step-12-handoff.md](step-12-handoff.md) |
 | **13** | AdminAppearanceService + ViewComposer | 🟡 Medium | ✅ DONE | [step-13-handoff.md](step-13-handoff.md) |
 | **14** | DashboardAppearanceController + Routes | 🟡 Medium | ✅ DONE | [step-14-handoff.md](step-14-handoff.md) |
-| **15** | Blade UI: Settings > Customize Dashboard | 🟡 Medium | ⬜ TODO | — |
+| **15** | Blade UI: Settings > Customize Dashboard | 🟡 Medium | ✅ DONE | [step-15-handoff.md](step-15-handoff.md) |
 | **16** | Alpine.js live preview + Accessibility QA | 🟢 Low | ⬜ TODO | — |
 
 ---
 
-## 🔍 NEXT STEP — Step 15: Blade UI Settings
+## 🔍 NEXT STEP — Step 16: Final QA + Accessibility
 
-**File prompt:** `ai/promt/uiux/step-15-settings-ui.md`
-**Risk:** 🟡 Medium
-**Scope:** `resources/views/backend/settings/appearance/index.blade.php`
-
-⚠️ **Audit fixes wajib diterapkan di Step 15:**
-1. Reset button: gunakan `<form method="POST">` dengan `@csrf` (bukan `window.location.href`)
-2. Preset selector: saat preset dipilih, isi semua field via Alpine.js (bukan `darken()`)
-3. Color picker: gunakan `<input type="color">` dengan nilai fallback dari `$appearance`
-4. View extends `layouts.admin` bukan `layouts.app`
+**Risk:** 🟢 Low
+**Scope:** Keyboard nav, WCAG AA contrast, screen reader, smoke test semua steps, docs update
 
 ---
 
@@ -234,7 +227,7 @@ ai/
     ├── step-12-handoff.md             ✅
     ├── step-13-handoff.md             ✅
     ├── step-14-handoff.md             ✅
-    ├── step-15-handoff.md             ⬜ belum ada
+    ├── step-15-handoff.md             ✅
     └── step-16-handoff.md             ⬜ belum ada
 ```
 
