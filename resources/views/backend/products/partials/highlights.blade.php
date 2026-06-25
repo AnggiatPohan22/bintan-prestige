@@ -84,7 +84,7 @@
                 <div
                     id="iconDropdown"
                     class="hidden absolute left-0 z-50 mt-2 w-[min(92vw,360px)]
-                    rounded-2xl border border-slate-200 bg-white p-4 shadow-2xl"
+                    rounded-2xl border border-admin bg-admin-card p-4 shadow-2xl"
                 >
                     <input
                         type="text"
@@ -115,7 +115,7 @@
             </button>
         </form>
 
-        <div class="my-6 border-t border-slate-200"></div>
+        <div class="my-6 border-t border-admin"></div>
 
         <div class="grid grid-cols-1 gap-4">
             @forelse($product->highlights as $highlight)
@@ -313,7 +313,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 item.type = 'button';
                 item.className =
-                    'h-11 w-11 flex items-center justify-center rounded-xl border border-slate-200 hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500';
+                    'h-11 w-11 flex items-center justify-center rounded-xl border border-admin bg-admin-card hover:opacity-75 focus:outline-none focus:ring-2 focus:ring-indigo-500';
 
                 item.innerHTML =
                     `<i class="fa-solid ${icon} text-lg"></i>`;

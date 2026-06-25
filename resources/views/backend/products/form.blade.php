@@ -776,14 +776,14 @@
             >
                 <summary class="accordion-summary">
                     <span>Product Highlights & Features</span>
-                    <span class="text-xs font-medium text-slate-400">
+                    <span class="text-xs font-medium text-admin-secondary">
                         {{ $product->highlights->count() }} highlights /
                         {{ $product->features->count() }} features
                     </span>
                 </summary>
 
                 <div class="card-body">
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                         @include('backend.products.partials.highlights')
                         @include('backend.products.partials.features')
                     </div>
@@ -798,7 +798,7 @@
             >
                 <summary class="accordion-summary">
                     <span>Product FAQs</span>
-                    <span class="text-xs font-medium text-slate-400">
+                    <span class="text-xs font-medium text-admin-secondary">
                         {{ $product->faqs->count() }} FAQ
                     </span>
                 </summary>
@@ -816,14 +816,14 @@
             >
                 <summary class="accordion-summary">
                     <span>Product Itineraries & Notes</span>
-                    <span class="text-xs font-medium text-slate-400">
+                    <span class="text-xs font-medium text-admin-secondary">
                         {{ $product->itineraries->count() }} itineraries /
                         {{ $product->notes->count() }} notes
                     </span>
                 </summary>
 
                 <div class="card-body">
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                         @include('backend.products.partials.itineraries')
                         @include('backend.products.partials.notes')
                     </div>

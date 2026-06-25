@@ -119,7 +119,7 @@
                 </button>
             </form>
 
-            <div class="my-6 border-t border-slate-200"></div>
+            <div class="my-6 border-t border-admin"></div>
 
             <div class="space-y-4">
                 @forelse($product->itineraries as $itinerary)
@@ -133,7 +133,7 @@
                                 </div>
 
                                 @if(!$loop->last)
-                                    <div class="mt-2 h-full w-px bg-slate-200"></div>
+                                    <div class="mt-2 h-full w-px bg-white/20"></div>
                                 @endif
                             </div>
 
