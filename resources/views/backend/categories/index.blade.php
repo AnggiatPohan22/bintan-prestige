@@ -41,16 +41,16 @@
             @forelse($categories as $category)
                 <tr class="admin-table-row">
                     <td class="px-4 py-4">
-                        <div class="font-semibold text-slate-100">{{ $category->name }}</div>
-                        <div class="mt-1 text-xs text-slate-400">/{{ $category->slug }}</div>
+                        <div class="font-semibold text-admin-secondary">{{ $category->name }}</div>
+                        <div class="mt-1 text-xs text-admin-secondary">/{{ $category->slug }}</div>
                         @if($category->description)
-                            <p class="mt-2 max-w-xl text-sm text-slate-400">
+                            <p class="mt-2 max-w-xl text-sm text-admin-secondary">
                                 {{ \Illuminate\Support\Str::limit($category->description, 120) }}
                             </p>
                         @endif
                     </td>
 
-                    <td class="px-4 py-4 text-sm font-medium text-slate-400">
+                    <td class="px-4 py-4 text-sm font-medium text-admin-secondary">
                         {{ $category->products_count }}
                     </td>
 
@@ -107,15 +107,15 @@
             @forelse($archivedCategories as $category)
                 <tr class="admin-table-row">
                     <td class="px-4 py-4">
-                        <div class="font-semibold text-slate-100">{{ $category->name }}</div>
-                        <div class="mt-1 text-xs text-slate-400">/{{ $category->slug }}</div>
+                        <div class="font-semibold text-admin-secondary">{{ $category->name }}</div>
+                        <div class="mt-1 text-xs text-admin-secondary">/{{ $category->slug }}</div>
                     </td>
 
-                    <td class="px-4 py-4 text-sm text-slate-400">
+                    <td class="px-4 py-4 text-sm text-admin-secondary">
                         {{ $category->deleted_at?->format('d M Y H:i') }}
                     </td>
 
-                    <td class="px-4 py-4 text-sm font-medium text-slate-400">
+                    <td class="px-4 py-4 text-sm font-medium text-admin-secondary">
                         {{ $category->products_count }}
                     </td>
 

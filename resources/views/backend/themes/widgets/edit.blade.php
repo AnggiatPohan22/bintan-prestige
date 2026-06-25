@@ -6,12 +6,12 @@
 
     <div class="mb-6">
         <a href="{{ route('admin.themes.widgets.index', $theme) }}"
-           class="mb-1 inline-flex items-center gap-1 text-xs text-slate-400 hover:text-slate-400">
+           class="mb-1 inline-flex items-center gap-1 text-xs text-admin-secondary hover:text-admin-secondary">
             <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
             Back to Widgets
         </a>
-        <h1 class="text-lg font-extrabold text-slate-100">Edit Widget — {{ $theme->name }}</h1>
-        <p class="mt-0.5 text-sm text-slate-400">
+        <h1 class="text-lg font-extrabold text-admin-secondary">Edit Widget — {{ $theme->name }}</h1>
+        <p class="mt-0.5 text-sm text-admin-secondary">
             Type: <span class="font-medium">{{ $widget->typeLabel() }}</span>
             &middot;
             Area: <span class="font-medium">{{ $areas[$widget->area]['label'] ?? $widget->area }}</span>
@@ -35,7 +35,7 @@
             </div>
         @endif
 
-        <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm space-y-5">
+        <div class="rounded-2xl border border-admin bg-admin-card p-6 shadow-sm space-y-5">
 
             {{-- Admin Title --}}
             <div>
@@ -53,12 +53,12 @@
                        class="admin-input w-32" min="0">
             </div>
 
-            <hr class="border-slate-100">
+            <hr class="border-admin">
 
             @php $data = $widget->data ?? []; @endphp
 
             @if($widget->widget_type === 'text')
-                <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Text Widget</p>
+                <p class="text-xs font-semibold uppercase tracking-wider text-admin-secondary">Text Widget</p>
                 <div class="space-y-4">
                     <div>
                         <label class="admin-label">Heading</label>
@@ -69,13 +69,13 @@
                     <div>
                         <label class="admin-label">Content</label>
                         <textarea name="data[content]" rows="8" class="admin-input w-full font-mono text-sm">{{ old('data.content', $data['content'] ?? '') }}</textarea>
-                        <p class="mt-1 text-xs text-slate-400">HTML is supported.</p>
+                        <p class="mt-1 text-xs text-admin-secondary">HTML is supported.</p>
                     </div>
                 </div>
             @endif
 
             @if($widget->widget_type === 'html')
-                <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">HTML Widget</p>
+                <p class="text-xs font-semibold uppercase tracking-wider text-admin-secondary">HTML Widget</p>
                 <div>
                     <label class="admin-label">HTML Code</label>
                     <textarea name="data[code]" rows="10" class="admin-input w-full font-mono text-sm">{{ old('data.code', $data['code'] ?? '') }}</textarea>
@@ -83,7 +83,7 @@
             @endif
 
             @if($widget->widget_type === 'image')
-                <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Image Widget</p>
+                <p class="text-xs font-semibold uppercase tracking-wider text-admin-secondary">Image Widget</p>
                 <div class="space-y-4">
                     <div>
                         <label class="admin-label">Image URL</label>
@@ -113,7 +113,7 @@
             @endif
 
             @if($widget->widget_type === 'navigation')
-                <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Navigation Widget</p>
+                <p class="text-xs font-semibold uppercase tracking-wider text-admin-secondary">Navigation Widget</p>
                 <div class="space-y-4" x-data="navLinks({{ json_encode($data['links'] ?? []) }})">
                     <div>
                         <label class="admin-label">Heading</label>

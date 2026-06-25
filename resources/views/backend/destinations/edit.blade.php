@@ -77,11 +77,11 @@
                     @if($destination->image)
                         <img
                             src="{{ asset('storage/'.$destination->image) }}"
-                            class="h-28 w-full rounded-xl border border-slate-200 object-cover"
+                            class="h-28 w-full rounded-xl border border-admin object-cover"
                             alt="{{ $destination->name }}"
                         >
                     @else
-                        <div class="flex h-28 w-full items-center justify-center rounded-xl border border-slate-200 bg-slate-800 text-sm text-slate-400">
+                        <div class="flex h-28 w-full items-center justify-center rounded-xl border border-admin bg-admin-card text-sm text-admin-secondary">
                             No Image
                         </div>
                     @endif

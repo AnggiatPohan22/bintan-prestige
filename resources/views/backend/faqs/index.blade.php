@@ -40,8 +40,8 @@
             @forelse($faqs as $faq)
                 <tr class="admin-table-row">
                     <td class="px-4 py-4">
-                        <div class="font-semibold text-slate-100">{{ $faq->question }}</div>
-                        <p class="mt-2 max-w-2xl text-sm leading-6 text-slate-400">
+                        <div class="font-semibold text-admin-secondary">{{ $faq->question }}</div>
+                        <p class="mt-2 max-w-2xl text-sm leading-6 text-admin-secondary">
                             {{ \Illuminate\Support\Str::limit($faq->answer, 160) }}
                         </p>
                     </td>
@@ -52,7 +52,7 @@
                         </span>
                     </td>
 
-                    <td class="px-4 py-4 text-sm font-medium text-slate-400">
+                    <td class="px-4 py-4 text-sm font-medium text-admin-secondary">
                         {{ $faq->sort_order }}
                     </td>
 

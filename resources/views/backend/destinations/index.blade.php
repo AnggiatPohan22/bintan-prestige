@@ -49,16 +49,16 @@
                                     alt="{{ $destination->name }}"
                                 >
                             @else
-                                <div class="flex h-16 w-20 items-center justify-center rounded-lg bg-slate-800 text-xs text-slate-400">
+                                <div class="flex h-16 w-20 items-center justify-center rounded-lg bg-admin-card text-xs text-admin-secondary">
                                     No Image
                                 </div>
                             @endif
 
                             <div>
-                                <div class="font-semibold text-slate-100">{{ $destination->name }}</div>
-                                <div class="mt-1 text-xs text-slate-400">/{{ $destination->slug }}</div>
+                                <div class="font-semibold text-admin-secondary">{{ $destination->name }}</div>
+                                <div class="mt-1 text-xs text-admin-secondary">/{{ $destination->slug }}</div>
                                 @if($destination->description)
-                                    <p class="mt-2 max-w-xl text-sm text-slate-400">
+                                    <p class="mt-2 max-w-xl text-sm text-admin-secondary">
                                         {{ \Illuminate\Support\Str::limit($destination->description, 120) }}
                                     </p>
                                 @endif
@@ -66,7 +66,7 @@
                         </div>
                     </td>
 
-                    <td class="px-4 py-4 text-sm font-medium text-slate-400">
+                    <td class="px-4 py-4 text-sm font-medium text-admin-secondary">
                         {{ $destination->products_count }}
                     </td>
 
@@ -123,15 +123,15 @@
             @forelse($archivedDestinations as $destination)
                 <tr class="admin-table-row">
                     <td class="px-4 py-4">
-                        <div class="font-semibold text-slate-100">{{ $destination->name }}</div>
-                        <div class="mt-1 text-xs text-slate-400">/{{ $destination->slug }}</div>
+                        <div class="font-semibold text-admin-secondary">{{ $destination->name }}</div>
+                        <div class="mt-1 text-xs text-admin-secondary">/{{ $destination->slug }}</div>
                     </td>
 
-                    <td class="px-4 py-4 text-sm text-slate-400">
+                    <td class="px-4 py-4 text-sm text-admin-secondary">
                         {{ $destination->deleted_at?->format('d M Y H:i') }}
                     </td>
 
-                    <td class="px-4 py-4 text-sm font-medium text-slate-400">
+                    <td class="px-4 py-4 text-sm font-medium text-admin-secondary">
                         {{ $destination->products_count }}
                     </td>
 

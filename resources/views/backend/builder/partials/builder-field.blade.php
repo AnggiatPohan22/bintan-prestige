@@ -76,7 +76,7 @@
 <template x-if="{{ $f }}.type === 'color'">
     <div class="flex items-center gap-2">
         <input type="color" x-model="{{ $model }}" x-on:input="scheduleRefresh()"
-               class="h-9 w-12 shrink-0 cursor-pointer rounded border border-slate-700 bg-slate-800 p-0.5">
+               class="h-9 w-12 shrink-0 cursor-pointer rounded border border-admin bg-admin-card p-0.5">
         <input type="text" x-model="{{ $model }}" x-on:input="scheduleRefresh()"
                placeholder="#hex" class="builder-input font-mono">
     </div>
@@ -88,15 +88,15 @@
         <input type="range" x-model.number="{{ $model }}" x-on:input="scheduleRefresh()"
                :min="{{ $f }}.min ?? 0" :max="{{ $f }}.max ?? 100" :step="{{ $f }}.step ?? 1"
                class="w-full accent-amber-500">
-        <span class="w-10 shrink-0 text-right text-xs text-slate-400" x-text="({{ $model }} ?? 0) + ({{ $f }}.suffix || '')"></span>
+        <span class="w-10 shrink-0 text-right text-xs text-admin-secondary" x-text="({{ $model }} ?? 0) + ({{ $f }}.suffix || '')"></span>
     </div>
 </template>
 
 {{-- toggle (renders its own inline label) --}}
 <template x-if="{{ $f }}.type === 'toggle'">
-    <label class="flex cursor-pointer items-center gap-2 text-sm text-slate-300">
+    <label class="flex cursor-pointer items-center gap-2 text-sm text-admin-secondary">
         <input type="checkbox" x-model="{{ $model }}" x-on:change="scheduleRefresh()"
-               class="h-4 w-4 rounded border-slate-600 bg-slate-800 text-amber-500 focus:ring-amber-500">
+               class="h-4 w-4 rounded border-admin bg-admin-card text-amber-500 focus:ring-amber-500">
         <span x-text="{{ $f }}.label"></span>
     </label>
 </template>
@@ -110,13 +110,13 @@
         <div class="flex gap-1.5">
             <input type="text" x-model="{{ $model }}" x-on:input="scheduleRefresh()"
                    :placeholder="{{ $f }}.placeholder || 'path or URL'" class="builder-input flex-1">
-            <label class="flex cursor-pointer items-center rounded-lg border border-slate-700 px-2.5 text-xs text-slate-300 hover:border-slate-500 hover:text-white" title="Upload">
+            <label class="flex cursor-pointer items-center rounded-lg border border-admin px-2.5 text-xs text-admin-secondary hover:border-admin hover:text-white" title="Upload">
                 <i class="fa-solid fa-upload"></i>
                 <input type="file" accept="image/jpeg,image/png,image/webp" class="hidden"
                        x-on:change="uploadInto($event, v => { {{ $model }} = v })">
             </label>
             <button type="button" title="Media Library"
-                    class="flex items-center rounded-lg border border-slate-700 px-2.5 text-xs text-slate-300 hover:border-slate-500 hover:text-white"
+                    class="flex items-center rounded-lg border border-admin px-2.5 text-xs text-admin-secondary hover:border-admin hover:text-white"
                     x-on:click="pickImage(v => { {{ $model }} = v })">
                 <i class="fa-solid fa-photo-film"></i>
             </button>
@@ -141,19 +141,19 @@
     <div class="grid grid-cols-4 gap-1.5">
         <div>
             <input type="number" x-model.number="{{ $model }}.top" x-on:input="scheduleRefresh()" placeholder="0" class="builder-input px-1.5 text-center" title="Top">
-            <p class="mt-0.5 text-center text-[9px] uppercase tracking-wide text-slate-400">Top</p>
+            <p class="mt-0.5 text-center text-[9px] uppercase tracking-wide text-admin-secondary">Top</p>
         </div>
         <div>
             <input type="number" x-model.number="{{ $model }}.right" x-on:input="scheduleRefresh()" placeholder="0" class="builder-input px-1.5 text-center" title="Right">
-            <p class="mt-0.5 text-center text-[9px] uppercase tracking-wide text-slate-400">Right</p>
+            <p class="mt-0.5 text-center text-[9px] uppercase tracking-wide text-admin-secondary">Right</p>
         </div>
         <div>
             <input type="number" x-model.number="{{ $model }}.bottom" x-on:input="scheduleRefresh()" placeholder="0" class="builder-input px-1.5 text-center" title="Bottom">
-            <p class="mt-0.5 text-center text-[9px] uppercase tracking-wide text-slate-400">Bottom</p>
+            <p class="mt-0.5 text-center text-[9px] uppercase tracking-wide text-admin-secondary">Bottom</p>
         </div>
         <div>
             <input type="number" x-model.number="{{ $model }}.left" x-on:input="scheduleRefresh()" placeholder="0" class="builder-input px-1.5 text-center" title="Left">
-            <p class="mt-0.5 text-center text-[9px] uppercase tracking-wide text-slate-400">Left</p>
+            <p class="mt-0.5 text-center text-[9px] uppercase tracking-wide text-admin-secondary">Left</p>
         </div>
     </div>
 </template>
@@ -166,7 +166,7 @@
             <label class="builder-label">Background Color</label>
             <div class="flex items-center gap-2">
                 <input type="color" x-model="{{ $model }}.color" x-on:input="scheduleRefresh()"
-                       class="h-9 w-12 shrink-0 cursor-pointer rounded border border-slate-700 bg-slate-800 p-0.5">
+                       class="h-9 w-12 shrink-0 cursor-pointer rounded border border-admin bg-admin-card p-0.5">
                 <input type="text" x-model="{{ $model }}.color" x-on:input="scheduleRefresh()"
                        placeholder="transparent or #hex" class="builder-input font-mono">
             </div>
@@ -181,13 +181,13 @@
             <div class="flex gap-1.5">
                 <input type="text" x-model="{{ $model }}.image" x-on:input="scheduleRefresh()"
                        placeholder="path or URL" class="builder-input flex-1">
-                <label class="flex cursor-pointer items-center rounded-lg border border-slate-700 px-2.5 text-xs text-slate-300 hover:border-slate-500 hover:text-white" title="Upload">
+                <label class="flex cursor-pointer items-center rounded-lg border border-admin px-2.5 text-xs text-admin-secondary hover:border-admin hover:text-white" title="Upload">
                     <i class="fa-solid fa-upload"></i>
                     <input type="file" accept="image/jpeg,image/png,image/webp" class="hidden"
                            x-on:change="uploadInto($event, v => { {{ $model }}.image = v })">
                 </label>
                 <button type="button" title="Media Library"
-                        class="flex items-center rounded-lg border border-slate-700 px-2.5 text-xs text-slate-300 hover:border-slate-500 hover:text-white"
+                        class="flex items-center rounded-lg border border-admin px-2.5 text-xs text-admin-secondary hover:border-admin hover:text-white"
                         x-on:click="pickImage(v => { {{ $model }}.image = v })">
                     <i class="fa-solid fa-photo-film"></i>
                 </button>
@@ -234,7 +234,7 @@
             <label class="builder-label">Opacity</label>
             <div class="flex items-center gap-2">
                 <input type="range" min="0" max="100" step="5" x-model.number="{{ $model }}.opacity" x-on:input="scheduleRefresh()" class="w-full accent-amber-500">
-                <span class="w-10 shrink-0 text-right text-xs text-slate-400" x-text="({{ $model }}.opacity ?? 100) + '%'"></span>
+                <span class="w-10 shrink-0 text-right text-xs text-admin-secondary" x-text="({{ $model }}.opacity ?? 100) + '%'"></span>
             </div>
         </div>
     </div>

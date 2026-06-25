@@ -12,7 +12,7 @@
          the iframe inside scrolls its own content. --}}
     <div
         x-ref="canvas"
-        class="flex min-h-0 flex-1 justify-center overflow-hidden bg-slate-800 p-4"
+        class="flex min-h-0 flex-1 justify-center overflow-hidden bg-admin-card p-4"
     >
         {{-- Device wrapper: width-capped + centered. h-full fills the visible area. --}}
         <div
@@ -25,13 +25,13 @@
                 id="builder-preview"
                 title="Page preview"
                 sandbox="allow-same-origin allow-scripts allow-forms"
-                class="block h-full w-full rounded border-0 bg-white shadow-2xl"
+                class="block h-full w-full rounded border-0 bg-admin-card shadow-2xl"
             ></iframe>
         </div>
     </div>
 
     {{-- B7: Canvas status bar — shows active device mode and viewport width. --}}
-    <div class="flex h-7 shrink-0 items-center justify-center gap-2 border-t border-slate-700/50 bg-slate-900/80 text-xs text-slate-400">
+    <div class="flex h-7 shrink-0 items-center justify-center gap-2 border-t border-admin/50 bg-admin-card/80 text-xs text-admin-secondary">
         <i class="fa-solid fa-desktop"              x-show="previewMode === 'desktop'"></i>
         <i class="fa-solid fa-tablet-screen-button" x-show="previewMode === 'tablet'"  x-cloak></i>
         <i class="fa-solid fa-mobile-screen-button" x-show="previewMode === 'mobile'"  x-cloak></i>
@@ -42,10 +42,10 @@
     <div
         x-show="isRefreshing"
         x-transition.opacity
-        class="absolute inset-0 z-10 flex items-center justify-center bg-slate-950/60"
+        class="absolute inset-0 z-10 flex items-center justify-center bg-admin-card/60"
         x-cloak
     >
-        <div class="flex items-center gap-2 rounded-full bg-slate-800 px-4 py-2 text-xs text-slate-300 shadow-xl">
+        <div class="flex items-center gap-2 rounded-full bg-admin-card px-4 py-2 text-xs text-admin-secondary shadow-xl">
             <i class="fa-solid fa-spinner fa-spin"></i>
             Refreshing preview…
         </div>
@@ -54,7 +54,7 @@
     {{-- Empty state --}}
     <div
         x-show="tree.length === 0 && !isRefreshing"
-        class="absolute inset-0 z-10 flex flex-col items-center justify-center gap-4 text-slate-400"
+        class="absolute inset-0 z-10 flex flex-col items-center justify-center gap-4 text-admin-secondary"
         x-cloak
     >
         <i class="fa-solid fa-layer-group text-5xl"></i>
@@ -81,14 +81,14 @@
     <div
         x-show="inlineToolbar.visible"
         x-cloak
-        class="fixed z-50 flex -translate-x-1/2 items-center gap-1 rounded-lg border border-slate-600 bg-slate-900 p-1 text-slate-200 shadow-2xl"
+        class="fixed z-50 flex -translate-x-1/2 items-center gap-1 rounded-lg border border-admin bg-admin-card p-1 text-admin-secondary shadow-2xl"
         :style="`left:${inlineToolbar.left}px;top:${inlineToolbar.top}px`"
         x-on:mousedown.prevent
     >
-        <button type="button" class="rounded px-2 py-1 text-xs font-bold hover:bg-slate-700" title="Bold" x-on:click="formatInline('bold')">B</button>
-        <button type="button" class="rounded px-2 py-1 text-xs italic hover:bg-slate-700" title="Italic" x-on:click="formatInline('italic')">I</button>
-        <button type="button" class="rounded px-2 py-1 text-xs hover:bg-slate-700" title="Link" x-on:click="formatInline('link')"><i class="fa-solid fa-link"></i></button>
-        <button type="button" class="rounded px-2 py-1 text-xs hover:bg-slate-700" title="Clear formatting" x-on:click="formatInline('clear')"><i class="fa-solid fa-eraser"></i></button>
+        <button type="button" class="rounded px-2 py-1 text-xs font-bold hover:opacity-75" title="Bold" x-on:click="formatInline('bold')">B</button>
+        <button type="button" class="rounded px-2 py-1 text-xs italic hover:opacity-75" title="Italic" x-on:click="formatInline('italic')">I</button>
+        <button type="button" class="rounded px-2 py-1 text-xs hover:opacity-75" title="Link" x-on:click="formatInline('link')"><i class="fa-solid fa-link"></i></button>
+        <button type="button" class="rounded px-2 py-1 text-xs hover:opacity-75" title="Clear formatting" x-on:click="formatInline('clear')"><i class="fa-solid fa-eraser"></i></button>
     </div>
 
 </div>{{-- /center panel --}}

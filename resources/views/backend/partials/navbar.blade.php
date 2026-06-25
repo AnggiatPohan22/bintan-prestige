@@ -36,9 +36,9 @@
     <div class="admin-topbar__main">
         <div class="admin-topbar__title-group">
             <p class="admin-topbar__breadcrumb">
-                <span class="text-slate-400">Bintan Prestige</span>
-                <span class="text-slate-300" aria-hidden="true">/</span>
-                <span class="text-slate-400 font-semibold">{{ $pageTitle }}</span>
+                <span class="text-admin-secondary">Bintan Prestige</span>
+                <span class="text-admin-secondary" aria-hidden="true">/</span>
+                <span class="text-admin-secondary font-semibold">{{ $pageTitle }}</span>
             </p>
         </div>
 
@@ -53,7 +53,7 @@
                 @click.prevent="document.dispatchEvent(new KeyboardEvent('keydown', { ctrlKey: true, key: 'k', bubbles: true }))"
             >
                 <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
-                <span class="flex-1 text-left text-sm font-semibold text-slate-400">Search admin...</span>
+                <span class="flex-1 text-left text-sm font-semibold text-admin-secondary">Search admin...</span>
                 <span>Ctrl K</span>
             </button>
 

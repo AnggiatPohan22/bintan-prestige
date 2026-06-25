@@ -2,13 +2,13 @@
      TOP BAR — fixed height (flex-none); never scrolls.
      Controls: back, page info/status, panel toggles, device toggles, preview, save.
 ══════════════════════════════════════════════════════ --}}
-<header class="flex min-h-14 shrink-0 flex-wrap items-center justify-between gap-x-3 gap-y-2 border-b border-slate-800 bg-slate-900 px-3 py-2 sm:px-4">
+<header class="flex min-h-14 shrink-0 flex-wrap items-center justify-between gap-x-3 gap-y-2 border-b border-admin bg-admin-card px-3 py-2 sm:px-4">
 
     {{-- Left: back + page info --}}
     <div class="flex min-w-0 items-center gap-3">
         <a
             href="{{ route('admin.pages.edit', $page) }}"
-            class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-slate-700 text-slate-400 transition-colors hover:border-slate-500 hover:text-white"
+            class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-admin text-admin-secondary transition-colors hover:border-admin hover:text-white"
             title="Back to Edit"
         >
             <i class="fa-solid fa-arrow-left text-xs"></i>
@@ -16,7 +16,7 @@
 
         <div class="min-w-0">
             <p class="truncate text-sm font-semibold text-white">{{ $page->title }}</p>
-            <p class="truncate text-xs text-slate-400">/pages/{{ $page->slug }}</p>
+            <p class="truncate text-xs text-admin-secondary">/pages/{{ $page->slug }}</p>
         </div>
 
         @if($page->isPublished())
@@ -24,7 +24,7 @@
         @elseif($page->isScheduled())
             <span class="shrink-0 rounded-full bg-amber-900/60 px-2 py-0.5 text-xs font-medium text-amber-400">Scheduled</span>
         @else
-            <span class="shrink-0 rounded-full bg-slate-700 px-2 py-0.5 text-xs font-medium text-slate-300">Draft</span>
+            <span class="shrink-0 rounded-full bg-admin-card px-2 py-0.5 text-xs font-medium text-admin-secondary">Draft</span>
         @endif
     </div>
 
@@ -47,43 +47,43 @@
         >Unsaved changes</span>
 
         {{-- Panel minimize toggles (optional — widen the preview) --}}
-        <div class="flex items-center gap-0.5 rounded-lg border border-slate-700 p-0.5">
+        <div class="flex items-center gap-0.5 rounded-lg border border-admin p-0.5">
             <button
                 type="button"
                 x-on:click="leftCollapsed = !leftCollapsed"
-                :class="leftCollapsed ? 'text-slate-400 hover:text-slate-300' : 'bg-slate-700 text-white'"
+                :class="leftCollapsed ? 'text-admin-secondary hover:text-admin-secondary' : 'bg-admin-surface text-white'"
                 class="flex h-7 w-7 items-center justify-center rounded text-xs transition-colors"
                 title="Toggle blocks panel"
             ><i class="fa-solid fa-table-columns"></i></button>
             <button
                 type="button"
                 x-on:click="rightCollapsed = !rightCollapsed"
-                :class="rightCollapsed ? 'text-slate-400 hover:text-slate-300' : 'bg-slate-700 text-white'"
+                :class="rightCollapsed ? 'text-admin-secondary hover:text-admin-secondary' : 'bg-admin-surface text-white'"
                 class="flex h-7 w-7 items-center justify-center rounded text-xs transition-colors"
                 title="Toggle settings panel"
             ><i class="fa-solid fa-sliders"></i></button>
         </div>
 
         {{-- Device preview toggles — change ONLY the iframe render width, not the grid --}}
-        <div class="flex items-center gap-0.5 rounded-lg border border-slate-700 p-0.5">
+        <div class="flex items-center gap-0.5 rounded-lg border border-admin p-0.5">
             <button
                 type="button"
                 x-on:click="previewMode = 'desktop'"
-                :class="previewMode === 'desktop' ? 'bg-slate-700 text-white' : 'text-slate-400 hover:text-slate-300'"
+                :class="previewMode === 'desktop' ? 'bg-admin-surface text-white' : 'text-admin-secondary hover:text-admin-secondary'"
                 class="flex h-7 w-7 items-center justify-center rounded text-xs transition-colors"
                 title="Desktop (fluid)"
             ><i class="fa-solid fa-desktop"></i></button>
             <button
                 type="button"
                 x-on:click="previewMode = 'tablet'"
-                :class="previewMode === 'tablet' ? 'bg-slate-700 text-white' : 'text-slate-400 hover:text-slate-300'"
+                :class="previewMode === 'tablet' ? 'bg-admin-surface text-white' : 'text-admin-secondary hover:text-admin-secondary'"
                 class="flex h-7 w-7 items-center justify-center rounded text-xs transition-colors"
                 title="Tablet (768px)"
             ><i class="fa-solid fa-tablet-screen-button"></i></button>
             <button
                 type="button"
                 x-on:click="previewMode = 'mobile'"
-                :class="previewMode === 'mobile' ? 'bg-slate-700 text-white' : 'text-slate-400 hover:text-slate-300'"
+                :class="previewMode === 'mobile' ? 'bg-admin-surface text-white' : 'text-admin-secondary hover:text-admin-secondary'"
                 class="flex h-7 w-7 items-center justify-center rounded text-xs transition-colors"
                 title="Mobile (375px)"
             ><i class="fa-solid fa-mobile-screen-button"></i></button>
@@ -93,7 +93,7 @@
         <button
             type="button"
             x-on:click="openTemplateLibrary()"
-            class="flex h-8 items-center gap-1.5 rounded-lg border border-slate-700 px-3 text-xs font-medium text-slate-300 transition-colors hover:border-slate-500 hover:text-white"
+            class="flex h-8 items-center gap-1.5 rounded-lg border border-admin px-3 text-xs font-medium text-admin-secondary transition-colors hover:border-admin hover:text-white"
             title="Page templates"
         >
             <i class="fa-solid fa-layer-group text-xs"></i>
@@ -104,7 +104,7 @@
         <a
             href="{{ route('admin.pages.preview', $page) }}"
             target="_blank"
-            class="flex h-8 items-center gap-1.5 rounded-lg border border-slate-700 px-3 text-xs font-medium text-slate-300 transition-colors hover:border-slate-500 hover:text-white"
+            class="flex h-8 items-center gap-1.5 rounded-lg border border-admin px-3 text-xs font-medium text-admin-secondary transition-colors hover:border-admin hover:text-white"
         >
             <i class="fa-solid fa-eye text-xs"></i>
             Preview

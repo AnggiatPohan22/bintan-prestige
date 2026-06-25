@@ -42,7 +42,7 @@
                 <div class="flex items-center gap-2">
                     <input id="is_active" name="is_active" type="checkbox" class="admin-checkbox" value="1"
                            @checked(old('is_active', true))>
-                    <label for="is_active" class="text-sm text-slate-300">Active (redirect is live immediately)</label>
+                    <label for="is_active" class="text-sm text-admin-secondary">Active (redirect is live immediately)</label>
                 </div>
 
                 <div class="pt-2">

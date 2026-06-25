@@ -41,12 +41,12 @@
     {{-- Header bar --}}
     <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div class="flex items-center gap-3">
-            <a href="{{ route('admin.menus.index') }}" class="text-slate-400 hover:text-slate-400" title="Back to Menus">
+            <a href="{{ route('admin.menus.index') }}" class="text-admin-secondary hover:text-admin-secondary" title="Back to Menus">
                 <i class="fa-solid fa-arrow-left"></i>
             </a>
             <div>
-                <h1 class="text-lg font-extrabold text-slate-100">{{ $menu->name }}</h1>
-                <p class="text-xs text-slate-400">
+                <h1 class="text-lg font-extrabold text-admin-secondary">{{ $menu->name }}</h1>
+                <p class="text-xs text-admin-secondary">
                     <span class="font-mono">{{ $menu->location }}</span>
                     · drag <i class="fa-solid fa-grip-vertical"></i> to reorder
                 </p>
@@ -63,25 +63,25 @@
         <div>
             @if($rootItems->isEmpty())
                 <div class="admin-empty-state py-12">
-                    <i class="fa-solid fa-bars-staggered mb-2 text-2xl text-slate-300"></i>
-                    <p class="font-medium text-slate-400">This menu is empty.</p>
-                    <p class="mt-1 text-sm text-slate-400">Click <span class="font-semibold">Add item</span> to create your first link.</p>
+                    <i class="fa-solid fa-bars-staggered mb-2 text-2xl text-admin-secondary"></i>
+                    <p class="font-medium text-admin-secondary">This menu is empty.</p>
+                    <p class="mt-1 text-sm text-admin-secondary">Click <span class="font-semibold">Add item</span> to create your first link.</p>
                 </div>
             @else
                 <ul class="space-y-2" x-sort="persistOrder($el)" x-sort:config="{ handle: '[data-handle]', animation: 150 }">
                     @foreach($rootItems as $item)
                         <li x-sort:item="{{ $item->id }}" data-id="{{ $item->id }}"
-                            class="rounded-xl border {{ $item->is_active ? 'border-slate-700 bg-slate-800' : 'border-slate-700/50 bg-slate-900 opacity-70' }}">
+                            class="rounded-xl border {{ $item->is_active ? 'border-admin bg-admin-card' : 'border-admin/50 bg-admin-card opacity-70' }}">
 
                             @include('backend.menus.partials.item-row', ['item' => $item, 'typeMeta' => $typeMeta, 'isChild' => false])
 
                             {{-- Children --}}
                             @if($item->children->isNotEmpty())
-                                <ul class="space-y-1.5 border-t border-dashed border-slate-700/50 px-3 py-2 pl-8"
+                                <ul class="space-y-1.5 border-t border-dashed border-admin/50 px-3 py-2 pl-8"
                                     x-sort="persistOrder($el)" x-sort:config="{ handle: '[data-handle]', animation: 150 }">
                                     @foreach($item->children as $child)
                                         <li x-sort:item="{{ $child->id }}" data-id="{{ $child->id }}"
-                                            class="rounded-lg border {{ $child->is_active ? 'border-slate-700 bg-slate-800' : 'border-slate-700/50 bg-slate-900 opacity-70' }}">
+                                            class="rounded-lg border {{ $child->is_active ? 'border-admin bg-admin-card' : 'border-admin/50 bg-admin-card opacity-70' }}">
                                             @include('backend.menus.partials.item-row', ['item' => $child, 'typeMeta' => $typeMeta, 'isChild' => true])
                                         </li>
                                     @endforeach
@@ -95,19 +95,19 @@
 
         {{-- ============ LIVE PREVIEW ============ --}}
         <div class="lg:sticky lg:top-6 lg:self-start">
-            <div class="overflow-hidden rounded-xl border border-slate-700 bg-slate-800">
-                <div class="flex items-center justify-between border-b border-slate-700/50 px-4 py-2.5">
-                    <span class="text-xs font-semibold uppercase tracking-wide text-slate-400">Preview</span>
-                    <i class="fa-solid fa-eye text-slate-300"></i>
+            <div class="overflow-hidden rounded-xl border border-admin bg-admin-card">
+                <div class="flex items-center justify-between border-b border-admin/50 px-4 py-2.5">
+                    <span class="text-xs font-semibold uppercase tracking-wide text-admin-secondary">Preview</span>
+                    <i class="fa-solid fa-eye text-admin-secondary"></i>
                 </div>
 
                 @php $previewItems = $rootItems->where('is_active', true); @endphp
 
                 @if($isHeader)
                     {{-- Header-style preview --}}
-                    <div class="bg-slate-900 px-4 py-3">
+                    <div class="bg-admin-card px-4 py-3">
                         @if($previewItems->isEmpty())
-                            <p class="text-xs text-slate-400">No visible items.</p>
+                            <p class="text-xs text-admin-secondary">No visible items.</p>
                         @else
                             <nav class="flex flex-wrap items-center gap-x-4 gap-y-2">
                                 @foreach($previewItems as $item)
@@ -118,9 +118,9 @@
                                                 {{ $item->label }}
                                                 <i class="fa-solid fa-chevron-down text-[10px] opacity-70"></i>
                                             </button>
-                                            <div class="absolute left-0 z-10 mt-2 hidden min-w-[160px] rounded-lg bg-slate-800 p-1 shadow-xl group-hover:block">
+                                            <div class="absolute left-0 z-10 mt-2 hidden min-w-[160px] rounded-lg bg-admin-card p-1 shadow-xl group-hover:block">
                                                 @foreach($kids as $child)
-                                                    <span class="block rounded px-3 py-1.5 text-sm text-slate-300 hover:bg-slate-800">{{ $child->label }}</span>
+                                                    <span class="block rounded px-3 py-1.5 text-sm text-admin-secondary hover:opacity-75">{{ $child->label }}</span>
                                                 @endforeach
                                             </div>
                                         </div>
@@ -135,33 +135,33 @@
                     {{-- Footer-style preview --}}
                     <div class="px-4 py-3">
                         @if($previewItems->isEmpty())
-                            <p class="text-xs text-slate-400">No visible items.</p>
+                            <p class="text-xs text-admin-secondary">No visible items.</p>
                         @else
                             <ul class="space-y-1.5">
                                 @foreach($previewItems as $item)
-                                    <li class="text-sm text-slate-400">{{ $item->label }}</li>
+                                    <li class="text-sm text-admin-secondary">{{ $item->label }}</li>
                                 @endforeach
                             </ul>
                         @endif
                     </div>
                 @endif
             </div>
-            <p class="mt-2 px-1 text-xs text-slate-400">Reflects saved items. Refreshes after add, edit, or delete.</p>
+            <p class="mt-2 px-1 text-xs text-admin-secondary">Reflects saved items. Refreshes after add, edit, or delete.</p>
         </div>
     </div>
 
     {{-- ============ SLIDE-OVER DRAWER ============ --}}
     <div x-show="drawer" x-cloak class="fixed inset-0 z-[60]" style="display:none">
-        <div class="absolute inset-0 bg-slate-900/40" x-on:click="close()"
+        <div class="absolute inset-0 bg-admin-card/40" x-on:click="close()"
              x-transition:enter="transition-opacity duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"></div>
 
-        <div class="absolute inset-y-0 right-0 flex w-full max-w-md flex-col bg-slate-900 shadow-2xl"
+        <div class="absolute inset-y-0 right-0 flex w-full max-w-md flex-col bg-admin-card shadow-2xl"
              x-transition:enter="transition-transform duration-200" x-transition:enter-start="translate-x-full" x-transition:enter-end="translate-x-0"
              x-transition:leave="transition-transform duration-150" x-transition:leave-start="translate-x-0" x-transition:leave-end="translate-x-full">
 
-            <div class="flex items-center justify-between border-b border-slate-700/50 px-5 py-4">
-                <h2 class="font-bold text-slate-100" x-text="mode === 'edit' ? 'Edit menu item' : 'Add menu item'"></h2>
-                <button type="button" x-on:click="close()" class="grid h-8 w-8 place-items-center rounded-full text-slate-400 hover:bg-slate-700 hover:text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500" aria-label="Close panel">
+            <div class="flex items-center justify-between border-b border-admin/50 px-5 py-4">
+                <h2 class="font-bold text-admin-secondary" x-text="mode === 'edit' ? 'Edit menu item' : 'Add menu item'"></h2>
+                <button type="button" x-on:click="close()" class="grid h-8 w-8 place-items-center rounded-full text-admin-secondary hover:opacity-75 focus:outline-none focus:ring-2 focus:ring-indigo-500" aria-label="Close panel">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
@@ -186,7 +186,7 @@
                             <template x-for="t in types" :key="t.value">
                                 <button type="button" x-on:click="setType(t.value)"
                                         class="flex flex-col items-center gap-1 rounded-lg border px-2 py-2.5 text-xs font-medium transition"
-                                        :class="form.linkType === t.value ? 'border-violet-500 bg-violet-900/20 text-violet-300' : 'border-slate-700 text-slate-400 hover:border-slate-500'">
+                                        :class="form.linkType === t.value ? 'border-violet-500 bg-violet-900/20 text-violet-300' : 'border-admin text-admin-secondary hover:border-admin'">
                                     <i :class="t.icon"></i>
                                     <span x-text="t.label"></span>
                                 </button>
@@ -205,7 +205,7 @@
                                     <option :value="opt.id" x-text="opt.label"></option>
                                 </template>
                             </select>
-                            <p x-show="filteredOptions.length === 0" class="mt-1 text-xs text-slate-400">No matches.</p>
+                            <p x-show="filteredOptions.length === 0" class="mt-1 text-xs text-admin-secondary">No matches.</p>
                         </div>
                     </template>
 
@@ -228,18 +228,18 @@
                                 <option :value="p.id" x-text="p.label"></option>
                             </template>
                         </select>
-                        <p class="mt-1 text-xs text-slate-400">Choose one top-level parent. Deeper nesting is not allowed.</p>
+                        <p class="mt-1 text-xs text-admin-secondary">Choose one top-level parent. Deeper nesting is not allowed.</p>
                     </div>
                     @endif
 
                     {{-- New tab --}}
                     <label class="flex items-center gap-2">
-                        <input type="checkbox" x-model="form.newTab" class="rounded border-slate-300">
-                        <span class="text-sm text-slate-300">Open in new tab</span>
+                        <input type="checkbox" x-model="form.newTab" class="rounded border-admin">
+                        <span class="text-sm text-admin-secondary">Open in new tab</span>
                     </label>
                 </div>
 
-                <div class="flex gap-3 border-t border-slate-700/50 px-5 py-4">
+                <div class="flex gap-3 border-t border-admin/50 px-5 py-4">
                     <button type="submit" class="admin-btn-primary flex-1" x-text="mode === 'edit' ? 'Save changes' : 'Add item'"></button>
                     <button type="button" x-on:click="close()" class="admin-btn-secondary">Cancel</button>
                 </div>
@@ -250,7 +250,7 @@
     {{-- Toast (reorder feedback) --}}
     <div x-show="toastMsg" x-cloak x-transition
          class="fixed bottom-5 left-1/2 z-[70] -translate-x-1/2 rounded-full px-4 py-2 text-sm font-medium text-white shadow-lg"
-         :class="toastErr ? 'bg-red-600' : 'bg-slate-900'"
+         :class="toastErr ? 'bg-red-600' : 'bg-admin-card'"
          x-text="toastMsg" style="display:none"></div>
 
 </div>

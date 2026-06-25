@@ -72,7 +72,7 @@
                     @enderror
                 </div>
 
-                <div class="flex h-28 w-full items-center justify-center rounded-xl border border-slate-200 bg-slate-800 text-sm text-slate-400">
+                <div class="flex h-28 w-full items-center justify-center rounded-xl border border-admin bg-admin-card text-sm text-admin-secondary">
                     No Image
                 </div>
             </div>

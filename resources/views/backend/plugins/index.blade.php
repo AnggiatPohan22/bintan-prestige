@@ -49,12 +49,12 @@
     @if($plugins->isEmpty())
         <div class="admin-card">
             <div class="admin-card-body py-16 text-center">
-                <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-slate-800">
-                    <i class="fa-solid fa-puzzle-piece text-2xl text-slate-400" aria-hidden="true"></i>
+                <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-admin-card">
+                    <i class="fa-solid fa-puzzle-piece text-2xl text-admin-secondary" aria-hidden="true"></i>
                 </div>
-                <h3 class="mb-1 font-semibold text-slate-300">No plugins found</h3>
-                <p class="mb-4 text-sm text-slate-400">
-                    Place plugin folders inside <code class="rounded bg-slate-800 px-1.5 py-0.5 text-xs">app/Plugins/</code> and run Scan.
+                <h3 class="mb-1 font-semibold text-admin-secondary">No plugins found</h3>
+                <p class="mb-4 text-sm text-admin-secondary">
+                    Place plugin folders inside <code class="rounded bg-admin-card px-1.5 py-0.5 text-xs">app/Plugins/</code> and run Scan.
                 </p>
                 <form method="POST" action="{{ route('admin.plugins.scan') }}">
                     @csrf
@@ -69,7 +69,7 @@
         <div class="admin-card">
             <div class="admin-card-header">
                 <div class="flex items-center justify-between">
-                    <h2 class="text-lg font-extrabold text-slate-100">Installed Plugins</h2>
+                    <h2 class="text-lg font-extrabold text-admin-secondary">Installed Plugins</h2>
                     <span class="admin-badge-info">{{ $plugins->count() }} plugin(s)</span>
                 </div>
             </div>
@@ -84,8 +84,8 @@
                             {{-- Plugin info --}}
                             <div class="min-w-0 flex-1">
                                 <div class="mb-1 flex flex-wrap items-center gap-2">
-                                    <span class="font-semibold text-slate-100">{{ $plugin->name }}</span>
-                                    <span class="rounded bg-slate-800 px-1.5 py-0.5 text-xs text-slate-400">v{{ $plugin->version }}</span>
+                                    <span class="font-semibold text-admin-secondary">{{ $plugin->name }}</span>
+                                    <span class="rounded bg-admin-card px-1.5 py-0.5 text-xs text-admin-secondary">v{{ $plugin->version }}</span>
 
                                     @if($plugin->is_active)
                                         <span class="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-semibold text-emerald-700">
@@ -93,7 +93,7 @@
                                             Active
                                         </span>
                                     @else
-                                        <span class="inline-flex items-center gap-1 rounded-full bg-slate-800 px-2 py-0.5 text-xs font-semibold text-slate-400">
+                                        <span class="inline-flex items-center gap-1 rounded-full bg-admin-card px-2 py-0.5 text-xs font-semibold text-admin-secondary">
                                             <i class="fa-solid fa-circle text-[6px]" aria-hidden="true"></i>
                                             Inactive
                                         </span>
@@ -101,11 +101,11 @@
                                 </div>
 
                                 @if($plugin->description)
-                                    <p class="mb-1 text-sm text-slate-400">{{ $plugin->description }}</p>
+                                    <p class="mb-1 text-sm text-admin-secondary">{{ $plugin->description }}</p>
                                 @endif
 
                                 @if($plugin->author)
-                                    <p class="text-xs text-slate-400">
+                                    <p class="text-xs text-admin-secondary">
                                         <i class="fa-solid fa-user mr-1" aria-hidden="true"></i>
                                         {{ $plugin->author }}
                                     </p>
@@ -166,11 +166,11 @@
                                     x-transition.opacity
                                 >
                                     <div
-                                        class="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl"
+                                        class="w-full max-w-sm rounded-2xl bg-admin-card p-6 shadow-xl"
                                         x-on:click.outside="deactivateOpen = false"
                                     >
-                                        <h3 class="mb-2 text-base font-bold text-slate-100">Deactivate Plugin</h3>
-                                        <p class="mb-5 text-sm text-slate-400">
+                                        <h3 class="mb-2 text-base font-bold text-admin-secondary">Deactivate Plugin</h3>
+                                        <p class="mb-5 text-sm text-admin-secondary">
                                             Deactivate <strong>{{ $plugin->name }}</strong>? Its functionality will be disabled immediately.
                                         </p>
                                         <div class="flex justify-end gap-2">
@@ -200,11 +200,11 @@
                                     x-transition.opacity
                                 >
                                     <div
-                                        class="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl"
+                                        class="w-full max-w-sm rounded-2xl bg-admin-card p-6 shadow-xl"
                                         x-on:click.outside="uninstallOpen = false"
                                     >
-                                        <h3 class="mb-2 text-base font-bold text-slate-100">Uninstall Plugin</h3>
-                                        <p class="mb-5 text-sm text-slate-400">
+                                        <h3 class="mb-2 text-base font-bold text-admin-secondary">Uninstall Plugin</h3>
+                                        <p class="mb-5 text-sm text-admin-secondary">
                                             Permanently remove <strong>{{ $plugin->name }}</strong> from the registry?
                                             @if($plugin->is_active)
                                                 <br><span class="mt-1 block font-semibold text-red-600">You must deactivate it first.</span>

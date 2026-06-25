@@ -5,7 +5,7 @@
     <div class="admin-page-header">
         <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div class="flex items-center gap-3">
-                <a href="{{ route('admin.forms.index') }}" class="text-slate-400 hover:text-slate-400">
+                <a href="{{ route('admin.forms.index') }}" class="text-admin-secondary hover:text-admin-secondary">
                     <i class="fa-solid fa-arrow-left text-sm"></i>
                 </a>
                 <div>
@@ -34,7 +34,7 @@
                                 @if(! $submission->is_read)
                                     <span class="rounded-full bg-blue-100 px-2 py-0.5 text-xs font-bold text-blue-700">New</span>
                                 @endif
-                                <span class="text-xs text-slate-400">
+                                <span class="text-xs text-admin-secondary">
                                     {{ $submission->created_at->format('d M Y, H:i') }}
                                     @if($submission->ip_address)
                                         · {{ $submission->ip_address }}
@@ -47,8 +47,8 @@
                                     @php $value = $submission->data[$field['name']] ?? null; @endphp
                                     @if($value !== null)
                                         <div class="{{ $field['type'] === 'textarea' ? 'sm:col-span-2' : '' }}">
-                                            <dt class="font-medium text-slate-400">{{ $field['label'] }}</dt>
-                                            <dd class="mt-0.5 text-slate-100 {{ $field['type'] === 'textarea' ? 'whitespace-pre-wrap' : '' }}">{{ $value }}</dd>
+                                            <dt class="font-medium text-admin-secondary">{{ $field['label'] }}</dt>
+                                            <dd class="mt-0.5 text-admin-secondary {{ $field['type'] === 'textarea' ? 'whitespace-pre-wrap' : '' }}">{{ $value }}</dd>
                                         </div>
                                     @endif
                                 @endforeach
@@ -77,8 +77,8 @@
             <div class="admin-card">
                 <div class="admin-card-body">
                     <div class="admin-empty-state py-8">
-                        <p class="font-medium text-slate-400">No submissions yet.</p>
-                        <p class="mt-1 text-sm text-slate-400">Once visitors submit this form, their responses will appear here.</p>
+                        <p class="font-medium text-admin-secondary">No submissions yet.</p>
+                        <p class="mt-1 text-sm text-admin-secondary">Once visitors submit this form, their responses will appear here.</p>
                     </div>
                 </div>
             </div>

@@ -1,11 +1,11 @@
 ﻿<div class="admin-form-card">
     <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-            <h1 class="text-2xl font-bold text-slate-100">
+            <h1 class="text-2xl font-bold text-admin-secondary">
                 {{ isset($category) ? 'Edit Category' : 'Create Category' }}
             </h1>
 
-            <p class="mt-1 text-sm text-slate-400">
+            <p class="mt-1 text-sm text-admin-secondary">
                 {{ isset($category) ? 'Update category information.' : 'Create a new product category.' }}
             </p>
         </div>
@@ -81,10 +81,10 @@
                 type="checkbox"
                 name="is_active"
                 value="1"
-                class="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                class="rounded border-admin text-indigo-600 focus:ring-indigo-500"
                 @checked(old('is_active', $category->is_active ?? true))
             >
-            <span class="text-sm font-medium text-slate-300">
+            <span class="text-sm font-medium text-admin-secondary">
                 Active category
             </span>
         </label>

@@ -1242,7 +1242,9 @@
     .text-admin-secondary { color: var(--admin-text-secondary); }
     .text-admin-muted     { color: var(--admin-text-muted); }
     .bg-admin-card        { background: var(--admin-bg-card); }
+    .bg-admin-surface     { background: var(--admin-bg-hover); }
     .border-admin         { border-color: var(--admin-border); }
+    .hover\:text-admin-secondary:hover { color: var(--admin-text-secondary); }
 
     /* Panel — larger readiness / info surface */
     .admin-panel {

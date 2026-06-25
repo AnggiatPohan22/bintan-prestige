@@ -37,7 +37,7 @@
         </div>
 
         @if($topPages->isEmpty())
-            <div class="admin-card-body text-slate-400 text-sm">
+            <div class="admin-card-body text-admin-secondary text-sm">
                 No data yet. Page views are aggregated nightly.
             </div>
         @else
@@ -54,20 +54,20 @@
                     <tbody>
                         @foreach($topPages as $i => $stat)
                             <tr>
-                                <td class="text-slate-400">{{ $i + 1 }}</td>
+                                <td class="text-admin-secondary">{{ $i + 1 }}</td>
                                 <td>
                                     @if($stat->page)
                                         <a href="{{ route('admin.pages.edit', $stat->page) }}"
                                            class="text-blue-600 hover:underline">
                                             {{ $stat->page->title }}
                                         </a>
-                                        <span class="text-xs text-slate-400 ml-1">/{{ $stat->page->slug }}</span>
+                                        <span class="text-xs text-admin-secondary ml-1">/{{ $stat->page->slug }}</span>
                                     @else
-                                        <span class="text-slate-400">(deleted page)</span>
+                                        <span class="text-admin-secondary">(deleted page)</span>
                                     @endif
                                 </td>
                                 <td class="text-right font-medium">{{ number_format($stat->total_views) }}</td>
-                                <td class="text-right text-slate-400">{{ number_format($stat->total_uniques) }}</td>
+                                <td class="text-right text-admin-secondary">{{ number_format($stat->total_uniques) }}</td>
                             </tr>
                         @endforeach
                     </tbody>
