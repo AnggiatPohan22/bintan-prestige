@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\AnalyticsDashboardController;
+use App\Http\Controllers\Admin\DashboardAppearanceController;
 use App\Http\Controllers\Admin\AuditLogController;
 use App\Http\Controllers\Admin\BuilderPatternController;
 use App\Http\Controllers\Admin\BuilderTemplateController;
@@ -143,6 +144,23 @@ Route::middleware(['auth', 'admin'])
 
         Route::put('settings/global-assets/structured-data', [SiteSettingController::class, 'updateStructuredDataSettings'])
             ->name('settings.global-assets.structured-data.update');
+
+        /*
+        |--------------------------------------------------------------------------
+        | Dashboard Appearance — Customize Dashboard (superadmin only)
+        |--------------------------------------------------------------------------
+        */
+        Route::middleware('can:manage-users')
+            ->prefix('settings/appearance')
+            ->name('settings.appearance.')
+            ->group(function () {
+                Route::get('/', [DashboardAppearanceController::class, 'index'])
+                    ->name('index');
+                Route::post('/', [DashboardAppearanceController::class, 'update'])
+                    ->name('update');
+                Route::post('/reset', [DashboardAppearanceController::class, 'reset'])
+                    ->name('reset');
+            });
 
         Route::get('page-sections', [PageSectionController::class, 'index'])
             ->name('page-sections.index');

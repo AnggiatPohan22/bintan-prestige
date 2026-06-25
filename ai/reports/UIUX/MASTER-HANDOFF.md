@@ -150,23 +150,23 @@ Solusi: Blade cleanup sudah dilakukan (step 06 — tidak ada lagi dark text di d
 |------|-------|------|--------|---------|
 | **12** | Migration `admin_dashboard_appearances` + Model | 🔴 High | ✅ DONE | [step-12-handoff.md](step-12-handoff.md) |
 | **13** | AdminAppearanceService + ViewComposer | 🟡 Medium | ✅ DONE | [step-13-handoff.md](step-13-handoff.md) |
-| **14** | DashboardAppearanceController + Routes | 🟡 Medium | ⬜ TODO | — |
+| **14** | DashboardAppearanceController + Routes | 🟡 Medium | ✅ DONE | [step-14-handoff.md](step-14-handoff.md) |
 | **15** | Blade UI: Settings > Customize Dashboard | 🟡 Medium | ⬜ TODO | — |
 | **16** | Alpine.js live preview + Accessibility QA | 🟢 Low | ⬜ TODO | — |
 
 ---
 
-## 🔍 NEXT STEP — Step 14: Controller + Routes
+## 🔍 NEXT STEP — Step 15: Blade UI Settings
 
-**File prompt:** `ai/promt/uiux/step-14-controller-routes.md`
+**File prompt:** `ai/promt/uiux/step-15-settings-ui.md`
 **Risk:** 🟡 Medium
-**Scope:** `UpdateDashboardAppearanceRequest` FormRequest + `DashboardAppearanceController` + 3 routes
+**Scope:** `resources/views/backend/settings/appearance/index.blade.php`
 
-⚠️ **Audit fixes wajib diterapkan di Step 14:**
-1. View return path: gunakan `backend.settings.appearance.index` (bukan `admin.settings.*`)
-2. Route `GET /admin/settings/appearance` → `DashboardAppearanceController@index`
-3. Route `POST /admin/settings/appearance` → `DashboardAppearanceController@update`
-4. Route `POST /admin/settings/appearance/reset` → `DashboardAppearanceController@reset`
+⚠️ **Audit fixes wajib diterapkan di Step 15:**
+1. Reset button: gunakan `<form method="POST">` dengan `@csrf` (bukan `window.location.href`)
+2. Preset selector: saat preset dipilih, isi semua field via Alpine.js (bukan `darken()`)
+3. Color picker: gunakan `<input type="color">` dengan nilai fallback dari `$appearance`
+4. View extends `layouts.admin` bukan `layouts.app`
 
 ---
 
@@ -233,7 +233,7 @@ ai/
     ├── step-11-handoff.md             ✅
     ├── step-12-handoff.md             ✅
     ├── step-13-handoff.md             ✅
-    ├── step-14-handoff.md             ⬜ belum ada
+    ├── step-14-handoff.md             ✅
     ├── step-15-handoff.md             ⬜ belum ada
     └── step-16-handoff.md             ⬜ belum ada
 ```
