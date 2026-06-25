@@ -1,7 +1,7 @@
 # MASTER HANDOFF — Admin UI/UX Redesign
 ## Bintan Prestige CMS — "Command Center Dark" Aesthetic
 
-**Terakhir diupdate:** 2026-06-24
+**Terakhir diupdate:** 2026-06-25
 **Session yang membuat:** claude-sonnet-4-6
 
 ---
@@ -136,7 +136,7 @@ Solusi: Blade cleanup sudah dilakukan (step 06 — tidak ada lagi dark text di d
 
 | Step | Scope | Risk | Status | Handoff |
 |------|-------|------|--------|---------|
-| **10** | `[data-admin-mode="light"]` CSS overrides | 🟡 Medium | ⬜ TODO | — |
+| **10** | `[data-admin-mode="light"]` CSS overrides | 🟡 Medium | ✅ DONE | [step-10-handoff.md](step-10-handoff.md) |
 
 ### FASE C — Dashboard Home
 
@@ -156,14 +156,14 @@ Solusi: Blade cleanup sudah dilakukan (step 06 — tidak ada lagi dark text di d
 
 ---
 
-## 🔍 NEXT STEP — Step 10: Light Mode
+## 🔍 NEXT STEP — Step 11: Dashboard Home
 
-**File prompt:** `ai/promt/uiux/step-10-light-mode.md`
+**File prompt:** `ai/promt/uiux/step-11-dashboard-home.md`
 **Risk:** 🟡 Medium
-**Scope:** `[data-admin-mode="light"]` CSS overrides — semua CSS vars di-override untuk light palette
+**Scope:** KPI stat cards, quick links, recent activity redesign
+**File:** `resources/views/backend/dashboard.blade.php`
 
-⚠️ **Prerequisite:** Fase A (Steps 01–09) SEMUA selesai ✅
-Minta owner review Fase A secara keseluruhan sebelum lanjut ke Step 10.
+⚠️ **Prerequisite:** Fase B (Step 10) selesai ✅
 
 ---
 
@@ -292,7 +292,7 @@ Step 01 (CSS vars) ← FOUNDATION SEMUA
     ├── Step 08 (Badges)      ← NEXT
     └── Step 09 (Modals/Toast)
             ↓
-        Step 10 (Light Mode)
+        Step 10 (Light Mode)     ✅
             ↓
         Step 11 (Dashboard Home)  ← Blade changes, bukan CSS only
             ↓
