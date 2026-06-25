@@ -1,7 +1,7 @@
 # MASTER HANDOFF — Admin UI/UX Redesign
 ## Bintan Prestige CMS — "Command Center Dark" Aesthetic
 
-**Terakhir diupdate:** 2026-06-25
+**Terakhir diupdate:** 2026-06-26
 **Session yang membuat:** claude-sonnet-4-6
 
 ---
@@ -160,46 +160,49 @@ Solusi: Blade cleanup sudah dilakukan (step 06 — tidak ada lagi dark text di d
 |------|-------|------|--------|---------|
 | **17** | Migration `users.ui_mode` + service `resolveModeForUser()` + composer inject | 🟡 Medium | ✅ DONE | [step-17-handoff.md](step-17-handoff.md) |
 | **18** | Topbar Night/Light toggle (Alpine + endpoint) + whole-interface mode sync (sidebar+topbar+content) | 🟡 Medium | ✅ DONE | [step-18-handoff.md](step-18-handoff.md) |
-| **19** | Theme Unification & Customizer v2 (7 sub-steps 19.1–19.7) | 🔴 High | ⬜ TODO — sub-step 19.1 menunggu approval | (in progress) |
+| **19** | Theme Unification & Customizer v2 (7 sub-steps 19.1–19.7) | 🔴 High | 🟡 In Progress — 19.1–19.6 ✅, 19.7 pending | [step-19-1-handoff.md](step-19-1-handoff.md) → [19-6](step-19-6-handoff.md) |
 | **20** | Expanded tokens (font, radius, shadow) — superseded by Step 19 redesign | — | 🟡 Folded into 19 | — |
 | **21** | Theme export/import JSON | 🟢 Low | ⬜ TODO — post-19 | — |
 
 ---
 
-## 🎯 STATUS RINGKAS — 2026-06-25
+## 🎯 STATUS RINGKAS — 2026-06-26
 
 **Fase A–D (Steps 1–16):** ✅ Complete — Command Center Dark + global customizer.
 
 **Fase E (Steps 17–21):** In progress.
 - ✅ Step 17 done — per-user `users.ui_mode` resolution
 - ✅ Step 18 done — topbar Night/Light toggle, sidebar+content unified per mode
-- 🟡 Step 19 next — theme unification (token tone tuning per mode) + customizer v2 (tabbed sections with live preview). Plan documented; menunggu sub-step 19.1.
+- ✅ Step 19.1 done — spec locked + committed
+- ✅ Step 19.2 done — migration `dark_palette`/`light_palette` + `config/admin_palettes.php` + service rewrite
+- ✅ Step 19.3 done — `admin.css` all hex replaced with CSS var tokens
+- ✅ Step 19.4 done — dashboard + pages + users Blade cleanup (~24 files)
+- ✅ Step 19.5 done — ALL remaining backend Blade cleanup (~46 files); zero slate/white hits
+- ✅ Step 19.6 done — Customizer v2 UI: mode tabs, 10-section sidebar, live preview, AJAX save
+- ⬜ Step 19.7 — Final QA: 10+ pages × 2 modes, accessibility re-check
 
-Branch `feature/uiux-command-center-dark` punya commits 17→18.7; **belum siap PR ke develop** — tunggu Step 19 selesai untuk experience unified.
+Branch `feature/uiux-command-center-dark` commits 17→19.6. **Belum siap PR ke develop** — tunggu Step 19.7 QA selesai.
 
 ---
 
 ## ⚠️ KNOWN ISSUES & CATATAN PENTING
 
-### 1. `bg-white` Tersisa di Beberapa Blade Files (Non-blocking)
+### 1. `bg-white` — Resolved di Step 19.3–19.5
 
-File-file berikut masih punya `bg-white` tapi **intentional**:
-- `builder/partials/canvas.blade.php` — canvas preview harus putih
-- `media/*.blade.php` — media picker modal
-- `menus/edit.blade.php` — menu item cards (perlu review manual)
-- `page-sections/*.blade.php` — section preview areas
-- `pages/edit.blade.php` — content editor area
+~~File-file berikut masih punya `bg-white`~~ — semua telah di-replace dengan `bg-admin-card` di Step 19.3 (admin.css), 19.4 (pages/users), dan 19.5 (remaining modules). Kecuali:
+- `builder/partials/canvas.blade.php` — canvas preview HARUS putih (intentional)
 
-Action: Review manual per-file saat Step 11 (Dashboard Home) atau sebelum release.
+### 2. `border-slate-*` — Resolved di Step 19.4–19.5
 
-### 2. `border-slate-200` Tersisa di Blade Files (Non-blocking)
-
-Border warna terang akan hampir invisible di dark card bg. Ini secondary concern —
-tidak rusak secara fungsional tapi bisa kurang visible. Bisa difix di Blade cleanup pass berikutnya.
+~~`border-slate-200` tersisa di Blade files~~ — semua diganti ke `border-admin` di Step 19.4–19.5. Zero hits tersisa.
 
 ### 3. Step 12 Butuh Approval Eksplisit Owner
 
-Jangan jalankan Step 12 tanpa approval tertulis dari owner karena membuat DB migration baru.
+✅ Sudah dijalankan dan approved — migration `admin_dashboard_appearances` ada di DB.
+
+### 4. Screenshot Tool Preview Timeout (Ongoing)
+
+`preview_screenshot` kadang timeout (30s). Workaround: gunakan `preview_snapshot` + `preview_eval` untuk DOM/Alpine inspection. Tidak affect production.
 
 ---
 
@@ -244,7 +247,15 @@ ai/
     ├── step-13-handoff.md             ✅
     ├── step-14-handoff.md             ✅
     ├── step-15-handoff.md             ✅
-    └── step-16-handoff.md             ✅
+    ├── step-16-handoff.md             ✅
+    ├── step-17-handoff.md             ✅
+    ├── step-18-handoff.md             ✅
+    ├── step-19-1-handoff.md           ✅
+    ├── step-19-2-handoff.md           ✅
+    ├── step-19-3-handoff.md           ✅
+    ├── step-19-4-handoff.md           ✅
+    ├── step-19-5-handoff.md           ✅
+    └── step-19-6-handoff.md           ✅
 ```
 
 ---
