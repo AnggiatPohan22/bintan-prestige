@@ -7,10 +7,7 @@
     $activePresetKey = collect($presets)->search(fn($p) => isset($p['preset_name']) && $p['preset_name'] === $appearance->preset_name) ?: '';
 @endphp
 
-<div
-    x-data="appearanceEditor({{ $presetsJson }})"
-    x-init="init()"
->
+<div x-data="appearanceEditor({{ $presetsJson }})" >
 
 {{-- Page Header --}}
 <div class="admin-page-header mb-6">
@@ -267,7 +264,9 @@
 
 </div>{{-- /grid --}}
 
-{{-- Actions --}}
+</form>{{-- /appearance-form — ditutup di sini agar reset form tidak nested di dalamnya --}}
+
+{{-- Actions — di luar #appearance-form; save button pakai form="appearance-form" (HTML5) --}}
 <div class="mt-6 flex flex-wrap items-center justify-between gap-4">
 
     {{-- Reset — audit fix: POST form + CSRF (bukan window.location.href GET) --}}
@@ -289,8 +288,6 @@
     </button>
 
 </div>
-
-</form>{{-- /appearance-form --}}
 
 </div>{{-- /x-data --}}
 

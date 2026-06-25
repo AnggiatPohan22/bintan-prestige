@@ -97,6 +97,16 @@ Juga fix: "Global Settings" link sekarang pakai `admin.settings.global-assets.*`
 | `darken()` JS function | ✅ Tidak dibutuhkan — preset menyimpan hover color |
 | View path `backend.settings.appearance.index` | ✅ Sudah dari Step 14 |
 | CSS classes — gunakan yang ada (`admin-card-header` bukan `admin-card__header`) | ✅ Fixed |
+| **Nested form** — reset `<form>` awalnya nested dalam `#appearance-form` | ✅ Fixed post-audit |
+| **Double `init()`** — `x-init="init()"` + Alpine 3 auto-call → 2x watchers | ✅ Fixed post-audit |
+
+### Post-Audit Fix Details
+
+**Bug 1 — Nested form (invalid HTML):**
+HTML spec melarang `<form>` di dalam `<form>`. Solusi: `</form>` dipindah ke sebelum Actions div. Save button tetap bekerja via `form="appearance-form"` attribute (HTML5).
+
+**Bug 2 — Double `init()` invocation:**
+Alpine 3 auto-call `init()` dari `x-data` object. `x-init="init()"` memanggil kembali → 2x `$watch` terdaftar → `livePreview()` dipanggil 2x per perubahan. Solusi: hapus `x-init="init()"` dari outer div.
 
 ---
 
