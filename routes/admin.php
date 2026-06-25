@@ -159,6 +159,8 @@ Route::middleware(['auth', 'admin'])
                     ->name('index');
                 Route::post('/', [DashboardAppearanceController::class, 'update'])
                     ->name('update');
+                Route::post('/palette', [DashboardAppearanceController::class, 'savePalette'])
+                    ->name('palette.save');
                 Route::post('/reset', [DashboardAppearanceController::class, 'reset'])
                     ->name('reset');
             });
