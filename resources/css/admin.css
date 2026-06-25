@@ -300,6 +300,10 @@
         transform:    translateY(-1px);
     }
     .admin-btn-secondary:active { transform: translateY(0); }
+    .admin-btn-secondary:focus-visible {
+        outline:    2px solid var(--admin-border-strong);
+        outline-offset: 2px;
+    }
 
     .admin-btn-success {
         background:  var(--admin-success);

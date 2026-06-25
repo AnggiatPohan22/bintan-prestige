@@ -30,6 +30,7 @@
                 type="button"
                 x-on:click="applyPreset('{{ $key }}')"
                 x-bind:class="activePreset === '{{ $key }}' ? 'ring-2 ring-violet-500 border-violet-500' : 'border-[var(--admin-border)] hover:border-[var(--admin-border-md)]'"
+                x-bind:aria-pressed="activePreset === '{{ $key }}' ? 'true' : 'false'"
                 class="relative flex flex-col items-start gap-2 rounded-xl border p-4 text-left transition focus:outline-none focus:ring-2 focus:ring-violet-500"
                 style="background: {{ $preset['bg_base'] }};"
             >
@@ -86,7 +87,7 @@
                     <option value="light_classic">Light Classic (sidebar gelap)</option>
                 </select>
                 @error('mode')
-                    <p class="mt-1.5 text-xs" style="color: var(--admin-danger);">{{ $message }}</p>
+                    <p class="mt-1.5 text-xs" role="alert" style="color: var(--admin-danger);">{{ $message }}</p>
                 @enderror
             </div>
 
@@ -97,7 +98,7 @@
                     <option value="light">Light</option>
                 </select>
                 @error('sidebar_style')
-                    <p class="mt-1.5 text-xs" style="color: var(--admin-danger);">{{ $message }}</p>
+                    <p class="mt-1.5 text-xs" role="alert" style="color: var(--admin-danger);">{{ $message }}</p>
                 @enderror
             </div>
 
@@ -122,7 +123,7 @@
                     >
                 </div>
                 @error('sidebar_bg')
-                    <p class="mt-1.5 text-xs" style="color: var(--admin-danger);">{{ $message }}</p>
+                    <p class="mt-1.5 text-xs" role="alert" style="color: var(--admin-danger);">{{ $message }}</p>
                 @enderror
             </div>
 
@@ -161,7 +162,7 @@
                         maxlength="7">
                 </div>
                 @error($field['id'])
-                    <p class="mt-1.5 text-xs" style="color: var(--admin-danger);">{{ $message }}</p>
+                    <p class="mt-1.5 text-xs" role="alert" style="color: var(--admin-danger);">{{ $message }}</p>
                 @enderror
             </div>
             @endforeach
@@ -200,7 +201,7 @@
                         maxlength="7">
                 </div>
                 @error($field['id'])
-                    <p class="mt-1.5 text-xs" style="color: var(--admin-danger);">{{ $message }}</p>
+                    <p class="mt-1.5 text-xs" role="alert" style="color: var(--admin-danger);">{{ $message }}</p>
                 @enderror
             </div>
             @endforeach
@@ -254,7 +255,7 @@
                         maxlength="7">
                 </div>
                 @error($field['id'])
-                    <p class="mt-1.5 text-xs" style="color: var(--admin-danger);">{{ $message }}</p>
+                    <p class="mt-1.5 text-xs" role="alert" style="color: var(--admin-danger);">{{ $message }}</p>
                 @enderror
             </div>
             @endforeach

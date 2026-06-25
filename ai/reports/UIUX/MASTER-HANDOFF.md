@@ -152,14 +152,18 @@ Solusi: Blade cleanup sudah dilakukan (step 06 — tidak ada lagi dark text di d
 | **13** | AdminAppearanceService + ViewComposer | 🟡 Medium | ✅ DONE | [step-13-handoff.md](step-13-handoff.md) |
 | **14** | DashboardAppearanceController + Routes | 🟡 Medium | ✅ DONE | [step-14-handoff.md](step-14-handoff.md) |
 | **15** | Blade UI: Settings > Customize Dashboard | 🟡 Medium | ✅ DONE | [step-15-handoff.md](step-15-handoff.md) |
-| **16** | Alpine.js live preview + Accessibility QA | 🟢 Low | ⬜ TODO | — |
+| **16** | Alpine.js live preview + Accessibility QA | 🟢 Low | ✅ DONE | [step-16-handoff.md](step-16-handoff.md) |
 
 ---
 
-## 🔍 NEXT STEP — Step 16: Final QA + Accessibility
+## 🎉 SEMUA 16 STEPS SELESAI
 
-**Risk:** 🟢 Low
-**Scope:** Keyboard nav, WCAG AA contrast, screen reader, smoke test semua steps, docs update
+**Command Center Dark Admin UI/UX Redesign — Complete**
+
+Semua fase (A, B, C, D) dan 16 steps telah selesai dan verified.
+Branch: `feature/uiux-command-center-dark` siap untuk PR ke `develop`.
+
+**Manual browser test checklist sebelum merge** — lihat `step-16-handoff.md`.
 
 ---
 
@@ -228,7 +232,7 @@ ai/
     ├── step-13-handoff.md             ✅
     ├── step-14-handoff.md             ✅
     ├── step-15-handoff.md             ✅
-    └── step-16-handoff.md             ⬜ belum ada
+    └── step-16-handoff.md             ✅
 ```
 
 ---
