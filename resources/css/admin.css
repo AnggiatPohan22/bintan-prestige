@@ -1482,43 +1482,6 @@ html[data-admin-mode="light"] .admin-modal-footer {
 }
 
 
-/* ============================================================
-   LIGHT FULL — Sidebar juga putih
-   Aktif ketika: <html data-admin-sidebar="light">
-   Digunakan bersama data-admin-mode="light" untuk full light layout
-   ============================================================ */
-
-[data-admin-sidebar="light"] .admin-sidebar {
-    background: #FFFFFF;
-    border-right: 1px solid #E2E8F0;
-}
-[data-admin-sidebar="light"] .admin-sidebar__brand {
-    border-bottom-color: #E2E8F0;
-}
-[data-admin-sidebar="light"] .admin-sidebar__subtitle {
-    color: var(--admin-gold);
-    opacity: 0.9;
-}
-[data-admin-sidebar="light"] .admin-sidebar__link {
-    color: #64748B;
-}
-[data-admin-sidebar="light"] .admin-sidebar__link:hover {
-    background: #F1F5F9;
-    color: #0F172A;
-}
-[data-admin-sidebar="light"] .admin-sidebar__link--active {
-    background: #EDE9FE;
-    color: #7C3AED;
-}
-[data-admin-sidebar="light"] .admin-sidebar__icon {
-    color: #94A3B8;
-}
-[data-admin-sidebar="light"] .admin-sidebar__link:hover .admin-sidebar__icon,
-[data-admin-sidebar="light"] .admin-sidebar__link--active .admin-sidebar__icon {
-    color: #7C3AED;
-}
-[data-admin-sidebar="light"] .admin-sidebar-toggle {
-    background: #FFFFFF;
-    border-color: #E2E8F0;
-    color: #64748B;
-}
+/* Legacy [data-admin-sidebar="light"] block removed in Step 18.7 —
+   sidebar styling now unified with the rest of the interface via
+   html[data-admin-mode="light"] CSS vars (see line ~1280). */

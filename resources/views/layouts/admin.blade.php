@@ -1,9 +1,6 @@
 <!DOCTYPE html>
 <html lang="en"
     @if(($adminUiMode ?? 'dark') === 'light') data-admin-mode="light" @endif
-    @isset($adminAppearance)
-        @if($adminAppearance->sidebar_style === 'light') data-admin-sidebar="light" @endif
-    @endisset
 >
 <head>
     <meta charset="UTF-8">
