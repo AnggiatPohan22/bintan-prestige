@@ -1229,6 +1229,41 @@
         color: var(--admin-text-secondary);
     }
 
+
+    /* ============================================================
+       SEMANTIC TEXT + BG UTILITIES — CSS var-aware
+       Use these instead of hardcoded text-slate-* / bg-white in
+       product partials and any admin page that must sync with
+       the dark/light theme toggle.
+    ============================================================ */
+
+    .text-admin-primary   { color: var(--admin-text-primary); }
+    .text-admin-secondary { color: var(--admin-text-secondary); }
+    .text-admin-muted     { color: var(--admin-text-muted); }
+    .bg-admin-card        { background: var(--admin-bg-card); }
+    .border-admin         { border-color: var(--admin-border); }
+
+    /* Panel — larger readiness / info surface */
+    .admin-panel {
+        @apply rounded-2xl border p-5;
+        background:   var(--admin-bg-card);
+        border-color: var(--admin-border);
+    }
+
+    /* List item — product section entries (itinerary steps, notes, highlights) */
+    .admin-list-item {
+        @apply relative rounded-xl border p-4;
+        background:   var(--admin-bg-hover);
+        border-color: var(--admin-border);
+    }
+
+    /* Modal content panel — replaces raw bg-white inside data-modal overlays */
+    .admin-modal-content {
+        @apply rounded-2xl border p-6 shadow-2xl;
+        background:   var(--admin-bg-card);
+        border-color: var(--admin-border-md);
+    }
+
 }
 
 
