@@ -148,7 +148,7 @@ Solusi: Blade cleanup sudah dilakukan (step 06 — tidak ada lagi dark text di d
 
 | Step | Scope | Risk | Status | Handoff |
 |------|-------|------|--------|---------|
-| **12** | Migration `admin_dashboard_appearances` + Model | 🔴 High | ⬜ TODO | — |
+| **12** | Migration `admin_dashboard_appearances` + Model | 🔴 High | ✅ DONE | [step-12-handoff.md](step-12-handoff.md) |
 | **13** | AdminAppearanceService + ViewComposer | 🟡 Medium | ⬜ TODO | — |
 | **14** | DashboardAppearanceController + Routes | 🟡 Medium | ⬜ TODO | — |
 | **15** | Blade UI: Settings > Customize Dashboard | 🟡 Medium | ⬜ TODO | — |
@@ -156,14 +156,15 @@ Solusi: Blade cleanup sudah dilakukan (step 06 — tidak ada lagi dark text di d
 
 ---
 
-## 🔍 NEXT STEP — Step 12: DB Migration (⚠️ Owner Approval Required)
+## 🔍 NEXT STEP — Step 13: AdminAppearanceService + ViewComposer
 
-**File prompt:** `ai/promt/uiux/step-12-migration-model.md`
-**Risk:** 🔴 High
-**Scope:** Migration `admin_dashboard_appearances` + Model
+**File prompt:** `ai/promt/uiux/step-13-service-composer.md`
+**Risk:** 🟡 Medium
+**Scope:** Service + ViewComposer + inject CSS vars ke admin.blade.php
 
-⚠️ **JANGAN jalankan Step 12 tanpa approval eksplisit owner.**
-Steps 01–11 (Fase A + B + C) sudah selesai. Fase D membutuhkan DB changes.
+⚠️ **Audit fixes wajib diterapkan di Step 13:**
+1. `toCssVars()` — map `--admin-bg-surface` ke `bg_base` (bukan `sidebar_bg`)
+2. `admin.blade.php` — inject `data-admin-mode` + `data-admin-sidebar` HTML attrs
 
 ---
 
@@ -228,7 +229,7 @@ ai/
     ├── step-09-handoff.md             ✅
     ├── step-10-handoff.md             ✅
     ├── step-11-handoff.md             ✅
-    ├── step-12-handoff.md             ⬜ belum ada
+    ├── step-12-handoff.md             ✅
     ├── step-13-handoff.md             ⬜ belum ada
     ├── step-14-handoff.md             ⬜ belum ada
     ├── step-15-handoff.md             ⬜ belum ada
