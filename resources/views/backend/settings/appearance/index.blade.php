@@ -10,9 +10,14 @@
         'tokens' => $p['tokens'],
     ])->toArray();
 
-    // Seed dark / light tokens — fall back to first matching preset if empty
-    $seedDark  = ! empty($darkTokens)  ? $darkTokens  : ($presets['command-center-dark']['tokens'] ?? []);
-    $seedLight = ! empty($lightTokens) ? $lightTokens : ($presets['full-light']['tokens'] ?? []);
+    // Seed dark / light tokens.
+    // Merge strategy: preset provides ALL token defaults, stored palette overwrites only
+    // keys that were previously saved. This ensures tokens added after a user's last save
+    // (e.g. card-header-bg) are always present in `editing` with a sane default.
+    $baseDark  = $presets['command-center-dark']['tokens'] ?? [];
+    $baseLight = $presets['full-light']['tokens']          ?? [];
+    $seedDark  = array_merge($baseDark,  ! empty($darkTokens)  ? $darkTokens  : []);
+    $seedLight = array_merge($baseLight, ! empty($lightTokens) ? $lightTokens : []);
 @endphp
 
 {{-- Signal to adminUiModeToggle (app.js) that this page owns data-admin-mode.
@@ -185,6 +190,7 @@
                 {{-- Surfaces --}}
                 <template x-if="activeSection === 'surfaces'">
                     <div class="space-y-2 text-xs">
+                        {{-- Base → Surface → Card nesting --}}
                         <div class="rounded-lg p-3" style="background: var(--admin-bg-base); border: 1px solid var(--admin-border)">
                             <span style="color: var(--admin-text-muted)">Base background</span>
                             <div class="mt-2 rounded-md p-2" style="background: var(--admin-bg-surface); border: 1px solid var(--admin-border)">
@@ -194,6 +200,17 @@
                                 </div>
                             </div>
                         </div>
+                        {{-- Card header preview --}}
+                        <div class="overflow-hidden rounded-lg" style="border: 1px solid var(--admin-border)">
+                            <div class="flex items-center justify-between px-3 py-2" style="background: var(--admin-card-header-bg)">
+                                <span class="font-semibold" style="color: var(--admin-text-primary)">Section Title</span>
+                                <span class="admin-badge-info text-[10px]">5 item(s)</span>
+                            </div>
+                            <div class="px-3 py-2" style="background: var(--admin-bg-card); color: var(--admin-text-secondary)">
+                                Card body content
+                            </div>
+                        </div>
+                        {{-- Border swatches --}}
                         <div class="flex gap-2 pt-1">
                             <span class="flex-1 rounded px-2 py-1 text-center text-[10px]" style="background: var(--admin-border); color: var(--admin-text-muted)">border</span>
                             <span class="flex-1 rounded px-2 py-1 text-center text-[10px]" style="background: var(--admin-border-md); color: var(--admin-text-secondary)">border-md</span>
