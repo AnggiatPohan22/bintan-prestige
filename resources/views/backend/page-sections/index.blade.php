@@ -81,15 +81,10 @@
             @endphp
 
             <div class="admin-card-header">
-                <div class="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
-                    <div>
-                        <h2 class="text-lg font-extrabold text-admin-secondary">
-                            Page Filter
-                        </h2>
-
-                        <p class="mt-1 text-sm leading-6 text-admin-secondary">
-                            Registered frontend pages are synced automatically. Section order follows the frontend mapping when available.
-                        </p>
+                <div class="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
+                    <div class="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between xl:justify-start xl:gap-4">
+                        <h2 class="text-lg font-extrabold text-admin-primary">All Page Sections</h2>
+                        <span class="admin-badge-info w-fit">{{ $pageOptions->count() }} section(s)</span>
                     </div>
 
                     <div class="w-full xl:max-w-xs">

@@ -85,7 +85,7 @@
     <div class="admin-card">
         <div class="admin-card-header">
             <div class="flex items-center justify-between">
-                <h2 class="text-lg font-extrabold text-admin-secondary">Activity</h2>
+                <h2 class="text-lg font-extrabold text-admin-primary">Activity</h2>
                 <span class="admin-badge-info">{{ $logs->total() }} entries</span>
             </div>
         </div>

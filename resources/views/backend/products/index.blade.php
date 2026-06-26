@@ -28,20 +28,9 @@
 
     <div class="admin-card">
         <div class="admin-card-header">
-            <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <div class="flex flex-wrap items-center gap-3">
-                    <h2 class="text-lg font-extrabold text-admin-primary">
-                        Product List
-                    </h2>
-
-                    <span class="admin-badge-info">
-                        {{ $products->total() }} item(s)
-                    </span>
-                </div>
-
-                <span class="text-xs font-bold uppercase tracking-wide text-admin-secondary">
-                    Showing products
-                </span>
+            <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                <h2 class="text-lg font-extrabold text-admin-primary">Product List</h2>
+                <span class="admin-badge-info">{{ $products->total() }} item(s)</span>
             </div>
         </div>
 

@@ -146,6 +146,16 @@
 
     @else
 
+        {{-- Section header --}}
+        <div class="admin-card mb-5">
+            <div class="admin-card-header">
+                <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                    <h2 class="text-lg font-extrabold text-admin-primary">All Themes</h2>
+                    <span class="admin-badge-info">{{ $themes->count() }} theme(s)</span>
+                </div>
+            </div>
+        </div>
+
         {{-- Theme cards --}}
         <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
             @foreach($themes as $theme)

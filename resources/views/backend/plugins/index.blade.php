@@ -69,7 +69,7 @@
         <div class="admin-card">
             <div class="admin-card-header">
                 <div class="flex items-center justify-between">
-                    <h2 class="text-lg font-extrabold text-admin-secondary">Installed Plugins</h2>
+                    <h2 class="text-lg font-extrabold text-admin-primary">Installed Plugins</h2>
                     <span class="admin-badge-info">{{ $plugins->count() }} plugin(s)</span>
                 </div>
             </div>

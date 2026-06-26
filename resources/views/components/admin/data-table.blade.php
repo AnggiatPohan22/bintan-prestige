@@ -2,6 +2,7 @@
     'title'        => null,
     'count'        => null,
     'countBadge'   => 'info',
+    'countLabel'   => 'item(s)',
     'createRoute'  => null,
     'createLabel'  => 'Create',
 ])
@@ -9,21 +10,21 @@
 <div class="admin-card">
     {{-- Card header --}}
     <div class="admin-card-header">
-        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div class="flex flex-wrap items-center gap-3">
-                @if($title)
-                    <h2 class="text-lg font-extrabold text-admin-primary">{{ $title }}</h2>
-                @endif
+        <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            @if($title)
+                <h2 class="text-lg font-extrabold text-admin-primary">{{ $title }}</h2>
+            @endif
+
+            <div class="flex flex-wrap items-center gap-2">
                 @if($count !== null)
-                    <span class="admin-badge-{{ $countBadge }}">{{ $count }} item(s)</span>
+                    <span class="admin-badge-{{ $countBadge }}">{{ $count }} {{ $countLabel }}</span>
+                @endif
+                @if($createRoute)
+                    <a href="{{ route($createRoute) }}" class="admin-btn-primary">
+                        {{ $createLabel }}
+                    </a>
                 @endif
             </div>
-
-            @if($createRoute)
-                <a href="{{ route($createRoute) }}" class="admin-btn-primary w-full sm:w-auto">
-                    {{ $createLabel }}
-                </a>
-            @endif
         </div>
     </div>
 

@@ -26,6 +26,16 @@
             <p class="mt-1 text-sm text-admin-secondary">Run the menu seeder to create the header and footer menus.</p>
         </div>
     @else
+        {{-- Section header --}}
+        <div class="admin-card mb-4">
+            <div class="admin-card-header">
+                <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                    <h2 class="text-lg font-extrabold text-admin-primary">All Menus</h2>
+                    <span class="admin-badge-info">{{ $menus->count() }} menu(s)</span>
+                </div>
+            </div>
+        </div>
+
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             @foreach($menus as $menu)
                 @php

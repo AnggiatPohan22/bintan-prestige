@@ -64,6 +64,16 @@
         </div>
     </div>
 
+    {{-- Section header --}}
+    <div class="admin-card mb-0">
+        <div class="admin-card-header rounded-2xl">
+            <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                <h2 class="text-lg font-extrabold text-admin-primary">All Media</h2>
+                <span class="admin-badge-info">{{ $media->total() }} file(s)</span>
+            </div>
+        </div>
+    </div>
+
     {{-- Grid --}}
     @include('backend.media.partials.grid', ['media' => $media])
 
