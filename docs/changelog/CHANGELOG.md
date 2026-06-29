@@ -2,6 +2,21 @@
 
 All notable project documentation and baseline improvement steps are tracked here.
 
+## 2026-06-29 — Phase 6: Flexible Content Modeling (in progress)
+
+### Stage A — Foundation, Decisions & Debt Clearing
+
+**A0 Architecture Decision Record**
+- Locked Phase 6 architecture §3.1–§3.6 (grand plan). Entry-body model: **Option A** — polymorphic `page_blocks` (`blockable_type`/`blockable_id`), approved by owner. No `content_entries.body` column. A3/B9 now active (A3 still gated on its own schema approval).
+- Confirmed **zero new packages**. Created `ai/reports/phase-6/a0-architecture-decisions.md`.
+
+**A1 Carry-over Debt — TD-04 + TD-05**
+- TD-04: `text` widget output now sanitized via `InlineContentSanitizer::richtext()` (was raw `{!! !!}`).
+- TD-05: moved `FormDefinition::find()` out of `contact-form` Blade into `PageRenderData::prepareContactFormBlocks()`; partial reads `$block->resolvedFormDefinition`.
+- Strengthened the Blade-query guard test to reject `::find(` / `\App\Models\`.
+- Added `tests/Feature/Phase6/A1DebtClearingTest.php` (6 tests). Zero new PHPStan errors; zero new test failures.
+- Flagged pre-existing baseline regressions from the `4c6cd6d` brand-identity merge (3 PHPStan errors + 1 failing admin test) as TD-06 / TD-07 — not introduced by Phase 6.
+
 ## 2026-06-23 — Phase 5: Visual Page Builder
 
 ### Phase 5 Stage A — Foundation Hardening

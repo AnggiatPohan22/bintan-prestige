@@ -1,6 +1,6 @@
 @php
-    $formDefId = $data['form_definition_id'] ?? null;
-    $formDef   = $formDefId ? \App\Models\FormDefinition::find($formDefId) : null;
+    // Resolved in App\Support\PageRenderData::prepareContactFormBlocks() — no query in Blade.
+    $formDef   = $block->resolvedFormDefinition ?? null;
     $successKey = 'contact_success_' . ($formDef?->id ?? 0);
 @endphp
 

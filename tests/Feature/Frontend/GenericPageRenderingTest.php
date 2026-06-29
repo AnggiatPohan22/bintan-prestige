@@ -461,6 +461,8 @@ class GenericPageRenderingTest extends TestCase
             $this->assertStringNotContainsString('->where(', $contents, $file);
             $this->assertStringNotContainsString('use App\\Models\\', $contents, $file);
             $this->assertStringNotContainsString('::where', $contents, $file);
+            $this->assertStringNotContainsString('::find(', $contents, $file);
+            $this->assertStringNotContainsString('\\App\\Models\\', $contents, $file);
         }
     }
 
