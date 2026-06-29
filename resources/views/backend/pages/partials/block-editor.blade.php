@@ -186,7 +186,7 @@
                         @method('DELETE')
                         <button
                             type="submit"
-                            data-confirm="Hapus block &quot;{{ $block->label }}&quot;? Konten akan dihapus permanen dan tidak bisa dikembalikan."
+                            data-confirm="Permanently delete the &quot;{{ $block->label }}&quot; block? This cannot be undone."
                             class="admin-btn-danger px-3 py-1.5 text-xs"
                             aria-label="Delete {{ $block->label }}"
                         >

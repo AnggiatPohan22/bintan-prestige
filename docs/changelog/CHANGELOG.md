@@ -22,6 +22,11 @@ All notable project documentation and baseline improvement steps are tracked her
 - TD-07: updated `PageBlockManagementTest` block delete-state assertions to the new `data-confirm` confirmation + `aria-label="Delete …"` markup (Command Center Dark refactor). Full suite 627/627 green.
 - Hard gate restored: PHPStan level 5 / 0 errors, suite green.
 
+**A1+ Admin Copy Consistency — TD-08**
+- Translated the 3 Indonesian `data-confirm` strings to English to match the admin convention (block delete, menu-item delete, appearance reset).
+- Fixed a curly-quote markup bug (`type=”submit” data-confirm=”…”`) in `menus/partials/item-row.blade.php` that silently disabled the menu-item delete confirmation.
+- Synced the TD-07 assertion to the new English block-delete copy; added a menu-item delete regression test (straight quotes + English). Full suite 633 green.
+
 ## 2026-06-23 — Phase 5: Visual Page Builder
 
 ### Phase 5 Stage A — Foundation Hardening

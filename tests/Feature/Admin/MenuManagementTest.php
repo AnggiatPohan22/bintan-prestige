@@ -33,6 +33,27 @@ class MenuManagementTest extends TestCase
             ->assertOk();
     }
 
+    public function test_menu_item_delete_button_uses_a_well_formed_english_confirmation(): void
+    {
+        $menu = $this->menu();
+        $parent = $this->item($menu, 'Packages', '/products', 0);
+        $this->item($menu, 'Private Trips', '#private', 0, $parent->id);
+
+        $response = $this->actingAs($this->admin())
+            ->get(route('admin.menus.edit', $menu))
+            ->assertOk();
+
+        // Straight-quoted, English confirmation (regression guard for the
+        // curly-quote `data-confirm=”…”` markup bug that silently disabled the
+        // menu-item delete confirmation).
+        $response->assertSee('data-confirm="Delete &quot;Packages&quot; and all its dropdown items?"', false)
+            ->assertSee('data-confirm="Delete &quot;Private Trips&quot;?"', false);
+
+        // No smart quotes anywhere in the rendered menu builder.
+        $this->assertStringNotContainsString('”', $response->getContent());
+        $this->assertStringNotContainsString('“', $response->getContent());
+    }
+
     public function test_admin_can_create_url_and_page_menu_items(): void
     {
         $menu = $this->menu();

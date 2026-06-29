@@ -67,5 +67,5 @@ to clear it before A2 so the "no regression vs 627" gate is actually enforceable
 ### Next
 - **A2 — Carry-over debt: pagination + FormRequest** (`BuilderPatternController@index` → `paginate(20)`; `PageBlockController` inline validation → FormRequest). No gate.
 
-### Follow-up flagged (not actioned)
-- EN/ID copy inconsistency in the page-edit delete section (block-delete confirm is Indonesian, page-delete confirm is English). User-facing copy → owner's call. Noted in handoff §11.
+### Follow-up — TD-08 (actioned next, owner-requested same session)
+- EN/ID admin copy inconsistency cleared: 3 Indonesian `data-confirm` strings translated to English (block delete, menu-item delete, appearance reset). Also fixed a curly-quote markup bug (`type=”submit” data-confirm=”…”`) in `menus/partials/item-row.blade.php` that silently disabled the menu-item delete confirmation. Synced the TD-07 assertion + added a menu-item delete regression test. Suite 633 green. See handoff §11 TD-08.

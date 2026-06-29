@@ -750,8 +750,8 @@ function customizerV2(config) {
         resetPalette(formEl) {
             adminConfirm(
                 () => formEl.submit(),
-                'Reset semua pengaturan tampilan ke default? Kedua mode (Night & Light) dikembalikan ke preset bawaan.',
-                { title: 'Reset Tampilan', btnLabel: 'Ya, Reset', icon: 'fa-rotate-left', danger: false }
+                'Reset all appearance settings to default? Both modes (Night & Light) will be restored to the built-in preset.',
+                { title: 'Reset Appearance', btnLabel: 'Yes, Reset', icon: 'fa-rotate-left', danger: false }
             );
         },
     };

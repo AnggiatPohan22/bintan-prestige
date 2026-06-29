@@ -461,7 +461,7 @@ class PageBlockManagementTest extends TestCase
             // per-block confirmation (data-confirm modal — replaced the old inline
             // warning during the Command Center Dark admin refactor).
             ->assertSee('aria-label="Delete About image"', false)
-            ->assertSee('Konten akan dihapus permanen dan tidak bisa dikembalikan.', false);
+            ->assertSee('data-confirm="Permanently delete the &quot;About image&quot; block? This cannot be undone."', false);
     }
 
     public function test_block_validation_reopens_the_failed_editor_with_feedback(): void
