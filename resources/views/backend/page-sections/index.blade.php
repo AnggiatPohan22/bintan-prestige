@@ -112,10 +112,7 @@
                         <button
                             type="button"
                             x-on:click="activeGroup = '{{ $group }}'"
-                            class="inline-flex shrink-0 items-center gap-2 rounded-full border px-4 py-2 text-sm font-bold transition"
-                            x-bind:class="activeGroup === '{{ $group }}'
-                                ? 'border-indigo-200 bg-indigo-600 text-white shadow-sm shadow-indigo-100'
-                                : 'border-admin bg-admin-card/50 text-admin-secondary hover:border-violet-500/30 hover:bg-violet-900/10 hover:text-violet-300'"
+                            :class="activeGroup === '{{ $group }}' ? 'admin-filter-pill admin-filter-pill--active' : 'admin-filter-pill'"
                         >
                             {{ $group }}
                             <span

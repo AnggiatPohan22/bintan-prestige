@@ -18,6 +18,15 @@
     $baseLight = $presets['full-light']['tokens']          ?? [];
     $seedDark  = array_merge($baseDark,  ! empty($darkTokens)  ? $darkTokens  : []);
     $seedLight = array_merge($baseLight, ! empty($lightTokens) ? $lightTokens : []);
+
+    $brandAbbr    = $appearance->brand_abbr    ?? 'BP';
+    $brandName    = $appearance->brand_name    ?? 'Travel Admin';
+    $brandTagline = $appearance->brand_tagline ?? 'Bintan Prestige';
+
+    // Persisted base-preset association per mode. Lets the customizer restore
+    // the active-preset indicator after refresh even when tokens were edited.
+    $darkPresetName  = $appearance->dark_preset_name  ?? null;
+    $lightPresetName = $appearance->light_preset_name ?? null;
 @endphp
 
 {{-- Signal to adminUiModeToggle (app.js) that this page owns data-admin-mode.
@@ -34,6 +43,12 @@
     saveUrl:        @js(route('admin.settings.appearance.palette.save')),
     resetUrl:       @js(route('admin.settings.appearance.reset')),
     csrfToken:      @js(csrf_token()),
+    brandUrl:       @js(route('admin.settings.appearance.brand.save')),
+    brandAbbr:      @js($brandAbbr),
+    brandName:      @js($brandName),
+    brandTagline:   @js($brandTagline),
+    darkPresetName:  @js($darkPresetName),
+    lightPresetName: @js($lightPresetName),
 })">
 
 {{-- ═══════════════════════════════════════════════════════════════
@@ -78,11 +93,34 @@
      PRESET STRIP
 ═══════════════════════════════════════════════════════════════ --}}
 <div class="admin-card mb-6 p-4">
-    <p class="mb-3 text-xs font-bold uppercase tracking-widest text-admin-secondary">
-        <i class="fa-solid fa-swatchbook mr-1.5" aria-hidden="true"></i>
-        Starter Presets
-        <span class="ml-2 font-normal normal-case text-admin-muted">— klik untuk isi token mode aktif</span>
-    </p>
+    <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
+        <p class="text-xs font-bold uppercase tracking-widest text-admin-secondary">
+            <i class="fa-solid fa-swatchbook mr-1.5" aria-hidden="true"></i>
+            Starter Presets
+            <span class="ml-2 font-normal normal-case text-admin-muted">— klik untuk isi token mode aktif</span>
+        </p>
+
+        {{-- Active-preset status for the current mode (persists through edits) --}}
+        <div class="flex items-center gap-2 text-xs">
+            <span class="text-admin-muted">Aktif:</span>
+            <template x-if="activePreset">
+                <span class="inline-flex items-center gap-1.5 rounded-full border border-admin px-2.5 py-1 font-semibold text-admin-primary">
+                    <i class="fa-solid fa-circle-check text-indigo-400" aria-hidden="true"></i>
+                    <span x-text="presets[activePreset]?.label ?? activePreset"></span>
+                    <span x-show="presetModified"
+                          class="rounded-full bg-amber-100 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-amber-700">
+                        diubah
+                    </span>
+                </span>
+            </template>
+            <template x-if="!activePreset">
+                <span class="inline-flex items-center gap-1.5 rounded-full border border-admin px-2.5 py-1 font-semibold text-admin-secondary">
+                    <i class="fa-solid fa-sliders text-admin-muted" aria-hidden="true"></i>
+                    Custom
+                </span>
+            </template>
+        </div>
+    </div>
 
     <div class="flex flex-wrap gap-3">
         <template x-for="[key, preset] in Object.entries(presets)" :key="key">
@@ -96,21 +134,29 @@
                 class="relative flex min-w-[140px] flex-col gap-2 rounded-xl border p-3 text-left transition focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 :style="`background: ${preset.tokens['bg-card'] ?? '#fff'}`"
             >
-                <span class="flex gap-1">
-                    <span class="h-4 w-4 rounded-full border border-white/20 shadow-sm"
-                          :style="`background: ${preset.tokens['primary']}`"></span>
-                    <span class="h-4 w-4 rounded-full border border-white/20 shadow-sm"
-                          :style="`background: ${preset.tokens['bg-surface']}`"></span>
-                    <span class="h-4 w-4 rounded-full border border-white/20 shadow-sm"
-                          :style="`background: ${preset.tokens['success']}`"></span>
+                {{-- Dominant theme colors: background tone, brand, card surface, accent.
+                     ring-1 keeps near-white swatches visible on light presets. --}}
+                <span class="flex gap-1.5">
+                    <span class="h-5 w-5 rounded-full shadow-sm ring-1 ring-black/15"
+                          :style="`background: ${preset.tokens['bg-base']}`" title="Background"></span>
+                    <span class="h-5 w-5 rounded-full shadow-sm ring-1 ring-black/15"
+                          :style="`background: ${preset.tokens['primary']}`" title="Primary"></span>
+                    <span class="h-5 w-5 rounded-full shadow-sm ring-1 ring-black/15"
+                          :style="`background: ${preset.tokens['bg-card']}`" title="Card"></span>
+                    <span class="h-5 w-5 rounded-full shadow-sm ring-1 ring-black/15"
+                          :style="`background: ${preset.tokens['success']}`" title="Accent"></span>
                 </span>
                 <span class="text-xs font-semibold"
                       :style="`color: ${preset.tokens['text-primary']}`"
                       x-text="preset.label"></span>
                 <span x-show="activePreset === key"
-                      class="absolute right-2 top-2 text-indigo-400"
+                      class="absolute right-2 top-2 flex items-center gap-1"
                       aria-hidden="true">
-                    <i class="fa-solid fa-circle-check text-sm"></i>
+                    <span x-show="presetModified"
+                          class="rounded-full bg-amber-400/90 px-1.5 py-0.5 text-[9px] font-bold uppercase leading-none text-amber-950">
+                        diubah
+                    </span>
+                    <i class="fa-solid fa-circle-check text-sm text-indigo-400"></i>
                 </span>
             </button>
         </template>
@@ -231,11 +277,21 @@
 
                 {{-- Buttons --}}
                 <template x-if="activeSection === 'buttons'">
-                    <div class="flex flex-wrap gap-2">
-                        <button type="button" class="admin-btn-primary text-xs py-1.5 px-3">Primary</button>
-                        <button type="button" class="admin-btn-secondary text-xs py-1.5 px-3">Secondary</button>
-                        <button type="button" class="admin-btn-danger text-xs py-1.5 px-3">Danger</button>
-                        <button type="button" class="admin-btn-soft text-xs py-1.5 px-3">Soft</button>
+                    <div class="space-y-2">
+                        <div class="flex flex-wrap gap-2">
+                            <button type="button" class="admin-btn-primary text-xs py-1.5 px-3">Primary</button>
+                            <button type="button" class="admin-btn-secondary text-xs py-1.5 px-3">Secondary</button>
+                            <button type="button" class="admin-btn-danger text-xs py-1.5 px-3">Danger</button>
+                        </div>
+                        <div class="flex flex-wrap gap-2">
+                            <button type="button" class="admin-btn-soft text-xs py-1.5 px-3">Soft</button>
+                            <button type="button" class="admin-btn-success text-xs py-1.5 px-3">Restore</button>
+                        </div>
+                        <div class="flex flex-wrap gap-2">
+                            <button type="button" class="admin-filter-pill admin-filter-pill--active">Active Pill</button>
+                            <button type="button" class="admin-filter-pill">Inactive Pill</button>
+                        </div>
+                        <p class="text-[10px] text-admin-muted">Soft: pakai token Soft BG/Text · Restore: pakai token Success</p>
                     </div>
                 </template>
 
@@ -331,19 +387,22 @@
 
                 {{-- Topbar --}}
                 <template x-if="activeSection === 'topbar'">
-                    <div class="admin-topbar rounded-xl px-4 py-2.5">
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center gap-2 text-xs" style="color: var(--admin-topbar-text)">
-                                <span class="font-bold">Bintan Prestige</span>
-                                <span class="opacity-40">/</span>
-                                <span>Appearance</span>
-                            </div>
-                            <div class="flex items-center gap-3" style="color: var(--admin-topbar-text)">
-                                <i class="fa-regular fa-moon text-sm" aria-hidden="true"></i>
-                                <i class="fa-regular fa-bell text-sm" aria-hidden="true"></i>
-                                <span class="text-xs font-medium">Admin</span>
+                    <div>
+                        <div class="admin-topbar rounded-xl px-4 py-2.5">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-2 text-xs" style="color: var(--admin-topbar-text)">
+                                    <span class="font-bold">Bintan Prestige</span>
+                                    <span class="opacity-40">/</span>
+                                    <span>Appearance</span>
+                                </div>
+                                <div class="flex items-center gap-3" style="color: var(--admin-topbar-text)">
+                                    <i class="fa-regular fa-moon text-sm" aria-hidden="true"></i>
+                                    <i class="fa-regular fa-bell text-sm" aria-hidden="true"></i>
+                                    <span class="text-xs font-medium">Admin</span>
+                                </div>
                             </div>
                         </div>
+                        <p class="mt-2 text-[10px] text-admin-muted">Background topbar diatur oleh token <strong>Topbar BG</strong> di bawah. Default night mode menggunakan warna surface (#0F172A) — ubah sesuai kebutuhan.</p>
                     </div>
                 </template>
 
@@ -363,10 +422,47 @@
                         </div>
                     </div>
                 </template>
+                {{-- Brand --}}
+                <template x-if="activeSection === 'brand'">
+                    <div class="space-y-3">
+                        <div class="flex items-center gap-3 rounded-xl p-3" style="background: var(--admin-sidebar-bg); border: 1px solid var(--admin-sidebar-border)">
+                            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-sm font-black text-white" style="background: var(--admin-primary)" x-text="brandAbbr || 'BP'"></div>
+                            <div class="min-w-0">
+                                <div class="truncate text-sm font-extrabold" style="color: var(--admin-text-primary)" x-text="brandName || 'Travel Admin'"></div>
+                                <div class="truncate text-xs font-medium" style="color: var(--admin-gold); opacity: 0.7" x-text="brandTagline || 'Bintan Prestige'"></div>
+                            </div>
+                        </div>
+                        <p class="text-[10px] text-admin-muted">Preview sidebar brand mark seperti yang tampil di navigasi.</p>
+                    </div>
+                </template>
             </div>{{-- /preview --}}
 
-            {{-- ── TOKEN COLOR PICKERS ──────────────────────── --}}
-            <div class="space-y-3">
+            {{-- ── BRAND INPUTS (non-color section) ──────── --}}
+            <template x-if="activeSection === 'brand'">
+                <div class="space-y-4">
+                    <div>
+                        <label class="admin-form-label">Singkatan / Abbr <span class="text-admin-muted font-normal">(maks 4 karakter)</span></label>
+                        <input type="text" x-model="brandAbbr" maxlength="4" class="admin-input w-24 font-bold uppercase tracking-widest" placeholder="BP">
+                    </div>
+                    <div>
+                        <label class="admin-form-label">Nama Admin Panel</label>
+                        <input type="text" x-model="brandName" maxlength="60" class="admin-input" placeholder="Travel Admin">
+                    </div>
+                    <div>
+                        <label class="admin-form-label">Tagline</label>
+                        <input type="text" x-model="brandTagline" maxlength="100" class="admin-input" placeholder="Bintan Prestige">
+                    </div>
+                    <button type="button" @click="saveBrand()" :disabled="savingBrand" class="admin-btn-primary w-full">
+                        <i class="fa-solid fa-floppy-disk mr-1.5" x-show="!savingBrand && !savedBrand"></i>
+                        <i class="fa-solid fa-spinner fa-spin mr-1.5" x-show="savingBrand" x-cloak></i>
+                        <i class="fa-solid fa-check mr-1.5" x-show="savedBrand" x-cloak></i>
+                        <span x-text="savingBrand ? 'Menyimpan…' : (savedBrand ? 'Tersimpan!' : 'Simpan Brand')"></span>
+                    </button>
+                </div>
+            </template>
+
+            {{-- ── TOKEN COLOR PICKERS (color sections only) ── --}}
+            <div class="space-y-3" x-show="activeSection !== 'brand'">
                 <template
                     x-for="[tokenKey, meta] in Object.entries(tokenCatalogue).filter(([, m]) => m.section === activeSection)"
                     :key="tokenKey"
@@ -419,10 +515,31 @@ function customizerV2(config) {
         // ── State ──────────────────────────────────────────
         activeMode:    localStorage.getItem('customizer_mode') || (config.initialMode === 'light' ? 'light' : 'dark'),
         activeSection: 'surfaces',
-        activePreset:  null,
+        activePreset:    null,   // base preset key for the active mode (persists through edits)
+        presetModified:  false,  // true when active-mode tokens diverge from the base preset
+        presetName: {            // persistent base-preset association per mode (server-seeded)
+            dark:  config.darkPresetName  || null,
+            light: config.lightPresetName || null,
+        },
+        // Immutable snapshot of the last *saved* palette per mode. Re-clicking the
+        // preset this palette belongs to restores these (edited) tokens instead of
+        // the pristine preset, so navigating presets never discards a saved edit.
+        savedTokens: {
+            dark:  { ...config.darkTokens },
+            light: { ...config.lightTokens },
+        },
+        savedPresetName: {
+            dark:  config.darkPresetName  || null,
+            light: config.lightPresetName || null,
+        },
         saving:     false,
         saved:      false,
         savedLabel: '',
+        brandAbbr:    config.brandAbbr,
+        brandName:    config.brandName,
+        brandTagline: config.brandTagline,
+        savingBrand:  false,
+        savedBrand:   false,
 
         // ── Config (server-rendered) ───────────────────────
         sections:       config.sections,
@@ -440,7 +557,7 @@ function customizerV2(config) {
 
         // ── Init ───────────────────────────────────────────
         init() {
-            this.activePreset = this.detectPreset(this.activeMode);
+            this.syncPresetState();
             this.applyLivePreview();
 
             // Sync with topbar toggle: when user clicks the Night/Light button
@@ -473,11 +590,35 @@ function customizerV2(config) {
             return null;
         },
 
+        // True when the active-mode tokens still exactly equal the given preset.
+        tokensMatchPreset(key) {
+            const preset = this.presets[key];
+            if (!preset) return false;
+            const current = this.editing[this.activeMode];
+            return Object.keys(preset.tokens).every(k => preset.tokens[k] === current[k]);
+        },
+
+        // Reconcile activePreset + presetModified for the active mode.
+        // Source of truth is the persisted base-preset association (presetName);
+        // falls back to exact-match detection for legacy saves with no name.
+        syncPresetState() {
+            const saved = this.presetName[this.activeMode];
+            if (saved && this.presets[saved]) {
+                this.activePreset   = saved;
+                this.presetModified = !this.tokensMatchPreset(saved);
+            } else {
+                const detected = this.detectPreset(this.activeMode);
+                this.activePreset   = detected;
+                this.presetModified = false;
+                this.presetName[this.activeMode] = detected;
+            }
+        },
+
         // ── Mode switch ────────────────────────────────────
         setMode(mode) {
-            this.activeMode   = mode;
-            this.activePreset = this.detectPreset(mode);
+            this.activeMode = mode;
             localStorage.setItem('customizer_mode', mode);
+            this.syncPresetState();
             this.applyLivePreview();
         },
 
@@ -485,15 +626,30 @@ function customizerV2(config) {
         applyPreset(key) {
             const preset = this.presets[key];
             if (!preset || preset.mode !== this.activeMode) return;
-            this.editing[this.activeMode] = { ...preset.tokens };
-            this.activePreset = key;
+
+            // Re-selecting the preset the saved palette belongs to restores the
+            // saved (possibly edited) tokens — matching what a page refresh shows.
+            // Any other preset loads its pristine defaults.
+            if (key === this.savedPresetName[this.activeMode]) {
+                this.editing[this.activeMode] = { ...this.savedTokens[this.activeMode] };
+            } else {
+                this.editing[this.activeMode] = { ...preset.tokens };
+            }
+
+            this.activePreset                = key;
+            this.presetName[this.activeMode] = key;
+            this.presetModified              = !this.tokensMatchPreset(key);
             this.applyLivePreview();
         },
 
         // ── Update single token ────────────────────────────
         updateToken(key, value) {
             this.editing[this.activeMode][key] = value;
-            this.activePreset = null;
+            // Keep the base-preset association; just flag divergence so the
+            // strip shows "(diubah)" instead of dropping the indicator entirely.
+            this.presetModified = this.activePreset
+                ? !this.tokensMatchPreset(this.activePreset)
+                : false;
             this.applyLivePreview();
         },
 
@@ -540,12 +696,18 @@ function customizerV2(config) {
                         'Accept':       'application/json',
                     },
                     body: JSON.stringify({
-                        mode:   this.activeMode,
-                        tokens: this.editing[this.activeMode],
+                        mode:        this.activeMode,
+                        tokens:      this.editing[this.activeMode],
+                        preset_name: this.activePreset,
                     }),
                 });
 
                 if (res.ok) {
+                    // Refresh the in-memory saved snapshot so navigating presets
+                    // after a save restores this newly-saved state, not a stale one.
+                    this.savedTokens[this.activeMode]     = { ...this.editing[this.activeMode] };
+                    this.savedPresetName[this.activeMode] = this.activePreset;
+
                     this.savedLabel = this.activeMode === 'dark' ? 'Mode Night tersimpan!' : 'Mode Light tersimpan!';
                     this.saved = true;
                     setTimeout(() => { this.saved = false; }, 3000);
@@ -557,6 +719,31 @@ function customizerV2(config) {
             } finally {
                 this.saving = false;
             }
+        },
+
+        // ── Save brand identity ────────────────────────────
+        saveBrand() {
+            this.savingBrand = true;
+            fetch(config.brandUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': this.csrfToken,
+                    'Accept': 'application/json',
+                },
+                body: JSON.stringify({
+                    brand_abbr:    this.brandAbbr,
+                    brand_name:    this.brandName,
+                    brand_tagline: this.brandTagline,
+                }),
+            })
+            .then(r => r.json())
+            .then(() => {
+                this.savingBrand = false;
+                this.savedBrand  = true;
+                setTimeout(() => { this.savedBrand = false; }, 3000);
+            })
+            .catch(() => { this.savingBrand = false; });
         },
 
         // ── Reset via form submit ──────────────────────────

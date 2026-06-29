@@ -50,10 +50,10 @@ $groups = [
     >
         {{-- Brand --}}
         <div class="admin-sidebar__brand">
-            <div class="admin-sidebar__brand-mark">BP</div>
+            <div class="admin-sidebar__brand-mark">{{ $adminAppearance->brand_abbr ?? 'BP' }}</div>
             <div class="min-w-0">
-                <h1 class="admin-sidebar__title">Travel Admin</h1>
-                <p class="admin-sidebar__subtitle">Bintan Prestige</p>
+                <h1 class="admin-sidebar__title">{{ $adminAppearance->brand_name ?? 'Travel Admin' }}</h1>
+                <p class="admin-sidebar__subtitle">{{ $adminAppearance->brand_tagline ?? 'Bintan Prestige' }}</p>
             </div>
             <button
                 type="button"

@@ -37,14 +37,41 @@ class DashboardAppearanceController extends Controller
     public function savePalette(Request $request): JsonResponse
     {
         $data = $request->validate([
-            'mode'   => ['required', 'in:dark,light'],
-            'tokens' => ['required', 'array'],
+            'mode'        => ['required', 'in:dark,light'],
+            'tokens'      => ['required', 'array'],
+            'preset_name' => ['nullable', 'string', 'max:80'],
         ]);
 
-        $column = $data['mode'] === 'dark' ? 'dark_palette' : 'light_palette';
-        $tokens = $this->sanitizeTokens($data['tokens']);
+        $column     = $data['mode'] === 'dark' ? 'dark_palette'      : 'light_palette';
+        $nameColumn = $data['mode'] === 'dark' ? 'dark_preset_name'  : 'light_preset_name';
+        $tokens     = $this->sanitizeTokens($data['tokens']);
 
-        $this->service->update([$column => $tokens], $request->user());
+        // Persist which starter preset this palette is based on, so the
+        // customizer can restore the active-preset indicator after refresh
+        // (even when tokens were edited away from the preset defaults).
+        // Validate against the known preset catalogue — defense in depth.
+        $presetName = $data['preset_name'] ?? null;
+        if ($presetName !== null && ! array_key_exists($presetName, config('admin_palettes.presets', []))) {
+            $presetName = null;
+        }
+
+        $this->service->update([
+            $column     => $tokens,
+            $nameColumn => $presetName,
+        ], $request->user());
+
+        return response()->json(['ok' => true]);
+    }
+
+    public function saveBrand(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'brand_abbr'    => ['required', 'string', 'max:10'],
+            'brand_name'    => ['required', 'string', 'max:100'],
+            'brand_tagline' => ['nullable', 'string', 'max:200'],
+        ]);
+
+        $this->service->update($data, $request->user());
 
         return response()->json(['ok' => true]);
     }

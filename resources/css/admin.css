@@ -332,13 +332,33 @@
     .admin-btn-danger:active { transform: translateY(0); }
 
     .admin-btn-soft {
-        background:   var(--admin-primary-soft);
-        color:        var(--admin-primary);
-        border:       1px solid var(--admin-primary-soft);
+        background:   var(--admin-btn-soft-bg, var(--admin-primary-soft));
+        color:        var(--admin-btn-soft-text, var(--admin-primary));
+        border:       1px solid var(--admin-btn-soft-bg, var(--admin-primary-soft));
     }
     .admin-btn-soft:hover {
-        background: var(--admin-primary-glow);
-        color:      var(--admin-primary-hover);
+        background: var(--admin-btn-soft-bg, var(--admin-primary-soft));
+        color:      var(--admin-btn-soft-text, var(--admin-primary));
+        filter:     brightness(1.15);
+    }
+
+    /* ─── Filter Pills (section / group tabs) ──────── */
+    .admin-filter-pill {
+        @apply inline-flex shrink-0 items-center gap-2 rounded-full border px-4 py-2 text-sm font-bold transition;
+        background:   var(--admin-pill-default-bg, var(--admin-bg-card));
+        border-color: var(--admin-border);
+        color:        var(--admin-text-secondary);
+    }
+    .admin-filter-pill:hover {
+        background:   var(--admin-pill-hover-bg, var(--admin-primary-soft));
+        border-color: var(--admin-pill-hover-border, var(--admin-primary-soft));
+        color:        var(--admin-pill-hover-text, var(--admin-primary));
+    }
+    .admin-filter-pill--active {
+        background:   var(--admin-pill-active-bg, var(--admin-primary));
+        border-color: var(--admin-pill-active-bg, var(--admin-primary));
+        color:        var(--admin-pill-active-text, #FFFFFF);
+        @apply shadow-sm;
     }
 
 

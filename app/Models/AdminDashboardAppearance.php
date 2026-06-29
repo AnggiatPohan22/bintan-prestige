@@ -16,6 +16,7 @@ class AdminDashboardAppearance extends Model
         'preset_name', 'is_default',
         'dark_palette', 'light_palette',
         'dark_preset_name', 'light_preset_name',
+        'brand_abbr', 'brand_name', 'brand_tagline',
         'created_by', 'updated_by',
     ];
 
@@ -68,6 +69,9 @@ class AdminDashboardAppearance extends Model
             'custom_vars'   => null,
             'preset_name'   => 'Command Center Dark',
             'is_default'    => true,
+            'brand_abbr'    => 'BP',
+            'brand_name'    => 'Travel Admin',
+            'brand_tagline' => 'Bintan Prestige',
         ]);
     }
 }
