@@ -27,6 +27,11 @@ All notable project documentation and baseline improvement steps are tracked her
 - Fixed a curly-quote markup bug (`type=”submit” data-confirm=”…”`) in `menus/partials/item-row.blade.php` that silently disabled the menu-item delete confirmation.
 - Synced the TD-07 assertion to the new English block-delete copy; added a menu-item delete regression test (straight quotes + English). Full suite 633 green.
 
+**A2 Carry-over Debt — pagination + FormRequest**
+- `BuilderPatternController@index` now `paginate(20)` (was unbounded `get()`); `patterns` stays a flat array for the builder client, pagination state under `meta`.
+- Extracted `PageBlockController` inline validation into `StorePageBlockRequest`, `UpdatePageBlockRequest`, `ReorderPageBlockRequest`.
+- Added pattern pagination test. Full suite 634 green, PHPStan 0 errors.
+
 ## 2026-06-23 — Phase 5: Visual Page Builder
 
 ### Phase 5 Stage A — Foundation Hardening

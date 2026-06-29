@@ -40,7 +40,7 @@ Legend: `⏳ TODO` · `🔨 IN PROGRESS` · `✅ DONE` · `⛔ BLOCKED` · `⚠�
 |------|------|--------|----------|--------|
 | A0 | Architecture Decision Record | ✅ DONE | §3.2 = Option A (approved 2026-06-29) | a0-architecture-decisions.md |
 | A1 | Carry-over debt: TD-04, TD-05 | ✅ DONE | — | a1-debt-clearing-td04-td05.md |
-| A2 | Carry-over debt: pagination + FormRequest | ⏳ TODO | — | — |
+| A2 | Carry-over debt: pagination + FormRequest | ✅ DONE | — | a2-pagination-formrequest.md |
 | A3 | Polymorphic `page_blocks` (§3.2 = A, now active) | ⏳ TODO | ⚠️ schema (existing table) | — |
 | A4 | `config/field-types.php` catalog scaffold | ⏳ TODO | — | — |
 
@@ -285,8 +285,8 @@ Both respect the block registry, `BuilderTreeSanitizer`, and the 20:60:20 shell.
 | TD-03 | Child theme support | `ThemeService` | Re-evaluate; defer to Phase 7 if not needed | A0 note |
 | TD-04 | Widget text not sanitized | `frontend/widgets/text.blade.php` | ✅ DONE — wrapped via `InlineContentSanitizer::richtext()` (A1) | A1 |
 | TD-05 | DB query in Blade | `frontend/blocks/contact-form.blade.php:3` | ✅ DONE — moved `FormDefinition::find()` to `PageRenderData::prepareContactFormBlocks()` (A1) | A1 |
-| — | Patterns API unpaginated | `BuilderPatternController@index` | `paginate(20)` | A2 |
-| — | Inline validate in controller | `PageBlockController` | Extract to FormRequest | A2 |
+| — | Patterns API unpaginated | `BuilderPatternController@index` | ✅ DONE — `paginate(20)`; `patterns` kept flat for the builder client, pagination under `meta` | A2 |
+| — | Inline validate in controller | `PageBlockController` | ✅ DONE — extracted to `StorePageBlockRequest`, `UpdatePageBlockRequest`, `ReorderPageBlockRequest` | A2 |
 | TD-06 | Pre-existing baseline RED (from `4c6cd6d` brand-identity merge, NOT Phase 6): 3 PHPStan errors in `AdminDashboardAppearance.php` (return.type, new.static) + `AdminAppearanceService.php` (booleanAnd.rightAlwaysTrue) | `app/Models/AdminDashboardAppearance.php`, `app/Services/AdminAppearanceService.php` | ✅ DONE — `static`→`self` (model getCurrent/makeDefault), dropped redundant `is_array` guard (service). PHPStan 0 errors restored. | A1+ |
 | TD-07 | Pre-existing test failure (baseline, NOT Phase 6): `PageBlockManagementTest::…accessible_save_delete_states` asserted inline block-delete copy removed by the refactor | `tests/Feature/Admin/PageBlockManagementTest.php:443` | ✅ DONE — test updated to assert the new per-block `data-confirm` confirmation + `aria-label="Delete …"` (Command Center Dark UX). Suite 627 green. | A1+ |
 

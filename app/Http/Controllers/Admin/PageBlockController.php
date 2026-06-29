@@ -3,11 +3,13 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\ReorderPageBlockRequest;
+use App\Http\Requests\Admin\StorePageBlockRequest;
+use App\Http\Requests\Admin\UpdatePageBlockRequest;
 use App\Models\Page;
 use App\Models\PageBlock;
 use App\Services\PageBlockService;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 
 class PageBlockController extends Controller
 {
@@ -26,13 +28,8 @@ class PageBlockController extends Controller
         protected PageBlockService $blockService,
     ) {}
 
-    public function store(Request $request, Page $page)
+    public function store(StorePageBlockRequest $request, Page $page)
     {
-        $request->validate([
-            'block_type' => ['required', 'in:'.implode(',', self::blockTypes())],
-            'label' => ['nullable', 'string', 'max:255'],
-        ]);
-
         $page->blocks()->create([
             'block_type' => $request->block_type,
             'label' => $request->label ?: ucfirst(str_replace('_', ' ', $request->block_type)),
@@ -47,15 +44,9 @@ class PageBlockController extends Controller
             ->with('open_section', 'blocks');
     }
 
-    public function update(Request $request, Page $page, PageBlock $block)
+    public function update(UpdatePageBlockRequest $request, Page $page, PageBlock $block)
     {
         $this->ensureBlockBelongsToPage($page, $block);
-
-        $request->validate([
-            'label' => ['nullable', 'string', 'max:255'],
-            'data' => ['nullable', 'array'],
-            'parent_block_id' => ['nullable', 'integer'],
-        ]);
 
         $data = $this->blockService->validateAndSanitizeData(
             $block->block_type,
@@ -94,13 +85,8 @@ class PageBlockController extends Controller
             ->with('open_section', 'blocks');
     }
 
-    public function reorder(Request $request, Page $page)
+    public function reorder(ReorderPageBlockRequest $request, Page $page)
     {
-        $request->validate([
-            'ids' => ['required', 'array'],
-            'ids.*' => ['integer'],
-        ]);
-
         $this->blockService->reorder($page, $request->ids);
 
         return redirect()
