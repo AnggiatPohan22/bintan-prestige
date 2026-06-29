@@ -41,7 +41,7 @@ Legend: `⏳ TODO` · `🔨 IN PROGRESS` · `✅ DONE` · `⛔ BLOCKED` · `⚠�
 | A0 | Architecture Decision Record | ✅ DONE | §3.2 = Option A (approved 2026-06-29) | a0-architecture-decisions.md |
 | A1 | Carry-over debt: TD-04, TD-05 | ✅ DONE | — | a1-debt-clearing-td04-td05.md |
 | A2 | Carry-over debt: pagination + FormRequest | ✅ DONE | — | a2-pagination-formrequest.md |
-| A3 | Polymorphic `page_blocks` (§3.2 = A, now active) | ⏳ TODO | ⚠️ schema (existing table) | — |
+| A3 | Polymorphic `page_blocks` (§3.2 = A, dual-rail) | ✅ DONE | ⚠️ schema — APPROVED 2026-06-30 | a3-polymorphic-page-blocks.md |
 | A4 | `config/field-types.php` catalog scaffold | ⏳ TODO | — | — |
 
 ### Stage B — Build the Engine
@@ -110,9 +110,12 @@ Legend: `⏳ TODO` · `🔨 IN PROGRESS` · `✅ DONE` · `⛔ BLOCKED` · `⚠�
 - ~~Option B (zero-risk): store entry block tree in `content_entries.body` JSON.~~
   **Rejected** in favour of A. The `content_entries.body` column is therefore
   **not** added (see §4).
-- A3 and B9 are now active tasks (no longer conditional). A3 stays gated on its
-  own schema approval; the morph migration is not written until owner says
-  "approved" at A3.
+- A3 and B9 are now active tasks (no longer conditional). **A3 ✅ DONE** —
+  schema approved 2026-06-30, implemented as **Strategy 1 (dual-rail)**:
+  `page_blocks` gained nullable `blockable_type`/`blockable_id` + index, `page_id`
+  relaxed to nullable, existing rows backfilled to `Page`. Pages keep
+  `page_id`/`hasMany` (builder untouched); entries (B9) use the morph with NULL
+  `page_id`. `PageBlock::blockable()` morphTo added.
 
 ### 3.3 Field type registry — **CODE catalog + DB instances ✅**
 
@@ -157,6 +160,11 @@ Repeater/relationship/conditional logic built on Alpine.js + `@alpinejs/sort`
 ## 4. Data Model (proposed — confirm per-table at its task)
 
 ```
+page_blocks         [EXISTING table, altered at A3 ✅] + blockable_type(nullable),
+                    blockable_id(nullable)  [index(blockable_type, blockable_id)];
+                    page_id relaxed to NULLABLE. Dual-rail: pages keep page_id +
+                    hasMany (builder untouched); entries use the morph (page_id
+                    NULL). Existing rows backfilled to blockable=Page/page_id.
 content_types       slug, label_singular, label_plural, icon, description,
                     is_public, has_archive, route_base, supports(json),
                     menu_position, is_active, timestamps, softDeletes

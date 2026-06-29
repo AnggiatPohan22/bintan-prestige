@@ -32,6 +32,11 @@ All notable project documentation and baseline improvement steps are tracked her
 - Extracted `PageBlockController` inline validation into `StorePageBlockRequest`, `UpdatePageBlockRequest`, `ReorderPageBlockRequest`.
 - Added pattern pagination test. Full suite 634 green, PHPStan 0 errors.
 
+**A3 Polymorphic `page_blocks` (dual-rail) — schema (owner-approved)**
+- Migration `2026_06_30_000001_add_blockable_morph_to_page_blocks_table`: adds nullable `blockable_type`/`blockable_id` + composite index; relaxes `page_id` to nullable; backfills existing rows to `blockable = Page`/`page_id`.
+- `PageBlock::blockable()` morphTo added. Dual-rail: pages keep `page_id`/`hasMany` (Phase 5 builder untouched); ContentEntry blocks (B9) will use the morph with NULL `page_id`.
+- Reversible `down()`; rollback path verified. Full suite 638 green, PHPStan 0 errors.
+
 ## 2026-06-23 — Phase 5: Visual Page Builder
 
 ### Phase 5 Stage A — Foundation Hardening
