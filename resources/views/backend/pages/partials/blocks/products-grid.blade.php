@@ -1,4 +1,4 @@
-<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+﻿<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
     <div>
         <label class="admin-form-label">Filter by Category</label>
         <select name="data[category_id]" class="admin-input">
@@ -33,7 +33,7 @@
             min="3"
             max="12"
         >
-        <p class="mt-1 text-xs text-slate-400">Between 3 and 12.</p>
+        <p class="mt-1 text-xs text-admin-secondary">Between 3 and 12.</p>
     </div>
 
     <div class="flex items-center gap-3 pt-6">
@@ -43,10 +43,10 @@
             id="show_price_{{ $block->id }}"
             name="data[show_price]"
             value="1"
-            class="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+            class="rounded border-admin text-indigo-600 focus:ring-indigo-500"
             @checked($block->data['show_price'] ?? true)
         >
-        <label for="show_price_{{ $block->id }}" class="text-sm font-medium text-slate-700">
+        <label for="show_price_{{ $block->id }}" class="text-sm font-medium text-admin-secondary">
             Show price on product cards
         </label>
     </div>

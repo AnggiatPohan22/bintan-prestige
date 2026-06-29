@@ -1,8 +1,8 @@
-<div class="admin-form-card">
+﻿<div class="admin-form-card">
     <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-            <h1 class="text-2xl font-bold text-slate-800">{{ $title }}</h1>
-            <p class="mt-1 text-sm text-slate-500">Manage reusable frontend FAQ content.</p>
+            <h1 class="text-2xl font-bold text-admin-secondary">{{ $title }}</h1>
+            <p class="mt-1 text-sm text-admin-secondary">Manage reusable frontend FAQ content.</p>
         </div>
         <a href="{{ route('admin.faqs.index') }}" class="admin-btn-secondary">Back</a>
     </div>
@@ -34,9 +34,9 @@
 
         <label class="flex items-center gap-3">
             <input type="checkbox" name="is_active" value="1"
-                class="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                class="rounded border-admin text-indigo-600 focus:ring-indigo-500"
                 @checked(old('is_active', $faq->is_active ?? true))>
-            <span class="text-sm font-semibold text-slate-700">Active</span>
+            <span class="text-sm font-semibold text-admin-secondary">Active</span>
         </label>
 
         <div class="flex items-center gap-3 border-t pt-5">

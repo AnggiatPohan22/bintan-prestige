@@ -1,4 +1,4 @@
-
+﻿
 <div class="admin-page">
 
     <div class="admin-page-header">
@@ -51,13 +51,11 @@
             data-product-accordion
         >
 
-            <summary
-                class="cursor-pointer border-b border-slate-100 bg-slate-50 px-6 py-5"
-            >
-                <span class="block text-lg font-extrabold text-slate-900">
+            <summary class="accordion-summary">
+                <span class="block text-lg font-extrabold text-admin-primary">
                     Basic Information
                 </span>
-                <span class="mt-1 block text-sm leading-6 text-slate-500">
+                <span class="mt-1 block text-sm leading-6 text-admin-secondary">
                     Manage the primary product identity, booking context, and publishing state.
                 </span>
             </summary>
@@ -96,7 +94,7 @@
                                 class="admin-input"
                             >
 
-                            <p class="mt-2 text-xs text-slate-400">
+                            <p class="mt-2 text-xs text-admin-secondary">
                                 Optional. Leave empty to auto-generate from product name.
                             </p>
                         </div>
@@ -157,7 +155,7 @@
                                 class="admin-input {{ $errors->has('whatsapp_number') ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : '' }}"
                             >
 
-                            <p class="mt-2 text-xs text-slate-400">
+                            <p class="mt-2 text-xs text-admin-secondary">
                                 Used for the booking CTA on the product page.
                             </p>
 
@@ -180,7 +178,7 @@
                                 class="admin-input {{ $errors->has('duration') ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : '' }}"
                             >
 
-                            <p class="mt-2 text-xs text-slate-400">
+                            <p class="mt-2 text-xs text-admin-secondary">
                                 Example: 3 hours, Half day, or Full day.
                             </p>
 
@@ -266,14 +264,14 @@
                             </select>
                         </div>
 
-                        <div class="rounded-xl border border-slate-200 p-4 shadow-sm">
+                        <div class="admin-list-item shadow-sm">
                             <div class="flex items-center justify-between gap-4">
                                 <div>
-                                    <h4 class="font-semibold text-slate-700">
+                                    <h4 class="font-semibold text-admin-primary">
                                         Featured Product
                                     </h4>
 
-                                    <p class="text-sm text-slate-500">
+                                    <p class="text-sm text-admin-secondary">
                                         Show on featured section.
                                     </p>
                                 </div>
@@ -293,7 +291,7 @@
                                         {{ old('is_featured', $product->is_featured ?? false) ? 'checked' : '' }}
                                     >
 
-                                    <div class="relative h-6 w-12 rounded-full bg-slate-300
+                                    <div class="relative h-6 w-12 rounded-full bg-admin-surface
                                         peer peer-checked:bg-indigo-600
                                         after:absolute after:left-[2px]
                                         after:top-[2px]
@@ -310,11 +308,11 @@
 
                 <section class="admin-card">
                     <div class="admin-card-header">
-                        <h3 class="text-lg font-extrabold text-slate-900">
+                        <h3 class="text-lg font-extrabold text-admin-primary">
                             Pricing
                         </h3>
 
-                        <p class="mt-1 text-sm leading-6 text-slate-500">
+                        <p class="mt-1 text-sm leading-6 text-admin-secondary">
                             Set product prices for local and international markets.
                         </p>
                     </div>
@@ -336,7 +334,7 @@
                                 placeholder="500000"
                                 class="admin-input {{ $errors->has('idr_price') ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : '' }}">
 
-                            <p class="mt-2 text-xs text-slate-400">
+                            <p class="mt-2 text-xs text-admin-secondary">
                                 Main local market price.
                             </p>
 
@@ -360,7 +358,7 @@
                                 ) }}"
                                 class="admin-input {{ $errors->has('sgd_price') ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : '' }}">
 
-                            <p class="mt-2 text-xs text-slate-400">
+                            <p class="mt-2 text-xs text-admin-secondary">
                                 Singapore/international market price.
                             </p>
 
@@ -375,11 +373,11 @@
                     <div class="admin-card-header">
                         <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                             <div>
-                                <h3 class="text-lg font-extrabold text-slate-900">
+                                <h3 class="text-lg font-extrabold text-admin-primary">
                                     Thumbnail Image
                                 </h3>
 
-                                <p class="mt-1 text-sm leading-6 text-slate-500">
+                                <p class="mt-1 text-sm leading-6 text-admin-secondary">
                                     Used as the main product card image.
                                 </p>
                             </div>
@@ -405,7 +403,7 @@
                                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
 
-                                <div class="mt-3 space-y-1 text-xs leading-5 text-slate-400">
+                                <div class="mt-3 space-y-1 text-xs leading-5 text-admin-secondary">
                                     <p>Recommended size: 1200x800px or larger.</p>
                                     <p>Leave thumbnail empty to auto-use first gallery image.</p>
                                 </div>
@@ -413,21 +411,21 @@
 
                             <div>
                                 @if(isset($product) && $product->thumbnail)
-                                    <div class="rounded-2xl border border-slate-200 bg-slate-50 p-3">
+                                    <div class="rounded-2xl border border-admin bg-admin-card p-3">
                                         <img src="{{ asset('storage/'.$product->thumbnail) }}"
-                                            class="aspect-[3/2] w-full rounded-xl border border-slate-200 object-cover shadow-sm">
+                                            class="aspect-[3/2] w-full rounded-xl border border-admin object-cover shadow-sm">
 
                                         <button
                                             type="submit"
                                             form="delete-product-thumbnail"
-                                            class="mt-3 w-full rounded-lg border border-red-200 px-4 py-2 text-sm font-semibold text-red-600 hover:bg-red-50"
-                                            onclick="return confirm('Remove current thumbnail?')"
+                                            class="mt-3 w-full rounded-lg border border-red-200 px-4 py-2 text-sm font-semibold text-red-600 hover:opacity-75"
+                                            data-confirm="Remove current thumbnail?"
                                         >
                                             Remove Thumbnail
                                         </button>
                                     </div>
                                 @else
-                                    <div class="flex aspect-[3/2] w-full items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-slate-50 text-sm font-semibold text-slate-400">
+                                    <div class="flex aspect-[3/2] w-full items-center justify-center rounded-2xl border border-dashed border-admin bg-admin-card text-sm font-semibold text-admin-secondary">
                                         No thumbnail
                                     </div>
                                 @endif
@@ -440,11 +438,11 @@
                     <div class="admin-card-header">
                         <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                             <div>
-                                <h3 class="text-lg font-extrabold text-slate-900">
+                                <h3 class="text-lg font-extrabold text-admin-primary">
                                     Product Gallery
                                 </h3>
 
-                                <p class="mt-1 text-sm leading-6 text-slate-500">
+                                <p class="mt-1 text-sm leading-6 text-admin-secondary">
                                     Upload supporting images for the product detail page.
                                 </p>
                             </div>
@@ -467,7 +465,7 @@
                                 multiple
                                 class="admin-input">
 
-                            <div class="mt-3 space-y-1 text-xs leading-5 text-slate-400">
+                            <div class="mt-3 space-y-1 text-xs leading-5 text-admin-secondary">
                                 <p>Maximum 10 gallery images.</p>
                                 <p>Recommended format: JPG, PNG, WEBP.</p>
                                 <p>Recommended size: 1200x800px or larger.</p>
@@ -477,7 +475,7 @@
                         @if(isset($product) && $product->images->count())
                             <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
                                 @foreach($product->images as $image)
-                                    <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+                                    <div class="overflow-hidden rounded-2xl border border-admin bg-admin-card shadow-sm">
                                         <img
                                             src="{{ asset(
                                                 'storage/' .
@@ -487,7 +485,7 @@
 
                                         <div class="space-y-3 p-4">
                                             <div>
-                                                <span class="text-xs font-semibold text-slate-400">
+                                                <span class="text-xs font-semibold text-admin-secondary">
                                                     Sort: {{ $image->sort_order ?? 0 }}
                                                 </span>
                                             </div>
@@ -511,7 +509,7 @@
                                                     type="submit"
                                                     form="delete-gallery-image-{{ $image->id }}"
                                                     class="admin-btn-danger w-full px-3 py-2"
-                                                    onclick="return confirm('Delete this gallery image?')"
+                                                    data-confirm="Delete this gallery image?"
                                                 >
                                                     Delete Image
                                                 </button>
@@ -535,7 +533,7 @@
 
         {{-- ACTION BUTTON --}}
         <div
-            class="flex flex-col gap-3 border-t border-slate-100 pt-5 sm:flex-row sm:items-center"
+            class="flex flex-col gap-3 border-t border-admin pt-5 sm:flex-row sm:items-center"
         >
 
             <button
@@ -681,25 +679,25 @@
 
         <div class="admin-card">
             <div class="admin-card-header">
-                <h2 class="text-xl font-extrabold text-slate-900">
+                <h2 class="text-xl font-extrabold text-admin-primary">
                     Product Detail Content
                 </h2>
 
-                <p class="mt-1 text-sm text-slate-500">
+                <p class="mt-1 text-sm text-admin-secondary">
                     Manage highlights, features, FAQs, itineraries, and notes for this product.
                 </p>
             </div>
         </div>
 
         <div class="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
-            <div class="rounded-2xl border border-slate-200 bg-slate-50 p-5">
+            <div class="admin-panel">
                 <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                     <div>
-                        <h3 class="font-semibold text-slate-800">
+                        <h3 class="font-semibold text-admin-primary">
                             Frontend Readiness
                         </h3>
 
-                        <p class="mt-1 text-sm text-slate-500">
+                        <p class="mt-1 text-sm text-admin-secondary">
                             Use this checklist before publishing so the frontend content is complete.
                         </p>
                     </div>
@@ -725,10 +723,10 @@
                     @foreach($contentChecklist as $item)
                         <a
                             href="#{{ $item['target'] }}"
-                            class="flex items-center gap-3 rounded-xl border bg-white p-3 transition hover:-translate-y-0.5 hover:shadow-sm
+                            class="flex items-center gap-3 rounded-xl border bg-admin-card p-3 transition hover:-translate-y-0.5 hover:shadow-sm
                             {{ $item['ready']
-                                ? 'border-emerald-200'
-                                : 'border-amber-200' }}">
+                                ? 'border-emerald-500/40'
+                                : 'border-amber-500/40' }}">
                             <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold
                                 {{ $item['ready']
                                     ? 'bg-emerald-100 text-emerald-700'
@@ -736,7 +734,7 @@
                                 {{ $item['ready'] ? 'OK' : '!' }}
                             </span>
 
-                            <span class="text-sm font-medium text-slate-700">
+                            <span class="text-sm font-medium text-admin-primary">
                                 {{ $item['label'] }}
                             </span>
                         </a>
@@ -744,16 +742,16 @@
                 </div>
             </div>
 
-            <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-                <h3 class="font-semibold text-slate-800">
+            <div class="admin-panel shadow-sm">
+                <h3 class="font-semibold text-admin-primary">
                     Tour Package Structure
                 </h3>
 
-                <div class="mt-4 space-y-2 text-sm text-slate-600">
+                <div class="mt-4 space-y-2 text-sm text-admin-secondary">
                     @foreach($contentChecklist as $item)
                         <div class="flex items-center justify-between gap-3">
                             <span class="flex items-center gap-2">
-                                <span class="h-px w-5 bg-slate-300"></span>
+                                <span class="h-px w-5 bg-white/30"></span>
                                 {{ $item['label'] }}
                             </span>
 
@@ -778,14 +776,14 @@
             >
                 <summary class="accordion-summary">
                     <span>Product Highlights & Features</span>
-                    <span class="text-xs font-medium text-slate-400">
+                    <span class="text-xs font-medium text-admin-secondary">
                         {{ $product->highlights->count() }} highlights /
                         {{ $product->features->count() }} features
                     </span>
                 </summary>
 
                 <div class="card-body">
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                         @include('backend.products.partials.highlights')
                         @include('backend.products.partials.features')
                     </div>
@@ -800,7 +798,7 @@
             >
                 <summary class="accordion-summary">
                     <span>Product FAQs</span>
-                    <span class="text-xs font-medium text-slate-400">
+                    <span class="text-xs font-medium text-admin-secondary">
                         {{ $product->faqs->count() }} FAQ
                     </span>
                 </summary>
@@ -818,14 +816,14 @@
             >
                 <summary class="accordion-summary">
                     <span>Product Itineraries & Notes</span>
-                    <span class="text-xs font-medium text-slate-400">
+                    <span class="text-xs font-medium text-admin-secondary">
                         {{ $product->itineraries->count() }} itineraries /
                         {{ $product->notes->count() }} notes
                     </span>
                 </summary>
 
                 <div class="card-body">
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                         @include('backend.products.partials.itineraries')
                         @include('backend.products.partials.notes')
                     </div>
@@ -854,8 +852,8 @@
 
                     @include('backend.products.partials.search-booking')
 
-                    <div class="flex flex-col gap-3 border-t border-slate-200 pt-5 sm:flex-row sm:items-center sm:justify-between">
-                        <p class="text-sm text-slate-500">
+                    <div class="flex flex-col gap-3 border-t border-admin pt-5 sm:flex-row sm:items-center sm:justify-between">
+                        <p class="text-sm text-admin-secondary">
                             Save these settings separately from the main product information.
                         </p>
 

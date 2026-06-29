@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+﻿@extends('layouts.admin')
 
 @php
     /* Flatten schema → ['--css-var' => currentValue] for Alpine shared state. */
@@ -19,14 +19,14 @@
     <div class="mb-6 flex flex-wrap items-start justify-between gap-4">
         <div>
             <a href="{{ route('admin.themes.index') }}"
-               class="mb-1 inline-flex items-center gap-1 text-xs text-slate-400 hover:text-slate-600">
+               class="mb-1 inline-flex items-center gap-1 text-xs text-admin-secondary hover:text-admin-secondary">
                 <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
                 Back to Themes
             </a>
-            <h1 class="text-lg font-extrabold text-slate-900">
+            <h1 class="text-lg font-extrabold text-admin-secondary">
                 Customize: {{ $theme->name }}
             </h1>
-            <p class="mt-0.5 text-sm text-slate-500">
+            <p class="mt-0.5 text-sm text-admin-secondary">
                 Override design tokens for this theme. Changes preview live on the right before you save.
             </p>
         </div>
@@ -52,13 +52,13 @@
 
         {{-- No schema defined --}}
         <div class="admin-empty-state py-10">
-            <div class="mx-auto mb-4 grid h-14 w-14 place-items-center rounded-2xl bg-slate-100 text-2xl text-slate-400">
+            <div class="mx-auto mb-4 grid h-14 w-14 place-items-center rounded-2xl bg-admin-card text-2xl text-admin-secondary">
                 <i class="fa-solid fa-code" aria-hidden="true"></i>
             </div>
-            <p class="font-semibold text-slate-700">No customizable tokens defined</p>
-            <p class="mt-1 max-w-xs text-center text-sm text-slate-400">
-                Add a <code class="rounded bg-slate-100 px-1 py-0.5 text-xs">customization_schema</code>
-                section to this theme's <code class="rounded bg-slate-100 px-1 py-0.5 text-xs">theme.json</code>
+            <p class="font-semibold text-admin-secondary">No customizable tokens defined</p>
+            <p class="mt-1 max-w-xs text-center text-sm text-admin-secondary">
+                Add a <code class="rounded bg-admin-card px-1 py-0.5 text-xs">customization_schema</code>
+                section to this theme's <code class="rounded bg-admin-card px-1 py-0.5 text-xs">theme.json</code>
                 to expose design tokens here.
             </p>
         </div>
@@ -79,11 +79,11 @@
 
                         {{-- Google Font Picker --}}
                         @if(!empty($fontList))
-                        <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
+                        <div class="rounded-2xl border border-admin bg-admin-card p-5"
                              x-data="googleFontPicker(@js($fontList), @js($overrides['_google_font'] ?? ''))">
 
-                            <h2 class="mb-4 text-xs font-bold uppercase tracking-wider text-slate-500">
-                                Google Font <span class="ml-1 font-normal normal-case text-slate-400">(Body)</span>
+                            <h2 class="mb-4 text-xs font-bold uppercase tracking-wider text-admin-secondary">
+                                Google Font <span class="ml-1 font-normal normal-case text-admin-secondary">(Body)</span>
                             </h2>
 
                             {{-- Search --}}
@@ -110,18 +110,18 @@
                             </select>
 
                             {{-- Live preview --}}
-                            <div class="rounded-lg border border-slate-100 bg-slate-50 px-4 py-3">
-                                <p class="mb-1 text-xs text-slate-400">Preview</p>
+                            <div class="rounded-lg border border-admin/50 bg-admin-card px-4 py-3">
+                                <p class="mb-1 text-xs text-admin-secondary">Preview</p>
                                 <p x-ref="previewText"
-                                   class="text-base text-slate-800 transition-all duration-200">
+                                   class="text-base text-admin-secondary transition-all duration-200">
                                     The quick brown fox jumps over the lazy dog
                                 </p>
                             </div>
 
                             @if(!empty($overrides['_google_font']))
-                                <p class="mt-2 text-xs text-slate-400">
+                                <p class="mt-2 text-xs text-admin-secondary">
                                     Current:
-                                    <span class="font-mono font-medium text-slate-600">
+                                    <span class="font-mono font-medium text-admin-secondary">
                                         {{ $overrides['_google_font'] }}
                                     </span>
                                 </p>
@@ -130,9 +130,9 @@
                         @endif
 
                         @foreach($schema as $groupKey => $group)
-                            <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                            <div class="rounded-2xl border border-admin bg-admin-card p-5">
 
-                                <h2 class="mb-4 text-xs font-bold uppercase tracking-wider text-slate-500">
+                                <h2 class="mb-4 text-xs font-bold uppercase tracking-wider text-admin-secondary">
                                     {{ $group['label'] ?? ucfirst($groupKey) }}
                                 </h2>
 
@@ -144,9 +144,9 @@
                                         @endphp
 
                                         <div>
-                                            <label class="mb-1.5 block text-xs font-medium text-slate-600">
+                                            <label class="mb-1.5 block text-xs font-medium text-admin-secondary">
                                                 {{ $token['label'] ?? $key }}
-                                                <span class="ml-1 font-mono text-xs font-normal text-slate-400">{{ $key }}</span>
+                                                <span class="ml-1 font-mono text-xs font-normal text-admin-secondary">{{ $key }}</span>
                                             </label>
 
                                             @if($type === 'color')
@@ -154,7 +154,7 @@
                                                     <input
                                                         type="color"
                                                         x-model="tokens[@js($key)]"
-                                                        class="h-9 w-9 cursor-pointer rounded-lg border border-slate-200 p-0.5"
+                                                        class="h-9 w-9 cursor-pointer rounded-lg border border-admin p-0.5"
                                                         aria-label="Color picker for {{ $token['label'] ?? $key }}"
                                                     >
                                                     <input
@@ -178,7 +178,7 @@
                                             @endif
 
                                             @if(isset($token['default']))
-                                                <p class="mt-1 text-xs text-slate-400">
+                                                <p class="mt-1 text-xs text-admin-secondary">
                                                     Default: <span class="font-mono">{{ $token['default'] }}</span>
                                                 </p>
                                             @endif
@@ -192,7 +192,7 @@
                     </div>
 
                     {{-- Save / Reset --}}
-                    <div class="mt-5 flex flex-wrap items-center gap-3 border-t border-slate-100 pt-5">
+                    <div class="mt-5 flex flex-wrap items-center gap-3 border-t border-admin/50 pt-5">
                         <button type="submit" class="admin-btn-primary">
                             <i class="fa-solid fa-floppy-disk mr-1.5" aria-hidden="true"></i>
                             Save Customization
@@ -208,7 +208,7 @@
                         <form
                             method="POST"
                             action="{{ route('admin.themes.customization.destroy', $theme) }}"
-                            onsubmit="return confirm('Reset all customization for {{ addslashes($theme->name) }} to schema defaults?')"
+                            data-confirm-submit="Reset all customization for {{ addslashes($theme->name) }} to schema defaults?"
                             class="ml-auto"
                         >
                             @csrf
@@ -229,7 +229,7 @@
 
                     {{-- Preview toolbar --}}
                     <div class="mb-2 flex items-center justify-between gap-3">
-                        <span class="text-xs font-semibold text-slate-500 uppercase tracking-wide">
+                        <span class="text-xs font-semibold text-admin-secondary uppercase tracking-wide">
                             Live Preview
                         </span>
 
@@ -259,27 +259,27 @@
                     <div class="mb-2 flex items-center gap-1">
                         <button type="button"
                                 @click="setViewport('desktop')"
-                                :class="viewport === 'desktop' ? 'bg-slate-800 text-white' : 'bg-white text-slate-500 hover:bg-slate-100'"
-                                class="rounded-lg border border-slate-200 px-2 py-1 text-xs transition"
+                                :class="viewport === 'desktop' ? 'bg-admin-surface text-white' : 'bg-admin-card text-admin-secondary hover:opacity-75'"
+                                class="rounded-lg border border-admin px-2 py-1 text-xs transition"
                                 title="Desktop view">
                             <i class="fa-solid fa-desktop" aria-hidden="true"></i>
                         </button>
                         <button type="button"
                                 @click="setViewport('tablet')"
-                                :class="viewport === 'tablet' ? 'bg-slate-800 text-white' : 'bg-white text-slate-500 hover:bg-slate-100'"
-                                class="rounded-lg border border-slate-200 px-2 py-1 text-xs transition"
+                                :class="viewport === 'tablet' ? 'bg-admin-surface text-white' : 'bg-admin-card text-admin-secondary hover:opacity-75'"
+                                class="rounded-lg border border-admin px-2 py-1 text-xs transition"
                                 title="Tablet view">
                             <i class="fa-solid fa-tablet-screen-button" aria-hidden="true"></i>
                         </button>
                         <button type="button"
                                 @click="setViewport('mobile')"
-                                :class="viewport === 'mobile' ? 'bg-slate-800 text-white' : 'bg-white text-slate-500 hover:bg-slate-100'"
-                                class="rounded-lg border border-slate-200 px-2 py-1 text-xs transition"
+                                :class="viewport === 'mobile' ? 'bg-admin-surface text-white' : 'bg-admin-card text-admin-secondary hover:opacity-75'"
+                                class="rounded-lg border border-admin px-2 py-1 text-xs transition"
                                 title="Mobile view">
                             <i class="fa-solid fa-mobile-screen-button" aria-hidden="true"></i>
                         </button>
 
-                        <span class="ml-auto text-xs text-slate-400" x-show="!previewReady">
+                        <span class="ml-auto text-xs text-admin-secondary" x-show="!previewReady">
                             Loading preview…
                         </span>
                         <span class="ml-auto text-xs text-emerald-600" x-show="previewReady">
@@ -290,13 +290,13 @@
 
                     {{-- Iframe wrapper --}}
                     <div
-                        class="overflow-hidden rounded-2xl border border-slate-200 bg-slate-100 shadow-sm transition-all duration-200"
+                        class="overflow-hidden rounded-2xl border border-admin bg-admin-card transition-all duration-200"
                         :style="viewportStyle"
                     >
                         <iframe
                             id="theme-preview-frame"
                             :src="previewUrl"
-                            class="h-[600px] w-full origin-top-left bg-white transition-all duration-200"
+                            class="h-[600px] w-full origin-top-left bg-admin-card transition-all duration-200"
                             :style="iframeStyle"
                             @load="onPreviewLoad()"
                             title="Theme live preview"
@@ -304,7 +304,7 @@
                         ></iframe>
                     </div>
 
-                    <p class="mt-2 text-xs text-slate-400">
+                    <p class="mt-2 text-xs text-admin-secondary">
                         Changes reflect in the preview as you type. Click <strong>Save</strong> to persist.
                     </p>
                 </div>

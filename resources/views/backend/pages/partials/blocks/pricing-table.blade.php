@@ -1,4 +1,4 @@
-<div class="space-y-4" x-data="pricingTableBlock(@js($block->data['plans'] ?? []))">
+﻿<div class="space-y-4" x-data="pricingTableBlock(@js($block->data['plans'] ?? []))">
     <div>
         <label class="admin-form-label">Section Heading</label>
         <input type="text" name="data[heading]" value="{{ old('data.heading', $block->data['heading'] ?? '') }}" class="admin-input" maxlength="255" placeholder="Choose your package">
@@ -14,7 +14,7 @@
     </div>
 
     <template x-for="(plan, planIndex) in plans" :key="planIndex">
-        <div class="space-y-3 rounded-lg border border-slate-200 p-3">
+        <div class="space-y-3 rounded-lg border border-admin p-3">
             <div class="grid grid-cols-1 gap-3 md:grid-cols-4">
                 <div>
                     <label class="admin-form-label">Plan Name</label>
@@ -59,9 +59,9 @@
             </div>
 
             <div class="flex items-center justify-between gap-3">
-                <label class="flex items-center gap-2 text-sm font-medium text-slate-700">
+                <label class="flex items-center gap-2 text-sm font-medium text-admin-secondary">
                     <input type="hidden" :name="`data[plans][${planIndex}][featured]`" value="0">
-                    <input type="checkbox" :name="`data[plans][${planIndex}][featured]`" value="1" x-model="plan.featured" class="rounded border-slate-300">
+                    <input type="checkbox" :name="`data[plans][${planIndex}][featured]`" value="1" x-model="plan.featured" class="rounded border-admin">
                     Highlight this plan
                 </label>
                 <button type="button" x-on:click="removePlan(planIndex)" class="text-xs text-red-500 hover:underline">Remove Plan</button>
@@ -69,7 +69,7 @@
         </div>
     </template>
 
-    <p x-show="plans.length === 0" class="text-sm text-slate-400">No pricing plans yet.</p>
+    <p x-show="plans.length === 0" class="text-sm text-admin-secondary">No pricing plans yet.</p>
 </div>
 
 <script>

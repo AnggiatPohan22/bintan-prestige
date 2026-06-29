@@ -2,11 +2,11 @@
     <div class="admin-card-header">
         <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
-                <h3 class="text-lg font-extrabold text-slate-900">
+                <h3 class="text-lg font-extrabold text-admin-primary">
                     Product Features
                 </h3>
 
-                <p class="mt-1 text-sm leading-6 text-slate-500">
+                <p class="mt-1 text-sm leading-6 text-admin-secondary">
                     Manage included, excluded, optional, addon, and important product details.
                 </p>
             </div>
@@ -83,10 +83,10 @@
                 @csrf
 
                 <div>
-                    <h4 class="text-base font-extrabold text-slate-900">
+                    <h4 class="text-base font-extrabold text-admin-primary">
                         Add Feature
                     </h4>
-                    <p class="mt-1 text-sm text-slate-500">
+                    <p class="mt-1 text-sm text-admin-secondary">
                         Start with Included and Excluded before adding optional, addon, or important items.
                     </p>
                 </div>
@@ -131,7 +131,7 @@
                 </button>
             </form>
 
-            <div class="my-6 border-t border-slate-200"></div>
+            <div class="my-6 border-t border-admin"></div>
 
             <div class="space-y-5">
                 @foreach($featureTypes as $type => $meta)
@@ -143,20 +143,20 @@
                             && $items->isEmpty();
                     @endphp
 
-                    <div class="rounded-2xl border border-slate-200 bg-white shadow-sm">
-                        <div class="flex flex-col gap-3 border-b border-slate-100 p-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div class="rounded-2xl border border-admin bg-admin-card shadow-sm">
+                        <div class="flex flex-col gap-3 border-b border-admin p-4 sm:flex-row sm:items-center sm:justify-between">
                             <div>
                                 <div class="flex flex-wrap items-center gap-2">
                                     <span class="rounded-full border px-2.5 py-1 text-xs font-semibold {{ $meta['class'] }}">
                                         {{ $meta['label'] }}
                                     </span>
 
-                                    <span class="text-xs font-semibold text-slate-400">
+                                    <span class="text-xs font-semibold text-admin-secondary">
                                         {{ $items->count() }} item(s)
                                     </span>
                                 </div>
 
-                                <p class="mt-2 text-xs text-slate-400">
+                                <p class="mt-2 text-xs text-admin-secondary">
                                     {{ $meta['hint'] }}
                                 </p>
                             </div>
@@ -170,14 +170,14 @@
 
                         <div class="space-y-3 p-4">
                             @forelse($items as $feature)
-                                <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                                <div class="admin-list-item">
                                     <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                                         <div class="min-w-0">
-                                            <p class="font-semibold text-slate-800">
+                                            <p class="font-semibold text-admin-primary">
                                                 {{ $feature->value }}
                                             </p>
 
-                                            <p class="mt-1 text-xs font-semibold text-slate-400">
+                                            <p class="mt-1 text-xs font-semibold text-admin-secondary">
                                                 Sort: {{ $feature->sort_order }}
                                             </p>
                                         </div>
@@ -202,7 +202,7 @@
                                                 <button
                                                     type="submit"
                                                     class="admin-btn-danger w-full sm:w-auto"
-                                                    onclick="return confirm('Delete feature?')"
+                                                    data-confirm="Delete feature?"
                                                 >
                                                     Delete
                                                 </button>
@@ -215,15 +215,15 @@
                                         class="fixed inset-0 z-50 hidden bg-slate-900/50 p-4"
                                         data-modal
                                     >
-                                        <div class="mx-auto mt-16 max-w-lg rounded-2xl bg-white p-6 shadow-2xl">
+                                        <div class="admin-modal-content mx-auto mt-16 max-w-lg">
                                             <div class="mb-5 flex items-center justify-between gap-4">
-                                                <h3 class="text-lg font-bold text-slate-800">
+                                                <h3 class="text-lg font-bold text-admin-primary">
                                                     Edit Feature
                                                 </h3>
 
                                                 <button
                                                     type="button"
-                                                    class="rounded-lg px-3 py-2 text-slate-400 hover:bg-slate-100"
+                                                    class="rounded-lg px-3 py-2 text-admin-secondary hover:opacity-75"
                                                     data-modal-close
                                                 >
                                                     X

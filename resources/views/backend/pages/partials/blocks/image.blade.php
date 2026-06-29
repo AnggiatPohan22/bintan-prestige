@@ -38,7 +38,7 @@
                 Media Library
             </button>
         </div>
-        <p class="mt-1 text-xs text-slate-400">Upload or paste a storage path / URL. Max 5MB.</p>
+        <p class="mt-1 text-xs text-admin-secondary">Upload or paste a storage path / URL. Max 5MB.</p>
         <p x-show="error" x-text="error" class="mt-1 text-xs text-red-500" x-cloak></p>
     </div>
 

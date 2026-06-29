@@ -13,7 +13,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @stack('head')
 </head>
-<body class="h-screen overflow-hidden bg-slate-950 text-slate-200">
+<body class="h-screen overflow-hidden bg-admin-base text-admin-secondary">
 
 @yield('content')
 

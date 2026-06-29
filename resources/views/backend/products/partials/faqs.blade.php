@@ -1,12 +1,12 @@
-<div class="admin-card">
+﻿<div class="admin-card">
     <div class="admin-card-header">
         <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
-                <h3 class="text-lg font-extrabold text-slate-900">
+                <h3 class="text-lg font-extrabold text-admin-primary">
                     Product FAQs
                 </h3>
 
-                <p class="mt-1 text-sm leading-6 text-slate-500">
+                <p class="mt-1 text-sm leading-6 text-admin-secondary">
                     Manage common guest questions for this product.
                 </p>
             </div>
@@ -45,10 +45,10 @@
             @csrf
 
             <div>
-                <h4 class="text-base font-extrabold text-slate-900">
+                <h4 class="text-base font-extrabold text-admin-primary">
                     Add FAQ
                 </h4>
-                <p class="mt-1 text-sm text-slate-500">
+                <p class="mt-1 text-sm text-admin-secondary">
                     Add short answers guests can scan before booking.
                 </p>
             </div>
@@ -97,11 +97,11 @@
         </form>
 
         <div class="my-6 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-            <h3 class="font-semibold text-slate-800">
+            <h3 class="font-semibold text-admin-primary">
                 FAQ List
             </h3>
 
-            <span class="text-xs text-slate-400">
+            <span class="text-xs text-admin-secondary">
                 {{ $product->faqs->count() }} item(s)
             </span>
         </div>
@@ -111,7 +111,7 @@
 
             @forelse($product->faqs as $faq)
 
-            <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+            <div class="rounded-2xl border border-admin bg-admin-card p-4 shadow-sm">
 
                 <div class="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
 
@@ -121,12 +121,12 @@
                                 {{ $faq->sort_order }}
                             </span>
 
-                            <h4 class="font-semibold text-slate-800 leading-snug">
+                            <h4 class="font-semibold text-admin-primary leading-snug">
                                 {{ $faq->question }}
                             </h4>
                         </div>
 
-                        <p class="text-sm text-slate-500 leading-relaxed whitespace-pre-line">
+                        <p class="text-sm text-admin-secondary leading-relaxed whitespace-pre-line">
                             {{ $faq->answer }}
                         </p>
                     </div>
@@ -151,7 +151,7 @@
                             <button
                                 type="submit"
                                 class="admin-btn-danger w-full sm:w-auto"
-                                onclick="return confirm('Delete FAQ?')"
+                                data-confirm="Delete FAQ?"
                             >
                                 Delete
                             </button>
@@ -163,15 +163,15 @@
                         class="fixed inset-0 z-50 hidden bg-slate-900/50 p-4"
                         data-modal
                     >
-                        <div class="mx-auto mt-16 max-w-2xl rounded-2xl bg-white p-6 shadow-2xl">
+                        <div class="mx-auto mt-16 max-w-2xl rounded-2xl bg-admin-card p-6 shadow-2xl">
                             <div class="mb-5 flex items-center justify-between gap-4">
-                                <h3 class="text-lg font-bold text-slate-800">
+                                <h3 class="text-lg font-bold text-admin-primary">
                                     Edit FAQ
                                 </h3>
 
                                 <button
                                     type="button"
-                                    class="rounded-lg px-3 py-2 text-slate-400 hover:bg-slate-100"
+                                    class="rounded-lg px-3 py-2 text-admin-secondary hover:opacity-75"
                                     data-modal-close
                                 >
                                     X

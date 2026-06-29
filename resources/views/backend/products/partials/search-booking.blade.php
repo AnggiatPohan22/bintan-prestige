@@ -1,12 +1,12 @@
-<div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+﻿<div class="grid grid-cols-1 md:grid-cols-2 gap-5">
 
     {{-- Booking Button --}}
     <div class="md:col-span-2">
-        <h3 class="text-lg font-bold text-slate-800">
+        <h3 class="text-lg font-bold text-admin-primary">
             Booking Button
         </h3>
 
-        <p class="text-sm text-slate-500">
+        <p class="text-sm text-admin-secondary">
             Control booking text shown on the product page.
         </p>
     </div>
@@ -55,24 +55,24 @@
 
     {{-- Pickup Information --}}
     <div class="md:col-span-2 pt-5 border-t">
-        <h3 class="text-lg font-bold text-slate-800">
+        <h3 class="text-lg font-bold text-admin-primary">
             Pickup Information
         </h3>
 
-        <p class="text-sm text-slate-500">
+        <p class="text-sm text-admin-secondary">
             Explain pickup availability and pickup rules.
         </p>
     </div>
 
-    <div class="md:col-span-2 rounded-xl border border-slate-200 p-4">
+    <div class="md:col-span-2 rounded-xl border border-admin p-4">
         <div class="flex items-center justify-between">
 
             <div>
-                <h4 class="font-semibold text-slate-700">
+                <h4 class="font-semibold text-admin-secondary">
                     Pickup Available
                 </h4>
 
-                <p class="text-sm text-slate-500">
+                <p class="text-sm text-admin-secondary">
                     Enable if this product supports pickup service.
                 </p>
             </div>
@@ -93,7 +93,7 @@
                     {{ old('pickup_available', $product->pickup_available ?? false) ? 'checked' : '' }}
                 >
 
-                <div class="relative w-12 h-6 bg-slate-300 rounded-full
+                <div class="relative w-12 h-6 bg-admin-surface rounded-full
                     peer peer-checked:bg-indigo-600
                     after:content-['']
                     after:absolute after:left-[2px]
@@ -138,11 +138,11 @@
 
     {{-- Google / Social Preview --}}
     <div class="md:col-span-2 pt-5 border-t">
-        <h3 class="text-lg font-bold text-slate-800">
+        <h3 class="text-lg font-bold text-admin-primary">
             Google / Social Preview
         </h3>
 
-        <p class="text-sm text-slate-500">
+        <p class="text-sm text-admin-secondary">
             Optional settings for Google search and link sharing.
         </p>
     </div>

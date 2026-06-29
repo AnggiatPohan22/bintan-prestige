@@ -54,7 +54,7 @@
         pageTitle: {{ Js::from($page->title) }},
     })"
     x-on:media-picker-selected.window="onMediaPicked($event.detail)"
-    class="flex h-screen flex-col bg-slate-950"
+    class="flex h-screen flex-col bg-admin-card"
 >
 
     @include('backend.builder.partials.topbar')

@@ -8,7 +8,7 @@
             class="admin-input"
             placeholder="https://www.google.com/maps/embed?..."
         >
-        <p class="mt-1 text-xs text-slate-400">
+        <p class="mt-1 text-xs text-admin-secondary">
             In Google Maps: Share → Embed a map → Copy the src URL from the iframe code.
         </p>
     </div>
@@ -34,6 +34,6 @@
             min="1"
             max="20"
         >
-        <p class="mt-1 text-xs text-slate-400">1 (world) to 20 (building). Default: 14.</p>
+        <p class="mt-1 text-xs text-admin-secondary">1 (world) to 20 (building). Default: 14.</p>
     </div>
 </div>

@@ -1,4 +1,4 @@
-{{--
+﻿{{--
     Shared background options partial — include at the bottom of every block form.
     Reads/writes: data[background][color|image|position|repeat|size|opacity]
 --}}
@@ -13,7 +13,7 @@
 @endphp
 
 <div
-    class="border-t border-slate-100 pt-4"
+    class="border-t border-admin pt-4"
     x-data="{
         bgOpen: false,
         bgImage: '{{ $bgImage }}',
@@ -46,13 +46,13 @@
     <button
         type="button"
         x-on:click="bgOpen = !bgOpen"
-        class="flex w-full items-center justify-between py-2 text-sm font-semibold text-slate-600"
+        class="flex w-full items-center justify-between py-2 text-sm font-semibold text-admin-secondary"
     >
         <span>
-            <i class="fa-solid fa-palette mr-1 text-slate-400"></i>
+            <i class="fa-solid fa-palette mr-1 text-admin-secondary"></i>
             Background & Styling
         </span>
-        <i class="fa-solid fa-chevron-down text-xs text-slate-400 transition-transform" :class="bgOpen ? 'rotate-180' : ''"></i>
+        <i class="fa-solid fa-chevron-down text-xs text-admin-secondary transition-transform" :class="bgOpen ? 'rotate-180' : ''"></i>
     </button>
 
     <div x-show="bgOpen" x-cloak class="mt-3 grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -65,7 +65,7 @@
                     type="color"
                     name="data[background][color]"
                     value="{{ $bgColor ?: '#ffffff' }}"
-                    class="h-10 w-14 cursor-pointer rounded border border-slate-300 p-0.5"
+                    class="h-10 w-14 cursor-pointer rounded border border-admin p-0.5"
                 >
                 <input
                     type="text"
@@ -89,7 +89,7 @@
                         type="button"
                         title="{{ $name }}"
                         onclick="this.closest('[x-data]').querySelectorAll('input[name=\'data[background][color]\']').forEach(el => el.value = '{{ $hex }}')"
-                        class="h-6 w-6 rounded-full border border-slate-300 shadow-sm"
+                        class="h-6 w-6 rounded-full border border-admin shadow-sm"
                         style="background-color: {{ $hex }}"
                     ></button>
                 @endforeach

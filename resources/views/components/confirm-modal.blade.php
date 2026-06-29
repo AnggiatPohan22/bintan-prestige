@@ -1,43 +1,45 @@
 <div
     id="confirmModal"
-    class="hidden fixed inset-0 z-50
-    bg-black/40 backdrop-blur-sm
-    flex items-center justify-center"
+    class="admin-modal-overlay hidden"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="confirmModalTitle"
 >
+    <div class="admin-modal-panel max-w-md">
 
-    <div class="bg-white rounded-3xl w-full max-w-md p-6 shadow-2xl">
+        <div class="admin-modal-header">
+            <div class="flex items-center gap-3">
+                <div id="confirmModalIcon"
+                     class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-red-100 text-red-600">
+                    <i class="fa-solid fa-trash text-sm"></i>
+                </div>
+                <h3 id="confirmModalTitle" class="text-base font-bold text-admin-primary">
+                    Konfirmasi Hapus
+                </h3>
+            </div>
+        </div>
 
-        <h3 class="text-xl font-bold text-slate-800">
-            Confirm Update
-        </h3>
+        <div class="admin-modal-body">
+            <p id="confirmText" class="text-sm text-admin-secondary leading-relaxed"></p>
+        </div>
 
-        <p
-            id="confirmText"
-            class="text-slate-500 mt-2"
-        >
-        </p>
-
-        <div class="flex justify-end gap-3 mt-6">
-
+        <div class="admin-modal-footer">
             <button
+                type="button"
                 onclick="closeConfirmModal()"
-                class="px-5 py-2 rounded-xl border
-                hover:bg-slate-100"
+                class="admin-btn-secondary"
             >
-                Cancel
+                Batal
             </button>
-
             <button
+                type="button"
                 id="confirmYesBtn"
-                class="px-5 py-2 rounded-xl
-                bg-emerald-600 text-white
-                hover:bg-emerald-700 shadow-md"
+                class="admin-btn-danger"
             >
-                Yes, Update
+                <i class="fa-solid fa-trash mr-1.5 text-xs"></i>
+                <span id="confirmYesLabel">Hapus</span>
             </button>
-
         </div>
 
     </div>
-
 </div>

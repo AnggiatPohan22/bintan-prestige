@@ -1,4 +1,4 @@
-{{--
+﻿{{--
     A single menu item row in the editor tree.
     Vars: $item (MenuItem), $typeMeta (array), $isChild (bool), $menu (from parent scope).
 --}}
@@ -9,24 +9,24 @@
 <div class="flex items-center gap-2 {{ $isChild ? 'px-2.5 py-1.5' : 'px-3 py-2.5' }}">
     {{-- Drag handle --}}
     <button type="button" data-handle
-            class="cursor-grab text-slate-300 hover:text-slate-500 active:cursor-grabbing" title="Drag to reorder">
+            class="cursor-grab text-admin-secondary hover:text-admin-secondary active:cursor-grabbing" title="Drag to reorder">
         <i class="fa-solid fa-grip-vertical"></i>
     </button>
 
     {{-- Type icon --}}
-    <span class="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-slate-100 text-slate-500">
+    <span class="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-admin-card text-admin-secondary">
         <i class="fa-solid {{ $meta['icon'] }} text-xs"></i>
     </span>
 
     {{-- Label + resolved URL --}}
     <div class="min-w-0 flex-1">
-        <p class="truncate text-sm font-semibold text-slate-700">
+        <p class="truncate text-sm font-semibold text-admin-secondary">
             {{ $item->label }}
             @unless($item->is_active)
-                <span class="ml-1 rounded bg-slate-200 px-1.5 py-0.5 text-[10px] font-medium text-slate-500">Hidden</span>
+                <span class="ml-1 rounded bg-admin-card px-1.5 py-0.5 text-[10px] font-medium text-admin-secondary">Hidden</span>
             @endunless
         </p>
-        <p class="truncate text-xs text-slate-400">
+        <p class="truncate text-xs text-admin-secondary">
             <span class="font-mono">{{ $meta['label'] }}</span>
             <span class="mx-1">·</span>{{ $item->resolveUrl() }}
             @if($item->target === '_blank')<i class="fa-solid fa-arrow-up-right-from-square ml-1 text-[10px]"></i>@endif
@@ -45,13 +45,13 @@
                     newTab: {{ $item->target === '_blank' ? 'true' : 'false' }},
                     parentId: '{{ $item->parent_id }}'
                 })"
-                class="grid h-8 w-8 place-items-center rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-700" title="Edit">
+                class="grid h-8 w-8 place-items-center rounded-lg text-admin-secondary hover:opacity-75" title="Edit">
             <i class="fa-solid fa-pen text-xs"></i>
         </button>
 
         <form method="POST" action="{{ route('admin.menu-items.toggle-active', [$menu, $item]) }}">
             @csrf
-            <button type="submit" class="grid h-8 w-8 place-items-center rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+            <button type="submit" class="grid h-8 w-8 place-items-center rounded-lg text-admin-secondary hover:opacity-75"
                     title="{{ $item->is_active ? 'Hide' : 'Show' }}">
                 <i class="fa-solid {{ $item->is_active ? 'fa-eye' : 'fa-eye-slash' }} text-xs"></i>
             </button>
@@ -59,7 +59,7 @@
 
         <form method="POST" action="{{ route('admin.menu-items.destroy', [$menu, $item]) }}">
             @csrf @method('DELETE')
-            <button type="submit" onclick="return confirm('Delete “{{ $item->label }}”{{ $item->children->isNotEmpty() ? ' and its dropdown items' : '' }}?')"
+            <button type=”submit” data-confirm=”Hapus &quot;{{ $item->label }}&quot;{{ $item->children->isNotEmpty() ? ' dan semua dropdown-nya' : '' }}?”
                     class="grid h-8 w-8 place-items-center rounded-lg text-red-400 hover:bg-red-50 hover:text-red-600" title="Delete">
                 <i class="fa-solid fa-trash text-xs"></i>
             </button>

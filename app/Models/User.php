@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name', 'email', 'password'])]
+#[Fillable(['name', 'email', 'password', 'ui_mode'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -24,6 +24,18 @@ class User extends Authenticatable
     public const ADMIN_ROLES = [
         self::ROLE_SUPER_ADMIN,
         self::ROLE_ADMIN,
+    ];
+
+    public const UI_MODE_AUTO  = 'auto';
+
+    public const UI_MODE_DARK  = 'dark';
+
+    public const UI_MODE_LIGHT = 'light';
+
+    public const UI_MODES = [
+        self::UI_MODE_AUTO,
+        self::UI_MODE_DARK,
+        self::UI_MODE_LIGHT,
     ];
 
     /**

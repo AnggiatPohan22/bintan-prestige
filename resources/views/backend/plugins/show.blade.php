@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+﻿@extends('layouts.admin')
 
 @section('content')
 <div class="admin-page">
@@ -7,10 +7,10 @@
     <div class="admin-page-header">
         <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div>
-                <div class="mb-1 flex items-center gap-2 text-sm text-slate-400">
-                    <a href="{{ route('admin.plugins.index') }}" class="hover:text-slate-600">Plugins</a>
+                <div class="mb-1 flex items-center gap-2 text-sm text-admin-secondary">
+                    <a href="{{ route('admin.plugins.index') }}" class="hover:text-admin-secondary">Plugins</a>
                     <i class="fa-solid fa-chevron-right text-xs" aria-hidden="true"></i>
-                    <span class="text-slate-600">{{ $plugin->name }}</span>
+                    <span class="text-admin-secondary">{{ $plugin->name }}</span>
                 </div>
                 <h1 class="admin-page-title">{{ $plugin->name }}</h1>
                 @if($plugin->description)
@@ -39,9 +39,9 @@
                             class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
                             x-cloak x-show="open" x-transition.opacity
                         >
-                            <div class="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl" x-on:click.outside="open = false">
-                                <h3 class="mb-2 text-base font-bold text-slate-900">Deactivate Plugin</h3>
-                                <p class="mb-5 text-sm text-slate-500">
+                            <div class="w-full max-w-sm rounded-2xl bg-admin-card p-6 shadow-xl" x-on:click.outside="open = false">
+                                <h3 class="mb-2 text-base font-bold text-admin-secondary">Deactivate Plugin</h3>
+                                <p class="mb-5 text-sm text-admin-secondary">
                                     Deactivate <strong>{{ $plugin->name }}</strong>? Its functionality will be disabled immediately.
                                 </p>
                                 <div class="flex justify-end gap-2">
@@ -58,7 +58,7 @@
                         </div>
                     </div>
                 @else
-                    <span class="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1 text-sm font-semibold text-slate-500">
+                    <span class="inline-flex items-center gap-1.5 rounded-full bg-admin-card px-3 py-1 text-sm font-semibold text-admin-secondary">
                         <i class="fa-solid fa-circle text-[6px]" aria-hidden="true"></i>
                         Inactive
                     </span>
@@ -95,30 +95,30 @@
         {{-- Plugin info --}}
         <div class="admin-card">
             <div class="admin-card-header">
-                <h2 class="font-bold text-slate-900">Plugin Information</h2>
+                <h2 class="font-bold text-admin-secondary">Plugin Information</h2>
             </div>
             <div class="admin-card-body divide-y divide-slate-100">
                 <div class="flex justify-between py-2.5 text-sm">
-                    <span class="text-slate-500">Slug</span>
-                    <code class="rounded bg-slate-100 px-1.5 py-0.5 text-xs text-slate-700">{{ $plugin->slug }}</code>
+                    <span class="text-admin-secondary">Slug</span>
+                    <code class="rounded bg-admin-card px-1.5 py-0.5 text-xs text-admin-secondary">{{ $plugin->slug }}</code>
                 </div>
                 <div class="flex justify-between py-2.5 text-sm">
-                    <span class="text-slate-500">Version</span>
-                    <span class="font-medium text-slate-800">{{ $plugin->version }}</span>
+                    <span class="text-admin-secondary">Version</span>
+                    <span class="font-medium text-admin-secondary">{{ $plugin->version }}</span>
                 </div>
                 @if($plugin->author)
                     <div class="flex justify-between py-2.5 text-sm">
-                        <span class="text-slate-500">Author</span>
-                        <span class="font-medium text-slate-800">{{ $plugin->author }}</span>
+                        <span class="text-admin-secondary">Author</span>
+                        <span class="font-medium text-admin-secondary">{{ $plugin->author }}</span>
                     </div>
                 @endif
                 <div class="flex justify-between py-2.5 text-sm">
-                    <span class="text-slate-500">Installed</span>
-                    <span class="text-slate-700">{{ $plugin->installed_at?->format('d M Y, H:i') ?? '—' }}</span>
+                    <span class="text-admin-secondary">Installed</span>
+                    <span class="text-admin-secondary">{{ $plugin->installed_at?->format('d M Y, H:i') ?? '—' }}</span>
                 </div>
                 <div class="flex justify-between py-2.5 text-sm">
-                    <span class="text-slate-500">Last Activated</span>
-                    <span class="text-slate-700">{{ $plugin->activated_at?->format('d M Y, H:i') ?? '—' }}</span>
+                    <span class="text-admin-secondary">Last Activated</span>
+                    <span class="text-admin-secondary">{{ $plugin->activated_at?->format('d M Y, H:i') ?? '—' }}</span>
                 </div>
             </div>
         </div>
@@ -126,16 +126,16 @@
         {{-- Manifest details --}}
         <div class="admin-card">
             <div class="admin-card-header">
-                <h2 class="font-bold text-slate-900">Manifest</h2>
+                <h2 class="font-bold text-admin-secondary">Manifest</h2>
             </div>
             <div class="admin-card-body">
                 @if($manifest)
                     @if(!empty($manifest['requires']))
                         <div class="mb-3">
-                            <p class="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-400">Requires</p>
+                            <p class="mb-1 text-xs font-semibold uppercase tracking-wide text-admin-secondary">Requires</p>
                             <div class="flex flex-wrap gap-1.5">
                                 @foreach($manifest['requires'] as $dep)
-                                    <span class="rounded bg-slate-100 px-2 py-0.5 text-xs text-slate-600">{{ $dep }}</span>
+                                    <span class="rounded bg-admin-card px-2 py-0.5 text-xs text-admin-secondary">{{ $dep }}</span>
                                 @endforeach
                             </div>
                         </div>
@@ -143,21 +143,21 @@
 
                     @if(!empty($manifest['min_cms_version']))
                         <div class="mb-3">
-                            <p class="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-400">Min CMS Version</p>
-                            <span class="text-sm text-slate-700">{{ $manifest['min_cms_version'] }}</span>
+                            <p class="mb-1 text-xs font-semibold uppercase tracking-wide text-admin-secondary">Min CMS Version</p>
+                            <span class="text-sm text-admin-secondary">{{ $manifest['min_cms_version'] }}</span>
                         </div>
                     @endif
 
                     <div>
-                        <p class="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-400">Service Provider</p>
-                        <code class="block rounded bg-slate-50 border border-slate-200 px-3 py-2 text-xs text-slate-600 break-all">
+                        <p class="mb-1 text-xs font-semibold uppercase tracking-wide text-admin-secondary">Service Provider</p>
+                        <code class="block rounded bg-admin-card border border-admin px-3 py-2 text-xs text-admin-secondary break-all">
                             {{ $manifest['service_provider'] ?? '—' }}
                         </code>
                     </div>
                 @else
-                    <p class="text-sm text-slate-400">
+                    <p class="text-sm text-admin-secondary">
                         <i class="fa-solid fa-triangle-exclamation mr-1 text-amber-400" aria-hidden="true"></i>
-                        No <code class="rounded bg-slate-100 px-1 text-xs">plugin.json</code> found on disk for this plugin.
+                        No <code class="rounded bg-admin-card px-1 text-xs">plugin.json</code> found on disk for this plugin.
                         The plugin is registered in the database but its files may have been removed.
                     </p>
                 @endif
@@ -168,10 +168,10 @@
         @if($plugin->config)
             <div class="admin-card lg:col-span-2">
                 <div class="admin-card-header">
-                    <h2 class="font-bold text-slate-900">Stored Configuration</h2>
+                    <h2 class="font-bold text-admin-secondary">Stored Configuration</h2>
                 </div>
                 <div class="admin-card-body">
-                    <pre class="overflow-x-auto rounded-lg bg-slate-50 border border-slate-200 p-4 text-xs text-slate-600">{{ json_encode($plugin->config, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) }}</pre>
+                    <pre class="overflow-x-auto rounded-lg bg-admin-card border border-admin p-4 text-xs text-admin-secondary">{{ json_encode($plugin->config, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) }}</pre>
                 </div>
             </div>
         @endif

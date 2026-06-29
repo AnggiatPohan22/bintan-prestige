@@ -2,11 +2,11 @@
     <div class="admin-card-header">
         <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
-                <h3 class="text-lg font-extrabold text-slate-900">
+                <h3 class="text-lg font-extrabold text-admin-primary">
                     Product Highlights
                 </h3>
 
-                <p class="mt-1 text-sm leading-6 text-slate-500">
+                <p class="mt-1 text-sm leading-6 text-admin-secondary">
                     Add short selling points shown on the product detail page.
                 </p>
             </div>
@@ -44,10 +44,10 @@
             @csrf
 
             <div>
-                <h4 class="text-base font-extrabold text-slate-900">
+                <h4 class="text-base font-extrabold text-admin-primary">
                     Add Highlight
                 </h4>
-                <p class="mt-1 text-sm text-slate-500">
+                <p class="mt-1 text-sm text-admin-secondary">
                     Keep each highlight concise and action-oriented.
                 </p>
             </div>
@@ -72,11 +72,11 @@
                     class="admin-input flex items-center justify-between"
                 >
                     <span class="flex items-center gap-3">
-                        <i id="selectedIcon" class="fa-solid fa-car text-slate-600"></i>
+                        <i id="selectedIcon" class="fa-solid fa-car text-admin-secondary"></i>
                         <span id="selectedIconText">Choose icon</span>
                     </span>
 
-                    <span class="text-slate-400">▼</span>
+                    <span class="text-admin-secondary">▼</span>
                 </button>
 
                 <input type="hidden" name="icon" id="iconInput">
@@ -84,7 +84,7 @@
                 <div
                     id="iconDropdown"
                     class="hidden absolute left-0 z-50 mt-2 w-[min(92vw,360px)]
-                    rounded-2xl border border-slate-200 bg-white p-4 shadow-2xl"
+                    rounded-2xl border border-admin bg-admin-card p-4 shadow-2xl"
                 >
                     <input
                         type="text"
@@ -115,12 +115,12 @@
             </button>
         </form>
 
-        <div class="my-6 border-t border-slate-200"></div>
+        <div class="my-6 border-t border-admin"></div>
 
         <div class="grid grid-cols-1 gap-4">
             @forelse($product->highlights as $highlight)
 
-                <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                <div class="admin-list-item shadow-sm">
                     <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
 
                         <div class="flex min-w-0 gap-3">
@@ -133,11 +133,11 @@
                             </div>
 
                             <div class="min-w-0">
-                                <p class="font-semibold text-slate-800">
+                                <p class="font-semibold text-admin-primary">
                                     {{ $highlight->title }}
                                 </p>
 
-                                <p class="mt-1 text-xs font-semibold text-slate-400">
+                                <p class="mt-1 text-xs font-semibold text-admin-secondary">
                                     Sort: {{ $highlight->sort_order }}
                                 </p>
                             </div>
@@ -163,7 +163,7 @@
                                 <button
                                     type="submit"
                                     class="admin-btn-danger w-full sm:w-auto"
-                                    onclick="return confirm('Delete highlight?')"
+                                    data-confirm="Delete highlight?"
                                 >
                                     Delete
                                 </button>
@@ -175,15 +175,15 @@
                             class="fixed inset-0 z-50 hidden bg-slate-900/50 p-4"
                             data-modal
                         >
-                        <div class="mx-auto mt-16 max-w-lg rounded-2xl bg-white p-6 shadow-2xl">
+                        <div class="admin-modal-content mx-auto mt-16 max-w-lg">
                             <div class="mb-5 flex items-center justify-between gap-4">
-                                <h3 class="text-lg font-bold text-slate-800">
+                                <h3 class="text-lg font-bold text-admin-primary">
                                     Edit Highlight
                                 </h3>
 
                                 <button
                                     type="button"
-                                    class="rounded-lg px-3 py-2 text-slate-400 hover:bg-slate-100"
+                                    class="rounded-lg px-3 py-2 text-admin-secondary hover:opacity-75"
                                     data-modal-close
                                 >
                                     X
@@ -313,7 +313,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 item.type = 'button';
                 item.className =
-                    'h-11 w-11 flex items-center justify-center rounded-xl border border-slate-200 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500';
+                    'h-11 w-11 flex items-center justify-center rounded-xl border border-admin bg-admin-card hover:opacity-75 focus:outline-none focus:ring-2 focus:ring-indigo-500';
 
                 item.innerHTML =
                     `<i class="fa-solid ${icon} text-lg"></i>`;

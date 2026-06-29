@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+﻿@extends('layouts.admin')
 
 @section('content')
 
@@ -6,11 +6,11 @@
 
     <div class="mb-6">
         <a href="{{ route('admin.themes.widgets.index', $theme) }}"
-           class="mb-1 inline-flex items-center gap-1 text-xs text-slate-400 hover:text-slate-600">
+           class="mb-1 inline-flex items-center gap-1 text-xs text-admin-secondary hover:text-admin-secondary">
             <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
             Back to Widgets
         </a>
-        <h1 class="text-lg font-extrabold text-slate-900">Add Widget — {{ $theme->name }}</h1>
+        <h1 class="text-lg font-extrabold text-admin-secondary">Add Widget — {{ $theme->name }}</h1>
     </div>
 
     <form
@@ -30,7 +30,7 @@
             </div>
         @endif
 
-        <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm space-y-5">
+        <div class="rounded-2xl border border-admin bg-admin-card p-6 shadow-sm space-y-5">
 
             {{-- Widget Area --}}
             <div>
@@ -61,7 +61,7 @@
                 <input id="title" name="title" type="text" value="{{ old('title') }}"
                        class="admin-input w-full" placeholder="e.g. Footer About Text"
                        maxlength="255">
-                <p class="mt-1 text-xs text-slate-400">Optional label to identify this widget in the admin.</p>
+                <p class="mt-1 text-xs text-admin-secondary">Optional label to identify this widget in the admin.</p>
             </div>
 
             {{-- Sort Order --}}
@@ -71,11 +71,11 @@
                        class="admin-input w-32" min="0">
             </div>
 
-            <hr class="border-slate-100">
+            <hr class="border-admin">
 
             {{-- TEXT fields --}}
             <div x-show="type === 'text'" x-cloak>
-                <p class="mb-3 text-xs font-semibold uppercase tracking-wider text-slate-400">Text Widget</p>
+                <p class="mb-3 text-xs font-semibold uppercase tracking-wider text-admin-secondary">Text Widget</p>
                 <div class="space-y-4">
                     <div>
                         <label class="admin-label">Heading</label>
@@ -86,14 +86,14 @@
                         <label class="admin-label">Content</label>
                         <textarea name="data[content]" rows="6" class="admin-input w-full font-mono text-sm"
                                   placeholder="HTML or plain text content">{{ old('data.content') }}</textarea>
-                        <p class="mt-1 text-xs text-slate-400">HTML is supported.</p>
+                        <p class="mt-1 text-xs text-admin-secondary">HTML is supported.</p>
                     </div>
                 </div>
             </div>
 
             {{-- HTML fields --}}
             <div x-show="type === 'html'" x-cloak>
-                <p class="mb-3 text-xs font-semibold uppercase tracking-wider text-slate-400">HTML Widget</p>
+                <p class="mb-3 text-xs font-semibold uppercase tracking-wider text-admin-secondary">HTML Widget</p>
                 <div>
                     <label class="admin-label">HTML Code</label>
                     <textarea name="data[code]" rows="8" class="admin-input w-full font-mono text-sm"
@@ -103,7 +103,7 @@
 
             {{-- IMAGE fields --}}
             <div x-show="type === 'image'" x-cloak>
-                <p class="mb-3 text-xs font-semibold uppercase tracking-wider text-slate-400">Image Widget</p>
+                <p class="mb-3 text-xs font-semibold uppercase tracking-wider text-admin-secondary">Image Widget</p>
                 <div class="space-y-4">
                     <div>
                         <label class="admin-label">Image URL <span class="text-red-500">*</span></label>
@@ -130,7 +130,7 @@
 
             {{-- NAVIGATION fields --}}
             <div x-show="type === 'navigation'" x-cloak x-data="navLinks({{ json_encode([]) }})">
-                <p class="mb-3 text-xs font-semibold uppercase tracking-wider text-slate-400">Navigation Widget</p>
+                <p class="mb-3 text-xs font-semibold uppercase tracking-wider text-admin-secondary">Navigation Widget</p>
                 <div class="space-y-4">
                     <div>
                         <label class="admin-label">Heading</label>

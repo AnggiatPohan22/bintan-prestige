@@ -14,6 +14,7 @@ class DatabaseSeeder extends Seeder
             FaqSeeder::class,
             MenuSeeder::class,
             PageTemplateSeeder::class,
+            AdminDashboardAppearanceSeeder::class,
         ]);
     }
 }

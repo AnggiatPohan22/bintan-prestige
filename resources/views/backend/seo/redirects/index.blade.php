@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+﻿@extends('layouts.admin')
 
 @section('content')
 <div class="admin-page">
@@ -27,8 +27,8 @@
         <x-slot:tbody>
             @forelse($redirects as $redirect)
                 <tr class="admin-table-row">
-                    <td class="px-4 py-4 font-mono text-sm text-slate-700">{{ $redirect->from_url }}</td>
-                    <td class="max-w-xs truncate px-4 py-4 font-mono text-sm text-slate-500">{{ $redirect->to_url }}</td>
+                    <td class="px-4 py-4 font-mono text-sm text-admin-secondary">{{ $redirect->from_url }}</td>
+                    <td class="max-w-xs truncate px-4 py-4 font-mono text-sm text-admin-secondary">{{ $redirect->to_url }}</td>
                     <td class="px-4 py-4">
                         <span class="admin-badge-{{ $redirect->status_code === 301 ? 'info' : 'warning' }}">
                             {{ $redirect->status_code }}
@@ -41,13 +41,13 @@
                             <span class="admin-badge-warning">Inactive</span>
                         @endif
                     </td>
-                    <td class="px-4 py-4 text-xs text-slate-400">{{ $redirect->updated_at->format('d M Y') }}</td>
+                    <td class="px-4 py-4 text-xs text-admin-secondary">{{ $redirect->updated_at->format('d M Y') }}</td>
                     <td class="px-4 py-4">
                         <div class="flex justify-end gap-2">
                             <a href="{{ route('admin.seo.redirects.edit', $redirect) }}" class="admin-btn-soft px-3 py-2 text-xs">
                                 Edit
                             </a>
-                            <form method="POST" action="{{ route('admin.seo.redirects.destroy', $redirect) }}" onsubmit="return confirm('Delete this redirect?')">
+                            <form method="POST" action="{{ route('admin.seo.redirects.destroy', $redirect) }}" data-confirm-submit="Delete this redirect?">
                                 @csrf @method('DELETE')
                                 <button type="submit" class="admin-btn-danger px-3 py-2 text-xs">Delete</button>
                             </form>

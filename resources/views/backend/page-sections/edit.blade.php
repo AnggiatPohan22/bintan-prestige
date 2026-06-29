@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+﻿@extends('layouts.admin')
 
 @section('content')
 
@@ -35,8 +35,8 @@
             @method('PUT')
 
             <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
-            <div><label class="admin-form-label">Page key</label><input type="text" value="{{ $pageSection->page_key }}" disabled class="admin-input bg-slate-100"></div>
-            <div><label class="admin-form-label">Section key</label><input type="text" value="{{ $pageSection->section_key }}" disabled class="admin-input bg-slate-100"></div>
+            <div><label class="admin-form-label">Page key</label><input type="text" value="{{ $pageSection->page_key }}" disabled class="admin-input bg-admin-card"></div>
+            <div><label class="admin-form-label">Section key</label><input type="text" value="{{ $pageSection->section_key }}" disabled class="admin-input bg-admin-card"></div>
             <div><label class="admin-form-label">Label</label><input type="text" name="label" value="{{ old('label', $pageSection->label) }}" class="admin-input"></div>
             <div><label class="admin-form-label">Title</label><input type="text" name="title" value="{{ old('title', $pageSection->title) }}" class="admin-input"></div>
             <div class="md:col-span-2"><label class="admin-form-label">Subtitle</label><input type="text" name="subtitle" value="{{ old('subtitle', $pageSection->subtitle) }}" class="admin-input"></div>
@@ -54,8 +54,8 @@
 
             @if(count($mediaSlots))
                 <div class="md:col-span-2">
-                    <h2 class="text-lg font-bold text-slate-800">Section image slots</h2>
-                    <p class="mt-1 text-sm text-slate-500">Upload sesuai posisi gambar di layout section ini.</p>
+                    <h2 class="text-lg font-bold text-admin-secondary">Section image slots</h2>
+                    <p class="mt-1 text-sm text-admin-secondary">Upload sesuai posisi gambar di layout section ini.</p>
                     @unless($supportsMediaDisplayOptions ?? false)
                         <div class="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
                             Image size and position controls need the latest migration. Run <span class="font-semibold">php artisan migrate</span> to enable them.
@@ -71,14 +71,14 @@
                                 $slotFit = old("slot_object_fits.{$slot['role']}.{$slot['slot_key']}", $slotMedia?->resolved_object_fit ?? 'cover');
                                 $slotPosition = old("slot_object_positions.{$slot['role']}.{$slot['slot_key']}", $slotMedia?->resolved_object_position ?? 'center center');
                             @endphp
-                            <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                            <div class="rounded-xl border border-admin bg-admin-card p-4">
                                 <label class="admin-form-label">{{ $slot['label'] }}</label>
                                 <input type="file" name="{{ $slotInputName }}" accept="image/jpeg,image/png,image/webp" class="admin-input">
-                                <p class="mt-2 text-xs text-slate-500">{{ $slot['hint'] ?? 'Leave empty to keep current image.' }}</p>
+                                <p class="mt-2 text-xs text-admin-secondary">{{ $slot['hint'] ?? 'Leave empty to keep current image.' }}</p>
                                 @if($slotMedia?->url)
-                                    <img src="{{ $slotMedia->url }}" alt="{{ $slotMedia->alt }}" class="mt-3 h-32 w-full rounded-lg border bg-white" style="{{ $slotMedia->image_style }}">
+                                    <img src="{{ $slotMedia->url }}" alt="{{ $slotMedia->alt }}" class="mt-3 h-32 w-full rounded-lg border bg-admin-card" style="{{ $slotMedia->image_style }}">
                                 @else
-                                    <div class="mt-3 flex h-32 items-center justify-center rounded-lg border border-dashed bg-white text-xs font-bold uppercase text-slate-400">No image</div>
+                                    <div class="mt-3 flex h-32 items-center justify-center rounded-lg border border-dashed bg-admin-card text-xs font-bold uppercase text-admin-secondary">No image</div>
                                 @endif
                                 @if($supportsMediaDisplayOptions ?? false)
                                     <div class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -89,7 +89,7 @@
                                                     <option value="{{ $value }}" @selected($slotFit === $value)>{{ $label }}</option>
                                                 @endforeach
                                             </select>
-                                            <p class="mt-2 text-xs text-slate-500">Controls how the image fills its frame.</p>
+                                            <p class="mt-2 text-xs text-admin-secondary">Controls how the image fills its frame.</p>
                                         </div>
                                         <div>
                                             <label class="admin-form-label">Image position</label>
@@ -98,7 +98,7 @@
                                                     <option value="{{ $value }}" @selected($slotPosition === $value)>{{ $label }}</option>
                                                 @endforeach
                                             </select>
-                                            <p class="mt-2 text-xs text-slate-500">Controls which part stays visible when cropped.</p>
+                                            <p class="mt-2 text-xs text-admin-secondary">Controls which part stays visible when cropped.</p>
                                         </div>
                                     </div>
                                 @endif
@@ -113,19 +113,19 @@
                 <div>
                     <label class="admin-form-label">Legacy image upload</label>
                     <input type="file" name="image" accept="image/jpeg,image/png,image/webp" class="admin-input">
-                    <p class="mt-2 text-xs text-slate-400">Fallback lama. Leave empty to keep current image.</p>
+                    <p class="mt-2 text-xs text-admin-secondary">Fallback lama. Leave empty to keep current image.</p>
                     @if($pageSection->image_url)<img src="{{ $pageSection->image_url }}" alt="{{ $pageSection->title }}" class="mt-3 h-32 w-full rounded-lg border object-cover">@endif
                 </div>
                 <div>
                     <label class="admin-form-label">Legacy mobile image upload</label>
                     <input type="file" name="mobile_image" accept="image/jpeg,image/png,image/webp" class="admin-input">
-                    <p class="mt-2 text-xs text-slate-400">Fallback lama. Leave empty to keep current image.</p>
+                    <p class="mt-2 text-xs text-admin-secondary">Fallback lama. Leave empty to keep current image.</p>
                     @if($pageSection->mobile_image_url)<img src="{{ $pageSection->mobile_image_url }}" alt="{{ $pageSection->title }}" class="mt-3 h-32 w-full rounded-lg border object-cover">@endif
                 </div>
             @else
-                <div class="md:col-span-2 rounded-xl border border-slate-200 bg-slate-50 p-4">
-                    <h2 class="text-sm font-bold text-slate-800">No section image upload for this layout</h2>
-                    <p class="mt-2 text-sm text-slate-500">Frontend for this section does not render a dedicated page-section image. It may use product, category, testimonial avatar, footer, or global placeholder media instead.</p>
+                <div class="md:col-span-2 rounded-xl border border-admin bg-admin-card p-4">
+                    <h2 class="text-sm font-bold text-admin-secondary">No section image upload for this layout</h2>
+                    <p class="mt-2 text-sm text-admin-secondary">Frontend for this section does not render a dedicated page-section image. It may use product, category, testimonial avatar, footer, or global placeholder media instead.</p>
                 </div>
             @endif
 
@@ -138,7 +138,7 @@
                 <div class="md:col-span-2">
                     <label class="admin-form-label">Section gallery images</label>
                     <input type="file" name="media_uploads[]" accept="image/jpeg,image/png,image/webp" multiple class="admin-input" @disabled($remainingSlots === 0)>
-                    <p class="mt-2 text-xs text-slate-400">Upload up to {{ \App\Models\PageSection::MEDIA_LIMIT }} images. Remaining slots: {{ $remainingSlots }}.</p>
+                    <p class="mt-2 text-xs text-admin-secondary">Upload up to {{ \App\Models\PageSection::MEDIA_LIMIT }} images. Remaining slots: {{ $remainingSlots }}.</p>
                     @error('media_uploads') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
                     @error('media_uploads.*') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
                 </div>
@@ -154,9 +154,9 @@
             </div>
             <div><label class="admin-form-label">Sort order</label><input type="number" name="sort_order" min="0" value="{{ old('sort_order', $pageSection->sort_order) }}" class="admin-input"></div>
             <div class="md:col-span-2"><label class="admin-form-label">Extra data JSON</label><textarea name="extra_data" rows="6" class="admin-textarea">{{ $extraData }}</textarea></div>
-            <label class="flex items-center gap-3"><input type="checkbox" name="is_active" value="1" @checked(old('is_active', $pageSection->is_active))><span class="text-sm font-semibold text-slate-700">Active</span></label>
+            <label class="flex items-center gap-3"><input type="checkbox" name="is_active" value="1" @checked(old('is_active', $pageSection->is_active))><span class="text-sm font-semibold text-admin-secondary">Active</span></label>
             </div>
-            <div class="flex flex-col gap-3 border-t border-slate-100 pt-5 sm:flex-row sm:items-center">
+            <div class="flex flex-col gap-3 border-t border-admin pt-5 sm:flex-row sm:items-center">
                 <button type="submit" class="admin-btn-primary w-full sm:w-auto">Save Section</button>
                 <a href="{{ route('admin.page-sections.index') }}" class="admin-btn-secondary w-full sm:w-auto">Cancel</a>
             </div>
@@ -166,21 +166,21 @@
     @if($pageSection->media->count())
         <div class="admin-card">
             <div class="admin-card-header">
-                <h2 class="text-lg font-extrabold text-slate-900">Stored Section Media</h2>
+                <h2 class="text-lg font-extrabold text-admin-secondary">Stored Section Media</h2>
             </div>
 
             <div class="admin-card-body">
                 <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4">
                     @foreach($pageSection->media as $media)
-                        <div class="rounded-xl border bg-white p-3 shadow-sm">
+                        <div class="rounded-xl border bg-admin-card p-3 shadow-sm">
                             <img src="{{ $media->url }}" alt="{{ $media->alt }}" class="h-32 w-full rounded-lg object-cover">
-                            <div class="mt-2 text-xs font-semibold text-slate-500">
+                            <div class="mt-2 text-xs font-semibold text-admin-secondary">
                                 {{ $media->label ?: ucwords(str_replace('_', ' ', $media->slot_key)) }}
                             </div>
-                            <div class="mt-1 text-[11px] uppercase text-slate-400">
+                            <div class="mt-1 text-[11px] uppercase text-admin-secondary">
                                 {{ $media->role }} / {{ $media->slot_key }}
                             </div>
-                            <form method="POST" action="{{ route('admin.page-sections.media.destroy', $media) }}" class="mt-3">@csrf @method('DELETE')<button type="submit" onclick="return confirm('Delete this section image?')" class="w-full rounded-lg border border-red-200 px-3 py-2 text-xs font-semibold text-red-600 hover:bg-red-50">Delete Image</button></form>
+                            <form method="POST" action="{{ route('admin.page-sections.media.destroy', $media) }}" class="mt-3">@csrf @method('DELETE')<button type="submit" data-confirm="Delete this section image?" class="w-full rounded-lg border border-red-200 px-3 py-2 text-xs font-semibold text-red-600 hover:bg-red-50">Delete Image</button></form>
                         </div>
                     @endforeach
                 </div>

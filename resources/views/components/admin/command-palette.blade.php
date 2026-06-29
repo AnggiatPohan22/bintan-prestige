@@ -48,14 +48,14 @@ $commands = [
 
         {{-- Panel --}}
         <div
-            class="relative z-10 w-full max-w-xl overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl shadow-slate-900/20"
+            class="relative z-10 w-full max-w-xl overflow-hidden rounded-2xl border border-admin bg-admin-card shadow-2xl shadow-slate-900/20"
         >
             {{-- Search input --}}
-            <div class="flex items-center gap-3 border-b border-slate-100 px-4 py-3">
-                <i class="fa-solid fa-magnifying-glass text-slate-400" aria-hidden="true"></i>
+            <div class="flex items-center gap-3 border-b border-admin px-4 py-3">
+                <i class="fa-solid fa-magnifying-glass text-admin-secondary" aria-hidden="true"></i>
                 <input
                     type="text"
-                    class="flex-1 border-0 bg-transparent p-0 text-sm font-semibold text-slate-700 placeholder:text-slate-400 focus:ring-0 focus:outline-none"
+                    class="flex-1 border-0 bg-transparent p-0 text-sm font-semibold text-admin-primary placeholder:text-admin-secondary focus:ring-0 focus:outline-none"
                     placeholder="Search admin pages..."
                     x-ref="searchInput"
                     x-model="query"
@@ -64,43 +64,43 @@ $commands = [
                     x-on:keydown.arrow-up.prevent="moveUp()"
                     x-on:keydown.enter.prevent="go()"
                 >
-                <kbd class="rounded-lg border border-slate-200 bg-slate-100 px-2 py-1 text-[10px] font-black uppercase text-slate-400">Esc</kbd>
+                <kbd class="rounded-lg border border-admin bg-admin-card px-2 py-1 text-[10px] font-black uppercase text-admin-secondary">Esc</kbd>
             </div>
 
             {{-- Results --}}
             <div class="max-h-80 overflow-y-auto py-2" x-ref="results">
                 <template x-if="results.length === 0">
-                    <p class="px-5 py-4 text-sm text-slate-400">No results for "<span x-text="query"></span>"</p>
+                    <p class="px-5 py-4 text-sm text-admin-secondary">No results for "<span x-text="query"></span>"</p>
                 </template>
 
                 <template x-for="(item, index) in results" :key="item.url">
                     <a
                         :href="item.url"
                         class="flex items-center gap-3 px-4 py-2.5 text-sm transition"
-                        :class="index === cursor ? 'bg-indigo-50 text-indigo-700' : 'text-slate-700 hover:bg-slate-50'"
+                        :class="index === cursor ? 'bg-admin-surface text-admin-primary' : 'text-admin-primary hover:bg-admin-card'"
                         x-on:mouseenter="cursor = index"
                         x-on:click="close()"
                     >
                         <span
                             class="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-xs"
-                            :class="index === cursor ? 'bg-indigo-100 text-indigo-600' : 'bg-slate-100 text-slate-500'"
+                            :class="index === cursor ? 'bg-admin-surface text-admin-secondary' : 'bg-admin-card text-admin-secondary'"
                         >
                             <i :class="'fa-solid ' + item.icon" aria-hidden="true"></i>
                         </span>
                         <span>
                             <span class="font-semibold" x-text="item.label"></span>
-                            <span class="ml-2 text-xs text-slate-400" x-text="item.group"></span>
+                            <span class="ml-2 text-xs text-admin-secondary" x-text="item.group"></span>
                         </span>
                     </a>
                 </template>
             </div>
 
             {{-- Footer hint --}}
-            <div class="flex items-center gap-4 border-t border-slate-100 px-4 py-2.5 text-[11px] font-semibold text-slate-400">
-                <span><kbd class="rounded bg-slate-100 px-1.5 py-0.5 font-mono">↑↓</kbd> navigate</span>
-                <span><kbd class="rounded bg-slate-100 px-1.5 py-0.5 font-mono">↵</kbd> go</span>
-                <span><kbd class="rounded bg-slate-100 px-1.5 py-0.5 font-mono">Esc</kbd> close</span>
-                <span class="ml-auto"><kbd class="rounded bg-slate-100 px-1.5 py-0.5 font-mono">Ctrl K</kbd> open</span>
+            <div class="flex items-center gap-4 border-t border-admin px-4 py-2.5 text-[11px] font-semibold text-admin-secondary">
+                <span><kbd class="rounded bg-admin-card px-1.5 py-0.5 font-mono">↑↓</kbd> navigate</span>
+                <span><kbd class="rounded bg-admin-card px-1.5 py-0.5 font-mono">↵</kbd> go</span>
+                <span><kbd class="rounded bg-admin-card px-1.5 py-0.5 font-mono">Esc</kbd> close</span>
+                <span class="ml-auto"><kbd class="rounded bg-admin-card px-1.5 py-0.5 font-mono">Ctrl K</kbd> open</span>
             </div>
         </div>
     </div>

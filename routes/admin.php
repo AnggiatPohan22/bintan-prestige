@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\AnalyticsDashboardController;
+use App\Http\Controllers\Admin\DashboardAppearanceController;
 use App\Http\Controllers\Admin\AuditLogController;
 use App\Http\Controllers\Admin\BuilderPatternController;
 use App\Http\Controllers\Admin\BuilderTemplateController;
@@ -27,6 +28,7 @@ use App\Http\Controllers\Admin\ProductNoteController;
 use App\Http\Controllers\Admin\RedirectController;
 use App\Http\Controllers\Admin\SeoRobotsController;
 use App\Http\Controllers\Admin\SiteSettingController;
+use App\Http\Controllers\Admin\UiModeController;
 use App\Http\Controllers\Admin\ThemeController;
 use App\Http\Controllers\Admin\UserManagementController;
 use App\Http\Controllers\Admin\WidgetController;
@@ -143,6 +145,31 @@ Route::middleware(['auth', 'admin'])
 
         Route::put('settings/global-assets/structured-data', [SiteSettingController::class, 'updateStructuredDataSettings'])
             ->name('settings.global-assets.structured-data.update');
+
+        /*
+        |--------------------------------------------------------------------------
+        | Dashboard Appearance — Customize Dashboard (superadmin only)
+        |--------------------------------------------------------------------------
+        */
+        Route::middleware('can:manage-users')
+            ->prefix('settings/appearance')
+            ->name('settings.appearance.')
+            ->group(function () {
+                Route::get('/', [DashboardAppearanceController::class, 'index'])
+                    ->name('index');
+                Route::post('/', [DashboardAppearanceController::class, 'update'])
+                    ->name('update');
+                Route::post('/palette', [DashboardAppearanceController::class, 'savePalette'])
+                    ->name('palette.save');
+                Route::post('/brand', [DashboardAppearanceController::class, 'saveBrand'])
+                    ->name('brand.save');
+                Route::post('/reset', [DashboardAppearanceController::class, 'reset'])
+                    ->name('reset');
+            });
+
+        // Per-user UI mode toggle — available to every authenticated admin user.
+        Route::post('settings/ui-mode', [UiModeController::class, 'update'])
+            ->name('settings.ui-mode.update');
 
         Route::get('page-sections', [PageSectionController::class, 'index'])
             ->name('page-sections.index');

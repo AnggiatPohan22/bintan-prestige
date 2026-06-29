@@ -14,7 +14,7 @@
     </div>
 
     <template x-for="(item, index) in items" :key="index">
-        <div class="grid grid-cols-1 gap-3 rounded-lg border border-slate-200 p-3 md:grid-cols-12">
+        <div class="grid grid-cols-1 gap-3 rounded-lg border border-admin p-3 md:grid-cols-12">
             <div class="md:col-span-2">
                 <label class="admin-form-label">Marker</label>
                 <input type="text" :name="`data[items][${index}][marker]`" x-model="item.marker" class="admin-input" maxlength="50" placeholder="Day 1">
@@ -33,7 +33,7 @@
         </div>
     </template>
 
-    <p x-show="items.length === 0" class="text-sm text-slate-400">No itinerary steps yet.</p>
+    <p x-show="items.length === 0" class="text-sm text-admin-secondary">No itinerary steps yet.</p>
 </div>
 
 <script>

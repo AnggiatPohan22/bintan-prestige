@@ -1,4 +1,4 @@
-<div
+﻿<div
     class="grid grid-cols-1 gap-4 md:grid-cols-2"
     x-data="imageUploader(@js(old('data.image', $block->data['image'] ?? '')), 'hero-image-{{ $block->id }}')"
     x-on:media-picker-selected.window="selectMedia($event.detail)"
@@ -43,7 +43,7 @@
                 Media Library
             </button>
         </div>
-        <p class="mt-1 text-xs text-slate-400">Upload or paste a storage path / URL. Max 5MB. JPG, PNG, WebP.</p>
+        <p class="mt-1 text-xs text-admin-secondary">Upload or paste a storage path / URL. Max 5MB. JPG, PNG, WebP.</p>
         <p x-show="error" x-text="error" class="mt-1 text-xs text-red-500" x-cloak></p>
     </div>
 
@@ -62,13 +62,13 @@
         <button
             type="button"
             x-on:click="heroStyleOpen = !heroStyleOpen"
-            class="flex w-full items-center justify-between py-2 text-sm font-semibold text-slate-600"
+            class="flex w-full items-center justify-between py-2 text-sm font-semibold text-admin-secondary"
         >
-            <span><i class="fa-solid fa-sliders mr-1 text-slate-400"></i> Hero Styling</span>
-            <i class="fa-solid fa-chevron-down text-xs text-slate-400 transition-transform" :class="heroStyleOpen ? 'rotate-180' : ''"></i>
+            <span><i class="fa-solid fa-sliders mr-1 text-admin-secondary"></i> Hero Styling</span>
+            <i class="fa-solid fa-chevron-down text-xs text-admin-secondary transition-transform" :class="heroStyleOpen ? 'rotate-180' : ''"></i>
         </button>
 
-        <div x-show="heroStyleOpen" x-cloak class="mt-3 grid grid-cols-1 gap-4 rounded-xl border border-slate-100 bg-slate-50 p-4 md:grid-cols-2">
+        <div x-show="heroStyleOpen" x-cloak class="mt-3 grid grid-cols-1 gap-4 rounded-xl border border-admin bg-admin-card p-4 md:grid-cols-2">
 
             {{-- Background Color --}}
             <div>
@@ -78,7 +78,7 @@
                         type="color"
                         name="data[background_color]"
                         value="{{ $block->data['background_color'] ?? '#0f0f0f' }}"
-                        class="h-10 w-14 cursor-pointer rounded border border-slate-300 p-0.5"
+                        class="h-10 w-14 cursor-pointer rounded border border-admin p-0.5"
                     >
                     <input
                         type="text"
@@ -94,7 +94,7 @@
                             type="button"
                             title="{{ $name }}"
                             onclick="this.closest('[x-data]').querySelectorAll('input[name=\'data[background_color]\']').forEach(el => el.value = '{{ $hex }}')"
-                            class="h-6 w-6 rounded-full border border-slate-300 shadow-sm"
+                            class="h-6 w-6 rounded-full border border-admin shadow-sm"
                             style="background-color: {{ $hex }}"
                         ></button>
                     @endforeach
@@ -126,7 +126,7 @@
                     class="w-full accent-indigo-500"
                     oninput="document.getElementById('hero-overlay-label-{{ $block->id }}').textContent = this.value + '%'"
                 >
-                <p class="mt-1 text-xs text-slate-400">Controls how dark the gradient overlay is over the image.</p>
+                <p class="mt-1 text-xs text-admin-secondary">Controls how dark the gradient overlay is over the image.</p>
             </div>
 
             {{-- Overlay Gradient Toggle --}}
@@ -137,12 +137,12 @@
                         type="checkbox"
                         name="data[has_overlay]"
                         value="1"
-                        class="rounded border-slate-300"
+                        class="rounded border-admin"
                         @checked(filter_var($block->data['has_overlay'] ?? true, FILTER_VALIDATE_BOOLEAN))
                     >
-                    <span class="text-sm font-medium text-slate-700">Enable gradient overlay</span>
+                    <span class="text-sm font-medium text-admin-secondary">Enable gradient overlay</span>
                 </label>
-                <p class="text-xs text-slate-400">Adds a dark gradient so text stays readable over bright images.</p>
+                <p class="text-xs text-admin-secondary">Adds a dark gradient so text stays readable over bright images.</p>
             </div>
 
         </div>

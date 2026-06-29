@@ -1,4 +1,4 @@
-<div
+﻿<div
     x-data="{
         open: false,
         target: null,
@@ -18,12 +18,12 @@
     x-on:keydown.escape.window="open = false; target = null"
 >
     <div x-show="open" x-cloak class="fixed inset-0 z-[70]" style="display:none">
-        <button type="button" class="absolute inset-0 bg-slate-950/50" aria-label="Close media picker"
+        <button type="button" class="absolute inset-0 bg-admin-card/50" aria-label="Close media picker"
                 x-on:click="open = false; target = null"></button>
 
-        <div class="absolute inset-4 overflow-hidden rounded-2xl bg-white shadow-2xl md:inset-10">
-            <div class="flex items-center justify-between border-b border-slate-200 px-4 py-3">
-                <h2 class="font-bold text-slate-900">Choose from Media Library</h2>
+        <div class="absolute inset-4 overflow-hidden rounded-2xl bg-admin-card shadow-2xl md:inset-10">
+            <div class="flex items-center justify-between border-b border-admin px-4 py-3">
+                <h2 class="font-bold text-admin-secondary">Choose from Media Library</h2>
                 <button type="button" class="admin-btn-secondary px-3 py-1.5 text-xs"
                         x-on:click="open = false; target = null">Close</button>
             </div>
