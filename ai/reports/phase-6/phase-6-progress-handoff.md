@@ -287,8 +287,10 @@ Both respect the block registry, `BuilderTreeSanitizer`, and the 20:60:20 shell.
 | TD-05 | DB query in Blade | `frontend/blocks/contact-form.blade.php:3` | ✅ DONE — moved `FormDefinition::find()` to `PageRenderData::prepareContactFormBlocks()` (A1) | A1 |
 | — | Patterns API unpaginated | `BuilderPatternController@index` | `paginate(20)` | A2 |
 | — | Inline validate in controller | `PageBlockController` | Extract to FormRequest | A2 |
-| TD-06 | **Pre-existing baseline RED** (from `4c6cd6d` brand-identity merge, NOT Phase 6): 3 PHPStan errors in `AdminDashboardAppearance.php` (return.type, new.static) + `AdminAppearanceService.php` (booleanAnd.rightAlwaysTrue) | `app/Models/AdminDashboardAppearance.php`, `app/Services/AdminAppearanceService.php` | Fix to restore PHPStan 0-error gate | ⚠️ NEW — flagged at A1, needs clearing |
-| TD-07 | **Pre-existing test failure** (baseline, NOT Phase 6): `PageBlockManagementTest::test_block_editor_exposes_phase_two_controls_media_preview_and_accessible_save_delete_states` fails on clean `develop` | `tests/Feature/Admin/PageBlockManagementTest.php:443` | Diagnose + fix to restore green suite | ⚠️ NEW — flagged at A1 |
+| TD-06 | Pre-existing baseline RED (from `4c6cd6d` brand-identity merge, NOT Phase 6): 3 PHPStan errors in `AdminDashboardAppearance.php` (return.type, new.static) + `AdminAppearanceService.php` (booleanAnd.rightAlwaysTrue) | `app/Models/AdminDashboardAppearance.php`, `app/Services/AdminAppearanceService.php` | ✅ DONE — `static`→`self` (model getCurrent/makeDefault), dropped redundant `is_array` guard (service). PHPStan 0 errors restored. | A1+ |
+| TD-07 | Pre-existing test failure (baseline, NOT Phase 6): `PageBlockManagementTest::…accessible_save_delete_states` asserted inline block-delete copy removed by the refactor | `tests/Feature/Admin/PageBlockManagementTest.php:443` | ✅ DONE — test updated to assert the new per-block `data-confirm` confirmation + `aria-label="Delete …"` (Command Center Dark UX). Suite 627 green. | A1+ |
+
+> Note: block-delete confirmation copy is **Indonesian** (`data-confirm="Hapus block …"`) while the sibling page-delete confirmation right above it is English. Minor EN/ID copy inconsistency introduced by the brand-identity refactor — left as-is (user-facing copy = owner's call), flagged here for a future polish pass.
 
 ---
 

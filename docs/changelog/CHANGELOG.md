@@ -17,6 +17,11 @@ All notable project documentation and baseline improvement steps are tracked her
 - Added `tests/Feature/Phase6/A1DebtClearingTest.php` (6 tests). Zero new PHPStan errors; zero new test failures.
 - Flagged pre-existing baseline regressions from the `4c6cd6d` brand-identity merge (3 PHPStan errors + 1 failing admin test) as TD-06 / TD-07 — not introduced by Phase 6.
 
+**A1+ Baseline Fix — TD-06 + TD-07** (clear pre-existing RED before A2)
+- TD-06: `AdminDashboardAppearance` `static`→`self` (`getCurrent`/`makeDefault`); removed redundant `is_array` guard in `AdminAppearanceService::toCssVars`. PHPStan restored to 0 errors.
+- TD-07: updated `PageBlockManagementTest` block delete-state assertions to the new `data-confirm` confirmation + `aria-label="Delete …"` markup (Command Center Dark refactor). Full suite 627/627 green.
+- Hard gate restored: PHPStan level 5 / 0 errors, suite green.
+
 ## 2026-06-23 — Phase 5: Visual Page Builder
 
 ### Phase 5 Stage A — Foundation Hardening
