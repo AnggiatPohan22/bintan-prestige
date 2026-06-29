@@ -37,6 +37,13 @@ All notable project documentation and baseline improvement steps are tracked her
 - `PageBlock::blockable()` morphTo added. Dual-rail: pages keep `page_id`/`hasMany` (Phase 5 builder untouched); ContentEntry blocks (B9) will use the morph with NULL `page_id`.
 - Reversible `down()`; rollback path verified. Full suite 638 green, PHPStan 0 errors.
 
+**A4 Field Type Catalog (`config/field-types.php`) — Milestone 1 complete**
+- Created `config/field-types.php`: 18 field types across 6 categories (basic, choice, date_time, media, relational, advanced). Each entry declares label, icon, category, description, cast, is_filterable, sanitizer, settings_schema, validation_rules, admin_partial, render_partial.
+- Created `app/Support/FieldTypeRegistry::all()/keys()/get()/exists()/filterable()` — config-cached thin wrapper (mirrors `PageTemplateRegistry` pattern).
+- Created `ai/skills/field-types-skill.md` (authoring pattern + registry API reference; Sync Matrix §12 requirement for A4).
+- Added `tests/Feature/Phase6/A4FieldTypesCatalogTest.php` (4 tests, 351 assertions, 0 DB queries).
+- **Milestone 1 COMPLETE** (A0–A4): architecture locked, debt cleared, field catalog scaffolded. Full suite 642 green, PHPStan 0 errors.
+
 ## 2026-06-23 — Phase 5: Visual Page Builder
 
 ### Phase 5 Stage A — Foundation Hardening

@@ -42,7 +42,7 @@ Legend: `⏳ TODO` · `🔨 IN PROGRESS` · `✅ DONE` · `⛔ BLOCKED` · `⚠�
 | A1 | Carry-over debt: TD-04, TD-05 | ✅ DONE | — | a1-debt-clearing-td04-td05.md |
 | A2 | Carry-over debt: pagination + FormRequest | ✅ DONE | — | a2-pagination-formrequest.md |
 | A3 | Polymorphic `page_blocks` (§3.2 = A, dual-rail) | ✅ DONE | ⚠️ schema — APPROVED 2026-06-30 | a3-polymorphic-page-blocks.md |
-| A4 | `config/field-types.php` catalog scaffold | ⏳ TODO | — | — |
+| A4 | `config/field-types.php` catalog scaffold | ✅ DONE | — | a4-field-types-catalog.md |
 
 ### Stage B — Build the Engine
 
@@ -222,7 +222,7 @@ content_entry_relations  source_entry_id, target_entry_id, field_key, sort_order
 
 ```
 Config:
-  config/field-types.php                         (A4)
+  config/field-types.php                         ✅ A4 — 18 types, read via FieldTypeRegistry
 
 Migrations:                                       (per task, post-approval)
 Models:        app/Models/ContentType.php, FieldGroup.php, Field.php,
