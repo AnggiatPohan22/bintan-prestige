@@ -80,6 +80,14 @@ class ContentTypeController extends Controller
     public function forceDelete(int $id)
     {
         $contentType = ContentType::onlyTrashed()->findOrFail($id);
+
+        // RESTRICT at DB level — enforce at app level for a clear error message.
+        if ($contentType->entries()->withTrashed()->exists()) {
+            return redirect()
+                ->route('admin.content-types.index')
+                ->with('error', "Cannot permanently delete \"{$contentType->label_plural}\" — it still has content entries. Delete all entries first.");
+        }
+
         $label = $contentType->label_plural;
         $contentType->forceDelete();
 

@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\AnalyticsDashboardController;
 use App\Http\Controllers\Admin\DashboardAppearanceController;
 use App\Http\Controllers\Admin\AuditLogController;
 use App\Http\Controllers\Admin\BuilderPatternController;
+use App\Http\Controllers\Admin\ContentEntryController;
 use App\Http\Controllers\Admin\ContentTypeController;
 use App\Http\Controllers\Admin\FieldController;
 use App\Http\Controllers\Admin\FieldGroupController;
@@ -293,6 +294,24 @@ Route::middleware(['auth', 'admin'])
 
         Route::delete('content-types/{id}/force-delete', [ContentTypeController::class, 'forceDelete'])
             ->name('content-types.force-delete');
+
+        /*
+        |--------------------------------------------------------------------------
+        | Content Entries (nested under Content Types)
+        |--------------------------------------------------------------------------
+        */
+        Route::prefix('content-types/{content_type}/entries')
+            ->name('content-types.entries.')
+            ->group(function () {
+                Route::get('/', [ContentEntryController::class, 'index'])->name('index');
+                Route::get('/create', [ContentEntryController::class, 'create'])->name('create');
+                Route::post('/', [ContentEntryController::class, 'store'])->name('store');
+                Route::get('/{entry}/edit', [ContentEntryController::class, 'edit'])->name('edit');
+                Route::put('/{entry}', [ContentEntryController::class, 'update'])->name('update');
+                Route::delete('/{entry}', [ContentEntryController::class, 'destroy'])->name('destroy');
+                Route::patch('/{id}/restore', [ContentEntryController::class, 'restore'])->name('restore');
+                Route::delete('/{id}/force-delete', [ContentEntryController::class, 'forceDelete'])->name('force-delete');
+            });
 
         /*
         |--------------------------------------------------------------------------

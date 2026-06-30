@@ -44,6 +44,12 @@ class ContentType extends Model
         'menu_position' => 'integer',
     ];
 
+    /** @return HasMany<ContentEntry, $this> */
+    public function entries(): HasMany
+    {
+        return $this->hasMany(ContentEntry::class);
+    }
+
     /** @return HasMany<FieldGroup, $this> */
     public function fieldGroups(): HasMany
     {

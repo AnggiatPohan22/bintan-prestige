@@ -91,6 +91,10 @@
 
                     <td class="px-4 py-4">
                         <div class="flex flex-col justify-end gap-2 sm:flex-row">
+                            <a href="{{ route('admin.content-types.entries.index', $type) }}"
+                               class="admin-btn-primary px-4 py-2">
+                                Entries
+                            </a>
                             <a href="{{ route('admin.content-types.field-groups.index', $type) }}"
                                class="admin-btn-soft px-4 py-2">
                                 Fields
