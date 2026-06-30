@@ -142,14 +142,15 @@ Flexible Content Modeling — custom content types, field groups, fields, and en
 - A3: Polymorphic `page_blocks` (dual-rail morph: `blockable_type` / `blockable_id`) — schema approved, migrated.
 - A4: `config/field-types.php` catalog (18 types) + `FieldTypeRegistry` static wrapper.
 
-**Stage B — Build the Engine — M2 COMPLETE (B1–B4) 🔨**
+**Stage B — Build the Engine — M2 COMPLETE (B1–B5) 🔨**
 - B1 ✅: `content_types` table + full admin CRUD (slug auto-gen, reserved-prefix guard, soft delete).
 - B2 ✅: `field_groups` + `fields` tables + nested CRUD (compound unique key per scope, is_filterable inherits catalog, dual ownership check, reorder endpoints).
 - B3 ✅: Field rendering engine — `<x-admin.field-input>` Blade component dispatches to 18 type partials. Media types use Alpine.js + hidden inputs.
 - B4 ✅: `content_entries` table (FK RESTRICT, varchar status not ENUM, compound unique slug per type, author SET NULL, JSON data + seo) + admin CRUD. ContentType forceDelete guarded. B2+B3+B4 form integration complete.
-- B5–B13: ⏳ TODO (per-field validation, sidecar index, taxonomies, relationships, builder bridge, frontend routing).
+- B5 ✅: `FieldValidationResolver` (no schema) — resolves dynamic `data.*` rules per ContentType: placeholder substitution from `$field->settings`, `is_required` toggle, special handling for gallery/checkbox/relationship (wildcard `.*` rules) + datetime normalisation. Integrated into Store + Update FormRequests.
+- B6–B14: ⏳ TODO (sidecar index, taxonomies, relationships, Phase 4 wiring, builder bridge, frontend routing).
 
-Test suite: 701/701 pass | PHPStan level 5: 0 errors (as of 2026-07-01 after B4).
+Test suite: 715/715 pass | PHPStan level 5: 0 errors (as of 2026-07-01 after B5).
 Grand plan + progress: `ai/reports/phase-6/phase-6-progress-handoff.md`
 
 **Phase 7 — FUTURE**

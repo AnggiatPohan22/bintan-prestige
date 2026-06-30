@@ -14,9 +14,10 @@
 > approval owner eksplisit** (AGENTS.md §9) — fase ini hampir seluruhnya schema
 > work, jadi approval gate sering by design.
 >
-> **Last updated:** 2026-07-01 — M2 Authoring (B1–B4) complete. B1 content types,
-> B2 field groups+fields, B3 rendering engine, B4 content entries — semua DONE.
-> Test suite: 701/701 green. PHPStan level 5: 0 errors. Next: B5 per-field validation.
+> **Last updated:** 2026-07-01 — B5 (Per-Field Validation Resolver) complete.
+> B1 content types, B2 field groups+fields, B3 rendering engine, B4 content entries,
+> B5 per-field validation — semua DONE. Test suite: 715/715 green.
+> PHPStan level 5: 0 errors. Next: B6 sidecar index (⚠️ schema gate: new table).
 
 ---
 
@@ -53,15 +54,16 @@ Legend: `⏳ TODO` · `🔨 IN PROGRESS` · `✅ DONE` · `⛔ BLOCKED` · `⚠�
 | B2 | Field Groups + Fields module | ✅ DONE | ⚠️ schema — APPROVED 2026-06-30 ("Approve B2") | b2-field-groups-fields-module.md |
 | B3 | Field rendering engine (admin form) | ✅ DONE | — | b3-field-rendering-engine.md |
 | B4 | Content Entries module | ✅ DONE | ⚠️ schema — APPROVED 2026-07-01 (scalability review passed) | b4-content-entries-module.md |
-| B5 | Query sidecar + indexing | ⏳ TODO | ⚠️ new table `content_entry_index` | — |
-| B6 | Taxonomies & Terms | ⏳ TODO | ⚠️ new tables `taxonomies`, `terms`, pivot | — |
-| B7 | Relationships | ⏳ TODO | ⚠️ new table `content_entry_relations` | — |
-| B8 | Phase 4 reuse wiring (revisions/schedule/audit/seo) | ⏳ TODO | — | — |
-| B9 | Entry body via builder (§3.2 = A, now active) | ⏳ TODO | — | — |
-| B10 | Frontend routing + controllers | ⏳ TODO | ⚠️ route ordering | — |
-| B11 | Template resolution + render | ⏳ TODO | — | — |
-| B12 | **Builder bridge — `content_query` block** | ⏳ TODO | — | — |
-| B13 | **Builder bridge — `content_field` block** | ⏳ TODO | — | — |
+| B5 | Per-Field Validation Resolver | ✅ DONE | — (no schema change) | b5-field-validation-resolver.md |
+| B6 | Query sidecar + indexing | ⏳ TODO | ⚠️ new table `content_entry_index` | — |
+| B7 | Taxonomies & Terms | ⏳ TODO | ⚠️ new tables `taxonomies`, `terms`, pivot | — |
+| B8 | Relationships | ⏳ TODO | ⚠️ new table `content_entry_relations` | — |
+| B9 | Phase 4 reuse wiring (revisions/schedule/audit/seo) | ⏳ TODO | — | — |
+| B10 | Entry body via builder (§3.2 = A, now active) | ⏳ TODO | — | — |
+| B11 | Frontend routing + controllers | ⏳ TODO | ⚠️ route ordering | — |
+| B12 | Template resolution + render | ⏳ TODO | — | — |
+| B13 | **Builder bridge — `content_query` block** | ⏳ TODO | — | — |
+| B14 | **Builder bridge — `content_field` block** | ⏳ TODO | — | — |
 
 ### Stage C — Release Audit
 
@@ -79,9 +81,9 @@ Legend: `⏳ TODO` · `🔨 IN PROGRESS` · `✅ DONE` · `⛔ BLOCKED` · `⚠�
 | Milestone | Tasks | Exit criteria |
 |---|---|---|
 | M1 — Decks cleared & decided | A0–A4 | Architecture locked, debt gone, field catalog scaffolded, suite green |
-| M2 — Authoring works | B1–B4 | Owner can define a type + fields and create entries in admin |
-| M3 — Organize & relate | B5–B8 | Entries filterable, taxonomized, related, revisioned, schedulable |
-| M4 — Public + visual | B9–B13 | Entries render on frontend + placeable via page builder |
+| M2 — Authoring works | B1–B5 | Owner can define a type + fields, create entries, per-field validation enforced |
+| M3 — Organize & relate | B6–B9 | Entries filterable, taxonomized, related, revisioned, schedulable |
+| M4 — Public + visual | B10–B14 | Entries render on frontend + placeable via page builder |
 | M5 — Ship | C1–C4 | Release gate PASS |
 
 ---
@@ -238,13 +240,14 @@ Config:
 
 Support:
   app/Support/FieldTypeRegistry.php                  ✅ A4 — thin static wrapper atas config
+  app/Support/FieldValidationResolver.php             ✅ B5 — dynamic data.* rules per ContentType
 
 Migrations:
   2026_06_30_000002_create_content_types_table        ✅ B1
   2026_06_30_000003_create_field_groups_table         ✅ B2
   2026_06_30_000004_create_fields_table               ✅ B2
   2026_07_01_000001_create_content_entries_table      ✅ B4
-  (content_entry_index, taxonomies, terms, pivot, relations — B5–B7)
+  (content_entry_index, taxonomies, terms, pivot, relations — B6–B8)
 
 Models:
   app/Models/ContentType.php                          ✅ B1 — supports(), fieldGroups(), entries()
@@ -257,8 +260,8 @@ FormRequests:
   StoreContentTypeRequest, UpdateContentTypeRequest   ✅ B1
   StoreFieldGroupRequest, UpdateFieldGroupRequest     ✅ B2
   StoreFieldRequest, UpdateFieldRequest               ✅ B2
-  StoreContentEntryRequest, UpdateContentEntryRequest ✅ B4
-  (Taxonomy/Term FormRequests — B6)
+  StoreContentEntryRequest, UpdateContentEntryRequest ✅ B4 + B5 (per-field rules via resolver)
+  (Taxonomy/Term FormRequests — B7)
 
 Controllers:
   Admin/ContentTypeController.php                     ✅ B1 — incl. forceDelete guard (B4)
@@ -298,6 +301,7 @@ Tests:
   tests/Feature/Admin/FieldTest.php                       ✅ B2 (10 tests)
   tests/Feature/Phase6/B3FieldRenderingTest.php           ✅ B3 (14 tests)
   tests/Feature/Admin/ContentEntryTest.php                ✅ B4 (14 tests)
+  tests/Feature/Phase6/B5FieldValidationResolverTest.php  ✅ B5 (14 tests)
   tests/Feature/Phase6/A4FieldTypesCatalogTest.php        ✅ A4 (4 tests)
 ```
 
@@ -412,8 +416,8 @@ When a task does X, update Y in the same PR/commit:
 | Adds a new module/skill area | `AGENTS.md` §3 Skill Map row, `Claude.md` Skill Map row, create the skill file in `ai/skills/` |
 | Creates `config/field-types.php` (A4) | create `ai/skills/field-types-skill.md` (authoring pattern) |
 | Ships Content Types/Fields/Entries (B1–B4) | create `ai/skills/content-modeling-skill.md`; update this handoff §6/§7 |
-| Ships Taxonomies (B6) | create `ai/skills/taxonomy-skill.md` |
-| Ships builder bridge blocks (B12–B13) | create `ai/skills/dynamic-blocks-skill.md`; add rows to block inventory; update `docs/modules/visual-builder.md` |
+| Ships Taxonomies (B7) | create `ai/skills/taxonomy-skill.md` |
+| Ships builder bridge blocks (B13–B14) | create `ai/skills/dynamic-blocks-skill.md`; add rows to block inventory; update `docs/modules/visual-builder.md` |
 | Adds any route | update this handoff §7 + `docs/` route reference |
 | Adds any DB table/column | update this handoff §4 + `AGENTS.md` §5 if it becomes a protected module |
 | Completes any task | update §1 status table here + write §11-format report + append `docs/changelog/CHANGELOG.md` |
@@ -432,8 +436,8 @@ When a task does X, update Y in the same PR/commit:
 
 | Gate | Status | Evidence |
 |------|--------|----------|
-| Test suite (≥627 baseline, no regression) | 🔨 IN PROGRESS | 701/701 pass (2026-07-01 after B4) |
-| PHPStan level 5 / 0 errors | 🔨 IN PROGRESS | 0 errors (2026-07-01 after B4) |
+| Test suite (≥627 baseline, no regression) | 🔨 IN PROGRESS | 715/715 pass (2026-07-01 after B5) |
+| PHPStan level 5 / 0 errors | 🔨 IN PROGRESS | 0 errors (2026-07-01 after B5) |
 | Performance (archives ≤300ms, paginated, no N+1) | ⏳ | — |
 | Smoke test (public routes, draft 404, admin guard) | ⏳ | — |
 | Docs (content-modeling.md + CHANGELOG + AGENTS/Claude synced) | ⏳ | — |
