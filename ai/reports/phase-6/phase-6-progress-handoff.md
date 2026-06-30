@@ -14,8 +14,9 @@
 > approval owner eksplisit** (AGENTS.md §9) — fase ini hampir seluruhnya schema
 > work, jadi approval gate sering by design.
 >
-> **Last updated:** 2026-06-29 — Planning complete, A0 decisions locked except
-> entry-body model (PENDING owner confirm). **Phase 6 NOT STARTED.**
+> **Last updated:** 2026-07-01 — M2 Authoring (B1–B4) complete. B1 content types,
+> B2 field groups+fields, B3 rendering engine, B4 content entries — semua DONE.
+> Test suite: 701/701 green. PHPStan level 5: 0 errors. Next: B5 per-field validation.
 
 ---
 
@@ -49,9 +50,9 @@ Legend: `⏳ TODO` · `🔨 IN PROGRESS` · `✅ DONE` · `⛔ BLOCKED` · `⚠�
 | Task | Name | Status | Approval | Report |
 |------|------|--------|----------|--------|
 | B1 | Content Types module | ✅ DONE | ⚠️ schema — APPROVED 2026-06-30 (via "lanjut B1") | b1-content-types-module.md |
-| B2 | Field Groups + Fields module | ⏳ TODO | ⚠️ new tables `field_groups`, `fields` | — |
-| B3 | Field rendering engine (admin form) | ⏳ TODO | — | — |
-| B4 | Content Entries module | ⏳ TODO | ⚠️ new table `content_entries` | — |
+| B2 | Field Groups + Fields module | ✅ DONE | ⚠️ schema — APPROVED 2026-06-30 ("Approve B2") | b2-field-groups-fields-module.md |
+| B3 | Field rendering engine (admin form) | ✅ DONE | — | b3-field-rendering-engine.md |
+| B4 | Content Entries module | ✅ DONE | ⚠️ schema — APPROVED 2026-07-01 (scalability review passed) | b4-content-entries-module.md |
 | B5 | Query sidecar + indexing | ⏳ TODO | ⚠️ new table `content_entry_index` | — |
 | B6 | Taxonomies & Terms | ⏳ TODO | ⚠️ new tables `taxonomies`, `terms`, pivot | — |
 | B7 | Relationships | ⏳ TODO | ⚠️ new table `content_entry_relations` | — |
@@ -171,14 +172,22 @@ content_types       [NEW table ✅ B1] slug(unique), label_singular, label_plura
                     excerpt|featured_image|revisions|scheduling|seo),
                     menu_position, is_active, timestamps, softDeletes.
                     Reserved-prefix guard: admin/api/pages/products/preview/etc.
-field_groups        content_type_id, label, key, description,
-                    location_rules(json), sort_order, timestamps
-fields              field_group_id, type, key, label, instructions, is_required,
-                    is_filterable, default_value(json), settings(json),
-                    conditional_logic(json), sort_order, timestamps
-content_entries     content_type_id, title, slug, status, data(json),
-                    author_id, published_at, seo(json), timestamps, softDeletes
-                    [unique(content_type_id, slug)]
+field_groups        [NEW table ✅ B2] content_type_id (FK→content_types CASCADE),
+                    label, key, description, sort_order, timestamps.
+                    UNIQUE(content_type_id, key) — namespace per tipe.
+                    NOTE: `location_rules` dari grand plan dihapus — tidak diperlukan
+                    di implementasi aktual; conditional_logic ada di level `fields`.
+fields              [NEW table ✅ B2] field_group_id (FK→field_groups CASCADE),
+                    type (varchar validated via FieldTypeRegistry — bukan FK DB),
+                    key, label, instructions, is_required(bool), is_filterable(bool),
+                    default_value(json nullable), settings(json nullable),
+                    conditional_logic(json nullable), sort_order, timestamps.
+                    UNIQUE(field_group_id, key) — namespace per group.
+content_entries     [NEW table ✅ B4] content_type_id (FK→content_types RESTRICT —
+                    bukan CASCADE; proteksi data), title, slug, excerpt, status(varchar
+                    bukan ENUM), published_at, author_id (FK→users SET NULL), template,
+                    sort_order, data(json), seo(json), timestamps, softDeletes.
+                    UNIQUE(content_type_id, slug) — slug namespace per tipe.
                     NOTE: no `body` column — §3.2 = Option A (block tree lives in
                     polymorphic page_blocks via blockable_type/id, added at A3)
 content_entry_index content_entry_id, field_key, value_string, value_number,
@@ -225,25 +234,71 @@ content_entry_relations  source_entry_id, target_entry_id, field_key, sort_order
 
 ```
 Config:
-  config/field-types.php                         ✅ A4 — 18 types, read via FieldTypeRegistry
+  config/field-types.php                              ✅ A4 — 18 types, read via FieldTypeRegistry
 
-Migrations:                                       (per task, post-approval)
-Models:        app/Models/ContentType.php ✅ B1
-               app/Models/FieldGroup.php, Field.php,
-               ContentEntry.php, Taxonomy.php, Term.php                  (B2–B7)
-FormRequests:  app/Http/Requests/Admin/...                              (B1–B7)
-Controllers:   app/Http/Controllers/Admin/ContentType/Field/Entry...    (B1–B7)
-               app/Http/Controllers/Frontend/ContentArchiveController.php (B10)
-               app/Http/Controllers/Frontend/ContentSingleController.php  (B10)
-Services:      app/Services/ContentTypeService.php, FieldRenderService.php,
-               ContentEntryService.php, ContentQueryService.php          (B1–B12)
-Support:       app/Support/PageRenderData.php (extend for entries/blocks) (B11–B13)
-Admin views:   resources/views/backend/content/**                       (B1–B4)
-Frontend:      resources/views/content/**                               (B11)
-Blocks:        config/blocks.php (+content_query, +content_field)        (B12–B13)
-               resources/views/frontend/blocks/content-query.blade.php    (B12)
-               resources/views/frontend/blocks/content-field.blade.php    (B13)
-Tests:         tests/Feature/Admin/Content*Test.php, Frontend/Content*    (each task)
+Support:
+  app/Support/FieldTypeRegistry.php                  ✅ A4 — thin static wrapper atas config
+
+Migrations:
+  2026_06_30_000002_create_content_types_table        ✅ B1
+  2026_06_30_000003_create_field_groups_table         ✅ B2
+  2026_06_30_000004_create_fields_table               ✅ B2
+  2026_07_01_000001_create_content_entries_table      ✅ B4
+  (content_entry_index, taxonomies, terms, pivot, relations — B5–B7)
+
+Models:
+  app/Models/ContentType.php                          ✅ B1 — supports(), fieldGroups(), entries()
+  app/Models/FieldGroup.php                           ✅ B2 — belongsTo ContentType, hasMany Field
+  app/Models/Field.php                                ✅ B2 — typeDefinition(), typeLabel()
+  app/Models/ContentEntry.php                         ✅ B4 — fieldValue(), statusBadgeClass(), scopes
+  app/Models/Taxonomy.php, Term.php                   ⏳ B6
+
+FormRequests:
+  StoreContentTypeRequest, UpdateContentTypeRequest   ✅ B1
+  StoreFieldGroupRequest, UpdateFieldGroupRequest     ✅ B2
+  StoreFieldRequest, UpdateFieldRequest               ✅ B2
+  StoreContentEntryRequest, UpdateContentEntryRequest ✅ B4
+  (Taxonomy/Term FormRequests — B6)
+
+Controllers:
+  Admin/ContentTypeController.php                     ✅ B1 — incl. forceDelete guard (B4)
+  Admin/FieldGroupController.php                      ✅ B2 — reorder + ownership check
+  Admin/FieldController.php                           ✅ B2 — dual ownership check
+  Admin/ContentEntryController.php                    ✅ B4 — index filter + auth entry
+  Frontend/ContentArchiveController.php               ⏳ B10
+  Frontend/ContentSingleController.php                ⏳ B10
+
+Blade Component:
+  resources/views/components/admin/field-input.blade.php  ✅ B3 — dispatcher ke type partials
+
+Field Type Partials (resources/views/fields/):
+  text, textarea, richtext, number, email, url            ✅ B3
+  toggle, select, radio, checkbox                         ✅ B3
+  date, datetime                                          ✅ B3
+  image, gallery, file, relationship, color, repeater     ✅ B3
+
+Admin Views:
+  resources/views/backend/content-types/                  ✅ B1 (index, create, edit, form) + B4 (Entries btn)
+  resources/views/backend/field-groups/                   ✅ B2 (index, create, edit, form)
+  resources/views/backend/fields/                         ✅ B2 (create, edit, form)
+  resources/views/backend/content-entries/                ✅ B4 (index, create, edit, form)
+  resources/views/content/**                              ⏳ B11
+
+Services:
+  ContentQueryService.php, ContentEntryService.php        ⏳ B12–B13
+
+Blocks:
+  config/blocks.php (+content_query, +content_field)      ⏳ B12–B13
+  resources/views/frontend/blocks/content-query.blade.php ⏳ B12
+  resources/views/frontend/blocks/content-field.blade.php ⏳ B13
+
+Tests:
+  tests/Feature/Admin/ContentTypeTest.php                 ✅ B1 (11 tests)
+  tests/Feature/Admin/FieldGroupTest.php                  ✅ B2 (10 tests)
+  tests/Feature/Admin/FieldTest.php                       ✅ B2 (10 tests)
+  tests/Feature/Phase6/B3FieldRenderingTest.php           ✅ B3 (14 tests)
+  tests/Feature/Admin/ContentEntryTest.php                ✅ B4 (14 tests)
+  tests/Feature/Phase6/A4FieldTypesCatalogTest.php        ✅ A4 (4 tests)
 ```
 
 ---
@@ -251,8 +306,48 @@ Tests:         tests/Feature/Admin/Content*Test.php, Frontend/Content*    (each 
 ## 7. Routes  *(fill in as built — B1, B10)*
 
 ```
-(admin CRUD routes added at B1–B7)
-(public: GET /{route_base}, GET /{route_base}/{entry:slug} added at B10)
+Admin routes (all under middleware ['auth','admin'], prefix 'admin', name 'admin.'):
+
+[B1] Content Types:
+  GET    admin/content-types                        content-types.index
+  GET    admin/content-types/create                 content-types.create
+  POST   admin/content-types                        content-types.store
+  GET    admin/content-types/{ct}/edit              content-types.edit
+  PUT    admin/content-types/{ct}                   content-types.update
+  DELETE admin/content-types/{ct}                   content-types.destroy
+  PATCH  admin/content-types/{id}/restore           content-types.restore
+  DELETE admin/content-types/{id}/force-delete      content-types.force-delete
+
+[B2] Field Groups (nested under content-types/{ct}):
+  GET    .../field-groups                           content-types.field-groups.index
+  GET    .../field-groups/create                    content-types.field-groups.create
+  POST   .../field-groups                           content-types.field-groups.store
+  GET    .../field-groups/{fg}/edit                 content-types.field-groups.edit
+  PUT    .../field-groups/{fg}                      content-types.field-groups.update
+  DELETE .../field-groups/{fg}                      content-types.field-groups.destroy
+  POST   .../field-groups/reorder                   content-types.field-groups.reorder
+
+[B2] Fields (nested under .../field-groups/{fg}):
+  GET    .../fields/create                          content-types.field-groups.fields.create
+  POST   .../fields                                 content-types.field-groups.fields.store
+  GET    .../fields/{f}/edit                        content-types.field-groups.fields.edit
+  PUT    .../fields/{f}                             content-types.field-groups.fields.update
+  DELETE .../fields/{f}                             content-types.field-groups.fields.destroy
+  POST   .../fields/reorder                         content-types.field-groups.fields.reorder
+
+[B4] Content Entries (nested under content-types/{ct}):
+  GET    .../entries                                content-types.entries.index
+  GET    .../entries/create                         content-types.entries.create
+  POST   .../entries                                content-types.entries.store
+  GET    .../entries/{entry}/edit                   content-types.entries.edit
+  PUT    .../entries/{entry}                        content-types.entries.update
+  DELETE .../entries/{entry}                        content-types.entries.destroy
+  PATCH  .../entries/{id}/restore                   content-types.entries.restore
+  DELETE .../entries/{id}/force-delete              content-types.entries.force-delete
+
+[B10 — TODO] Public routes:
+  GET    /{route_base}                              content.archive (ContentArchiveController)
+  GET    /{route_base}/{entry:slug}                 content.single  (ContentSingleController)
 ```
 
 ---
@@ -337,8 +432,8 @@ When a task does X, update Y in the same PR/commit:
 
 | Gate | Status | Evidence |
 |------|--------|----------|
-| Test suite (≥627 baseline, no regression) | ⏳ | — |
-| PHPStan level 5 / 0 errors | ⏳ | — |
+| Test suite (≥627 baseline, no regression) | 🔨 IN PROGRESS | 701/701 pass (2026-07-01 after B4) |
+| PHPStan level 5 / 0 errors | 🔨 IN PROGRESS | 0 errors (2026-07-01 after B4) |
 | Performance (archives ≤300ms, paginated, no N+1) | ⏳ | — |
 | Smoke test (public routes, draft 404, admin guard) | ⏳ | — |
 | Docs (content-modeling.md + CHANGELOG + AGENTS/Claude synced) | ⏳ | — |

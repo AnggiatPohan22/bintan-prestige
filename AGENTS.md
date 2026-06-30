@@ -66,6 +66,7 @@ Before working, read this file + the skill(s) below that match your task.
 | Product / Tour / Activity | `product-management-skill.md` |
 | Travel Business Logic | `travel-business-skill.md` |
 | Component Library | `COMPONENT-LIBRARY.md` |
+| Content Types / Field Groups / Fields / Entries (Phase 6) | `content-modeling-skill.md` + `field-types-skill.md` |
 
 > Skill files live in: `ai/skills/`
 > Guidelines live in: `ai/guidelines/`
@@ -131,8 +132,25 @@ Visual Page Builder & Foundation Hardening.
 - PHPStan: level 5 / 0 errors / no ignores / no baseline
 - Release Gate: PASS (pending 10 manual QA items + production env pre-flight)
 
-**Phase 6 — FUTURE**
-Flexible Content Modeling — custom content types & fields from admin.
+**Phase 6 — IN PROGRESS 🔨** (branch: `feature/phase-6-a1-debt-clearing` — 2026-07-01)
+Flexible Content Modeling — custom content types, field groups, fields, and entries from admin.
+
+**Stage A — Foundation & Debt Clearing — COMPLETE ✅**
+- A0: Architecture decision record (Option A polymorphic page_blocks + hybrid JSON storage).
+- A1: Technical debt TD-04 (widget text sanitization) + TD-05 (DB query in Blade contact form) + PHPStan baseline fixes (TD-06) + test regression fix (TD-07) + admin copy consistency (TD-08).
+- A2: Patterns API pagination + PageBlock FormRequest extraction.
+- A3: Polymorphic `page_blocks` (dual-rail morph: `blockable_type` / `blockable_id`) — schema approved, migrated.
+- A4: `config/field-types.php` catalog (18 types) + `FieldTypeRegistry` static wrapper.
+
+**Stage B — Build the Engine — M2 COMPLETE (B1–B4) 🔨**
+- B1 ✅: `content_types` table + full admin CRUD (slug auto-gen, reserved-prefix guard, soft delete).
+- B2 ✅: `field_groups` + `fields` tables + nested CRUD (compound unique key per scope, is_filterable inherits catalog, dual ownership check, reorder endpoints).
+- B3 ✅: Field rendering engine — `<x-admin.field-input>` Blade component dispatches to 18 type partials. Media types use Alpine.js + hidden inputs.
+- B4 ✅: `content_entries` table (FK RESTRICT, varchar status not ENUM, compound unique slug per type, author SET NULL, JSON data + seo) + admin CRUD. ContentType forceDelete guarded. B2+B3+B4 form integration complete.
+- B5–B13: ⏳ TODO (per-field validation, sidecar index, taxonomies, relationships, builder bridge, frontend routing).
+
+Test suite: 701/701 pass | PHPStan level 5: 0 errors (as of 2026-07-01 after B4).
+Grand plan + progress: `ai/reports/phase-6/phase-6-progress-handoff.md`
 
 **Phase 7 — FUTURE**
 Internationalization — multi-language content for Bintan tourism market.
@@ -154,6 +172,12 @@ Do not rebuild these from zero. Extend them safely only:
 - Global Settings (13 modules)
 - Site Assets, Site Settings
 - User Management (is_admin, admin_role, admin_status)
+
+**Phase 6 modules (protect after B1–B4 ship):**
+- Content Types (`content_types` table) — CRUD via `ContentTypeController`
+- Field Groups + Fields (`field_groups`, `fields` tables) — CRUD via `FieldGroupController`, `FieldController`
+- Content Entries (`content_entries` table) — CRUD via `ContentEntryController`
+- Field Type Catalog (`config/field-types.php` + `FieldTypeRegistry`) — extend only, never remove existing types
 
 ---
 
