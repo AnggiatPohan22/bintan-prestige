@@ -148,9 +148,10 @@ Flexible Content Modeling — custom content types, field groups, fields, and en
 - B3 ✅: Field rendering engine — `<x-admin.field-input>` Blade component dispatches to 18 type partials. Media types use Alpine.js + hidden inputs.
 - B4 ✅: `content_entries` table (FK RESTRICT, varchar status not ENUM, compound unique slug per type, author SET NULL, JSON data + seo) + admin CRUD. ContentType forceDelete guarded. B2+B3+B4 form integration complete.
 - B5 ✅: `FieldValidationResolver` (no schema) — resolves dynamic `data.*` rules per ContentType: placeholder substitution from `$field->settings`, `is_required` toggle, special handling for gallery/checkbox/relationship (wildcard `.*` rules) + datetime normalisation. Integrated into Store + Update FormRequests.
-- B6–B14: ⏳ TODO (sidecar index, taxonomies, relationships, Phase 4 wiring, builder bridge, frontend routing).
+- B6 ✅: `content_entry_index` table (CASCADE, no timestamps, 3 value columns) + `ContentEntryIndexService` (field projection by cast type) + `ContentEntryObserver` (saved/restored hooks). Filterable fields auto-projected on every entry save; stale rows cleaned up.
+- B7–B14: ⏳ TODO (taxonomies, relationships, Phase 4 wiring, builder bridge, frontend routing).
 
-Test suite: 715/715 pass | PHPStan level 5: 0 errors (as of 2026-07-01 after B5).
+Test suite: 728/728 pass | PHPStan level 5: 0 errors (as of 2026-07-01 after B6).
 Grand plan + progress: `ai/reports/phase-6/phase-6-progress-handoff.md`
 
 **Phase 7 — FUTURE**

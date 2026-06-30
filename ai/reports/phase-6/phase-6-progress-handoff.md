@@ -14,10 +14,10 @@
 > approval owner eksplisit** (AGENTS.md §9) — fase ini hampir seluruhnya schema
 > work, jadi approval gate sering by design.
 >
-> **Last updated:** 2026-07-01 — B5 (Per-Field Validation Resolver) complete.
-> B1 content types, B2 field groups+fields, B3 rendering engine, B4 content entries,
-> B5 per-field validation — semua DONE. Test suite: 715/715 green.
-> PHPStan level 5: 0 errors. Next: B6 sidecar index (⚠️ schema gate: new table).
+> **Last updated:** 2026-07-01 — B6 (Sidecar Index) complete.
+> B1–B6 all DONE: content types, field groups+fields, rendering engine, content entries,
+> per-field validation, sidecar index. Test suite: 728/728 green.
+> PHPStan level 5: 0 errors. Next: B7 Taxonomies (⚠️ schema gate: 3 new tables).
 
 ---
 
@@ -55,7 +55,7 @@ Legend: `⏳ TODO` · `🔨 IN PROGRESS` · `✅ DONE` · `⛔ BLOCKED` · `⚠�
 | B3 | Field rendering engine (admin form) | ✅ DONE | — | b3-field-rendering-engine.md |
 | B4 | Content Entries module | ✅ DONE | ⚠️ schema — APPROVED 2026-07-01 (scalability review passed) | b4-content-entries-module.md |
 | B5 | Per-Field Validation Resolver | ✅ DONE | — (no schema change) | b5-field-validation-resolver.md |
-| B6 | Query sidecar + indexing | ⏳ TODO | ⚠️ new table `content_entry_index` | — |
+| B6 | Query sidecar + indexing | ✅ DONE | ⚠️ schema — APPROVED 2026-07-01 ("lanjutkan B6") | b6-sidecar-index.md |
 | B7 | Taxonomies & Terms | ⏳ TODO | ⚠️ new tables `taxonomies`, `terms`, pivot | — |
 | B8 | Relationships | ⏳ TODO | ⚠️ new table `content_entry_relations` | — |
 | B9 | Phase 4 reuse wiring (revisions/schedule/audit/seo) | ⏳ TODO | — | — |
@@ -241,13 +241,16 @@ Config:
 Support:
   app/Support/FieldTypeRegistry.php                  ✅ A4 — thin static wrapper atas config
   app/Support/FieldValidationResolver.php             ✅ B5 — dynamic data.* rules per ContentType
+  app/Support/ContentEntryIndexService.php            ✅ B6 — project filterable fields to sidecar
 
 Migrations:
   2026_06_30_000002_create_content_types_table        ✅ B1
   2026_06_30_000003_create_field_groups_table         ✅ B2
   2026_06_30_000004_create_fields_table               ✅ B2
   2026_07_01_000001_create_content_entries_table      ✅ B4
-  (content_entry_index, taxonomies, terms, pivot, relations — B6–B8)
+  content_entry_index     [NEW table ✅ B6] CASCADE on content_entry_id; 3 value columns
+                          (value_string, value_number, value_date); no timestamps.
+  (taxonomies, terms, pivot, relations — B7–B8)
 
 Models:
   app/Models/ContentType.php                          ✅ B1 — supports(), fieldGroups(), entries()
@@ -302,6 +305,7 @@ Tests:
   tests/Feature/Phase6/B3FieldRenderingTest.php           ✅ B3 (14 tests)
   tests/Feature/Admin/ContentEntryTest.php                ✅ B4 (14 tests)
   tests/Feature/Phase6/B5FieldValidationResolverTest.php  ✅ B5 (14 tests)
+  tests/Feature/Phase6/B6SidecarIndexTest.php             ✅ B6 (13 tests)
   tests/Feature/Phase6/A4FieldTypesCatalogTest.php        ✅ A4 (4 tests)
 ```
 
@@ -436,8 +440,8 @@ When a task does X, update Y in the same PR/commit:
 
 | Gate | Status | Evidence |
 |------|--------|----------|
-| Test suite (≥627 baseline, no regression) | 🔨 IN PROGRESS | 715/715 pass (2026-07-01 after B5) |
-| PHPStan level 5 / 0 errors | 🔨 IN PROGRESS | 0 errors (2026-07-01 after B5) |
+| Test suite (≥627 baseline, no regression) | 🔨 IN PROGRESS | 728/728 pass (2026-07-01 after B6) |
+| PHPStan level 5 / 0 errors | 🔨 IN PROGRESS | 0 errors (2026-07-01 after B6) |
 | Performance (archives ≤300ms, paginated, no N+1) | ⏳ | — |
 | Smoke test (public routes, draft 404, admin guard) | ⏳ | — |
 | Docs (content-modeling.md + CHANGELOG + AGENTS/Claude synced) | ⏳ | — |
