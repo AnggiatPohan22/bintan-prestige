@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\AnalyticsDashboardController;
 use App\Http\Controllers\Admin\DashboardAppearanceController;
 use App\Http\Controllers\Admin\AuditLogController;
 use App\Http\Controllers\Admin\BuilderPatternController;
+use App\Http\Controllers\Admin\ContentTypeController;
 use App\Http\Controllers\Admin\BuilderTemplateController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\DashboardController;
@@ -275,6 +276,21 @@ Route::middleware(['auth', 'admin'])
 
         Route::resource('pages', PageController::class)
             ->except(['show']);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Content Types (Phase 6 — Flexible Content Modeling)
+        |--------------------------------------------------------------------------
+        */
+        Route::resource('content-types', ContentTypeController::class)
+            ->except(['show'])
+            ->parameters(['content-types' => 'content_type']);
+
+        Route::patch('content-types/{id}/restore', [ContentTypeController::class, 'restore'])
+            ->name('content-types.restore');
+
+        Route::delete('content-types/{id}/force-delete', [ContentTypeController::class, 'forceDelete'])
+            ->name('content-types.force-delete');
 
         /*
         |--------------------------------------------------------------------------

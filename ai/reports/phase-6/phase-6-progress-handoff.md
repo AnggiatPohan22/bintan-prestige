@@ -48,7 +48,7 @@ Legend: `⏳ TODO` · `🔨 IN PROGRESS` · `✅ DONE` · `⛔ BLOCKED` · `⚠�
 
 | Task | Name | Status | Approval | Report |
 |------|------|--------|----------|--------|
-| B1 | Content Types module | ⏳ TODO | ⚠️ new table `content_types` | — |
+| B1 | Content Types module | ✅ DONE | ⚠️ schema — APPROVED 2026-06-30 (via "lanjut B1") | b1-content-types-module.md |
 | B2 | Field Groups + Fields module | ⏳ TODO | ⚠️ new tables `field_groups`, `fields` | — |
 | B3 | Field rendering engine (admin form) | ⏳ TODO | — | — |
 | B4 | Content Entries module | ⏳ TODO | ⚠️ new table `content_entries` | — |
@@ -165,9 +165,12 @@ page_blocks         [EXISTING table, altered at A3 ✅] + blockable_type(nullabl
                     page_id relaxed to NULLABLE. Dual-rail: pages keep page_id +
                     hasMany (builder untouched); entries use the morph (page_id
                     NULL). Existing rows backfilled to blockable=Page/page_id.
-content_types       slug, label_singular, label_plural, icon, description,
-                    is_public, has_archive, route_base, supports(json),
-                    menu_position, is_active, timestamps, softDeletes
+content_types       [NEW table ✅ B1] slug(unique), label_singular, label_plural,
+                    icon, description, is_public, has_archive,
+                    route_base(unique nullable), supports(json: title|slug|editor|
+                    excerpt|featured_image|revisions|scheduling|seo),
+                    menu_position, is_active, timestamps, softDeletes.
+                    Reserved-prefix guard: admin/api/pages/products/preview/etc.
 field_groups        content_type_id, label, key, description,
                     location_rules(json), sort_order, timestamps
 fields              field_group_id, type, key, label, instructions, is_required,
@@ -225,8 +228,9 @@ Config:
   config/field-types.php                         ✅ A4 — 18 types, read via FieldTypeRegistry
 
 Migrations:                                       (per task, post-approval)
-Models:        app/Models/ContentType.php, FieldGroup.php, Field.php,
-               ContentEntry.php, Taxonomy.php, Term.php                  (B1–B7)
+Models:        app/Models/ContentType.php ✅ B1
+               app/Models/FieldGroup.php, Field.php,
+               ContentEntry.php, Taxonomy.php, Term.php                  (B2–B7)
 FormRequests:  app/Http/Requests/Admin/...                              (B1–B7)
 Controllers:   app/Http/Controllers/Admin/ContentType/Field/Entry...    (B1–B7)
                app/Http/Controllers/Frontend/ContentArchiveController.php (B10)

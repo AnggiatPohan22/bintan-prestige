@@ -37,6 +37,15 @@ All notable project documentation and baseline improvement steps are tracked her
 - `PageBlock::blockable()` morphTo added. Dual-rail: pages keep `page_id`/`hasMany` (Phase 5 builder untouched); ContentEntry blocks (B9) will use the morph with NULL `page_id`.
 - Reversible `down()`; rollback path verified. Full suite 638 green, PHPStan 0 errors.
 
+**B1 Content Types Module — schema approved, Milestone 2 started**
+- New table `content_types`: slug, label_singular, label_plural, icon, description, is_public, has_archive, route_base (unique nullable), supports (json), menu_position, is_active, softDeletes.
+- `ContentType` model with `SUPPORTS` + `RESERVED_PREFIXES` constants, `supports()` helper, scopes (active/ordered/public).
+- `StoreContentTypeRequest` / `UpdateContentTypeRequest` — auto-generates slug from label_singular; auto-generates route_base from label_plural for public+archive types; reserved-prefix guard on both slug and route_base.
+- `ContentTypeController` — full CRUD (index/create/store/edit/update/destroy/restore/forceDelete).
+- Admin views: index (active + archive tables), form partial with Alpine.js route-base toggle, create/edit wrappers.
+- Sidebar: "Content Types" link in Content group.
+- 11 tests added. Suite 653 green, PHPStan 0 errors.
+
 **A4 Field Type Catalog (`config/field-types.php`) — Milestone 1 complete**
 - Created `config/field-types.php`: 18 field types across 6 categories (basic, choice, date_time, media, relational, advanced). Each entry declares label, icon, category, description, cast, is_filterable, sanitizer, settings_schema, validation_rules, admin_partial, render_partial.
 - Created `app/Support/FieldTypeRegistry::all()/keys()/get()/exists()/filterable()` — config-cached thin wrapper (mirrors `PageTemplateRegistry` pattern).
