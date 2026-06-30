@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ContentType extends Model
@@ -42,6 +43,12 @@ class ContentType extends Model
         'is_active'     => 'boolean',
         'menu_position' => 'integer',
     ];
+
+    /** @return HasMany<FieldGroup, $this> */
+    public function fieldGroups(): HasMany
+    {
+        return $this->hasMany(FieldGroup::class)->orderBy('sort_order');
+    }
 
     public function supports(string $feature): bool
     {

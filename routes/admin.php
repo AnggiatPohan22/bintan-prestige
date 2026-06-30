@@ -5,6 +5,8 @@ use App\Http\Controllers\Admin\DashboardAppearanceController;
 use App\Http\Controllers\Admin\AuditLogController;
 use App\Http\Controllers\Admin\BuilderPatternController;
 use App\Http\Controllers\Admin\ContentTypeController;
+use App\Http\Controllers\Admin\FieldController;
+use App\Http\Controllers\Admin\FieldGroupController;
 use App\Http\Controllers\Admin\BuilderTemplateController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\DashboardController;
@@ -291,6 +293,35 @@ Route::middleware(['auth', 'admin'])
 
         Route::delete('content-types/{id}/force-delete', [ContentTypeController::class, 'forceDelete'])
             ->name('content-types.force-delete');
+
+        /*
+        |--------------------------------------------------------------------------
+        | Field Groups + Fields (nested under Content Types)
+        |--------------------------------------------------------------------------
+        */
+        Route::prefix('content-types/{content_type}/field-groups')
+            ->name('content-types.field-groups.')
+            ->group(function () {
+
+                Route::get('/', [FieldGroupController::class, 'index'])->name('index');
+                Route::get('/create', [FieldGroupController::class, 'create'])->name('create');
+                Route::post('/', [FieldGroupController::class, 'store'])->name('store');
+                Route::get('/{field_group}/edit', [FieldGroupController::class, 'edit'])->name('edit');
+                Route::put('/{field_group}', [FieldGroupController::class, 'update'])->name('update');
+                Route::delete('/{field_group}', [FieldGroupController::class, 'destroy'])->name('destroy');
+                Route::post('/reorder', [FieldGroupController::class, 'reorder'])->name('reorder');
+
+                Route::prefix('{field_group}/fields')
+                    ->name('fields.')
+                    ->group(function () {
+                        Route::get('/create', [FieldController::class, 'create'])->name('create');
+                        Route::post('/', [FieldController::class, 'store'])->name('store');
+                        Route::get('/{field}/edit', [FieldController::class, 'edit'])->name('edit');
+                        Route::put('/{field}', [FieldController::class, 'update'])->name('update');
+                        Route::delete('/{field}', [FieldController::class, 'destroy'])->name('destroy');
+                        Route::post('/reorder', [FieldController::class, 'reorder'])->name('reorder');
+                    });
+            });
 
         /*
         |--------------------------------------------------------------------------
