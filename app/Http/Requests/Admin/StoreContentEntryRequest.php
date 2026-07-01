@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Admin;
 
+use App\Http\Requests\Concerns\NormalizesColumnDefaults;
 use App\Models\ContentEntry;
 use App\Support\FieldValidationResolver;
 use Illuminate\Foundation\Http\FormRequest;
@@ -10,6 +11,8 @@ use Illuminate\Validation\Rule;
 
 class StoreContentEntryRequest extends FormRequest
 {
+    use NormalizesColumnDefaults;
+
     public function authorize(): bool
     {
         return true;
@@ -17,6 +20,8 @@ class StoreContentEntryRequest extends FormRequest
 
     protected function prepareForValidation(): void
     {
+        $this->applyColumnDefaults(['sort_order' => 0]);
+
         $type = $this->route('content_type');
 
         // Auto-generate slug from title when the content type supports it.

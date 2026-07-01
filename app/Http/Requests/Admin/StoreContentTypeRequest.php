@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Admin;
 
+use App\Http\Requests\Concerns\NormalizesColumnDefaults;
 use App\Models\ContentType;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Str;
@@ -9,6 +10,8 @@ use Illuminate\Validation\Rule;
 
 class StoreContentTypeRequest extends FormRequest
 {
+    use NormalizesColumnDefaults;
+
     public function authorize(): bool
     {
         return true;
@@ -16,6 +19,10 @@ class StoreContentTypeRequest extends FormRequest
 
     protected function prepareForValidation(): void
     {
+        // NOT-NULL columns with a DB default — coerce blank form fields back to
+        // that default so create() never inserts an explicit NULL.
+        $this->applyColumnDefaults(['icon' => 'file-lines', 'menu_position' => 0]);
+
         if ($this->filled('label_singular') && ! $this->filled('slug')) {
             $this->merge(['slug' => Str::slug($this->string('label_singular'))]);
         }

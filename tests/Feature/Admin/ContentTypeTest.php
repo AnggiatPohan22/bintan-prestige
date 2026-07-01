@@ -87,6 +87,67 @@ class ContentTypeTest extends TestCase
         $this->assertDatabaseHas('content_types', ['slug' => 'case-study']);
     }
 
+    // -------------------------------------------------------- NOT-NULL default coercion
+
+    public function test_blank_icon_falls_back_to_db_default_instead_of_null_error(): void
+    {
+        // Reproduces the reported bug: an empty icon field is turned into null by
+        // ConvertEmptyStringsToNull, which then hit the NOT-NULL `icon` column.
+        // prepareForValidation must coerce it back to the DB default.
+        $this->actingAs($this->admin())
+            ->post(route('admin.content-types.store'), [
+                'label_singular' => 'Blog',
+                'label_plural'   => 'Blog Posts',
+                'icon'           => '',   // blank → null via middleware
+                'is_public'      => '1',
+                'has_archive'    => '1',
+                'supports'       => ['title', 'slug'],
+            ])
+            ->assertRedirect()
+            ->assertSessionHasNoErrors();
+
+        $this->assertDatabaseHas('content_types', [
+            'slug' => 'blog',
+            'icon' => 'file-lines',
+        ]);
+    }
+
+    public function test_blank_menu_position_falls_back_to_zero(): void
+    {
+        $this->actingAs($this->admin())
+            ->post(route('admin.content-types.store'), [
+                'label_singular' => 'Guide',
+                'label_plural'   => 'Guides',
+                'menu_position'  => '',   // blank → null via middleware
+                'is_public'      => '0',
+            ])
+            ->assertRedirect()
+            ->assertSessionHasNoErrors();
+
+        $this->assertDatabaseHas('content_types', [
+            'slug'          => 'guide',
+            'menu_position' => 0,
+        ]);
+    }
+
+    public function test_blank_icon_on_update_reverts_to_db_default(): void
+    {
+        $type = $this->type(['slug' => 'news', 'icon' => 'newspaper']);
+
+        $this->actingAs($this->admin())
+            ->put(route('admin.content-types.update', $type), [
+                'slug'           => 'news',
+                'label_singular' => $type->label_singular,
+                'label_plural'   => $type->label_plural,
+                'icon'           => '',
+                'is_public'      => '0',
+            ])
+            ->assertRedirect()
+            ->assertSessionHasNoErrors();
+
+        $this->assertDatabaseHas('content_types', ['id' => $type->id, 'icon' => 'file-lines']);
+    }
+
     // -------------------------------------------------------- validation
 
     public function test_validation_rejects_reserved_slugs(): void

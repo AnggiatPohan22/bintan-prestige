@@ -2,14 +2,22 @@
 
 namespace App\Http\Requests\Admin;
 
+use App\Http\Requests\Concerns\NormalizesColumnDefaults;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
 class UpdateFieldGroupRequest extends FormRequest
 {
+    use NormalizesColumnDefaults;
+
     public function authorize(): bool
     {
         return true;
+    }
+
+    protected function prepareForValidation(): void
+    {
+        $this->applyColumnDefaults(['sort_order' => 0]);
     }
 
     public function rules(): array

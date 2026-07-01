@@ -2,15 +2,23 @@
 
 namespace App\Http\Requests\Admin;
 
+use App\Http\Requests\Concerns\NormalizesColumnDefaults;
 use App\Support\FieldTypeRegistry;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
 class UpdateFieldRequest extends FormRequest
 {
+    use NormalizesColumnDefaults;
+
     public function authorize(): bool
     {
         return true;
+    }
+
+    protected function prepareForValidation(): void
+    {
+        $this->applyColumnDefaults(['sort_order' => 0]);
     }
 
     public function rules(): array

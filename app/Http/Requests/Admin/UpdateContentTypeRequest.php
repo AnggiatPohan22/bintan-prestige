@@ -2,15 +2,25 @@
 
 namespace App\Http\Requests\Admin;
 
+use App\Http\Requests\Concerns\NormalizesColumnDefaults;
 use App\Models\ContentType;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
 class UpdateContentTypeRequest extends FormRequest
 {
+    use NormalizesColumnDefaults;
+
     public function authorize(): bool
     {
         return true;
+    }
+
+    protected function prepareForValidation(): void
+    {
+        // NOT-NULL columns with a DB default — coerce blank form fields back to
+        // that default so update() never writes an explicit NULL.
+        $this->applyColumnDefaults(['icon' => 'file-lines', 'menu_position' => 0]);
     }
 
     public function rules(): array

@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Admin;
 
+use App\Http\Requests\Concerns\NormalizesColumnDefaults;
 use App\Support\FieldTypeRegistry;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Str;
@@ -9,6 +10,8 @@ use Illuminate\Validation\Rule;
 
 class StoreFieldRequest extends FormRequest
 {
+    use NormalizesColumnDefaults;
+
     public function authorize(): bool
     {
         return true;
@@ -16,6 +19,8 @@ class StoreFieldRequest extends FormRequest
 
     protected function prepareForValidation(): void
     {
+        $this->applyColumnDefaults(['sort_order' => 0]);
+
         if ($this->filled('label') && ! $this->filled('key')) {
             $this->merge(['key' => Str::slug($this->string('label'), '_')]);
         }

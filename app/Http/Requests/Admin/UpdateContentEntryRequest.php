@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Admin;
 
+use App\Http\Requests\Concerns\NormalizesColumnDefaults;
 use App\Models\ContentEntry;
 use App\Support\FieldValidationResolver;
 use Illuminate\Foundation\Http\FormRequest;
@@ -9,6 +10,8 @@ use Illuminate\Validation\Rule;
 
 class UpdateContentEntryRequest extends FormRequest
 {
+    use NormalizesColumnDefaults;
+
     public function authorize(): bool
     {
         return true;
@@ -16,6 +19,8 @@ class UpdateContentEntryRequest extends FormRequest
 
     protected function prepareForValidation(): void
     {
+        $this->applyColumnDefaults(['sort_order' => 0]);
+
         if ($this->has('data') && is_array($this->input('data'))) {
             $cleaned = array_map(
                 fn ($v) => is_array($v)

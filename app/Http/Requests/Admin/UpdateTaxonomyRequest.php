@@ -2,11 +2,14 @@
 
 namespace App\Http\Requests\Admin;
 
+use App\Http\Requests\Concerns\NormalizesColumnDefaults;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
 class UpdateTaxonomyRequest extends FormRequest
 {
+    use NormalizesColumnDefaults;
+
     public function authorize(): bool
     {
         return true;
@@ -14,6 +17,8 @@ class UpdateTaxonomyRequest extends FormRequest
 
     protected function prepareForValidation(): void
     {
+        $this->applyColumnDefaults(['sort_order' => 0]);
+
         if ($this->has('content_type_ids') && is_array($this->input('content_type_ids'))) {
             $this->merge([
                 'content_type_ids' => array_values(
