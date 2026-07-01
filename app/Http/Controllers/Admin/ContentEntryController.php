@@ -6,13 +6,17 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreContentEntryRequest;
 use App\Http\Requests\Admin\UpdateContentEntryRequest;
 use App\Models\ContentEntry;
+use App\Models\ContentEntryRevision;
 use App\Models\ContentType;
 use App\Models\Taxonomy;
+use App\Support\ContentEntryRevisionService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class ContentEntryController extends Controller
 {
+    public function __construct(private readonly ContentEntryRevisionService $revisions) {}
+
     public function index(Request $request, ContentType $contentType)
     {
         $status = $request->query('status');
@@ -64,6 +68,8 @@ class ContentEntryController extends Controller
             $entry->terms()->sync($termIds);
         }
 
+        $this->revisions->snapshot($entry);
+
         return redirect()
             ->route('admin.content-types.entries.edit', [$contentType, $entry])
             ->with('success', 'Entry created.');
@@ -80,8 +86,9 @@ class ContentEntryController extends Controller
 
         $taxonomies    = $this->taxonomiesForType($contentType);
         $selectedTermIds = $entry->terms()->pluck('terms.id')->map(fn ($id) => (int) $id)->all();
+        $revisions       = $entry->revisions()->with('author:id,name')->get();
 
-        return view('backend.content-entries.edit', compact('contentType', 'entry', 'groups', 'taxonomies', 'selectedTermIds'));
+        return view('backend.content-entries.edit', compact('contentType', 'entry', 'groups', 'taxonomies', 'selectedTermIds', 'revisions'));
     }
 
     public function update(UpdateContentEntryRequest $request, ContentType $contentType, ContentEntry $entry)
@@ -94,6 +101,8 @@ class ContentEntryController extends Controller
 
         $entry->update($data);
         $entry->terms()->sync($termIds);
+
+        $this->revisions->snapshot($entry);
 
         return redirect()
             ->route('admin.content-types.entries.edit', [$contentType, $entry])
@@ -128,6 +137,22 @@ class ContentEntryController extends Controller
         return redirect()
             ->route('admin.content-types.entries.index', $contentType)
             ->with('success', 'Entry permanently deleted.');
+    }
+
+    public function restoreRevision(ContentType $contentType, ContentEntry $entry, ContentEntryRevision $revision)
+    {
+        $this->authorizeEntry($contentType, $entry);
+
+        // Guard: revision must belong to this entry.
+        if ($revision->content_entry_id !== $entry->id) {
+            abort(404);
+        }
+
+        $this->revisions->restore($entry, $revision);
+
+        return redirect()
+            ->route('admin.content-types.entries.edit', [$contentType, $entry])
+            ->with('success', "Entry restored to revision #{$revision->revision_number}.");
     }
 
     private function authorizeEntry(ContentType $contentType, ContentEntry $entry): void

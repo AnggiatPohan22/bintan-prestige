@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ContentEntry extends Model
@@ -95,6 +96,32 @@ class ContentEntry extends Model
             'target_entry_id',
             'source_entry_id'
         )->withPivot('field_key', 'sort_order');
+    }
+
+    /** @return HasMany<ContentEntryRevision, $this> */
+    public function revisions(): HasMany
+    {
+        return $this->hasMany(ContentEntryRevision::class)->orderByDesc('revision_number');
+    }
+
+    // ---------------------------------------------------------------- SEO meta
+
+    /**
+     * Effective SEO meta for this entry, resolving fallbacks the same way the
+     * Phase 4 SEO manager does for pages (custom value → sensible default).
+     *
+     * @return array{title: string|null, description: string|null, canonical: string|null, og_image: int|null}
+     */
+    public function seoMeta(): array
+    {
+        $seo = $this->seo ?? [];
+
+        return [
+            'title'       => $seo['title'] ?? $this->title,
+            'description' => $seo['description'] ?? $this->excerpt,
+            'canonical'   => $seo['canonical'] ?? null,
+            'og_image'    => isset($seo['og_image']) ? (int) $seo['og_image'] : null,
+        ];
     }
 
     // ---------------------------------------------------------------- field value access
