@@ -127,6 +127,12 @@
             </div>
         @endif
 
+        {{-- ============================================================ TAXONOMY TERMS --}}
+        @include('backend.content-entries.partials.taxonomy-terms', [
+            'taxonomies'      => $taxonomies ?? collect(),
+            'selectedTermIds' => $selectedTermIds ?? [],
+        ])
+
         {{-- ============================================================ SEO --}}
         @if($contentType->supports('seo'))
             <div class="space-y-4 rounded-lg border border-slate-200 p-5">

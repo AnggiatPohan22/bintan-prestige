@@ -8,6 +8,8 @@ use App\Http\Controllers\Admin\ContentEntryController;
 use App\Http\Controllers\Admin\ContentTypeController;
 use App\Http\Controllers\Admin\FieldController;
 use App\Http\Controllers\Admin\FieldGroupController;
+use App\Http\Controllers\Admin\TaxonomyController;
+use App\Http\Controllers\Admin\TermController;
 use App\Http\Controllers\Admin\BuilderTemplateController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\DashboardController;
@@ -340,6 +342,33 @@ Route::middleware(['auth', 'admin'])
                         Route::delete('/{field}', [FieldController::class, 'destroy'])->name('destroy');
                         Route::post('/reorder', [FieldController::class, 'reorder'])->name('reorder');
                     });
+            });
+
+        /*
+        |--------------------------------------------------------------------------
+        | Taxonomies + Terms (Phase 6 — B7)
+        |--------------------------------------------------------------------------
+        */
+        Route::resource('taxonomies', TaxonomyController::class)
+            ->except(['show']);
+
+        Route::patch('taxonomies/{id}/restore', [TaxonomyController::class, 'restore'])
+            ->name('taxonomies.restore');
+
+        Route::delete('taxonomies/{id}/force-delete', [TaxonomyController::class, 'forceDelete'])
+            ->name('taxonomies.force-delete');
+
+        Route::prefix('taxonomies/{taxonomy}/terms')
+            ->name('taxonomies.terms.')
+            ->group(function () {
+                Route::get('/', [TermController::class, 'index'])->name('index');
+                Route::get('/create', [TermController::class, 'create'])->name('create');
+                Route::post('/', [TermController::class, 'store'])->name('store');
+                Route::get('/{term}/edit', [TermController::class, 'edit'])->name('edit');
+                Route::put('/{term}', [TermController::class, 'update'])->name('update');
+                Route::delete('/{term}', [TermController::class, 'destroy'])->name('destroy');
+                Route::patch('/{id}/restore', [TermController::class, 'restore'])->name('restore');
+                Route::delete('/{id}/force-delete', [TermController::class, 'forceDelete'])->name('force-delete');
             });
 
         /*

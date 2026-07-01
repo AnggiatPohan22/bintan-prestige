@@ -7,6 +7,7 @@ use App\Http\Requests\Admin\StoreContentEntryRequest;
 use App\Http\Requests\Admin\UpdateContentEntryRequest;
 use App\Models\ContentEntry;
 use App\Models\ContentType;
+use App\Models\Taxonomy;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -44,16 +45,24 @@ class ContentEntryController extends Controller
             ->ordered()
             ->get();
 
-        return view('backend.content-entries.create', compact('contentType', 'groups'));
+        $taxonomies = $this->taxonomiesForType($contentType);
+
+        return view('backend.content-entries.create', compact('contentType', 'groups', 'taxonomies'));
     }
 
     public function store(StoreContentEntryRequest $request, ContentType $contentType)
     {
-        $data = $request->validated();
+        $validated = $request->validated();
+        $termIds   = array_map('intval', (array) ($validated['terms'] ?? []));
+        $data      = collect($validated)->except('terms')->toArray();
 
         $entry = $contentType->entries()->create(array_merge($data, [
             'author_id' => Auth::id(),
         ]));
+
+        if ($termIds !== []) {
+            $entry->terms()->sync($termIds);
+        }
 
         return redirect()
             ->route('admin.content-types.entries.edit', [$contentType, $entry])
@@ -69,13 +78,22 @@ class ContentEntryController extends Controller
             ->ordered()
             ->get();
 
-        return view('backend.content-entries.edit', compact('contentType', 'entry', 'groups'));
+        $taxonomies    = $this->taxonomiesForType($contentType);
+        $selectedTermIds = $entry->terms()->pluck('terms.id')->map(fn ($id) => (int) $id)->all();
+
+        return view('backend.content-entries.edit', compact('contentType', 'entry', 'groups', 'taxonomies', 'selectedTermIds'));
     }
 
     public function update(UpdateContentEntryRequest $request, ContentType $contentType, ContentEntry $entry)
     {
         $this->authorizeEntry($contentType, $entry);
-        $entry->update($request->validated());
+
+        $validated = $request->validated();
+        $termIds   = array_map('intval', (array) ($validated['terms'] ?? []));
+        $data      = collect($validated)->except('terms')->toArray();
+
+        $entry->update($data);
+        $entry->terms()->sync($termIds);
 
         return redirect()
             ->route('admin.content-types.entries.edit', [$contentType, $entry])
@@ -117,5 +135,24 @@ class ContentEntryController extends Controller
         if ($entry->content_type_id !== $contentType->id) {
             abort(404);
         }
+    }
+
+    /**
+     * Taxonomies that apply to the given content type, with terms eager-loaded.
+     *
+     * @return \Illuminate\Database\Eloquent\Collection<int, Taxonomy>
+     */
+    private function taxonomiesForType(ContentType $contentType): \Illuminate\Database\Eloquent\Collection
+    {
+        return Taxonomy::where(function ($q) use ($contentType) {
+            $q->whereNull('content_type_ids')
+              ->orWhereJsonContains('content_type_ids', $contentType->id);
+        })
+        ->with([
+            'terms' => fn ($q) => $q->ordered(),
+            'terms.children' => fn ($q) => $q->ordered(),
+        ])
+        ->ordered()
+        ->get();
     }
 }

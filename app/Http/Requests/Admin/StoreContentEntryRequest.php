@@ -57,6 +57,8 @@ class StoreContentEntryRequest extends FormRequest
             'template'        => ['nullable', 'string', 'max:100'],
             'sort_order'      => ['nullable', 'integer', 'min:0'],
             'data'            => ['nullable', 'array'],
+            'terms'           => ['nullable', 'array'],
+            'terms.*'         => ['integer', 'exists:terms,id'],
             'seo'             => ['nullable', 'array'],
             'seo.title'       => ['nullable', 'string', 'max:200'],
             'seo.description' => ['nullable', 'string', 'max:500'],

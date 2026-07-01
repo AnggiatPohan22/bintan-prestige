@@ -2,7 +2,7 @@
 use Illuminate\Support\Facades\Request;
 
 $activeGroup = match (true) {
-    Request::routeIs('admin.pages.*', 'admin.page-blocks.*', 'admin.products.*', 'admin.categories.*', 'admin.destinations.*', 'admin.media.*', 'admin.faqs.*', 'admin.content-types.*') => 'content',
+    Request::routeIs('admin.pages.*', 'admin.page-blocks.*', 'admin.products.*', 'admin.categories.*', 'admin.destinations.*', 'admin.media.*', 'admin.faqs.*', 'admin.content-types.*', 'admin.taxonomies.*') => 'content',
     Request::routeIs('admin.themes.*', 'admin.menus.*', 'admin.menu-items.*', 'admin.page-sections.*') => 'design',
     Request::routeIs('admin.forms.*', 'admin.form-submissions.*') => 'forms',
     Request::routeIs('admin.seo.*') => 'seo',
@@ -124,6 +124,10 @@ $groups = [
                     <a href="{{ route('admin.content-types.index') }}"
                        class="group admin-sidebar__child {{ Request::routeIs('admin.content-types.*') ? 'admin-sidebar__child--active' : '' }}">
                         Content Types
+                    </a>
+                    <a href="{{ route('admin.taxonomies.index') }}"
+                       class="group admin-sidebar__child {{ Request::routeIs('admin.taxonomies.*') ? 'admin-sidebar__child--active' : '' }}">
+                        Taxonomies
                     </a>
                 </div>
             </div>
