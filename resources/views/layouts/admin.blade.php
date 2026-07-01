@@ -128,8 +128,11 @@ function closeConfirmModal() {
 }
 
 document.getElementById('confirmYesBtn').addEventListener('click', function () {
+    // Capture the callback BEFORE closing — closeConfirmModal() nulls
+    // _confirmCallback, so reading it after close would always be null.
+    const cb = _confirmCallback;
     closeConfirmModal();
-    if (_confirmCallback) _confirmCallback();
+    if (cb) cb();
 });
 
 // Close on backdrop click

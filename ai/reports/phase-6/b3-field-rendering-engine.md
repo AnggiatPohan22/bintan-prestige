@@ -117,3 +117,24 @@ git revert 0040ea5
 
 ### Next
 - **B4 — Content Entries module** (⚠️ schema gate: tabel baru `content_entries`).
+
+---
+
+## Post-Release Fix Log
+
+> Catatan perbaikan bug yang ditemukan saat pengujian manual owner. Tidak menimpa laporan asli di atas.
+
+### 2026-07-01 — Fix #1: `Undefined variable $entry` di halaman "New Entry"
+
+**Gejala:** Buka form entry baru (create) untuk content type yang punya field group berisi minimal 1 field → error `ErrorException: Undefined variable $entry` di `resources/views/backend/content-entries/form.blade.php:110`.
+
+**Akar masalah:** Baris 112 memanggil `$entry->fieldValue($field->key)` tanpa guard. Di halaman **create**, variabel `$entry` tidak terdefinisi (hanya ada di edit). Referensi `$entry->prop ?? ''` lain di form aman karena null-coalescing (`??`) memakai semantik `isset()` yang menekan error akses-properti; tapi `fieldValue()` adalah **pemanggilan method** yang benar-benar dieksekusi, sehingga `??` tidak menekannya → fatal error. Bug ini tersembunyi selama field group kosong (cabang `@empty`), dan baru muncul setelah owner menambahkan field asli di B2.
+
+**Perbaikan:** Guard dengan flag `$isEdit` yang sudah ada di header form:
+```blade
+:value="old('data.'.$field->key, $isEdit ? $entry->fieldValue($field->key) : null)"
+```
+
+**File:** `resources/views/backend/content-entries/form.blade.php`
+**Regression test:** `ContentEntryTest::test_create_page_renders_when_group_has_fields` — GET halaman create untuk type dengan 1 field → assert 200 OK. Test lama `test_create_page_renders_field_groups` tidak menangkap bug ini karena group-nya tanpa field.
+**Impact:** tidak ada perubahan schema/route. Suite 747/747, PHPStan 0 errors.

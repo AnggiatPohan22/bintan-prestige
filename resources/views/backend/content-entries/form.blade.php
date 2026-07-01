@@ -109,7 +109,7 @@
                     @forelse($group->fields as $field)
                         <x-admin.field-input
                             :field="$field"
-                            :value="old('data.'.$field->key, $entry->fieldValue($field->key) ?? null)"
+                            :value="old('data.'.$field->key, $isEdit ? $entry->fieldValue($field->key) : null)"
                             name-prefix="data"
                         />
                     @empty

@@ -91,3 +91,26 @@ Extra:    PATCH admin/content-types/{id}/restore     → content-types.restore
 
 ### Next
 - **B2 — Field Groups + Fields module** (⚠️ schema gate: new tables `field_groups`, `fields`).
+
+---
+
+## Post-Release Fix Log
+
+> Catatan perbaikan bug yang ditemukan saat pengujian manual owner. Tidak menimpa laporan asli di atas.
+
+### 2026-07-01 — Fix #1: Delete/Archive content type tidak berfungsi
+
+**Gejala:** Klik tombol "Archive" pada content type → modal konfirmasi muncul, klik "Hapus" → tidak terjadi apa-apa, content type tidak ter-soft-delete.
+
+**Akar masalah:** Bukan di modul B1. Bug di handler modal konfirmasi global `resources/views/layouts/admin.blade.php` (diperkenalkan commit `3fc70e2`, 2026-06-26). Handler tombol "Yes" memanggil `closeConfirmModal()` — yang men-set `_confirmCallback = null` — **sebelum** mengeksekusi callback, sehingga `if (_confirmCallback) _confirmCallback()` selalu melihat null dan submit form tidak pernah terjadi. Ini memengaruhi **semua** delete berbasis modal `data-confirm` (bukan hanya content types).
+
+**Perbaikan:** Capture callback ke variabel lokal sebelum `closeConfirmModal()`:
+```js
+const cb = _confirmCallback;
+closeConfirmModal();
+if (cb) cb();
+```
+
+**File:** `resources/views/layouts/admin.blade.php`
+**Impact:** memperbaiki delete di seluruh modul (content types, pages, products, dll) yang memakai modal konfirmasi. Tidak ada perubahan schema/route. Tidak bisa di-unit-test (JS murni) — diverifikasi manual.
+**Commit:** lihat git log fix delete modal ordering.

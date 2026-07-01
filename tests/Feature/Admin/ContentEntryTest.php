@@ -62,6 +62,27 @@ class ContentEntryTest extends TestCase
             ->assertSee('Property Info');
     }
 
+    public function test_create_page_renders_when_group_has_fields(): void
+    {
+        // Regression: form.blade.php called $entry->fieldValue() unconditionally,
+        // but $entry is undefined on the create page. A method call is not
+        // suppressed by ??, so a group with at least one field crashed the page
+        // with "Undefined variable $entry".
+        $type  = $this->type();
+        $group = $this->group($type, ['label' => 'Property Info']);
+        Field::create([
+            'field_group_id' => $group->id,
+            'type'           => 'text',
+            'key'            => 'hotel_name',
+            'label'          => 'Hotel Name',
+        ]);
+
+        $this->actingAs($this->admin())
+            ->get(route('admin.content-types.entries.create', $type))
+            ->assertOk()
+            ->assertSee('Hotel Name');
+    }
+
     public function test_store_creates_entry_and_stores_data_json(): void
     {
         $type = $this->type(['supports' => ['title', 'slug']]);
