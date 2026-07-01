@@ -14,10 +14,11 @@
 > approval owner eksplisit** (AGENTS.md §9) — fase ini hampir seluruhnya schema
 > work, jadi approval gate sering by design.
 >
-> **Last updated:** 2026-07-01 — B6 (Sidecar Index) complete.
-> B1–B6 all DONE: content types, field groups+fields, rendering engine, content entries,
-> per-field validation, sidecar index. Test suite: 728/728 green.
-> PHPStan level 5: 0 errors. Next: B7 Taxonomies (⚠️ schema gate: 3 new tables).
+> **Last updated:** 2026-07-01 — B7 (Taxonomies & Terms) complete.
+> B1–B7 all DONE: content types, field groups+fields, rendering engine, content entries,
+> per-field validation, sidecar index, taxonomies + terms + term attachment.
+> Test suite: 743/743 green. PHPStan level 5: 0 errors.
+> Next: B8 Relationships (⚠️ schema gate: `content_entry_relations` table).
 
 ---
 
@@ -56,7 +57,7 @@ Legend: `⏳ TODO` · `🔨 IN PROGRESS` · `✅ DONE` · `⛔ BLOCKED` · `⚠�
 | B4 | Content Entries module | ✅ DONE | ⚠️ schema — APPROVED 2026-07-01 (scalability review passed) | b4-content-entries-module.md |
 | B5 | Per-Field Validation Resolver | ✅ DONE | — (no schema change) | b5-field-validation-resolver.md |
 | B6 | Query sidecar + indexing | ✅ DONE | ⚠️ schema — APPROVED 2026-07-01 ("lanjutkan B6") | b6-sidecar-index.md |
-| B7 | Taxonomies & Terms | ⏳ TODO | ⚠️ new tables `taxonomies`, `terms`, pivot | — |
+| B7 | Taxonomies & Terms | ✅ DONE | ⚠️ schema — APPROVED 2026-07-01 ("lanjut ke B7") | b7-taxonomies-terms.md |
 | B8 | Relationships | ⏳ TODO | ⚠️ new table `content_entry_relations` | — |
 | B9 | Phase 4 reuse wiring (revisions/schedule/audit/seo) | ⏳ TODO | — | — |
 | B10 | Entry body via builder (§3.2 = A, now active) | ⏳ TODO | — | — |

@@ -142,16 +142,17 @@ Flexible Content Modeling — custom content types, field groups, fields, and en
 - A3: Polymorphic `page_blocks` (dual-rail morph: `blockable_type` / `blockable_id`) — schema approved, migrated.
 - A4: `config/field-types.php` catalog (18 types) + `FieldTypeRegistry` static wrapper.
 
-**Stage B — Build the Engine — M2 COMPLETE (B1–B5) 🔨**
+**Stage B — Build the Engine — M2 COMPLETE, M3 IN PROGRESS (B1–B7) 🔨**
 - B1 ✅: `content_types` table + full admin CRUD (slug auto-gen, reserved-prefix guard, soft delete).
 - B2 ✅: `field_groups` + `fields` tables + nested CRUD (compound unique key per scope, is_filterable inherits catalog, dual ownership check, reorder endpoints).
 - B3 ✅: Field rendering engine — `<x-admin.field-input>` Blade component dispatches to 18 type partials. Media types use Alpine.js + hidden inputs.
 - B4 ✅: `content_entries` table (FK RESTRICT, varchar status not ENUM, compound unique slug per type, author SET NULL, JSON data + seo) + admin CRUD. ContentType forceDelete guarded. B2+B3+B4 form integration complete.
 - B5 ✅: `FieldValidationResolver` (no schema) — resolves dynamic `data.*` rules per ContentType: placeholder substitution from `$field->settings`, `is_required` toggle, special handling for gallery/checkbox/relationship (wildcard `.*` rules) + datetime normalisation. Integrated into Store + Update FormRequests.
 - B6 ✅: `content_entry_index` table (CASCADE, no timestamps, 3 value columns) + `ContentEntryIndexService` (field projection by cast type) + `ContentEntryObserver` (saved/restored hooks). Filterable fields auto-projected on every entry save; stale rows cleaned up.
-- B7–B14: ⏳ TODO (taxonomies, relationships, Phase 4 wiring, builder bridge, frontend routing).
+- B7 ✅: `taxonomies` + `terms` + `content_entry_term` pivot. `Taxonomy` (softDeletes, appliesToType, content_type_ids JSON restriction) + `Term` (softDeletes, self-referential parent, ordered). `TaxonomyController` + `TermController` full CRUD. ContentEntryController syncs terms on save. Term picker partial in entry form (flat tag chips + hierarchical tree).
+- B8–B14: ⏳ TODO (relationships, Phase 4 wiring, builder bridge, frontend routing).
 
-Test suite: 728/728 pass | PHPStan level 5: 0 errors (as of 2026-07-01 after B6).
+Test suite: 743/743 pass | PHPStan level 5: 0 errors (as of 2026-07-01 after B7).
 Grand plan + progress: `ai/reports/phase-6/phase-6-progress-handoff.md`
 
 **Phase 7 — FUTURE**
