@@ -66,6 +66,37 @@ class ContentEntry extends Model
         return $this->belongsToMany(Term::class, 'content_entry_term');
     }
 
+    /**
+     * Entries this entry links TO (via its relationship fields).
+     *
+     * @return BelongsToMany<ContentEntry, $this>
+     */
+    public function relatedEntries(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            ContentEntry::class,
+            'content_entry_relations',
+            'source_entry_id',
+            'target_entry_id'
+        )->withPivot('field_key', 'sort_order')
+         ->orderBy('content_entry_relations.sort_order');
+    }
+
+    /**
+     * Entries that link TO this entry (reverse lookup).
+     *
+     * @return BelongsToMany<ContentEntry, $this>
+     */
+    public function relatingEntries(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            ContentEntry::class,
+            'content_entry_relations',
+            'target_entry_id',
+            'source_entry_id'
+        )->withPivot('field_key', 'sort_order');
+    }
+
     // ---------------------------------------------------------------- field value access
 
     /** Read a custom field value from the JSON data bag. */
