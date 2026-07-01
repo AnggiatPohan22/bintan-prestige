@@ -142,7 +142,7 @@ Flexible Content Modeling — custom content types, field groups, fields, and en
 - A3: Polymorphic `page_blocks` (dual-rail morph: `blockable_type` / `blockable_id`) — schema approved, migrated.
 - A4: `config/field-types.php` catalog (18 types) + `FieldTypeRegistry` static wrapper.
 
-**Stage B — Build the Engine — M2 COMPLETE, M3 IN PROGRESS (B1–B8) 🔨**
+**Stage B — Build the Engine — M2 + M3 COMPLETE (B1–B9), M4 next 🔨**
 - B1 ✅: `content_types` table + full admin CRUD (slug auto-gen, reserved-prefix guard, soft delete).
 - B2 ✅: `field_groups` + `fields` tables + nested CRUD (compound unique key per scope, is_filterable inherits catalog, dual ownership check, reorder endpoints).
 - B3 ✅: Field rendering engine — `<x-admin.field-input>` Blade component dispatches to 18 type partials. Media types use Alpine.js + hidden inputs.
@@ -151,9 +151,10 @@ Flexible Content Modeling — custom content types, field groups, fields, and en
 - B6 ✅: `content_entry_index` table (CASCADE, no timestamps, 3 value columns) + `ContentEntryIndexService` (field projection by cast type) + `ContentEntryObserver` (saved/restored hooks). Filterable fields auto-projected on every entry save; stale rows cleaned up.
 - B7 ✅: `taxonomies` + `terms` + `content_entry_term` pivot. `Taxonomy` (softDeletes, appliesToType, content_type_ids JSON restriction) + `Term` (softDeletes, self-referential parent, ordered). `TaxonomyController` + `TermController` full CRUD. ContentEntryController syncs terms on save. Term picker partial in entry form (flat tag chips + hierarchical tree).
 - B8 ✅: `content_entry_relations` table (source/target FK CASCADE, field_key, sort_order; forward + reverse indexes; no timestamps). `ContentEntryRelation` model + `ContentEntryRelationService` projects relationship-type field values from data JSON on save (FK-safe filter to existing entries, no self-links, order preserved). Wired into `ContentEntryObserver`. `ContentEntry::relatedEntries()` (forward) + `relatingEntries()` (reverse).
-- B9–B14: ⏳ TODO (Phase 4 wiring, builder bridge, frontend routing).
+- B9 ✅: Phase 4 reuse wiring. NEW `content_entry_revisions` table (isolated CASCADE, flexible `snapshot` JSON) + `ContentEntryRevisionService` (20-keep prune, reversible restore) + revision history UI. Audit log via `ContentEntryObserver` created/updated/deleted (reuse polymorphic `AuditLog`). `PublishScheduledContentEntries` command (reuse status/published_at) scheduled everyMinute. `ContentEntry::seoMeta()` fallback resolver (reuse `seo` JSON).
+- B10–B14: ⏳ TODO (builder body, builder bridge, frontend routing).
 
-Test suite: 761/761 pass | PHPStan level 5: 0 errors (as of 2026-07-01 after B8).
+Test suite: 771/771 pass | PHPStan level 5: 0 errors (as of 2026-07-02 after B9).
 Grand plan + progress: `ai/reports/phase-6/phase-6-progress-handoff.md`
 
 **Phase 7 — FUTURE**
