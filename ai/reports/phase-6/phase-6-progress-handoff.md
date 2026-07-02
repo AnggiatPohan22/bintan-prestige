@@ -14,12 +14,12 @@
 > approval owner eksplisit** (AGENTS.md §9) — fase ini hampir seluruhnya schema
 > work, jadi approval gate sering by design.
 >
-> **Last updated:** 2026-07-02 — B9 (Phase 4 reuse wiring) complete.
-> B1–B9 all DONE: content types, field groups+fields, rendering engine, content entries,
+> **Last updated:** 2026-07-02 — B10 (Entry body via builder) complete.
+> B1–B10 all DONE: content types, field groups+fields, rendering engine, content entries,
 > per-field validation, sidecar index, taxonomies + terms, entry↔entry relations,
-> revisions + audit + scheduling + SEO meta. Test suite: 771/771 green.
-> PHPStan level 5: 0 errors. Milestone M3 (Organize & relate) COMPLETE.
-> Next: B10 Entry body via builder (M4 — Public + visual begins).
+> revisions + audit + scheduling + SEO meta, builder body on the morph rail.
+> Test suite: 785/785 green. PHPStan level 5: 0 errors. M3 COMPLETE, M4 started.
+> Next: B11 Frontend routing + controllers (⚠️ route ordering).
 
 ---
 
@@ -61,7 +61,7 @@ Legend: `⏳ TODO` · `🔨 IN PROGRESS` · `✅ DONE` · `⛔ BLOCKED` · `⚠�
 | B7 | Taxonomies & Terms | ✅ DONE | ⚠️ schema — APPROVED 2026-07-01 ("lanjut ke B7") | b7-taxonomies-terms.md |
 | B8 | Relationships | ✅ DONE | ⚠️ schema — APPROVED 2026-07-01 ("ok move ke B8") | b8-relationships.md |
 | B9 | Phase 4 reuse wiring (revisions/schedule/audit/seo) | ✅ DONE | ⚠️ schema (content_entry_revisions) — APPROVED 2026-07-02 | b9-phase4-reuse-wiring.md |
-| B10 | Entry body via builder (§3.2 = A, now active) | ⏳ TODO | — | — |
+| B10 | Entry body via builder (§3.2 = A, now active) | ✅ DONE | — (reuse A3 morph rail) | b10-entry-builder.md |
 | B11 | Frontend routing + controllers | ⏳ TODO | ⚠️ route ordering | — |
 | B12 | Template resolution + render | ⏳ TODO | — | — |
 | B13 | **Builder bridge — `content_query` block** | ⏳ TODO | — | — |
