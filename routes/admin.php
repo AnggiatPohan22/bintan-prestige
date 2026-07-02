@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\AnalyticsDashboardController;
 use App\Http\Controllers\Admin\DashboardAppearanceController;
 use App\Http\Controllers\Admin\AuditLogController;
 use App\Http\Controllers\Admin\BuilderPatternController;
+use App\Http\Controllers\Admin\ContentEntryBuilderController;
 use App\Http\Controllers\Admin\ContentEntryController;
 use App\Http\Controllers\Admin\ContentTypeController;
 use App\Http\Controllers\Admin\FieldController;
@@ -314,6 +315,11 @@ Route::middleware(['auth', 'admin'])
                 Route::patch('/{id}/restore', [ContentEntryController::class, 'restore'])->name('restore');
                 Route::delete('/{id}/force-delete', [ContentEntryController::class, 'forceDelete'])->name('force-delete');
                 Route::post('/{entry}/revisions/{revision}/restore', [ContentEntryController::class, 'restoreRevision'])->name('revisions.restore');
+
+                // Visual builder (content types with `editor` support) — morph rail.
+                Route::get('/{entry}/builder', [ContentEntryBuilderController::class, 'show'])->name('builder');
+                Route::post('/{entry}/builder/save-tree', [ContentEntryBuilderController::class, 'saveTree'])->name('builder.save-tree');
+                Route::post('/{entry}/builder/preview-payload', [ContentEntryBuilderController::class, 'previewPayload'])->name('builder.preview-payload');
             });
 
         /*

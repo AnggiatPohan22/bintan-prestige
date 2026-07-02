@@ -47,4 +47,14 @@ class ContentEntryObserver
     {
         AuditLog::record('deleted', $entry, $entry->getAttributes(), null);
     }
+
+    /**
+     * Morph-owned builder blocks have no DB foreign key (blockable_id is not an
+     * FK), so a hard delete must clean them up explicitly. Soft delete keeps them
+     * so a restored entry keeps its body.
+     */
+    public function forceDeleted(ContentEntry $entry): void
+    {
+        $entry->blocks()->delete();
+    }
 }

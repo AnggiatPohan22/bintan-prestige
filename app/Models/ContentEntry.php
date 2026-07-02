@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ContentEntry extends Model
@@ -102,6 +103,18 @@ class ContentEntry extends Model
     public function revisions(): HasMany
     {
         return $this->hasMany(ContentEntryRevision::class)->orderByDesc('revision_number');
+    }
+
+    /**
+     * Builder block-tree body, stored on the polymorphic page_blocks rail
+     * (blockable morph, page_id NULL). Only meaningful when the content type
+     * supports the `editor` feature. See A3 (dual-rail morph) + B10.
+     *
+     * @return MorphMany<PageBlock, $this>
+     */
+    public function blocks(): MorphMany
+    {
+        return $this->morphMany(PageBlock::class, 'blockable')->orderBy('sort_order');
     }
 
     // ---------------------------------------------------------------- SEO meta

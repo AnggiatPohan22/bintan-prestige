@@ -25,10 +25,28 @@
                 {{ $isEdit ? ($entry->title ?? 'Edit Entry') : 'New '.$contentType->label_singular }}
             </h1>
         </div>
-        <a href="{{ route('admin.content-types.entries.index', $contentType) }}" class="admin-btn-secondary w-full sm:w-auto">
-            Back to Entries
-        </a>
+        <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
+            @if($isEdit && $contentType->supports('editor'))
+                <a href="{{ route('admin.content-types.entries.builder', [$contentType, $entry]) }}"
+                   class="admin-btn-primary w-full sm:w-auto">
+                    <i class="fa-solid fa-table-cells-large mr-1.5 text-xs"></i>
+                    Edit Body in Builder
+                </a>
+            @endif
+            <a href="{{ route('admin.content-types.entries.index', $contentType) }}" class="admin-btn-secondary w-full sm:w-auto">
+                Back to Entries
+            </a>
+        </div>
     </div>
+
+    @if($isEdit && $contentType->supports('editor'))
+        <div class="mb-6 rounded-lg border border-indigo-100 bg-indigo-50/60 px-4 py-3 text-sm text-slate-600">
+            <i class="fa-solid fa-circle-info mr-1 text-indigo-500"></i>
+            This content type has a visual <strong>body</strong>. Use
+            <a href="{{ route('admin.content-types.entries.builder', [$contentType, $entry]) }}" class="text-indigo-600 hover:underline">Edit Body in Builder</a>
+            to compose block content. Fields below store structured data.
+        </div>
+    @endif
 
     @if(session('success'))
         <div class="admin-alert-success mb-6">{{ session('success') }}</div>
