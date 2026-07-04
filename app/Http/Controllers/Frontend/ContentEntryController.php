@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\ContentEntry;
 use App\Models\ContentType;
 use App\Models\PageBlock;
+use App\Support\ContentEntryTemplateRegistry;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 
@@ -80,6 +81,11 @@ class ContentEntryController extends Controller
             ? $this->buildTree($entry->blocks()->visible()->ordered()->get())
             : collect();
 
+        // Template resolution: per-entry `template` override → validated key → default.
+        $templateKey       = ContentEntryTemplateRegistry::keyFor($entry->template);
+        $templateContainer = ContentEntryTemplateRegistry::containerFor($templateKey);
+        $schemaType        = ContentEntryTemplateRegistry::schemaTypeFor($templateKey);
+
         $meta           = $entry->seoMeta();
         $seoTitle       = $meta['title'];
         $seoDescription = $meta['description'];
@@ -87,7 +93,9 @@ class ContentEntryController extends Controller
         $seoRobots      = 'index, follow';
 
         return view('frontend.content-entries.single', compact(
-            'type', 'entry', 'blocks', 'seoTitle', 'seoDescription', 'canonicalUrl', 'seoRobots'
+            'type', 'entry', 'blocks',
+            'templateKey', 'templateContainer', 'schemaType',
+            'seoTitle', 'seoDescription', 'canonicalUrl', 'seoRobots'
         ));
     }
 
