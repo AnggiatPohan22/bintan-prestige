@@ -153,9 +153,10 @@ Flexible Content Modeling — custom content types, field groups, fields, and en
 - B8 ✅: `content_entry_relations` table (source/target FK CASCADE, field_key, sort_order; forward + reverse indexes; no timestamps). `ContentEntryRelation` model + `ContentEntryRelationService` projects relationship-type field values from data JSON on save (FK-safe filter to existing entries, no self-links, order preserved). Wired into `ContentEntryObserver`. `ContentEntry::relatedEntries()` (forward) + `relatingEntries()` (reverse).
 - B9 ✅: Phase 4 reuse wiring. NEW `content_entry_revisions` table (isolated CASCADE, flexible `snapshot` JSON) + `ContentEntryRevisionService` (20-keep prune, reversible restore) + revision history UI. Audit log via `ContentEntryObserver` created/updated/deleted (reuse polymorphic `AuditLog`). `PublishScheduledContentEntries` command (reuse status/published_at) scheduled everyMinute. `ContentEntry::seoMeta()` fallback resolver (reuse `seo` JSON).
 - B10 ✅: Entry body via visual builder on the A3 morph rail. `ContentEntry::blocks()` MorphMany (page_id NULL) + observer `forceDeleted()` cleanup. `ContentEntryBuilderController` (show/saveTree/previewPayload) reuses BuilderTreeSanitizer + PageBlockService + revision snapshot. Generic Phase 5 builder partials reused unchanged; entry builder view + topbar + standalone preview shell added. "Edit Body in Builder" button on entry edit for `editor`-supported types. Page builder untouched (dual-rail).
-- B11–B14: ⏳ TODO (frontend routing, template render, builder bridge blocks).
+- B11 ✅: Public frontend routing via `Route::fallback()` (always lowest priority — never shadows explicit/admin routes; route_base is unique + RESERVED_PREFIXES-guarded). `Frontend\ContentEntryController` resolve→archive (`/{route_base}`, needs has_archive) / single (`/{route_base}/{slug}`). Published-only (draft/future → 404). Single renders builder block body for `editor` types. `ContentEntry::publicUrl()` + archive/single views.
+- B12–B14: ⏳ TODO (template resolution, builder bridge blocks).
 
-Test suite: 785/785 pass | PHPStan level 5: 0 errors (as of 2026-07-02 after B10).
+Test suite: 799/799 pass | PHPStan level 5: 0 errors (as of 2026-07-02 after B11).
 Grand plan + progress: `ai/reports/phase-6/phase-6-progress-handoff.md`
 
 **Phase 7 — FUTURE**

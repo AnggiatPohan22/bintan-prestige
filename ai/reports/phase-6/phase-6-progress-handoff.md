@@ -14,12 +14,12 @@
 > approval owner eksplisit** (AGENTS.md §9) — fase ini hampir seluruhnya schema
 > work, jadi approval gate sering by design.
 >
-> **Last updated:** 2026-07-02 — B10 (Entry body via builder) complete.
-> B1–B10 all DONE: content types, field groups+fields, rendering engine, content entries,
+> **Last updated:** 2026-07-02 — B11 (Frontend routing) complete.
+> B1–B11 all DONE: content types, field groups+fields, rendering engine, content entries,
 > per-field validation, sidecar index, taxonomies + terms, entry↔entry relations,
-> revisions + audit + scheduling + SEO meta, builder body on the morph rail.
-> Test suite: 785/785 green. PHPStan level 5: 0 errors. M3 COMPLETE, M4 started.
-> Next: B11 Frontend routing + controllers (⚠️ route ordering).
+> revisions + audit + scheduling + SEO meta, builder body, public archive+single routing.
+> Test suite: 799/799 green. PHPStan level 5: 0 errors. M4 in progress.
+> Next: B12 Template resolution + render.
 
 ---
 
@@ -62,7 +62,7 @@ Legend: `⏳ TODO` · `🔨 IN PROGRESS` · `✅ DONE` · `⛔ BLOCKED` · `⚠�
 | B8 | Relationships | ✅ DONE | ⚠️ schema — APPROVED 2026-07-01 ("ok move ke B8") | b8-relationships.md |
 | B9 | Phase 4 reuse wiring (revisions/schedule/audit/seo) | ✅ DONE | ⚠️ schema (content_entry_revisions) — APPROVED 2026-07-02 | b9-phase4-reuse-wiring.md |
 | B10 | Entry body via builder (§3.2 = A, now active) | ✅ DONE | — (reuse A3 morph rail) | b10-entry-builder.md |
-| B11 | Frontend routing + controllers | ⏳ TODO | ⚠️ route ordering | — |
+| B11 | Frontend routing + controllers | ✅ DONE | ⚠️ route ordering — solved via Route::fallback() | b11-frontend-routing.md |
 | B12 | Template resolution + render | ⏳ TODO | — | — |
 | B13 | **Builder bridge — `content_query` block** | ⏳ TODO | — | — |
 | B14 | **Builder bridge — `content_field` block** | ⏳ TODO | — | — |
