@@ -137,6 +137,23 @@ class ContentEntry extends Model
         ];
     }
 
+    /**
+     * Public frontend URL for this entry, resolved through the fallback route
+     * (`/{route_base}/{slug}`). Returns null when the type is not publicly
+     * routable (no route_base or the slug is missing).
+     */
+    public function publicUrl(): ?string
+    {
+        $this->loadMissing('contentType');
+        $base = $this->contentType?->route_base;
+
+        if ($base === null || $base === '' || $this->slug === null || $this->slug === '') {
+            return null;
+        }
+
+        return url($base.'/'.$this->slug);
+    }
+
     // ---------------------------------------------------------------- field value access
 
     /** Read a custom field value from the JSON data bag. */
