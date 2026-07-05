@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
 /**
  * @property array<int, array{question: mixed, answer: mixed}> $resolvedFaqItems
  * @property \Illuminate\Database\Eloquent\Collection<int, Product> $resolvedProducts
+ * @property \Illuminate\Database\Eloquent\Collection<int, ContentEntry> $resolvedEntries
  */
 class PageBlock extends Model
 {

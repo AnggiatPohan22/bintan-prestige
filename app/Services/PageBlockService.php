@@ -157,6 +157,14 @@ class PageBlockService
                 'limit' => 6,
                 'show_price' => true,
             ],
+            'content_query' => $bg + [
+                'content_type' => null,
+                'heading' => '',
+                'orderby' => 'newest',
+                'columns' => '3',
+                'limit' => 6,
+                'show_excerpt' => true,
+            ],
             'faq' => $bg + [
                 'source' => 'inline',
                 'faq_ids' => [],
@@ -343,6 +351,14 @@ class PageBlockService
                 'destination_id' => ['nullable', 'integer', 'exists:destinations,id'],
                 'limit' => ['nullable', 'integer', 'between:3,12'],
                 'show_price' => ['nullable', 'boolean'],
+            ],
+            'content_query' => [
+                'content_type' => ['nullable', 'integer', 'exists:content_types,id'],
+                'heading' => ['nullable', 'string', 'max:255'],
+                'orderby' => ['nullable', Rule::in(['newest', 'oldest', 'title', 'sort_order'])],
+                'columns' => ['nullable', Rule::in(['1', '2', '3'])],
+                'limit' => ['nullable', 'integer', 'between:1,24'],
+                'show_excerpt' => ['nullable', 'boolean'],
             ],
             'faq' => [
                 'source' => ['nullable', Rule::in(['inline', 'ids'])],

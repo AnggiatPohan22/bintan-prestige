@@ -46,6 +46,8 @@ class ContentEntryBuilderController extends Controller
                 ->map(fn (Destination $d): array => ['value' => (string) $d->id, 'label' => $d->name])->all(),
             'forms' => FormDefinition::orderBy('name')->get(['id', 'name'])
                 ->map(fn (FormDefinition $f): array => ['value' => (string) $f->id, 'label' => $f->name])->all(),
+            'content_types' => ContentType::query()->public()->orderBy('label_plural')->get(['id', 'label_plural'])
+                ->map(fn (ContentType $t): array => ['value' => (string) $t->id, 'label' => $t->label_plural])->all(),
         ];
 
         return view('backend.builder.entry', compact('contentType', 'entry', 'tree', 'registry', 'fieldOptions'));

@@ -16,14 +16,29 @@ final class PageRenderData
      *
      * @return array{faqItems: array<int, array<string, mixed>>}
      */
+    public function __construct(private readonly ContentQueryResolver $contentQuery = new ContentQueryResolver()) {}
+
     public function prepare(Page $page): array
     {
         $blocks = $this->flattenBlocks($page->blocks);
         $faqItems = $this->prepareFaqBlocks($blocks);
         $this->prepareProductBlocks($blocks);
         $this->prepareContactFormBlocks($blocks);
+        $this->prepareContentQueryBlocks($blocks);
 
         return ['faqItems' => $faqItems];
+    }
+
+    /**
+     * Resolve the entry list for every content_query block once, before Blade.
+     *
+     * @param  Collection<int, PageBlock>  $blocks
+     */
+    private function prepareContentQueryBlocks(Collection $blocks): void
+    {
+        foreach ($blocks->where('block_type', 'content_query') as $block) {
+            $block->resolvedEntries = $this->contentQuery->resolve($block->data ?? []);
+        }
     }
 
     /**

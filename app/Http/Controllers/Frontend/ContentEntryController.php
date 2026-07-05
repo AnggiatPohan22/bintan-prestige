@@ -7,6 +7,7 @@ use App\Models\ContentEntry;
 use App\Models\ContentType;
 use App\Models\PageBlock;
 use App\Support\ContentEntryTemplateRegistry;
+use App\Support\ContentQueryResolver;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 
@@ -23,6 +24,8 @@ use Illuminate\Support\Collection;
  */
 class ContentEntryController extends Controller
 {
+    public function __construct(private readonly ContentQueryResolver $contentQuery = new ContentQueryResolver()) {}
+
     public function resolve(Request $request): mixed
     {
         $segments = array_values(array_filter(explode('/', trim($request->path(), '/')), fn ($s): bool => $s !== ''));
@@ -81,6 +84,9 @@ class ContentEntryController extends Controller
             ? $this->buildTree($entry->blocks()->visible()->ordered()->get())
             : collect();
 
+        // Resolve any content_query blocks (queries stay out of Blade).
+        $this->resolveContentQueries($blocks);
+
         // Template resolution: per-entry `template` override → validated key → default.
         $templateKey       = ContentEntryTemplateRegistry::keyFor($entry->template);
         $templateContainer = ContentEntryTemplateRegistry::containerFor($templateKey);
@@ -97,6 +103,25 @@ class ContentEntryController extends Controller
             'templateKey', 'templateContainer', 'schemaType',
             'seoTitle', 'seoDescription', 'canonicalUrl', 'seoRobots'
         ));
+    }
+
+    /**
+     * Resolve content_query blocks anywhere in the (already nested) tree,
+     * setting $block->resolvedEntries before Blade renders.
+     *
+     * @param  Collection<int, PageBlock>  $blocks
+     */
+    private function resolveContentQueries(Collection $blocks): void
+    {
+        foreach ($blocks as $block) {
+            if ($block->block_type === 'content_query') {
+                $block->resolvedEntries = $this->contentQuery->resolve($block->data ?? []);
+            }
+
+            if ($block->relationLoaded('children')) {
+                $this->resolveContentQueries($block->children);
+            }
+        }
     }
 
     /**
