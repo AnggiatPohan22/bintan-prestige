@@ -14,12 +14,12 @@
 > approval owner eksplisit** (AGENTS.md §9) — fase ini hampir seluruhnya schema
 > work, jadi approval gate sering by design.
 >
-> **Last updated:** 2026-07-02 — B11 (Frontend routing) complete.
-> B1–B11 all DONE: content types, field groups+fields, rendering engine, content entries,
+> **Last updated:** 2026-07-02 — B12 (Template resolution + render) complete.
+> B1–B12 all DONE: content types, field groups+fields, rendering engine, content entries,
 > per-field validation, sidecar index, taxonomies + terms, entry↔entry relations,
-> revisions + audit + scheduling + SEO meta, builder body, public archive+single routing.
-> Test suite: 799/799 green. PHPStan level 5: 0 errors. M4 in progress.
-> Next: B12 Template resolution + render.
+> revisions + audit + scheduling + SEO meta, builder body, public routing, template
+> resolution + structured data. Test suite: 807/807 green. PHPStan level 5: 0 errors.
+> Next: B13 Builder bridge — content_query block.
 
 ---
 
@@ -63,7 +63,7 @@ Legend: `⏳ TODO` · `🔨 IN PROGRESS` · `✅ DONE` · `⛔ BLOCKED` · `⚠�
 | B9 | Phase 4 reuse wiring (revisions/schedule/audit/seo) | ✅ DONE | ⚠️ schema (content_entry_revisions) — APPROVED 2026-07-02 | b9-phase4-reuse-wiring.md |
 | B10 | Entry body via builder (§3.2 = A, now active) | ✅ DONE | — (reuse A3 morph rail) | b10-entry-builder.md |
 | B11 | Frontend routing + controllers | ✅ DONE | ⚠️ route ordering — solved via Route::fallback() | b11-frontend-routing.md |
-| B12 | Template resolution + render | ⏳ TODO | — | — |
+| B12 | Template resolution + render | ✅ DONE | — | b12-template-resolution.md |
 | B13 | **Builder bridge — `content_query` block** | ⏳ TODO | — | — |
 | B14 | **Builder bridge — `content_field` block** | ⏳ TODO | — | — |
 
