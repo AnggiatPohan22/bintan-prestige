@@ -155,9 +155,10 @@ Flexible Content Modeling — custom content types, field groups, fields, and en
 - B10 ✅: Entry body via visual builder on the A3 morph rail. `ContentEntry::blocks()` MorphMany (page_id NULL) + observer `forceDeleted()` cleanup. `ContentEntryBuilderController` (show/saveTree/previewPayload) reuses BuilderTreeSanitizer + PageBlockService + revision snapshot. Generic Phase 5 builder partials reused unchanged; entry builder view + topbar + standalone preview shell added. "Edit Body in Builder" button on entry edit for `editor`-supported types. Page builder untouched (dual-rail).
 - B11 ✅: Public frontend routing via `Route::fallback()` (always lowest priority — never shadows explicit/admin routes; route_base is unique + RESERVED_PREFIXES-guarded). `Frontend\ContentEntryController` resolve→archive (`/{route_base}`, needs has_archive) / single (`/{route_base}/{slug}`). Published-only (draft/future → 404). Single renders builder block body for `editor` types. `ContentEntry::publicUrl()` + archive/single views.
 - B12 ✅: Template resolution + structured data. `ContentEntryTemplateRegistry` maps per-entry `template` string → render container + schema type (default/contained → Article, full-width → WebPage; unknown → default). Single view applies resolved container width + emits JSON-LD (Article/WebPage) with headline/description/url/dates/author.
-- B13–B14: ⏳ TODO (builder bridge blocks: content_query, content_field).
+- B13 ✅: Builder bridge — `content_query` block. Queries + renders a list of published entries of a chosen public type (heading/orderby/columns/limit/show_excerpt). Registered in config/blocks.php + PageBlockService. `ContentQueryResolver` (shared, resolve-before-Blade) used by PageRenderData (pages) + Frontend\ContentEntryController (entry bodies). `content_types` option source added to both builders (page builder otherwise untouched).
+- B14: ⏳ TODO (builder bridge — content_field block).
 
-Test suite: 807/807 pass | PHPStan level 5: 0 errors (as of 2026-07-02 after B12).
+Test suite: 815/815 pass | PHPStan level 5: 0 errors (as of 2026-07-02 after B13).
 Grand plan + progress: `ai/reports/phase-6/phase-6-progress-handoff.md`
 
 **Phase 7 — FUTURE**

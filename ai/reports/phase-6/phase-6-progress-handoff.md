@@ -14,12 +14,12 @@
 > approval owner eksplisit** (AGENTS.md §9) — fase ini hampir seluruhnya schema
 > work, jadi approval gate sering by design.
 >
-> **Last updated:** 2026-07-02 — B12 (Template resolution + render) complete.
-> B1–B12 all DONE: content types, field groups+fields, rendering engine, content entries,
+> **Last updated:** 2026-07-02 — B13 (content_query block) complete.
+> B1–B13 all DONE: content types, field groups+fields, rendering engine, content entries,
 > per-field validation, sidecar index, taxonomies + terms, entry↔entry relations,
 > revisions + audit + scheduling + SEO meta, builder body, public routing, template
-> resolution + structured data. Test suite: 807/807 green. PHPStan level 5: 0 errors.
-> Next: B13 Builder bridge — content_query block.
+> resolution, content_query builder block. Test suite: 815/815 green. PHPStan level 5: 0 errors.
+> Next: B14 Builder bridge — content_field block (last of M4).
 
 ---
 
@@ -64,7 +64,7 @@ Legend: `⏳ TODO` · `🔨 IN PROGRESS` · `✅ DONE` · `⛔ BLOCKED` · `⚠�
 | B10 | Entry body via builder (§3.2 = A, now active) | ✅ DONE | — (reuse A3 morph rail) | b10-entry-builder.md |
 | B11 | Frontend routing + controllers | ✅ DONE | ⚠️ route ordering — solved via Route::fallback() | b11-frontend-routing.md |
 | B12 | Template resolution + render | ✅ DONE | — | b12-template-resolution.md |
-| B13 | **Builder bridge — `content_query` block** | ⏳ TODO | — | — |
+| B13 | **Builder bridge — `content_query` block** | ✅ DONE | — | b13-content-query-block.md |
 | B14 | **Builder bridge — `content_field` block** | ⏳ TODO | — | — |
 
 ### Stage C — Release Audit
