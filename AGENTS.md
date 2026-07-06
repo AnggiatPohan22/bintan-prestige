@@ -142,7 +142,7 @@ Flexible Content Modeling — custom content types, field groups, fields, and en
 - A3: Polymorphic `page_blocks` (dual-rail morph: `blockable_type` / `blockable_id`) — schema approved, migrated.
 - A4: `config/field-types.php` catalog (18 types) + `FieldTypeRegistry` static wrapper.
 
-**Stage B — Build the Engine — M2 + M3 COMPLETE, M4 IN PROGRESS (B1–B10) 🔨**
+**Stage B — Build the Engine — COMPLETE ✅ (B1–B14, M2–M4 done)**
 - B1 ✅: `content_types` table + full admin CRUD (slug auto-gen, reserved-prefix guard, soft delete).
 - B2 ✅: `field_groups` + `fields` tables + nested CRUD (compound unique key per scope, is_filterable inherits catalog, dual ownership check, reorder endpoints).
 - B3 ✅: Field rendering engine — `<x-admin.field-input>` Blade component dispatches to 18 type partials. Media types use Alpine.js + hidden inputs.
@@ -156,9 +156,11 @@ Flexible Content Modeling — custom content types, field groups, fields, and en
 - B11 ✅: Public frontend routing via `Route::fallback()` (always lowest priority — never shadows explicit/admin routes; route_base is unique + RESERVED_PREFIXES-guarded). `Frontend\ContentEntryController` resolve→archive (`/{route_base}`, needs has_archive) / single (`/{route_base}/{slug}`). Published-only (draft/future → 404). Single renders builder block body for `editor` types. `ContentEntry::publicUrl()` + archive/single views.
 - B12 ✅: Template resolution + structured data. `ContentEntryTemplateRegistry` maps per-entry `template` string → render container + schema type (default/contained → Article, full-width → WebPage; unknown → default). Single view applies resolved container width + emits JSON-LD (Article/WebPage) with headline/description/url/dates/author.
 - B13 ✅: Builder bridge — `content_query` block. Queries + renders a list of published entries of a chosen public type (heading/orderby/columns/limit/show_excerpt). Registered in config/blocks.php + PageBlockService. `ContentQueryResolver` (shared, resolve-before-Blade) used by PageRenderData (pages) + Frontend\ContentEntryController (entry bodies). `content_types` option source added to both builders (page builder otherwise untouched).
-- B14: ⏳ TODO (builder bridge — content_field block).
+- B14 ✅: Builder bridge — `content_field` block. Displays a single field value from the current entry (entry bodies) or a specific published+public entry by id. `ContentFieldResolver` (shared) formats by type — richtext sanitized, url/email href guarded against unsafe schemes. Registered in config/blocks.php + PageBlockService; resolved via PageRenderData (pages) + resolveBridgeBlocks (entry bodies).
 
-Test suite: 815/815 pass | PHPStan level 5: 0 errors (as of 2026-07-02 after B13).
+**Stage B COMPLETE (B1–B14). Milestone M4 done.** Next: Stage C — Release Audit.
+
+Test suite: 824/824 pass | PHPStan level 5: 0 errors (as of 2026-07-02 after B14).
 Grand plan + progress: `ai/reports/phase-6/phase-6-progress-handoff.md`
 
 **Phase 7 — FUTURE**
