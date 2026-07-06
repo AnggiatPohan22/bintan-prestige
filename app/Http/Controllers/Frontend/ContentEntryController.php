@@ -7,6 +7,7 @@ use App\Models\ContentEntry;
 use App\Models\ContentType;
 use App\Models\PageBlock;
 use App\Support\ContentEntryTemplateRegistry;
+use App\Support\ContentFieldResolver;
 use App\Support\ContentQueryResolver;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -24,7 +25,10 @@ use Illuminate\Support\Collection;
  */
 class ContentEntryController extends Controller
 {
-    public function __construct(private readonly ContentQueryResolver $contentQuery = new ContentQueryResolver()) {}
+    public function __construct(
+        private readonly ContentQueryResolver $contentQuery = new ContentQueryResolver(),
+        private readonly ContentFieldResolver $contentField = new ContentFieldResolver(),
+    ) {}
 
     public function resolve(Request $request): mixed
     {
@@ -84,8 +88,9 @@ class ContentEntryController extends Controller
             ? $this->buildTree($entry->blocks()->visible()->ordered()->get())
             : collect();
 
-        // Resolve any content_query blocks (queries stay out of Blade).
-        $this->resolveContentQueries($blocks);
+        // Resolve builder-bridge blocks (queries stay out of Blade). content_field
+        // uses this entry as the "current entry" context.
+        $this->resolveBridgeBlocks($blocks, $entry);
 
         // Template resolution: per-entry `template` override → validated key → default.
         $templateKey       = ContentEntryTemplateRegistry::keyFor($entry->template);
@@ -106,20 +111,25 @@ class ContentEntryController extends Controller
     }
 
     /**
-     * Resolve content_query blocks anywhere in the (already nested) tree,
-     * setting $block->resolvedEntries before Blade renders.
+     * Resolve builder-bridge blocks (content_query, content_field) anywhere in
+     * the already-nested tree, setting their resolved payloads before Blade.
+     * The given entry is the "current entry" context for content_field.
      *
      * @param  Collection<int, PageBlock>  $blocks
      */
-    private function resolveContentQueries(Collection $blocks): void
+    private function resolveBridgeBlocks(Collection $blocks, ContentEntry $currentEntry): void
     {
         foreach ($blocks as $block) {
             if ($block->block_type === 'content_query') {
                 $block->resolvedEntries = $this->contentQuery->resolve($block->data ?? []);
             }
 
+            if ($block->block_type === 'content_field') {
+                $block->resolvedField = $this->contentField->resolve($block->data ?? [], $currentEntry);
+            }
+
             if ($block->relationLoaded('children')) {
-                $this->resolveContentQueries($block->children);
+                $this->resolveBridgeBlocks($block->children, $currentEntry);
             }
         }
     }

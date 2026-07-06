@@ -16,7 +16,10 @@ final class PageRenderData
      *
      * @return array{faqItems: array<int, array<string, mixed>>}
      */
-    public function __construct(private readonly ContentQueryResolver $contentQuery = new ContentQueryResolver()) {}
+    public function __construct(
+        private readonly ContentQueryResolver $contentQuery = new ContentQueryResolver(),
+        private readonly ContentFieldResolver $contentField = new ContentFieldResolver(),
+    ) {}
 
     public function prepare(Page $page): array
     {
@@ -25,6 +28,7 @@ final class PageRenderData
         $this->prepareProductBlocks($blocks);
         $this->prepareContactFormBlocks($blocks);
         $this->prepareContentQueryBlocks($blocks);
+        $this->prepareContentFieldBlocks($blocks);
 
         return ['faqItems' => $faqItems];
     }
@@ -38,6 +42,19 @@ final class PageRenderData
     {
         foreach ($blocks->where('block_type', 'content_query') as $block) {
             $block->resolvedEntries = $this->contentQuery->resolve($block->data ?? []);
+        }
+    }
+
+    /**
+     * Resolve every content_field block. On a page there is no "current entry",
+     * so only blocks that name a specific entry_id resolve to a value.
+     *
+     * @param  Collection<int, PageBlock>  $blocks
+     */
+    private function prepareContentFieldBlocks(Collection $blocks): void
+    {
+        foreach ($blocks->where('block_type', 'content_field') as $block) {
+            $block->resolvedField = $this->contentField->resolve($block->data ?? [], null);
         }
     }
 

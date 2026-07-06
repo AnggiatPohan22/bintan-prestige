@@ -238,6 +238,18 @@ return [
             ['key' => 'show_excerpt', 'type' => 'toggle', 'label' => 'Show excerpt', 'default' => true],
         ],
     ],
+    'content_field' => [
+        'label' => 'Content Field', 'icon' => 'tag', 'category' => 'content',
+        'description' => 'Display a single field value from the current content entry (or a specific one by ID).',
+        'keywords' => ['field', 'value', 'meta', 'dynamic', 'acf'],
+        'supports' => ['background' => true, 'spacing' => false, 'alignment' => false, 'children' => false],
+        'fields' => [
+            ['key' => 'field_key', 'type' => 'text', 'label' => 'Field key', 'placeholder' => 'e.g. star_rating', 'help' => 'The key of the field to display.'],
+            ['key' => 'entry_id', 'type' => 'number', 'label' => 'Specific entry ID (optional)', 'min' => 1, 'help' => 'Leave blank to use the current entry (on entry bodies).'],
+            ['key' => 'label', 'type' => 'text', 'label' => 'Custom label (optional)', 'placeholder' => 'Defaults to the field label'],
+            ['key' => 'show_label', 'type' => 'toggle', 'label' => 'Show label', 'default' => true],
+        ],
+    ],
     'faq' => [
         'label' => 'FAQ', 'icon' => 'question-mark-circle', 'category' => 'content',
         'description' => 'Frequently asked questions from inline content or the FAQ library.',

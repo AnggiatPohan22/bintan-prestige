@@ -165,6 +165,12 @@ class PageBlockService
                 'limit' => 6,
                 'show_excerpt' => true,
             ],
+            'content_field' => $bg + [
+                'field_key' => '',
+                'entry_id' => null,
+                'label' => '',
+                'show_label' => true,
+            ],
             'faq' => $bg + [
                 'source' => 'inline',
                 'faq_ids' => [],
@@ -359,6 +365,12 @@ class PageBlockService
                 'columns' => ['nullable', Rule::in(['1', '2', '3'])],
                 'limit' => ['nullable', 'integer', 'between:1,24'],
                 'show_excerpt' => ['nullable', 'boolean'],
+            ],
+            'content_field' => [
+                'field_key' => ['nullable', 'string', 'max:100'],
+                'entry_id' => ['nullable', 'integer', 'exists:content_entries,id'],
+                'label' => ['nullable', 'string', 'max:255'],
+                'show_label' => ['nullable', 'boolean'],
             ],
             'faq' => [
                 'source' => ['nullable', Rule::in(['inline', 'ids'])],
