@@ -320,6 +320,7 @@ Route::middleware(['auth', 'admin'])
                 Route::get('/{entry}/builder', [ContentEntryBuilderController::class, 'show'])->name('builder');
                 Route::post('/{entry}/builder/save-tree', [ContentEntryBuilderController::class, 'saveTree'])->name('builder.save-tree');
                 Route::post('/{entry}/builder/preview-payload', [ContentEntryBuilderController::class, 'previewPayload'])->name('builder.preview-payload');
+                Route::post('/{entry}/builder/status', [ContentEntryBuilderController::class, 'updateStatus'])->name('builder.status');
             });
 
         /*

@@ -16,6 +16,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 
 /**
  * Opens the Phase 5 visual builder on a ContentEntry, storing the block tree on
@@ -79,6 +80,34 @@ class ContentEntryBuilderController extends Controller
             'success'     => true,
             'tree'        => $fresh,
             'template_id' => null,
+        ]);
+    }
+
+    /**
+     * Update the entry's publish status from inside the builder, so authors can
+     * publish without leaving the builder. Publishing sets published_at to now()
+     * when it is empty, so the entry goes live immediately.
+     */
+    public function updateStatus(Request $request, ContentType $contentType, ContentEntry $entry): JsonResponse
+    {
+        $this->guard($contentType, $entry);
+
+        $validated = $request->validate([
+            'status' => ['required', Rule::in(ContentEntry::STATUSES)],
+        ]);
+
+        $update = ['status' => $validated['status']];
+
+        if ($validated['status'] === ContentEntry::STATUS_PUBLISHED && $entry->published_at === null) {
+            $update['published_at'] = now();
+        }
+
+        $entry->update($update);
+
+        return response()->json([
+            'success'      => true,
+            'status'       => $entry->status,
+            'is_published' => $entry->isPublished(),
         ]);
     }
 

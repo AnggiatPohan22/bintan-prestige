@@ -215,6 +215,49 @@ class B10EntryBuilderTest extends TestCase
             ->assertSee('Empty Entry');
     }
 
+    // ---------------------------------------------------------------- publish from builder
+
+    public function test_can_publish_entry_from_the_builder(): void
+    {
+        $type  = $this->type(['supports' => ['title', 'editor']]);
+        $entry = $this->entry($type, ['status' => 'draft', 'published_at' => null]);
+
+        $this->actingAs($this->admin())
+            ->postJson(route('admin.content-types.entries.builder.status', [$type, $entry]), [
+                'status' => 'published',
+            ])
+            ->assertOk()
+            ->assertJson(['success' => true, 'status' => 'published', 'is_published' => true]);
+
+        $entry->refresh();
+        $this->assertSame('published', $entry->status);
+        $this->assertNotNull($entry->published_at); // set on publish so it goes live
+    }
+
+    public function test_builder_status_rejects_invalid_value(): void
+    {
+        $type  = $this->type(['supports' => ['title', 'editor']]);
+        $entry = $this->entry($type);
+
+        $this->actingAs($this->admin())
+            ->postJson(route('admin.content-types.entries.builder.status', [$type, $entry]), [
+                'status' => 'bogus',
+            ])
+            ->assertStatus(422);
+    }
+
+    public function test_builder_status_is_guarded_for_non_editor_type(): void
+    {
+        $type  = $this->type(['supports' => ['title']]); // no editor
+        $entry = $this->entry($type);
+
+        $this->actingAs($this->admin())
+            ->postJson(route('admin.content-types.entries.builder.status', [$type, $entry]), [
+                'status' => 'published',
+            ])
+            ->assertNotFound();
+    }
+
     // ---------------------------------------------------------------- edit page button
 
     public function test_edit_page_shows_builder_button_for_editor_type(): void

@@ -122,3 +122,39 @@ git revert ad9027b
 - **B11 — Frontend routing + controllers** (⚠️ route ordering): route publik untuk
   archive + single entry per content type (`route_base`), dengan guard urutan agar
   tidak bentrok dengan route existing.
+
+---
+
+## Post-Release Fix Log
+
+> Catatan perbaikan dari pengujian manual owner. Tidak menimpa laporan asli di atas.
+
+### 2026-07-07 — Fix #1: Publish status tidak bisa diubah dari dalam builder (UX)
+
+**Gejala:** Owner membuat entry, membuka **Edit Body in Builder**, menambah block,
+tapi topbar builder menampilkan status **Draft** (read-only) dan tidak ada cara
+mem-publish dari sana. Akibatnya entry tetap draft → `/{route_base}/{slug}` = **404**
+(single hanya menampilkan entri published).
+
+**Diagnosis:** Backend **tidak bug** — direproduksi via test: create `published` →
+status tetap `published` setelah save builder → single URL **200**. Masalahnya murni
+**UX**: badge status di builder read-only, jadi entri yang berstatus draft tidak bisa
+di-publish tanpa keluar ke form edit.
+
+**Perbaikan:** Badge status read-only di `topbar-entry.blade.php` diganti menjadi
+**dropdown status interaktif** (Draft/Published/Scheduled/Archived) yang menyimpan
+langsung via endpoint baru `POST .../builder/status`
+(`ContentEntryBuilderController::updateStatus`). Saat memilih **Published** dan
+`published_at` masih kosong, otomatis di-set `now()` supaya entri langsung live.
+Indikator saving/checkmark ditampilkan.
+
+**File:**
+- `app/Http/Controllers/Admin/ContentEntryBuilderController.php` — `updateStatus()`
+- `routes/admin.php` — route `builder.status`
+- `resources/views/backend/builder/partials/topbar-entry.blade.php` — dropdown status
+- `tests/Feature/Phase6/B10EntryBuilderTest.php` — +3 test (publish dari builder,
+  reject status invalid, guard non-editor)
+
+**Impact:** tidak ada perubahan schema. Guard 404 (editor-only + ownership) tetap.
+`update()` memicu observer (audit log mencatat perubahan status). Suite 827/827,
+PHPStan 0 errors.

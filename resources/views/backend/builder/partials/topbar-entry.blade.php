@@ -21,13 +21,47 @@
             <p class="truncate text-xs text-admin-secondary">{{ $contentType->label_singular }}</p>
         </div>
 
-        @if($entry->isPublished())
-            <span class="shrink-0 rounded-full bg-emerald-900/60 px-2 py-0.5 text-xs font-medium text-emerald-400">Published</span>
-        @elseif($entry->isScheduled())
-            <span class="shrink-0 rounded-full bg-amber-900/60 px-2 py-0.5 text-xs font-medium text-amber-400">Scheduled</span>
-        @else
-            <span class="shrink-0 rounded-full bg-admin-card px-2 py-0.5 text-xs font-medium text-admin-secondary">Draft</span>
-        @endif
+        {{-- Interactive publish status — change without leaving the builder. --}}
+        <div
+            x-data="{
+                status: @js($entry->status),
+                saving: false,
+                saved: false,
+                async update() {
+                    this.saving = true; this.saved = false;
+                    try {
+                        const res = await fetch(@js(route('admin.content-types.entries.builder.status', [$contentType, $entry])), {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': @js(csrf_token()), 'Accept': 'application/json' },
+                            body: JSON.stringify({ status: this.status }),
+                        });
+                        if (res.ok) { this.saved = true; setTimeout(() => this.saved = false, 2000); }
+                    } finally { this.saving = false; }
+                }
+            }"
+            class="flex shrink-0 items-center gap-1.5"
+        >
+            <select
+                x-model="status"
+                x-on:change="update()"
+                :disabled="saving"
+                class="rounded-lg border border-admin bg-admin-surface px-2 py-1 text-xs font-medium text-white focus:outline-none"
+                :class="{
+                    'text-emerald-400': status === 'published',
+                    'text-amber-400': status === 'scheduled',
+                }"
+                title="Publish status"
+            >
+                <option value="draft">Draft</option>
+                <option value="published">Published</option>
+                @if($contentType->supports('scheduling'))
+                    <option value="scheduled">Scheduled</option>
+                @endif
+                <option value="archived">Archived</option>
+            </select>
+            <i class="fa-solid fa-spinner fa-spin text-xs text-admin-secondary" x-show="saving" x-cloak></i>
+            <i class="fa-solid fa-check text-xs text-emerald-400" x-show="saved" x-cloak></i>
+        </div>
     </div>
 
     {{-- Right: action buttons --}}
