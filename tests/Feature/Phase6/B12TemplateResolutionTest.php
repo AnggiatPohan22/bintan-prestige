@@ -94,6 +94,18 @@ class B12TemplateResolutionTest extends TestCase
             ->assertSee('"url":"'.url('blog/schema-post').'"', false);
     }
 
+    public function test_structured_data_escapes_script_breakout(): void
+    {
+        $type = $this->type();
+        // A title containing </script> must never appear raw anywhere on the page:
+        // Blade escapes it in HTML, and the JSON-LD block hex-escapes '<'/'>'.
+        $this->entry($type, ['title' => 'Evil </script><script>alert(1)</script>', 'slug' => 'evil']);
+
+        $html = $this->get(url('/blog/evil'))->assertOk()->getContent();
+
+        $this->assertStringNotContainsString('</script><script>alert(1)</script>', $html);
+    }
+
     // ---------------------------------------------------------------- helpers
 
     private function type(array $attrs = []): ContentType
