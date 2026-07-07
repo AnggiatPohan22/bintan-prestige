@@ -55,6 +55,7 @@ class ContentEntryController extends Controller
 
         $entries = $type->entries()
             ->published()
+            ->with('contentType') // avoid N+1 from publicUrl() per card
             ->ordered()
             ->paginate(12);
 

@@ -16,6 +16,14 @@ use App\Models\Field;
 final class ContentFieldResolver
 {
     /**
+     * Per-request cache of a content type's fields, keyed by content_type_id then
+     * field key. Keeps many content_field blocks on one page to a single query.
+     *
+     * @var array<int, \Illuminate\Support\Collection<string, Field>>
+     */
+    private array $fieldCache = [];
+
+    /**
      * @param  array<string, mixed>  $data           the block's data bag
      * @param  ContentEntry|null      $currentEntry   entry whose body is rendering, if any
      * @return array{label: string, type: string, text: string, html: string, href: string, show_label: bool}|null
@@ -62,13 +70,17 @@ final class ContentFieldResolver
         ];
     }
 
-    /** Look up a field definition by key within a content type (nullable). */
+    /** Look up a field definition by key within a content type (nullable, cached). */
     private function findField(int $contentTypeId, string $key): ?Field
     {
-        return Field::query()
-            ->whereHas('fieldGroup', fn ($q) => $q->where('content_type_id', $contentTypeId))
-            ->where('key', $key)
-            ->first();
+        if (! isset($this->fieldCache[$contentTypeId])) {
+            $this->fieldCache[$contentTypeId] = Field::query()
+                ->whereHas('fieldGroup', fn ($q) => $q->where('content_type_id', $contentTypeId))
+                ->get()
+                ->keyBy('key');
+        }
+
+        return $this->fieldCache[$contentTypeId]->get($key);
     }
 
     /**
