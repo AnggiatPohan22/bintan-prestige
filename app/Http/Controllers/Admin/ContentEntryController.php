@@ -60,7 +60,7 @@ class ContentEntryController extends Controller
         $termIds   = array_map('intval', (array) ($validated['terms'] ?? []));
         $data      = collect($validated)->except('terms')->toArray();
 
-        $entry = $contentType->entries()->create(array_merge($data, [
+        $entry = $contentType->entries()->create(array_merge($this->normalizePublish($data), [
             'author_id' => Auth::id(),
         ]));
 
@@ -99,7 +99,7 @@ class ContentEntryController extends Controller
         $termIds   = array_map('intval', (array) ($validated['terms'] ?? []));
         $data      = collect($validated)->except('terms')->toArray();
 
-        $entry->update($data);
+        $entry->update($this->normalizePublish($data));
         $entry->terms()->sync($termIds);
 
         $this->revisions->snapshot($entry);
@@ -160,6 +160,33 @@ class ContentEntryController extends Controller
         if ($entry->content_type_id !== $contentType->id) {
             abort(404);
         }
+    }
+
+    /**
+     * "Published" means live now: clear an empty or future published_at to now()
+     * so the entry is immediately visible (a real past date is preserved). Future
+     * publishing is done with the "Scheduled" status instead.
+     *
+     * @param  array<string, mixed>  $data
+     * @return array<string, mixed>
+     */
+    private function normalizePublish(array $data): array
+    {
+        if (($data['status'] ?? null) !== ContentEntry::STATUS_PUBLISHED) {
+            return $data;
+        }
+
+        $publishedAt = $data['published_at'] ?? null;
+
+        $isFuture = is_string($publishedAt)
+            && $publishedAt !== ''
+            && \Illuminate\Support\Carbon::parse($publishedAt)->isFuture();
+
+        if ($publishedAt === null || $publishedAt === '' || $isFuture) {
+            $data['published_at'] = now();
+        }
+
+        return $data;
     }
 
     /**

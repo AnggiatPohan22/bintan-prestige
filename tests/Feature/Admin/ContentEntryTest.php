@@ -108,6 +108,43 @@ class ContentEntryTest extends TestCase
         $this->assertSame('14:00', $entry->fieldValue('check_in'));
     }
 
+    public function test_publishing_with_blank_date_goes_live_now(): void
+    {
+        $type = $this->type(['supports' => ['title', 'slug']]);
+
+        $this->actingAs($this->admin())
+            ->post(route('admin.content-types.entries.store', $type), [
+                'title'        => 'Live Now',
+                'status'       => 'published',
+                'published_at' => '', // blank → live immediately
+            ])
+            ->assertSessionHasNoErrors()
+            ->assertRedirect();
+
+        $entry = ContentEntry::firstWhere('title', 'Live Now');
+        $this->assertNotNull($entry->published_at);
+        $this->assertTrue($entry->isPublished());
+    }
+
+    public function test_publishing_with_future_date_is_clamped_to_now(): void
+    {
+        $type = $this->type(['supports' => ['title', 'slug']]);
+
+        $this->actingAs($this->admin())
+            ->post(route('admin.content-types.entries.store', $type), [
+                'title'        => 'Was Future',
+                'status'       => 'published',
+                'published_at' => now()->addDays(2)->format('Y-m-d\TH:i'),
+            ])
+            ->assertSessionHasNoErrors()
+            ->assertRedirect();
+
+        // Published (not Scheduled) → forced live now, so it is visible.
+        $entry = ContentEntry::firstWhere('title', 'Was Future');
+        $this->assertTrue($entry->isPublished());
+        $this->assertFalse($entry->published_at->isFuture());
+    }
+
     public function test_checkbox_empty_strings_are_cleaned_from_data(): void
     {
         $type = $this->type();

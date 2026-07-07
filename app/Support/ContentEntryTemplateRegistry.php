@@ -33,6 +33,20 @@ final class ContentEntryTemplateRegistry
         return array_keys(self::TEMPLATES);
     }
 
+    /**
+     * Human labels for the admin template picker.
+     *
+     * @return array<string, string>
+     */
+    public static function options(): array
+    {
+        return [
+            'default'    => 'Default (narrow)',
+            'contained'  => 'Contained (wider article)',
+            'full-width' => 'Full width',
+        ];
+    }
+
     public static function keyFor(?string $template): string
     {
         return is_string($template) && array_key_exists($template, self::TEMPLATES)

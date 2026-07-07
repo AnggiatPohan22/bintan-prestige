@@ -250,22 +250,33 @@
                     type="datetime-local"
                     name="published_at"
                     value="{{ old('published_at', isset($entry->published_at) ? $entry->published_at->format('Y-m-d\TH:i') : '') }}"
-                    class="admin-input @error('published_at') border-red-400 @enderror"
+                    onclick="this.showPicker && this.showPicker()"
+                    onfocus="this.showPicker && this.showPicker()"
+                    class="admin-input cursor-pointer @error('published_at') border-red-400 @enderror"
                 >
+                <p class="mt-1 text-xs text-admin-secondary">
+                    Click the field to open the calendar. Leave blank (with status
+                    <strong>Published</strong>) to go live immediately.
+                </p>
                 @error('published_at') <p class="mt-1.5 text-sm text-red-600">{{ $message }}</p> @enderror
             </div>
 
             <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
-                    <label for="template" class="admin-form-label">Template Override</label>
-                    <input
+                    @php($currentTemplate = old('template', $entry->template ?? ''))
+                    <label for="template" class="admin-form-label">Template</label>
+                    <select
                         id="template"
-                        type="text"
                         name="template"
-                        value="{{ old('template', $entry->template ?? '') }}"
-                        placeholder="e.g. full-width"
-                        class="admin-input font-mono @error('template') border-red-400 @enderror"
+                        class="admin-input @error('template') border-red-400 @enderror"
                     >
+                        @foreach(\App\Support\ContentEntryTemplateRegistry::options() as $value => $label)
+                            <option value="{{ $value }}" {{ $currentTemplate === $value || ($currentTemplate === '' && $value === 'default') ? 'selected' : '' }}>
+                                {{ $label }}
+                            </option>
+                        @endforeach
+                    </select>
+                    <p class="mt-1 text-xs text-admin-secondary">Controls the single-page layout width + schema type.</p>
                 </div>
 
                 <div>
