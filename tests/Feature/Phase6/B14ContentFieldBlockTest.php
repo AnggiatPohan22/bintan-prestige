@@ -133,6 +133,43 @@ class B14ContentFieldBlockTest extends TestCase
             ->assertSee('Tagline');
     }
 
+    // ---------------------------------------------------------------- builder preview
+
+    public function test_content_field_value_shows_in_builder_preview(): void
+    {
+        [$type, $group] = $this->typeWithGroup(['supports' => ['title', 'slug', 'editor']]);
+        $this->field($group, 'tagline', 'text', 'Tagline');
+        $entry = $this->entry($type, ['data' => ['tagline' => 'Preview me now']]);
+
+        $admin = \App\Models\User::factory()->admin()->create();
+
+        // Simulate the builder posting an unsaved tree to the preview endpoint.
+        $this->actingAs($admin)
+            ->post(route('admin.content-types.entries.builder.preview-payload', [$type, $entry]), [
+                'blocks' => [
+                    ['block_type' => 'content_field', 'data' => ['field_key' => 'tagline', 'show_label' => true], 'sort_order' => 0, 'is_visible' => true, 'children' => []],
+                ],
+            ])
+            ->assertOk()
+            ->assertSee('Preview me now')
+            ->assertSee('Tagline');
+    }
+
+    public function test_builder_exposes_entry_fields_option_source(): void
+    {
+        [$type, $group] = $this->typeWithGroup(['supports' => ['title', 'slug', 'editor']]);
+        $this->field($group, 'tagline', 'text', 'Tagline');
+        $entry = $this->entry($type);
+
+        $admin = \App\Models\User::factory()->admin()->create();
+
+        // The builder page embeds the field picker options (label + key).
+        $this->actingAs($admin)
+            ->get(route('admin.content-types.entries.builder', [$type, $entry]))
+            ->assertOk()
+            ->assertSee('Tagline (tagline)');
+    }
+
     // ---------------------------------------------------------------- helpers
 
     /**

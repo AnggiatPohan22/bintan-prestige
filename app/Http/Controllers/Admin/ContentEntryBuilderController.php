@@ -7,11 +7,14 @@ use App\Models\Category;
 use App\Models\ContentEntry;
 use App\Models\ContentType;
 use App\Models\Destination;
+use App\Models\Field;
 use App\Models\FormDefinition;
 use App\Models\PageBlock;
 use App\Services\BuilderTreeSanitizer;
 use App\Services\PageBlockService;
 use App\Support\ContentEntryRevisionService;
+use App\Support\ContentFieldResolver;
+use App\Support\ContentQueryResolver;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -30,6 +33,8 @@ class ContentEntryBuilderController extends Controller
         private readonly PageBlockService $blockService,
         private readonly BuilderTreeSanitizer $treeSanitizer,
         private readonly ContentEntryRevisionService $revisions,
+        private readonly ContentFieldResolver $contentField = new ContentFieldResolver(),
+        private readonly ContentQueryResolver $contentQuery = new ContentQueryResolver(),
     ) {}
 
     public function show(ContentType $contentType, ContentEntry $entry): mixed
@@ -49,6 +54,14 @@ class ContentEntryBuilderController extends Controller
                 ->map(fn (FormDefinition $f): array => ['value' => (string) $f->id, 'label' => $f->name])->all(),
             'content_types' => ContentType::query()->public()->orderBy('label_plural')->get(['id', 'label_plural'])
                 ->map(fn (ContentType $t): array => ['value' => (string) $t->id, 'label' => $t->label_plural])->all(),
+            // Fields of THIS entry's content type — powers the content_field picker
+            // (choose a field instead of typing its key).
+            'entry_fields' => Field::query()
+                ->whereHas('fieldGroup', fn ($q) => $q->where('content_type_id', $entry->content_type_id))
+                ->orderBy('sort_order')
+                ->get(['key', 'label', 'type'])
+                ->map(fn (Field $f): array => ['value' => $f->key, 'label' => $f->label.' ('.$f->key.')'])
+                ->all(),
         ];
 
         return view('backend.builder.entry', compact('contentType', 'entry', 'tree', 'registry', 'fieldOptions'));
@@ -131,10 +144,37 @@ class ContentEntryBuilderController extends Controller
         $nodes    = $this->treeSanitizer->sanitizeTree(is_array($rawNodes) ? $rawNodes : [], 'blocks');
         $blocks   = $this->transientTree($nodes);
 
+        // Resolve bridge blocks so their live values show in the preview before save.
+        $this->resolveBridgeBlocks($blocks, $entry);
+
         return view('frontend.content-entries.preview', compact('entry', 'blocks'));
     }
 
     // ---------------------------------------------------------------- helpers
+
+    /**
+     * Resolve content_field / content_query blocks in the transient preview tree,
+     * using the entry being edited as the "current entry" context — so their
+     * values render in the live builder preview before the tree is saved.
+     *
+     * @param  Collection<int, PageBlock>  $blocks
+     */
+    private function resolveBridgeBlocks(Collection $blocks, ContentEntry $entry): void
+    {
+        foreach ($blocks as $block) {
+            if ($block->block_type === 'content_field') {
+                $block->resolvedField = $this->contentField->resolve($block->data ?? [], $entry);
+            }
+
+            if ($block->block_type === 'content_query') {
+                $block->resolvedEntries = $this->contentQuery->resolve($block->data ?? []);
+            }
+
+            if ($block->relationLoaded('children')) {
+                $this->resolveBridgeBlocks($block->children, $entry);
+            }
+        }
+    }
 
     private function guard(ContentType $contentType, ContentEntry $entry): void
     {

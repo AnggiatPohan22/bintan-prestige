@@ -244,7 +244,7 @@ return [
         'keywords' => ['field', 'value', 'meta', 'dynamic', 'acf'],
         'supports' => ['background' => true, 'spacing' => false, 'alignment' => false, 'children' => false],
         'fields' => [
-            ['key' => 'field_key', 'type' => 'text', 'label' => 'Field key', 'placeholder' => 'e.g. star_rating', 'help' => 'The key of the field to display.'],
+            ['key' => 'field_key', 'type' => 'select', 'label' => 'Field', 'optionsFrom' => 'entry_fields', 'emptyLabel' => '— Select a field —', 'help' => 'Fields of this entry\'s content type.'],
             ['key' => 'entry_id', 'type' => 'number', 'label' => 'Specific entry ID (optional)', 'min' => 1, 'help' => 'Leave blank to use the current entry (on entry bodies).'],
             ['key' => 'label', 'type' => 'text', 'label' => 'Custom label (optional)', 'placeholder' => 'Defaults to the field label'],
             ['key' => 'show_label', 'type' => 'toggle', 'label' => 'Show label', 'default' => true],

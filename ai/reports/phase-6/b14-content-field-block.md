@@ -100,3 +100,38 @@ git revert 283de3b
 ### Next
 - **Stage B SELESAI (B1–B14).** Lanjut **Stage C — Release Audit**: C1 static analysis
   & code quality, C2 performance audit, C3 functional smoke test, C4 documentation.
+
+---
+
+## Post-Release Fix Log
+
+> Catatan peningkatan dari pengujian manual owner. Tidak menimpa laporan asli di atas.
+
+### 2026-07-07 — Enhance #1: field picker (dropdown) + nilai muncul di preview builder
+
+**Permintaan owner:** (1) tidak semua user hafal *field key*, jadi block content_field
+sebaiknya menampilkan **dropdown field otomatis** untuk dipilih; (2) nilai field yang
+dipilih harus **muncul di preview builder** supaya bisa dicek sebelum Save.
+
+**Perubahan:**
+- **Dropdown field:** `content_field.field_key` di `config/blocks.php` diubah dari
+  input `text` → `select` dengan `optionsFrom: 'entry_fields'`.
+  `ContentEntryBuilderController::show()` kini menyediakan option source
+  **`entry_fields`** = daftar field content type entry ini (`label (key)`), terurut
+  `sort_order`. `PageBuilderController` menyediakan `entry_fields = []` (di Page tak
+  ada "current entry" → pakai kolom Entry ID).
+- **Preview resolusi:** `previewPayload()` kini memanggil `resolveBridgeBlocks()`
+  (rekursif) → set `resolvedField` (content_field, konteks entry saat ini) +
+  `resolvedEntries` (content_query) pada transient tree, sehingga nilainya **terender
+  di iframe preview** sebelum tree disimpan.
+
+**File:**
+- `config/blocks.php` — field_key → select optionsFrom entry_fields
+- `app/Http/Controllers/Admin/ContentEntryBuilderController.php` — inject resolver,
+  option `entry_fields`, `resolveBridgeBlocks()` di previewPayload
+- `app/Http/Controllers/Admin/PageBuilderController.php` — `entry_fields => []`
+- `tests/Feature/Phase6/B14ContentFieldBlockTest.php` — +2 test (nilai muncul di
+  preview; builder mengekspos option `entry_fields`)
+
+**Impact:** tidak ada schema. Phase 5 page builder aman (hanya penambahan option
+source kosong). Suite hijau, PHPStan 0 errors.
