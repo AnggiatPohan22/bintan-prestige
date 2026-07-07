@@ -26,6 +26,13 @@
             </h1>
         </div>
         <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
+            @if($isEdit && $entry->isPublished() && $entry->publicUrl())
+                <a href="{{ $entry->publicUrl() }}" target="_blank" rel="noopener"
+                   class="admin-btn-secondary w-full sm:w-auto">
+                    <i class="fa-solid fa-arrow-up-right-from-square mr-1.5 text-xs"></i>
+                    View live
+                </a>
+            @endif
             @if($isEdit && $contentType->supports('editor'))
                 <a href="{{ route('admin.content-types.entries.builder', [$contentType, $entry]) }}"
                    class="admin-btn-primary w-full sm:w-auto">
@@ -38,6 +45,19 @@
             </a>
         </div>
     </div>
+
+    @if($isEdit && $entry->publicUrl())
+        <div class="mb-6 flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-600">
+            <i class="fa-solid fa-link text-xs text-slate-400"></i>
+            <span class="text-admin-secondary">Public URL:</span>
+            @if($entry->isPublished())
+                <a href="{{ $entry->publicUrl() }}" target="_blank" rel="noopener" class="font-mono text-indigo-600 hover:underline">{{ $entry->publicUrl() }}</a>
+            @else
+                <span class="font-mono text-slate-400">{{ $entry->publicUrl() }}</span>
+                <span class="rounded bg-amber-100 px-1.5 py-0.5 text-xs font-medium text-amber-700">Not live — status is {{ $entry->status }}</span>
+            @endif
+        </div>
+    @endif
 
     @if($isEdit && $contentType->supports('editor'))
         <div class="mb-6 rounded-lg border border-indigo-100 bg-indigo-50/60 px-4 py-3 text-sm text-slate-600">

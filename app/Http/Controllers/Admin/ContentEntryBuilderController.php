@@ -98,7 +98,14 @@ class ContentEntryBuilderController extends Controller
 
         $update = ['status' => $validated['status']];
 
-        if ($validated['status'] === ContentEntry::STATUS_PUBLISHED && $entry->published_at === null) {
+        // "Published" from the builder means live now: clear an empty or future
+        // published_at (a future date would otherwise keep the entry hidden as if
+        // scheduled). An existing past date is preserved. Use "Scheduled" to
+        // publish at a future time.
+        if (
+            $validated['status'] === ContentEntry::STATUS_PUBLISHED
+            && ($entry->published_at === null || $entry->published_at->isFuture())
+        ) {
             $update['published_at'] = now();
         }
 

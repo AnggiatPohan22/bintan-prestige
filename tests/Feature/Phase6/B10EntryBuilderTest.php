@@ -234,6 +234,42 @@ class B10EntryBuilderTest extends TestCase
         $this->assertNotNull($entry->published_at); // set on publish so it goes live
     }
 
+    public function test_publishing_from_builder_clears_a_future_published_at(): void
+    {
+        // Reproduces the owner's 404: status=published but published_at in the
+        // future kept the entry hidden. Publishing from the builder must make it
+        // live now.
+        $type  = $this->type(['supports' => ['title', 'editor']]);
+        $entry = $this->entry($type, ['status' => 'published', 'published_at' => now()->addHours(3)]);
+
+        $this->assertFalse($entry->isPublished());
+
+        $this->actingAs($this->admin())
+            ->postJson(route('admin.content-types.entries.builder.status', [$type, $entry]), [
+                'status' => 'published',
+            ])
+            ->assertOk()
+            ->assertJson(['is_published' => true]);
+
+        $this->assertTrue($entry->refresh()->isPublished());
+    }
+
+    public function test_publishing_preserves_an_existing_past_published_at(): void
+    {
+        $type  = $this->type(['supports' => ['title', 'editor']]);
+        $past  = now()->subDays(3);
+        $entry = $this->entry($type, ['status' => 'draft', 'published_at' => $past]);
+
+        $this->actingAs($this->admin())
+            ->postJson(route('admin.content-types.entries.builder.status', [$type, $entry]), [
+                'status' => 'published',
+            ])
+            ->assertOk();
+
+        // Original publish date kept (no clobber of legitimate past dates).
+        $this->assertSame($past->toDateTimeString(), $entry->refresh()->published_at->toDateTimeString());
+    }
+
     public function test_builder_status_rejects_invalid_value(): void
     {
         $type  = $this->type(['supports' => ['title', 'editor']]);
@@ -280,6 +316,30 @@ class B10EntryBuilderTest extends TestCase
             ->get(route('admin.content-types.entries.edit', [$type, $entry]))
             ->assertOk()
             ->assertDontSee('Edit Body in Builder');
+    }
+
+    public function test_edit_page_shows_public_url_and_view_link_when_published(): void
+    {
+        $type  = $this->type(['is_public' => true, 'has_archive' => true, 'route_base' => 'articles', 'supports' => ['title', 'slug', 'editor']]);
+        $entry = $this->entry($type, ['slug' => 'my-post', 'status' => 'published', 'published_at' => now()->subDay()]);
+
+        $this->actingAs($this->admin())
+            ->get(route('admin.content-types.entries.edit', [$type, $entry]))
+            ->assertOk()
+            ->assertSee('View live')
+            ->assertSee(url('articles/my-post'));
+    }
+
+    public function test_edit_page_flags_public_url_as_not_live_for_draft(): void
+    {
+        $type  = $this->type(['is_public' => true, 'has_archive' => true, 'route_base' => 'articles', 'supports' => ['title', 'slug', 'editor']]);
+        $entry = $this->entry($type, ['slug' => 'draft-post', 'status' => 'draft']);
+
+        $this->actingAs($this->admin())
+            ->get(route('admin.content-types.entries.edit', [$type, $entry]))
+            ->assertOk()
+            ->assertSee('Not live')
+            ->assertDontSee('View live');
     }
 
     // ---------------------------------------------------------------- helpers

@@ -109,3 +109,45 @@ git revert e09b1ca
 - **B12 — Template resolution + render**: pilih template render per-entry (`template`
   string) / per-type / default, dan perkaya single view (layout template, structured
   data schema per type). Saat ini single memakai layout default + block body.
+
+---
+
+## Post-Release Fix Log
+
+> Catatan dari pengujian manual owner. Tidak menimpa laporan asli di atas.
+
+### 2026-07-07 — Fix #1: single 404 karena `published_at` future + slug salah (bukan bug routing)
+
+**Gejala:** `/articles/hidden-beaches-of-bintan-island/` → 404, walau status entry
+`published`.
+
+**Audit data MySQL asli menemukan DUA penyebab, keduanya bukan bug routing:**
+1. **`published_at` di masa depan.** `app.timezone = UTC`; `now()` = 04:54 UTC tapi
+   `published_at` entry = 07:22 (disimpan sebagai UTC dari input datetime-local waktu
+   lokal). `scopePublished` (`published_at <= now`) menyembunyikannya seperti scheduled →
+   `isPublished()` = false → 404. **Ini penyebab utama.**
+2. **Slug salah di URL.** Slug asli = `hidden-beaches-of-bintan` (title diedit menjadi
+   "…Island" belakangan, tapi slug sengaja tidak ikut berubah agar link stabil).
+   URL owner memakai `-island` yang tidak ada.
+
+**Perbaikan:**
+- **Builder publish = live now:** `ContentEntryBuilderController::updateStatus()` kini
+  meng-clear `published_at` yang null **atau future** ke `now()` saat memilih "Published"
+  (tanggal past yang sah tetap dipertahankan; untuk publish terjadwal gunakan status
+  "Scheduled"). Menghilangkan jebakan timezone future-date.
+- **Discoverability URL:** halaman edit entry menampilkan **Public URL** + tombol
+  **"View live"** (saat published) atau badge **"Not live — status is …"** (saat draft),
+  supaya owner tidak menebak slug.
+- Data entry #2 owner diset `published_at = now()` agar langsung live.
+
+**File:**
+- `app/Http/Controllers/Admin/ContentEntryBuilderController.php` — `updateStatus()` future-clear
+- `resources/views/backend/content-entries/form.blade.php` — panel Public URL + "View live"
+- `tests/Feature/Phase6/B10EntryBuilderTest.php` — +4 test (publish clears future date,
+  preserve past date, edit page shows public URL/View live, draft flagged Not live)
+
+**Catatan:** `app.timezone` tetap UTC (tidak diubah tanpa approval). Untuk kenyamanan,
+owner bisa mempertimbangkan set `APP_TIMEZONE=Asia/Jakarta` agar input tanggal sesuai
+waktu lokal — perlu keputusan terpisah karena memengaruhi semua timestamp.
+
+**Impact:** tidak ada schema. Suite 831/831, PHPStan 0 errors.
