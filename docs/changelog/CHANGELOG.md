@@ -2,7 +2,7 @@
 
 All notable project documentation and baseline improvement steps are tracked here.
 
-## 2026-06-29 — Phase 6: Flexible Content Modeling (in progress)
+## 2026-06-29 — Phase 6: Flexible Content Modeling (COMPLETE 2026-07-07)
 
 ### Stage A — Foundation, Decisions & Debt Clearing
 
@@ -52,6 +52,33 @@ All notable project documentation and baseline improvement steps are tracked her
 - Created `ai/skills/field-types-skill.md` (authoring pattern + registry API reference; Sync Matrix §12 requirement for A4).
 - Added `tests/Feature/Phase6/A4FieldTypesCatalogTest.php` (4 tests, 351 assertions, 0 DB queries).
 - **Milestone 1 COMPLETE** (A0–A4): architecture locked, debt cleared, field catalog scaffolded. Full suite 642 green, PHPStan 0 errors.
+
+### Stage B — Build the Engine (B1–B14)
+
+- **B1** `content_types` table + full admin CRUD (slug auto-gen, reserved-prefix guard, soft delete + restore).
+- **B2** `field_groups` + `fields` tables + nested CRUD (compound-unique key per scope, `is_filterable` inherits catalog, reorder endpoints).
+- **B3** Field rendering engine — `<x-admin.field-input>` dispatches to 18 type partials.
+- **B4** `content_entries` table (FK RESTRICT, varchar status, compound-unique slug per type, JSON `data`/`seo`) + admin CRUD.
+- **B5** `FieldValidationResolver` — dynamic per-entry `data.*` validation rules from field defs (placeholder substitution, required toggle, array sub-rules).
+- **B6** `content_entry_index` sidecar + `ContentEntryIndexService` + `ContentEntryObserver` — filterable fields projected on every save.
+- **B7** `taxonomies` + `terms` + `content_entry_term` pivot; hierarchical terms; term picker on the entry form.
+- **B8** `content_entry_relations` — entry↔entry links projected from relationship fields (FK-safe, ordered, forward + reverse query).
+- **B9** Phase 4 reuse: `content_entry_revisions` (isolated, snapshot JSON, 20-keep prune, reversible restore) + audit log + `content-entries:publish-scheduled` command + `seoMeta()`.
+- **B10** Entry body via the Phase 5 visual builder on the dual-rail morph (`page_blocks.blockable_*`, page_id NULL); publish status control in the builder.
+- **B11** Public routing via `Route::fallback()` (route-ordering safe): `/{route_base}` archive + `/{route_base}/{slug}` single; published-only.
+- **B12** Template resolution (`ContentEntryTemplateRegistry`) + JSON-LD structured data (Article/WebPage).
+- **B13** Builder bridge — `content_query` block (dynamic list of published entries).
+- **B14** Builder bridge — `content_field` block (one field value; dropdown picker + live preview).
+- **UX passes (owner testing):** WIB timezone (`Asia/Jakarta`); "Published" clamps blank/future date to now(); template dropdown + click-to-open date picker; content_field field picker + preview values.
+
+### Stage C — Release Audit (C1–C4)
+
+- **C1 Static Analysis & Code Quality:** PHPStan level 5 / 0 errors; suite green; `{!! !!}` / debug / TODO scans clean. **Security fix:** single-entry JSON-LD hardened with `JSON_HEX_*` flags against `</script>` breakout (+ regression test). Noted pre-existing `StructuredDataBuilder` (Phase 4) for a follow-up.
+- **C2 Performance Audit:** fixed two N+1s (archive `contentType` eager-load; `content_field` field-lookup memoization) → public routes O(1) in entry/block count; verified hot-path indexes; no new asset bundle.
+- **C3 Functional Smoke Test:** schema (10 tables + morph columns), block registry ↔ view files, admin route guards, public archive/single/draft, scheduler command.
+- **C4 Documentation:** `docs/modules/content-modeling.md` developer reference, `ai/skills/content-modeling-skill.md`, this CHANGELOG entry, handoff finalized.
+
+**Phase 6 COMPLETE.** Full suite **845 tests / 0 failures**, PHPStan level 5 / 0 errors. Release gate: **PASS** (pending owner production pre-flight).
 
 ## 2026-06-23 — Phase 5: Visual Page Builder
 

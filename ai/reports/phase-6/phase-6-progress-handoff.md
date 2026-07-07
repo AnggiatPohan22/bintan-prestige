@@ -14,13 +14,12 @@
 > approval owner eksplisit** (AGENTS.md §9) — fase ini hampir seluruhnya schema
 > work, jadi approval gate sering by design.
 >
-> **Last updated:** 2026-07-02 — B14 (content_field block) complete. **Stage B DONE (B1–B14).**
-> All of Stage B DONE: content types, field groups+fields, rendering engine, content entries,
-> per-field validation, sidecar index, taxonomies + terms, entry↔entry relations,
-> revisions + audit + scheduling + SEO meta, builder body, public routing, template
-> resolution, content_query + content_field builder blocks. Test suite: 824/824 green.
-> PHPStan level 5: 0 errors. Milestone M4 COMPLETE.
-> Next: Stage C — Release Audit (C1 static analysis, C2 performance, C3 smoke test, C4 docs).
+> **Last updated:** 2026-07-07 — **PHASE 6 COMPLETE.** Stage A (A0–A4) + Stage B
+> (B1–B14) + Stage C (C1–C4) all DONE. Content types, fields, entries, per-field
+> validation, sidecar index, taxonomies, relations, revisions/audit/scheduling/SEO,
+> builder body, public routing, template resolution, content_query + content_field
+> blocks; release audit (static/perf/smoke/docs) passed. Test suite: **845/845 green**,
+> PHPStan level 5: 0 errors. Release gate: **PASS** (pending owner production pre-flight).
 
 ---
 
@@ -72,10 +71,14 @@ Legend: `⏳ TODO` · `🔨 IN PROGRESS` · `✅ DONE` · `⛔ BLOCKED` · `⚠�
 
 | Task | Name | Status | Report |
 |------|------|--------|--------|
-| C1 | Static Analysis & Code Quality | ⏳ TODO | — |
-| C2 | Performance Audit | ⏳ TODO | — |
-| C3 | Functional Smoke Test | ⏳ TODO | — |
-| C4 | Documentation | ⏳ TODO | — |
+| C1 | Static Analysis & Code Quality | ✅ DONE | c1-static-analysis-code-quality.md |
+| C2 | Performance Audit | ✅ DONE | c2-performance-audit.md |
+| C3 | Functional Smoke Test | ✅ DONE | c3-functional-smoke-test.md |
+| C4 | Documentation | ✅ DONE | c4-documentation.md |
+
+**PHASE 6 COMPLETE — 2026-07-07.** Release gate: **PASS** (pending owner production
+pre-flight). Suite **845/845**, PHPStan level 5 / 0 errors. App tz: `Asia/Jakarta`.
+Follow-up flagged (C1): align `StructuredDataBuilder` JSON-LD flags (Phase 4).
 
 ---
 

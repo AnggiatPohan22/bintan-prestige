@@ -19,7 +19,7 @@ Build a WordPress-like CMS where the complete website — pages, navigation,
 layout, content blocks, and appearance — is fully managed from one admin
 dashboard. No hardcoded frontend content. Backend controls everything.
 
-**Current Phase:** Phase 6 — Flexible Content Modeling (next)
+**Current Phase:** Phase 6 — Flexible Content Modeling **COMPLETE** — 2026-07-07.
 Phase 5 (Visual Page Builder) complete — 2026-06-23.
 Phase 4 (Plugin & Module System) complete at v4.0.0 — 2026-06-21.
 
@@ -132,7 +132,7 @@ Visual Page Builder & Foundation Hardening.
 - PHPStan: level 5 / 0 errors / no ignores / no baseline
 - Release Gate: PASS (pending 10 manual QA items + production env pre-flight)
 
-**Phase 6 — IN PROGRESS 🔨** (branch: `feature/phase-6-a1-debt-clearing` — 2026-07-01)
+**Phase 6 — COMPLETE ✅** (branch: `feature/phase-6-a1-debt-clearing` — 2026-07-07)
 Flexible Content Modeling — custom content types, field groups, fields, and entries from admin.
 
 **Stage A — Foundation & Debt Clearing — COMPLETE ✅**
@@ -158,9 +158,16 @@ Flexible Content Modeling — custom content types, field groups, fields, and en
 - B13 ✅: Builder bridge — `content_query` block. Queries + renders a list of published entries of a chosen public type (heading/orderby/columns/limit/show_excerpt). Registered in config/blocks.php + PageBlockService. `ContentQueryResolver` (shared, resolve-before-Blade) used by PageRenderData (pages) + Frontend\ContentEntryController (entry bodies). `content_types` option source added to both builders (page builder otherwise untouched).
 - B14 ✅: Builder bridge — `content_field` block. Displays a single field value from the current entry (entry bodies) or a specific published+public entry by id. `ContentFieldResolver` (shared) formats by type — richtext sanitized, url/email href guarded against unsafe schemes. Registered in config/blocks.php + PageBlockService; resolved via PageRenderData (pages) + resolveBridgeBlocks (entry bodies).
 
-**Stage B COMPLETE (B1–B14). Milestone M4 done.** Next: Stage C — Release Audit.
+**Stage B COMPLETE (B1–B14). Milestone M4 done.**
 
-Test suite: 824/824 pass | PHPStan level 5: 0 errors (as of 2026-07-02 after B14).
+**Stage C — Release Audit — COMPLETE ✅ (C1–C4)**
+- C1 ✅: Static analysis & code quality. PHPStan level 5 / 0 errors; suite green; `{!! !!}`/debug/TODO scans clean. Security fix: single-entry JSON-LD hardened with `JSON_HEX_*` against `</script>` breakout (+ regression test). Flagged pre-existing `StructuredDataBuilder` (Phase 4) for follow-up.
+- C2 ✅: Performance. Fixed two N+1s (archive `contentType` eager-load; `content_field` field-lookup memoization) → public routes O(1); hot-path indexes verified; no new asset bundle.
+- C3 ✅: Functional smoke test — schema (10 tables + morph), block registry ↔ view files, admin guards, public archive/single/draft, scheduler command.
+- C4 ✅: Documentation — `docs/modules/content-modeling.md`, `ai/skills/content-modeling-skill.md`, CHANGELOG Phase 6 entry, handoff finalized.
+
+**PHASE 6 COMPLETE.** Test suite: **845/845 pass** | PHPStan level 5: 0 errors (2026-07-07).
+Release gate: **PASS** (pending owner production pre-flight). App timezone: `Asia/Jakarta` (WIB).
 Grand plan + progress: `ai/reports/phase-6/phase-6-progress-handoff.md`
 
 **Phase 7 — FUTURE**
