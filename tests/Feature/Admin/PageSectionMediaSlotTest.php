@@ -6,7 +6,6 @@ use App\Models\PageSection;
 use App\Models\SiteAsset;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
@@ -170,8 +169,9 @@ class PageSectionMediaSlotTest extends TestCase
             ->get(route('admin.page-sections.edit', $section));
 
         $response->assertOk();
-        $response->assertSee('Legacy image upload');
-        $response->assertSee('Legacy mobile image upload');
+        $response->assertSee('Section image');
+        $response->assertSee('Mobile image');
+        $response->assertSee('Media Library');
         $response->assertDontSee('Section gallery images');
         $response->assertDontSee('No section image upload for this layout');
     }
@@ -202,9 +202,9 @@ class PageSectionMediaSlotTest extends TestCase
                 'button_url' => '/products',
                 'is_active' => '1',
                 'sort_order' => '10',
-                'slot_uploads' => [
+                'slot_paths' => [
                     'frame' => [
-                        'left_wide' => UploadedFile::fake()->image('left-wide.jpg', 800, 550),
+                        'left_wide' => 'media/section/2026/07/left-wide.webp',
                     ],
                 ],
                 'slot_object_fits' => [
@@ -228,14 +228,11 @@ class PageSectionMediaSlotTest extends TestCase
             'role' => 'frame',
             'slot_key' => 'left_wide',
             'label' => 'Frame kiri atas',
+            'path' => 'media/section/2026/07/left-wide.webp',
             'object_fit' => 'contain',
             'object_position' => 'center top',
             'is_active' => true,
         ]);
-
-        Storage::disk('public')->assertExists(
-            $section->fresh()->mediaSlot('frame', 'left_wide')->path
-        );
     }
 
     public function test_admin_can_update_existing_slot_image_display_options_without_reupload(): void
@@ -323,9 +320,9 @@ class PageSectionMediaSlotTest extends TestCase
                 'button_url' => '/products',
                 'is_active' => '1',
                 'sort_order' => '40',
-                'slot_uploads' => [
+                'slot_paths' => [
                     'frame' => [
-                        'main_visual' => UploadedFile::fake()->image('journey-main.jpg', 900, 1100),
+                        'main_visual' => 'media/section/2026/07/journey-main.webp',
                     ],
                 ],
             ]);
@@ -336,7 +333,7 @@ class PageSectionMediaSlotTest extends TestCase
         $mainVisual = $section->mediaSlot('frame', 'main_visual');
 
         $this->assertNotNull($mainVisual);
-        Storage::disk('public')->assertExists($mainVisual->path);
+        $this->assertSame('media/section/2026/07/journey-main.webp', $mainVisual->path);
 
         $view = $this->view('frontend.sections.about-journey', [
             'sections' => collect(['home.about_journey' => $section]),
@@ -347,6 +344,39 @@ class PageSectionMediaSlotTest extends TestCase
         $view->assertSee($mainVisual->path, false);
         $view->assertSee('object-fit: cover; object-position: center center', false);
         $view->assertDontSee('Section placeholder image');
+    }
+
+    public function test_admin_can_attach_gallery_images_from_the_media_library(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $section = PageSection::create([
+            'page_key' => 'home',
+            'section_key' => 'home.hero',
+            'label' => 'Hero',
+            'title' => 'Welcome to Bintan',
+            'is_active' => true,
+            'sort_order' => 0,
+        ]);
+
+        $this->actingAs($admin)
+            ->put(route('admin.page-sections.update', $section), [
+                'label' => 'Hero',
+                'title' => 'Welcome to Bintan',
+                'is_active' => '1',
+                'sort_order' => '0',
+                'media_paths' => [
+                    'media/section/2026/07/g1.webp',
+                    'media/section/2026/07/g2.webp',
+                ],
+            ])
+            ->assertRedirect(route('admin.page-sections.edit', $section));
+
+        $gallery = $section->media()->where('role', 'gallery')->orderBy('sort_order')->pluck('path')->all();
+
+        $this->assertSame([
+            'media/section/2026/07/g1.webp',
+            'media/section/2026/07/g2.webp',
+        ], $gallery);
     }
 
     public function test_explore_banner_renders_mobile_background_slot(): void

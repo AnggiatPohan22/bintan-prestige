@@ -92,13 +92,21 @@ Priority follows the brief, adjusted for what Phase 6.1 already finished.
   `media/…` kept). Requests `image|mimes` → `string`. +5 tests. Suite 861/861,
   PHPStan 0.
 
-**Stage 3 — Pages OG image** — `PageController`/`PageService`
-- 3.1 `pages/form.blade.php` (create) + `pages/edit.blade.php` (edit) og_image → picker (collection `content`).
+**Stage 3 — Pages OG image** — ✅ DONE 2026-07-08 (commit `8e5e220`)
+- 3.1 ✅ create + edit og_image → `<x-admin.media-image-field>` (collection `content`).
+- PageService path-based; `deleteOgImage()` guarded to `pages/` only. +2 tests.
 
-**Stage 4 — Page Sections (protected module — extra care)** — `PageSectionController`
-- 4.1 `image` + `mobile_image` → single picker (collection `section`).
-- 4.2 `slot_uploads` + `media_uploads[]` → multi picker.
-- Do **last**; most complex + protected (AGENTS.md §5). Full regression pass.
+**Stage 4 — Page Sections (protected module)** — ✅ DONE 2026-07-08
+- 4.1 ✅ legacy `image`/`mobile_image` → single picker (`image_path`/`mobile_image_path`,
+  collection `section`). Controller already read those path fields.
+- 4.2 ✅ `slot_uploads` → `slot_paths` (keyed pickers, keep fit/position);
+  `media_uploads[]` → `media_paths` (multi picker).
+- New `PageSectionImageService::setSlotPath()` + `attachGalleryPaths()`; existing
+  `deleteMedia`/`deleteIfLocalPageSectionImage` already guard to `page-sections/`.
+  Updated 3 slot/gallery tests + 1 new gallery test. Suite 864/864, PHPStan 0.
+
+**ALL STAGES DONE.** Every admin image input now routes through the Media Library
+(favicon intentionally excluded). Suite 864/864, PHPStan level 5: 0 errors.
 
 **Stage 5 — Optional polish (Class B)**
 - Converge hero/image/gallery/background/builder fields onto the shared component

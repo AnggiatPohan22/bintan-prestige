@@ -126,7 +126,16 @@ Owner-approved initiative (audit: `ai/reports/media-library-audit.md`, plan:
   `products/…` files are deleted, `media/…` library files preserved on
   replace/delete). Requests: `image|mimes` → `string`. +5 tests
   (`ProductMediaLibraryTest`), browser-verified multi-select append + dedup.
-- Remaining (staged): Stage 3 Pages OG image, Stage 4 Page Sections (protected).
+- **Stage 3 (Pages):** OG image (create+edit) → picker (collection `content`).
+  `PageService` path-based; `deleteOgImage()` guarded to `pages/` only. +2 tests.
+- **Stage 4 (Page Sections — protected):** legacy image/mobile → picker
+  (`image_path`/`mobile_image_path`); keyed slots → `slot_paths` pickers (fit/
+  position kept); gallery → `media_paths` multi picker. New
+  `PageSectionImageService::setSlotPath()`/`attachGalleryPaths()`; deletes already
+  guarded to `page-sections/`. Updated 3 tests + 1 new. Browser-verified 3 section
+  variants (gallery/legacy/slots) — 0 raw file inputs.
+- **ALL STAGES COMPLETE.** Every admin image input routes through the Media
+  Library (favicon intentionally excluded). Suite 864/864, PHPStan 0.
 
 ### Impact
 - DB: 2 migrasi additive — `media.collection`, `categories.image`. Nullable,
