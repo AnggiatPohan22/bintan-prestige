@@ -23,7 +23,9 @@ All notable project documentation and baseline improvement steps are tracked her
 
 **Fix — PNG upload on non-standard colour profile** — `ImageOptimizationService` let GD's `imagecreatefrom*` warnings propagate; PNGs with a non-standard ICC profile (Photoshop/Canva) trigger a non-fatal libpng warning (`iCCP: known incorrect sRGB profile`) that Laravel upgraded to an ErrorException → 500. Warning-suppressed the decodes + clean error only on genuine `false`. Pre-existing Phase 1 bug; fixes all upload paths (Media Library, page og_image, product images). +1 regression test.
 
-- Suite: **851/851** (4,229 assertions) | PHPStan level 5: 0 errors.
+**Fix — transparency preserved** — (1) `ImageOptimizationService` now uses an alpha-aware canvas (`imagealphablending(false)` + `imagesavealpha(true)` + transparent fill) so transparent PNG/WebP no longer flatten to black; WebP supports alpha, so optimized output stays transparent. (2) `MediaService` + `config/media.php` `preserve_original_collections` keep `logo`/`icon` uploads in their original format (no WebP re-encode) for crisp edges + true transparency. +2 regression tests. Note: logos uploaded before this fix are black-background WebP and should be re-uploaded.
+
+- Suite: **856/856** (4,255 assertions) | PHPStan level 5: 0 errors.
 - Staged follow-ups in `ai/reports/phase-6.1/phase-6.1-plan-handoff.md` §5 (products/page-sections/global-assets swap, orphan-purge safety, gallery multi-select picker).
 
 ## 2026-06-29 — Phase 6: Flexible Content Modeling (COMPLETE 2026-07-07)

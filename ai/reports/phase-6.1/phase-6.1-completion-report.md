@@ -92,6 +92,27 @@ ikut ter-include `@once` — komponen bisa dipakai form mana pun.
    mengonfirmasi pipeline koleksi + upload Phase 6.1 berfungsi; hanya PNG yang
    terganjal bug optimizer lama.
 
+**S10 — Fix: transparansi logo hilang saat konversi WebP** (`9c42ad0`)
+1. Owner menanyakan: PNG logo transparan jangan sampai jadi latar hitam saat
+   dikonversi WebP. **Koreksi miskonsepsi:** WebP mendukung alpha; penyebabnya
+   bukan format WebP tapi bug GD di `ImageOptimizationService` —
+   `imagecreatetruecolor()` (kanvas hitam opak) tanpa `imagealphablending`/
+   `imagesavealpha` → area transparan jadi hitam. Dibuktikan empiris (sudut
+   transparan → alpha 0/hitam).
+2. Fix 2 bagian (keputusan owner via AskUserQuestion: "WebP transparan + PNG asli
+   untuk logo/icon"):
+   - `ImageOptimizationService`: kanvas alpha-aware (`imagealphablending(false)`
+     + `imagesavealpha(true)` + fill transparan). Semua gambar kini WebP dengan
+     transparansi terjaga (aman untuk JPEG opak).
+   - `MediaService` + `config/media.php` (`preserve_original_collections =
+     ['logo','icon']`): upload ke koleksi logo/icon disimpan **apa adanya**
+     (PNG asli, byte identik) — edge tajam + transparansi asli.
+   - +2 regression test (PNG transparan → WebP transparan; koleksi logo simpan
+     PNG utuh). Suite 856/856, PHPStan 0.
+3. **Perlu tindakan owner:** 2 file logo yang di-upload SEBELUM fix
+   (`favicon-white.png` #12, `favicon.png` #13) sudah menjadi WebP latar hitam —
+   **upload ulang** dari Media Library agar transparan (kini akan disimpan PNG asli).
+
 ### Impact
 - DB: 2 migrasi additive — `media.collection`, `categories.image`. Nullable,
   tanpa menyentuh data/kolom existing.
