@@ -152,8 +152,10 @@ class AppServiceProvider extends ServiceProvider
             }
         });
 
-        // Inject admin appearance (CSS vars + mode attrs) into every admin layout render
-        View::composer('layouts.admin', AdminAppearanceComposer::class);
+        // Inject admin appearance (CSS vars + mode attrs) into every admin layout render.
+        // backend.media.picker renders standalone inside the picker iframe and needs
+        // the same vars to follow the dashboard light/dark theme.
+        View::composer(['layouts.admin', 'backend.media.picker'], AdminAppearanceComposer::class);
 
         CmsHooks::doAction('cms.init');
     }

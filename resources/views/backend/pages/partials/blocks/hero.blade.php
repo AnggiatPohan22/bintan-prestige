@@ -1,6 +1,6 @@
 ﻿<div
     class="grid grid-cols-1 gap-4 md:grid-cols-2"
-    x-data="imageUploader(@js(old('data.image', $block->data['image'] ?? '')), 'hero-image-{{ $block->id }}')"
+    x-data="imageUploader(@js(old('data.image', $block->data['image'] ?? '')), 'hero-image-{{ $block->id }}', '', '', 'hero')"
     x-on:media-picker-selected.window="selectMedia($event.detail)"
 >
     <div class="md:col-span-2">
@@ -39,7 +39,7 @@
                 >
             </label>
             <button type="button" class="admin-btn-secondary whitespace-nowrap px-4 py-2 text-sm"
-                    x-on:click="$dispatch('open-media-picker', { target: pickerTarget })">
+                    x-on:click="$dispatch('open-media-picker', { target: pickerTarget, collection: collection })">
                 Media Library
             </button>
         </div>

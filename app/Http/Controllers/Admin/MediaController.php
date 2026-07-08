@@ -38,6 +38,7 @@ class MediaController extends Controller
             'search' => $request->query('search'),
             'activeType' => $request->query('type'),
             'activeCollection' => $request->query('collection'),
+            'pickerHint' => $request->query('hint'),
             'orphanCount' => $request->boolean('picker') ? 0 : count($this->mediaService->orphanedFiles()),
         ]);
     }
