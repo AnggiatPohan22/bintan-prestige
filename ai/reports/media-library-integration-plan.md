@@ -82,10 +82,15 @@ Priority follows the brief, adjusted for what Phase 6.1 already finished.
   `GlobalSiteLogoSettingsTest`. Suite 854/854, PHPStan 0. Owner decision (path
   approach) confirmed in `AskUserQuestion` 2026-07-08.
 
-**Stage 2 — Products** — `ProductController`/`ProductService`/`ProductImageService`
-- 2.1 Thumbnail → single picker (collection `product`).
-- 2.2 Gallery → multi picker (collection `product`).
-- Keep `ProductImageService` for existing rows; new selections store paths.
+**Stage 2 — Products** — ✅ DONE 2026-07-08
+- 2.0 ✅ Built `<x-admin.media-gallery-field>` (multi-select; appends `gallery[]`
+  paths; dedupe; upload-in-picker auto-appends). Browser-verified.
+- 2.1 ✅ Thumbnail → single `<x-admin.media-image-field>` (collection `product`).
+- 2.2 ✅ Gallery → multi picker (collection `product`).
+- `ProductImageService` rewritten path-based: `resolveThumbnail`,
+  `attachGalleryPaths`, `deleteIfModuleOwned` (only legacy `products/…` deleted;
+  `media/…` kept). Requests `image|mimes` → `string`. +5 tests. Suite 861/861,
+  PHPStan 0.
 
 **Stage 3 — Pages OG image** — `PageController`/`PageService`
 - 3.1 `pages/form.blade.php` (create) + `pages/edit.blade.php` (edit) og_image → picker (collection `content`).

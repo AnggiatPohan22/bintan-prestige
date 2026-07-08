@@ -391,22 +391,16 @@
                     <div class="admin-card-body">
                         <div class="grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1fr)_220px]">
                             <div>
-                                <label class="admin-form-label">
-                                    Thumbnail
-                                </label>
-
-                                <input type="file"
+                                <x-admin.media-image-field
                                     name="thumbnail"
-                                    class="admin-input {{ $errors->has('thumbnail') ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : '' }}">
+                                    :value="old('thumbnail', $product->thumbnail ?? '')"
+                                    label="Thumbnail"
+                                    collection="product"
+                                    hint="Recommended 1200x800px+. Leave empty to auto-use the first gallery image." />
 
                                 @error('thumbnail')
                                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
-
-                                <div class="mt-3 space-y-1 text-xs leading-5 text-admin-secondary">
-                                    <p>Recommended size: 1200x800px or larger.</p>
-                                    <p>Leave thumbnail empty to auto-use first gallery image.</p>
-                                </div>
                             </div>
 
                             <div>
@@ -455,21 +449,12 @@
 
                     <div class="admin-card-body space-y-6">
                         <div>
-                            <label class="admin-form-label">
-                                Gallery Images
-                            </label>
-
-                            <input
-                                type="file"
-                                name="gallery[]"
-                                multiple
-                                class="admin-input">
-
-                            <div class="mt-3 space-y-1 text-xs leading-5 text-admin-secondary">
-                                <p>Maximum 10 gallery images.</p>
-                                <p>Recommended format: JPG, PNG, WEBP.</p>
-                                <p>Recommended size: 1200x800px or larger.</p>
-                            </div>
+                            <x-admin.media-gallery-field
+                                name="gallery"
+                                collection="product"
+                                label="Add Gallery Images"
+                                :max="10"
+                                hint="Pick or upload up to 10 images via the Media Library. Newly added images are appended to the gallery below on save." />
                         </div>
 
                         @if(isset($product) && $product->images->count())

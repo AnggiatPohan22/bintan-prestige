@@ -113,6 +113,21 @@ ikut ter-include `@once` — komponen bisa dipakai form mana pun.
    (`favicon-white.png` #12, `favicon.png` #13) sudah menjadi WebP latar hitam —
    **upload ulang** dari Media Library agar transparan (kini akan disimpan PNG asli).
 
+**S11 — Media Library integration Stage 1 (Settings) + Stage 2 (Products)**
+Owner-approved initiative (audit: `ai/reports/media-library-audit.md`, plan:
+`ai/reports/media-library-integration-plan.md`). Path-string approach, no schema.
+- **Stage 1 (Settings → Global Assets):** logo variants, social share, SEO OG,
+  default-media placeholders → `<x-admin.media-image-field>`. Favicon left raw
+  (owner decision). New `PageSectionImageService::setSiteAssetPath()`. Commit `e8156a9`.
+- **Stage 2 (Products):** new multi-select `<x-admin.media-gallery-field>`
+  component; thumbnail → single picker, gallery → multi picker (collection
+  `product`). `ProductImageService` rewritten path-based
+  (`resolveThumbnail`/`attachGalleryPaths`/`deleteIfModuleOwned` — only legacy
+  `products/…` files are deleted, `media/…` library files preserved on
+  replace/delete). Requests: `image|mimes` → `string`. +5 tests
+  (`ProductMediaLibraryTest`), browser-verified multi-select append + dedup.
+- Remaining (staged): Stage 3 Pages OG image, Stage 4 Page Sections (protected).
+
 ### Impact
 - DB: 2 migrasi additive — `media.collection`, `categories.image`. Nullable,
   tanpa menyentuh data/kolom existing.

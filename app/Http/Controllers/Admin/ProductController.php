@@ -11,7 +11,6 @@ use App\Models\ProductImage;
 use App\Models\ProductPrice;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 
 use App\Services\ProductService;
 
@@ -266,8 +265,10 @@ class ProductController extends Controller
             $product
             && $product->thumbnail === $image->image;
 
-        Storage::disk('public')
-            ->delete($image->image);
+        // Only removes a legacy module upload (products/…); Media Library files
+        // (media/…) stay — they belong to the library.
+        app(\App\Services\ProductImageService::class)
+            ->deleteIfModuleOwned($image->image);
 
         $image->delete();
 
@@ -327,8 +328,8 @@ class ProductController extends Controller
                 ->exists();
 
         if (! $isGalleryImage) {
-            Storage::disk('public')
-                ->delete($thumbnail);
+            app(\App\Services\ProductImageService::class)
+                ->deleteIfModuleOwned($thumbnail);
         }
 
         $product->update([

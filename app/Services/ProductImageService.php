@@ -4,125 +4,106 @@ namespace App\Services;
 
 use App\Models\Product;
 use App\Models\ProductImage;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 
 class ProductImageService
 {
-    public function __construct(
-        protected ImageOptimizationService $imageService
-    ) {}
+    /**
+     * Append gallery images from Media Library paths (Phase 6.1 Stage 2).
+     * The files already live in the library, so no re-upload happens — we just
+     * record ProductImage rows pointing at them, continuing the sort order.
+     *
+     * @param  array<int, mixed>  $paths  raw request input; non-strings are ignored
+     */
+    public function attachGalleryPaths(Product $product, array $paths): void
+    {
+        $paths = array_values(array_filter(
+            array_map(fn ($path) => is_string($path) ? trim($path) : '', $paths),
+            fn (string $path) => $path !== '',
+        ));
 
-    /*
-    |--------------------------------------------------------------------------
-    | Upload Gallery
-    |--------------------------------------------------------------------------
-    */
+        if ($paths === []) {
+            $this->autoThumbnail($product);
 
-    public function uploadGallery(
-        Product $product,
-        array $images = []
-    ): void {
-
-        foreach (
-            $images
-            as $index => $image
-        ) {
-
-            $path =
-                $this->imageService
-                ->upload($image);
-
-            ProductImage::create([
-                'product_id' =>
-                    $product->id,
-
-                'image' =>
-                    $path,
-
-                'sort_order' =>
-                    $index,
-            ]);
-        }
-
-        $this->autoThumbnail(
-            $product
-        );
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Replace Thumbnail
-    |--------------------------------------------------------------------------
-    */
-
-    public function replaceThumbnail(
-        Product $product,
-        ?UploadedFile $file
-    ): string|null {
-
-        $thumbnail =
-            $product->thumbnail;
-
-        if (! $file) {
-            return $thumbnail;
-        }
-
-        $thumbnailIsGalleryImage =
-            $product->exists
-            && $product->thumbnail
-            && $product->images()
-                ->where(
-                    'image',
-                    $product->thumbnail
-                )
-                ->exists();
-
-        if (
-            $product->thumbnail
-            && ! $thumbnailIsGalleryImage
-        ) {
-
-            Storage::disk('public')
-                ->delete(
-                    $product->thumbnail
-                );
-        }
-
-        return $this->imageService
-            ->upload($file);
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Auto Thumbnail
-    |--------------------------------------------------------------------------
-    */
-
-    public function autoThumbnail(
-        Product $product
-    ): void {
-
-        if (
-            $product->thumbnail
-        ) {
             return;
         }
 
-        $firstImage =
-            $product->images()
-                ->orderBy(
-                    'sort_order'
-                )
-                ->first();
+        $sortOrder = (int) $product->images()->max('sort_order');
+
+        foreach ($paths as $path) {
+            $sortOrder++;
+
+            ProductImage::create([
+                'product_id' => $product->id,
+                'image' => $path,
+                'sort_order' => $sortOrder,
+            ]);
+        }
+
+        $this->autoThumbnail($product);
+    }
+
+    /**
+     * Resolve the thumbnail path from a picker selection. Keeps the current
+     * thumbnail when nothing new is picked. When the thumbnail changes, a
+     * previous *module-owned* upload (products/…) is cleaned up; Media Library
+     * files (media/…) and gallery images are left intact.
+     */
+    public function resolveThumbnail(Product $product, ?string $pickedPath): ?string
+    {
+        $current = $product->thumbnail;
+        $picked = trim((string) $pickedPath);
+
+        if ($picked === '' || $picked === $current) {
+            return $current;
+        }
+
+        if ($current !== null && ! $this->isGalleryImage($product, $current)) {
+            $this->deleteIfModuleOwned($current);
+        }
+
+        return $picked;
+    }
+
+    /**
+     * If the product has no thumbnail, adopt the first gallery image.
+     */
+    public function autoThumbnail(Product $product): void
+    {
+        if ($product->thumbnail) {
+            return;
+        }
+
+        $firstImage = $product->images()
+            ->orderBy('sort_order')
+            ->first();
 
         if (! $firstImage) {
             return;
         }
 
         $product->update([
-            'thumbnail' =>
-                $firstImage->image
+            'thumbnail' => $firstImage->image,
         ]);
+    }
+
+    /**
+     * Delete a file only if it is a legacy module-owned upload (products/…).
+     * Media Library assets (media/…) are never deleted here — they belong to
+     * the library and are usage-tracked + delete-guarded there.
+     */
+    public function deleteIfModuleOwned(?string $path): void
+    {
+        if ($path === null || ! str_starts_with($path, 'products/')) {
+            return;
+        }
+
+        Storage::disk('public')->delete($path);
+    }
+
+    private function isGalleryImage(Product $product, string $path): bool
+    {
+        return $product->exists
+            && $product->images()->where('image', $path)->exists();
     }
 }
