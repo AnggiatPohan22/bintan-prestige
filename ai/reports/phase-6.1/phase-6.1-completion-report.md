@@ -73,6 +73,25 @@ ikut ter-include `@once` — komponen bisa dipakai form mana pun.
    service (milik Media Library, dilindungi delete-guard reference check).
 2. Upload cepat di visual builder menandai koleksi `content`.
 
+**S9 — Fix: PNG upload gagal karena profil warna non-standar** (`8f381fd`)
+1. Owner melaporkan upload PNG (Logo) di Media Library gagal. Log:
+   `imagecreatefrompng(): gd-png: libpng warning: iCCP: known incorrect sRGB
+   profile` di `ImageOptimizationService.php:56`.
+2. Root cause: PNG dengan profil ICC non-standar (umum pada ekspor
+   Photoshop/Canva) memicu **warning** libpng yang non-fatal, tapi Laravel
+   mengubah semua warning menjadi `ErrorException` → upload 500. Bug **lama**
+   (service Phase 1, tidak disentuh Phase 6.1); baru terpicu karena owner
+   mengupload PNG bermasalah.
+3. Fix: `@`-suppress ketiga `imagecreatefrom*` + throw error bersih hanya bila
+   decode benar-benar `false`. Karena Page/Product/Media semua lewat optimizer
+   ini, semua jalur upload ikut terperbaiki. +1 regression test (PNG dengan
+   chunk iCCP rusak, dibangun deterministik di test).
+4. **Temuan pendukung:** upload JPG owner SEBELUMNYA berhasil —
+   `Bintan-Lagoi-Bay-1.jpg` (koleksi category) & `danau biru.jpg` (koleksi
+   destination) tersimpan rapi di folder koleksi masing-masing. Ini
+   mengonfirmasi pipeline koleksi + upload Phase 6.1 berfungsi; hanya PNG yang
+   terganjal bug optimizer lama.
+
 ### Impact
 - DB: 2 migrasi additive — `media.collection`, `categories.image`. Nullable,
   tanpa menyentuh data/kolom existing.
@@ -82,7 +101,7 @@ ikut ter-include `@once` — komponen bisa dipakai form mana pun.
 - Security: koleksi divalidasi whitelist (anti path traversal — ada testnya);
   picker tetap di balik auth+admin; delete-guard media diperluas ke
   categories.image.
-- Tests: 846 → **850/850 pass** (4.223 assertions; +4 test baru). PHPStan level 5: **0 errors**.
+- Tests: 846 → **851/851 pass** (4.229 assertions; +5 test baru). PHPStan level 5: **0 errors**.
 
 ### Insiden yang ditemukan selama sesi (bukan disebabkan pekerjaan ini)
 1. **Palet admin ter-revert ke maroon** pukul 12:17 (browser admin lain aktif

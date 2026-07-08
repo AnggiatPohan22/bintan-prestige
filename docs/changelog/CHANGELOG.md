@@ -21,7 +21,9 @@ All notable project documentation and baseline improvement steps are tracked her
 
 **S6 Destinations → picker component** — `image_path` string alongside legacy file upload; module-owned `destinations/` files cleaned on replace, `media/` assets left to the library's delete guard. Builder quick-uploads tagged `content`.
 
-- Suite: **850/850** (4,223 assertions) | PHPStan level 5: 0 errors.
+**Fix — PNG upload on non-standard colour profile** — `ImageOptimizationService` let GD's `imagecreatefrom*` warnings propagate; PNGs with a non-standard ICC profile (Photoshop/Canva) trigger a non-fatal libpng warning (`iCCP: known incorrect sRGB profile`) that Laravel upgraded to an ErrorException → 500. Warning-suppressed the decodes + clean error only on genuine `false`. Pre-existing Phase 1 bug; fixes all upload paths (Media Library, page og_image, product images). +1 regression test.
+
+- Suite: **851/851** (4,229 assertions) | PHPStan level 5: 0 errors.
 - Staged follow-ups in `ai/reports/phase-6.1/phase-6.1-plan-handoff.md` §5 (products/page-sections/global-assets swap, orphan-purge safety, gallery multi-select picker).
 
 ## 2026-06-29 — Phase 6: Flexible Content Modeling (COMPLETE 2026-07-07)
