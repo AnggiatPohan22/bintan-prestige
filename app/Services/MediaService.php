@@ -37,11 +37,12 @@ class MediaService
         protected ImageOptimizationService $imageService,
     ) {}
 
-    public function store(UploadedFile $file, ?User $uploader = null): Media
+    public function store(UploadedFile $file, ?User $uploader = null, ?string $collection = null): Media
     {
         $this->validateUpload($file);
 
-        $folder = 'media/'.now()->format('Y/m');
+        $collection = $this->resolveCollection($collection);
+        $folder = 'media/'.$collection.'/'.now()->format('Y/m');
         $originalName = $file->getClientOriginalName();
         $mime = (string) $file->getMimeType();
         $path = null;
@@ -77,6 +78,7 @@ class MediaService
                 'height' => $height,
                 'path' => $path,
                 'disk' => 'public',
+                'collection' => $collection,
                 'uploaded_by' => $uploader?->id,
             ]);
         } catch (Throwable $exception) {
@@ -118,6 +120,7 @@ class MediaService
             ->with('uploader:id,name')
             ->search($filters['search'] ?? null)
             ->extension($filters['extension'] ?? null)
+            ->collection($filters['collection'] ?? null)
             ->latest()
             ->paginate($perPage)
             ->withQueryString();
@@ -181,6 +184,23 @@ class MediaService
             ->orderBy('extension')
             ->pluck('extension')
             ->all();
+    }
+
+    /**
+     * Collections drive the storage folder (media/{collection}/YYYY/MM).
+     * Unknown values fall back to the configured default so a stale client
+     * can never write outside the media tree.
+     */
+    private function resolveCollection(?string $collection): string
+    {
+        $collection = trim((string) $collection);
+        $known = array_keys((array) config('media.collections', []));
+
+        if ($collection !== '' && in_array($collection, $known, true)) {
+            return $collection;
+        }
+
+        return (string) config('media.default_collection', 'general');
     }
 
     private function validateUpload(UploadedFile $file): void

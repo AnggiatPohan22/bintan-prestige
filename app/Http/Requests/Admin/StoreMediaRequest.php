@@ -16,6 +16,7 @@ class StoreMediaRequest extends FormRequest
         return [
             'files' => ['required', 'array', 'min:1', 'max:10'],
             'files.*' => ['required', 'image', 'mimes:jpg,jpeg,png,gif,webp', 'extensions:jpg,jpeg,png,gif,webp', 'max:5120'],
+            'collection' => ['nullable', 'string', 'max:50'],
         ];
     }
 

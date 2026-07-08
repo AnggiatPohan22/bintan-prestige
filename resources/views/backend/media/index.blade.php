@@ -44,9 +44,16 @@
 
     {{-- Toolbar: search + type filter --}}
     <div class="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <form method="GET" action="{{ route('admin.media.index') }}" class="flex w-full max-w-sm gap-2">
+        <form method="GET" action="{{ route('admin.media.index') }}" class="flex w-full max-w-xl gap-2">
             @if($activeType)<input type="hidden" name="type" value="{{ $activeType }}">@endif
             <input type="text" name="search" value="{{ $search }}" class="admin-input" placeholder="Search by file name…">
+            <select name="collection" class="admin-select w-44 shrink-0" x-on:change="$el.form.submit()" aria-label="Filter by collection">
+                <option value="">All collections</option>
+                @foreach($collections as $key => $label)
+                    <option value="{{ $key }}" @selected($activeCollection === $key)>{{ $label }}</option>
+                @endforeach
+                <option value="uncategorized" @selected($activeCollection === 'uncategorized')>Uncategorized</option>
+            </select>
             <button type="submit" class="admin-btn-secondary shrink-0"><i class="fa-solid fa-magnifying-glass"></i></button>
         </form>
 
@@ -129,6 +136,7 @@
                 <dl class="space-y-1.5 rounded-xl bg-admin-card p-4 text-xs">
                     <div class="flex justify-between"><dt class="text-admin-secondary">File</dt><dd class="font-medium text-admin-secondary truncate pl-3" x-text="selected.name"></dd></div>
                     <div class="flex justify-between"><dt class="text-admin-secondary">Type</dt><dd class="font-medium text-admin-secondary" x-text="selected.ext"></dd></div>
+                    <div class="flex justify-between"><dt class="text-admin-secondary">Collection</dt><dd class="font-medium text-admin-secondary" x-text="selected.collection || 'Uncategorized'"></dd></div>
                     <div class="flex justify-between"><dt class="text-admin-secondary">Size</dt><dd class="font-medium text-admin-secondary" x-text="selected.size"></dd></div>
                     <div class="flex justify-between"><dt class="text-admin-secondary">Dimensions</dt><dd class="font-medium text-admin-secondary" x-text="selected.dimensions"></dd></div>
                     <div class="flex justify-between"><dt class="text-admin-secondary">Uploaded by</dt><dd class="font-medium text-admin-secondary" x-text="selected.uploader"></dd></div>
@@ -180,6 +188,7 @@
             uploadTotal: 0,
             uploadDone: 0,
             uploadError: '',
+            uploadCollection: @js(config('media.default_collection', 'general')),
 
             select(payload) {
                 this.selected = { alt: '', caption: '', ...payload };
@@ -208,6 +217,7 @@
                     try {
                         const form = new FormData();
                         form.append('files[]', file);
+                        form.append('collection', this.uploadCollection);
                         const res = await fetch(config.storeUrl, {
                             method: 'POST',
                             headers: { 'X-CSRF-TOKEN': config.csrf, 'Accept': 'application/json' },

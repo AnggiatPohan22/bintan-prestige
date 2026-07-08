@@ -25,6 +25,7 @@
                         ext: @js(strtoupper($item->extension)),
                         date: @js($item->created_at?->format('d M Y, H:i')),
                         uploader: @js($item->uploader?->name ?? 'Unknown'),
+                        collection: @js($item->collectionLabel()),
                         usageCount: {{ (int) ($item->usage_count ?? 0) }},
                         usageReferences: @js($item->usage_references ?? []),
                         missingFile: @js((bool) ($item->missing_file ?? false)),
@@ -41,6 +42,7 @@
                         <span>{{ $item->size_for_humans }}</span>
                         <span class="rounded bg-admin-card px-1.5 font-mono uppercase">{{ $item->extension }}</span>
                     </p>
+                    <p class="mt-0.5 truncate text-[10px] font-medium uppercase tracking-wide text-admin-secondary opacity-70">{{ $item->collectionLabel() }}</p>
                     @if($item->missing_file ?? false)
                         <span class="mt-1 inline-flex rounded bg-red-50 px-1.5 py-0.5 text-[10px] font-semibold text-red-600">Missing file</span>
                     @elseif(($item->usage_count ?? 0) > 0)

@@ -295,6 +295,74 @@ class MediaLibraryTest extends TestCase
             ->assertSee('background-', false);
     }
 
+    public function test_uploads_are_stored_under_their_collection_folder(): void
+    {
+        Storage::fake('public');
+        $admin = $this->admin();
+        $gif = UploadedFile::fake()->createWithContent(
+            'hero.gif',
+            base64_decode('R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw=='),
+        );
+
+        $this->actingAs($admin)->post(route('admin.media.store'), [
+            'files' => [$gif],
+            'collection' => 'hero',
+        ])->assertRedirect(route('admin.media.index'));
+
+        $media = Media::query()->firstOrFail();
+
+        $this->assertSame('hero', $media->collection);
+        $this->assertStringStartsWith('media/hero/', $media->path);
+        Storage::disk('public')->assertExists($media->path);
+    }
+
+    public function test_unknown_collection_falls_back_to_the_default(): void
+    {
+        Storage::fake('public');
+        $gif = UploadedFile::fake()->createWithContent(
+            'evil.gif',
+            base64_decode('R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw=='),
+        );
+
+        $this->actingAs($this->admin())->post(route('admin.media.store'), [
+            'files' => [$gif],
+            'collection' => '../../escape',
+        ])->assertRedirect(route('admin.media.index'));
+
+        $media = Media::query()->firstOrFail();
+
+        $this->assertSame(config('media.default_collection'), $media->collection);
+        $this->assertStringStartsWith('media/'.config('media.default_collection').'/', $media->path);
+    }
+
+    public function test_media_index_filters_by_collection_including_uncategorized_legacy_rows(): void
+    {
+        Storage::fake('public');
+        $admin = $this->admin();
+
+        $this->media([
+            'original_name' => 'in-hero-collection.webp',
+            'path' => 'media/hero/2026/07/a.webp',
+            'collection' => 'hero',
+        ]);
+        $this->media([
+            'original_name' => 'legacy-uncategorized.webp',
+            'path' => 'media/2026/06/b.webp',
+        ]);
+
+        $this->actingAs($admin)
+            ->get(route('admin.media.index', ['collection' => 'hero']))
+            ->assertOk()
+            ->assertSee('in-hero-collection.webp')
+            ->assertDontSee('legacy-uncategorized.webp');
+
+        $this->actingAs($admin)
+            ->get(route('admin.media.index', ['collection' => 'uncategorized']))
+            ->assertOk()
+            ->assertSee('legacy-uncategorized.webp')
+            ->assertDontSee('in-hero-collection.webp');
+    }
+
     private function admin(): User
     {
         return User::factory()->admin()->create();
