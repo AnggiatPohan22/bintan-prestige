@@ -86,7 +86,7 @@ $groups = [
                     type="button"
                     class="group admin-sidebar__group-btn {{ $activeGroup === 'content' ? 'admin-sidebar__group-btn--active' : '' }}"
                     x-on:click="toggle('content')"
-                    aria-expanded="true"
+                    x-bind:aria-expanded="isOpen('content').toString()"
                 >
                     <span class="admin-sidebar__icon">
                         <i class="fa-solid fa-file-lines" aria-hidden="true"></i>
@@ -138,6 +138,7 @@ $groups = [
                     type="button"
                     class="group admin-sidebar__group-btn {{ $activeGroup === 'design' ? 'admin-sidebar__group-btn--active' : '' }}"
                     x-on:click="toggle('design')"
+                    x-bind:aria-expanded="isOpen('design').toString()"
                 >
                     <span class="admin-sidebar__icon">
                         <i class="fa-solid fa-palette" aria-hidden="true"></i>
@@ -169,6 +170,7 @@ $groups = [
                     type="button"
                     class="group admin-sidebar__group-btn {{ $activeGroup === 'forms' ? 'admin-sidebar__group-btn--active' : '' }}"
                     x-on:click="toggle('forms')"
+                    x-bind:aria-expanded="isOpen('forms').toString()"
                 >
                     <span class="admin-sidebar__icon">
                         <i class="fa-solid fa-envelope-open-text" aria-hidden="true"></i>
@@ -192,6 +194,7 @@ $groups = [
                     type="button"
                     class="group admin-sidebar__group-btn {{ $activeGroup === 'seo' ? 'admin-sidebar__group-btn--active' : '' }}"
                     x-on:click="toggle('seo')"
+                    x-bind:aria-expanded="isOpen('seo').toString()"
                 >
                     <span class="admin-sidebar__icon">
                         <i class="fa-solid fa-magnifying-glass-chart" aria-hidden="true"></i>
@@ -228,6 +231,7 @@ $groups = [
                     type="button"
                     class="group admin-sidebar__group-btn {{ $activeGroup === 'analytics' ? 'admin-sidebar__group-btn--active' : '' }}"
                     x-on:click="toggle('analytics')"
+                    x-bind:aria-expanded="isOpen('analytics').toString()"
                 >
                     <span class="admin-sidebar__icon">
                         <i class="fa-solid fa-chart-line" aria-hidden="true"></i>
@@ -255,6 +259,7 @@ $groups = [
                     type="button"
                     class="group admin-sidebar__group-btn {{ $activeGroup === 'system' ? 'admin-sidebar__group-btn--active' : '' }}"
                     x-on:click="toggle('system')"
+                    x-bind:aria-expanded="isOpen('system').toString()"
                 >
                     <span class="admin-sidebar__icon">
                         <i class="fa-solid fa-gears" aria-hidden="true"></i>
@@ -282,6 +287,7 @@ $groups = [
                     type="button"
                     class="group admin-sidebar__group-btn {{ $activeGroup === 'settings' ? 'admin-sidebar__group-btn--active' : '' }}"
                     x-on:click="toggle('settings')"
+                    x-bind:aria-expanded="isOpen('settings').toString()"
                 >
                     <span class="admin-sidebar__icon">
                         <i class="fa-solid fa-sliders" aria-hidden="true"></i>
@@ -312,6 +318,7 @@ $groups = [
                     type="button"
                     class="group admin-sidebar__group-btn {{ $activeGroup === 'users' ? 'admin-sidebar__group-btn--active' : '' }}"
                     x-on:click="toggle('users')"
+                    x-bind:aria-expanded="isOpen('users').toString()"
                 >
                     <span class="admin-sidebar__icon">
                         <i class="fa-solid fa-users-gear" aria-hidden="true"></i>
@@ -340,26 +347,30 @@ document.addEventListener('alpine:init', () => {
     Alpine.data('adminSidebar', (activeGroup) => ({
         drawerOpen: false,
         activeGroup: activeGroup,
-        state: {},
+        openGroup: activeGroup || null,
 
         init() {
-            try {
-                this.state = JSON.parse(localStorage.getItem('adminSidebarGroups') || '{}');
-            } catch (e) {
-                this.state = {};
+            // Accordion: only one group open. The route's active group wins;
+            // on pages without one (e.g. Dashboard) restore the last opened group.
+            if (! this.openGroup) {
+                try {
+                    this.openGroup = localStorage.getItem('adminSidebarOpenGroup') || null;
+                } catch (e) { /* storage unavailable */ }
             }
         },
 
         isOpen(group) {
-            if (group === this.activeGroup) return true;
-            return this.state[group] ?? false;
+            return this.openGroup === group;
         },
 
         toggle(group) {
-            if (group === this.activeGroup) return;
-            this.state[group] = !this.isOpen(group);
+            this.openGroup = this.openGroup === group ? null : group;
             try {
-                localStorage.setItem('adminSidebarGroups', JSON.stringify(this.state));
+                if (this.openGroup) {
+                    localStorage.setItem('adminSidebarOpenGroup', this.openGroup);
+                } else {
+                    localStorage.removeItem('adminSidebarOpenGroup');
+                }
             } catch (e) { /* storage unavailable */ }
         },
     }));
