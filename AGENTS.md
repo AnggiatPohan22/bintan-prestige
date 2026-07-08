@@ -58,6 +58,7 @@ Before working, read this file + the skill(s) below that match your task.
 | Pages module (About, Contact, etc.) | `page-module-skill.md` + `backend-skill.md` |
 | Menu / Navigation | `menu-manager-skill.md` + `backend-skill.md` |
 | Media Library | `media-library-skill.md` |
+| **Any image/file upload field (admin)** | `media-library-skill.md` — see its ⭐ Canonical Image Input Standard |
 | Performance / Cache | `performance-skill.md` |
 | Testing / QA | `testing-qa-skill.md` |
 | Documentation | `documentation-skill.md` |
@@ -256,6 +257,18 @@ Every new module must follow this sequence:
 - Remove existing documentation
 - Install new packages
 - Change authentication or authorization logic
+
+**Image / file inputs — PATENT RULE (mandatory, no exceptions but favicon):**
+- **Every** admin image/file field goes through the Media Library via
+  `<x-admin.media-image-field>` (single) or `<x-admin.media-gallery-field>`
+  (multiple). A raw `<input type="file">` in an admin form is not allowed.
+- Store the returned **path string** (`string(500)` nullable) — no `media_id` FK,
+  no schema change. FormRequest rule = `string`, never `image|mimes`.
+- On replace/delete, only remove the module's own legacy files (`products/`,
+  `pages/`, `site-assets/`, `page-sections/`); **never** delete a `media/…` path.
+- Register the new column in `MediaService::DIRECT_REFERENCES`.
+- Full pattern + checklist: `ai/skills/media-library-skill.md` (⭐ Canonical
+  Image Input Standard). Only exception: favicon (raw `.ico`/`.svg` upload).
 
 **Always do these:**
 - Inspect existing files before editing
