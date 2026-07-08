@@ -110,6 +110,31 @@ class PageSectionImageService
         return $asset;
     }
 
+    /**
+     * Point a site asset at an existing Media Library path (selected via the
+     * picker) instead of uploading a new file. Mirrors storeSiteAssetUpload but
+     * stores the given path as-is. A previous *local* upload (site-assets/…) is
+     * cleaned up; Media Library paths (media/…) are left intact — they belong to
+     * the library and are usage-tracked there.
+     */
+    public function setSiteAssetPath(string $path, string $key, string $label, ?string $alt = null): SiteAsset
+    {
+        $asset = SiteAsset::firstOrNew(['key' => $key]);
+
+        if ($asset->path !== $path) {
+            $this->deleteIfLocalSiteAssetImage($asset->path);
+        }
+
+        $asset->fill([
+            'label' => $label,
+            'path' => $path,
+            'alt' => $alt ?: $label,
+            'is_active' => true,
+        ])->save();
+
+        return $asset;
+    }
+
     public function clearSiteAsset(SiteAsset $asset): void
     {
         $this->deleteIfLocalSiteAssetImage($asset->path);

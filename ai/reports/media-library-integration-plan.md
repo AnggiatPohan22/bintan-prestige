@@ -70,12 +70,17 @@ Priority follows the brief, adjusted for what Phase 6.1 already finished.
   `products/partials/products.blade.php` (verify no route references first).
 - 0.2 Build `P1` multi-select picker capability. Add a regression test.
 
-**Stage 1 — Settings (highest visibility)** — `SiteSettingController`
-- 1.1 Logo variants (`logos[slug]`) → picker per variant (collection `logo`).
-- 1.2 Social share image + SEO default OG image → picker (collection `logo`/`content`).
-- 1.3 Default media placeholders (`default_media[slug]`) → picker.
-- 1.4 Favicon → **leave raw** (P2 exception) unless owner approves SVG sanitizer.
-- Controller: accept path strings; keep raw-file fallback branch until verified.
+**Stage 1 — Settings (highest visibility)** — `SiteSettingController` — ✅ DONE 2026-07-08
+- 1.1 ✅ Logo variants (`logos[slug]`) → picker per variant (collection `logo`).
+- 1.2 ✅ Social share image + SEO default OG image → picker (collection `content`).
+- 1.3 ✅ Default media placeholders (`default_media[slug]`) → picker (collection `content`).
+- 1.4 ✅ Favicon → **left raw** (owner decision 2026-07-08 — `.ico`/`.svg` outside library types).
+- New service method `PageSectionImageService::setSiteAssetPath()` stores the picked
+  path; its `deleteIfLocalSiteAssetImage` guard already protects `media/…` assets
+  (only cleans up legacy `site-assets/…` uploads on replace). No schema change.
+- Tests: updated 3 (logo/social/default-media) to path-based + new
+  `GlobalSiteLogoSettingsTest`. Suite 854/854, PHPStan 0. Owner decision (path
+  approach) confirmed in `AskUserQuestion` 2026-07-08.
 
 **Stage 2 — Products** — `ProductController`/`ProductService`/`ProductImageService`
 - 2.1 Thumbnail → single picker (collection `product`).

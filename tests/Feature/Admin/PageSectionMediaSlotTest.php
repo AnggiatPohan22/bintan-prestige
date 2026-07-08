@@ -504,11 +504,15 @@ class PageSectionMediaSlotTest extends TestCase
 
         $admin = User::factory()->admin()->create();
 
+        // Media-Library-backed: the picker submits paths to files already in the library.
+        Storage::disk('public')->put('media/logo/2026/07/main.webp', 'x');
+        Storage::disk('public')->put('media/logo/2026/07/light.webp', 'x');
+
         $response = $this->actingAs($admin)
             ->put(route('admin.settings.global-assets.site-logo.update'), [
                 'logos' => [
-                    'main' => UploadedFile::fake()->image('logo.jpg', 400, 220),
-                    'light' => UploadedFile::fake()->image('logo-light.png', 400, 220),
+                    'main' => 'media/logo/2026/07/main.webp',
+                    'light' => 'media/logo/2026/07/light.webp',
                 ],
                 'logo_alts' => [
                     'main' => 'Bintan Prestige logo',
@@ -521,6 +525,7 @@ class PageSectionMediaSlotTest extends TestCase
         $this->assertDatabaseHas('site_assets', [
             'key' => 'site.logo',
             'label' => 'Main website logo',
+            'path' => 'media/logo/2026/07/main.webp',
             'alt' => 'Bintan Prestige logo',
             'is_active' => true,
         ]);
@@ -528,14 +533,10 @@ class PageSectionMediaSlotTest extends TestCase
         $this->assertDatabaseHas('site_assets', [
             'key' => 'site.logo.light',
             'label' => 'Light logo',
+            'path' => 'media/logo/2026/07/light.webp',
             'alt' => 'Bintan Prestige light logo',
             'is_active' => true,
         ]);
-
-        $siteLogo = SiteAsset::where('key', 'site.logo')->firstOrFail();
-        $lightLogo = SiteAsset::where('key', 'site.logo.light')->firstOrFail();
-        Storage::disk('public')->assertExists($siteLogo->path);
-        Storage::disk('public')->assertExists($lightLogo->path);
 
         $deleteResponse = $this->actingAs($admin)
             ->delete(route('admin.settings.global-assets.site-logo.destroy', 'light'));
@@ -548,7 +549,8 @@ class PageSectionMediaSlotTest extends TestCase
             'is_active' => false,
         ]);
 
-        Storage::disk('public')->assertMissing($lightLogo->path);
-        Storage::disk('public')->assertExists($siteLogo->path);
+        // Detaching leaves the library files intact (library-owned).
+        Storage::disk('public')->assertExists('media/logo/2026/07/light.webp');
+        Storage::disk('public')->assertExists('media/logo/2026/07/main.webp');
     }
 }

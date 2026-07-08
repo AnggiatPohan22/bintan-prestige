@@ -10,7 +10,6 @@ use App\Models\SiteSetting;
 use App\Models\User;
 use App\Support\DefaultMediaAssets;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
@@ -24,11 +23,15 @@ class GlobalDefaultMediaAssetsTest extends TestCase
 
         $admin = User::factory()->admin()->create();
 
+        // Simulate images already in the Media Library (what the picker returns).
+        Storage::disk('public')->put('media/content/2026/07/product.webp', 'x');
+        Storage::disk('public')->put('media/content/2026/07/hero.webp', 'x');
+
         $response = $this->actingAs($admin)
             ->put(route('admin.settings.global-assets.default-media.update'), [
                 'default_media' => [
-                    'product' => UploadedFile::fake()->image('product.jpg', 1200, 900),
-                    'hero' => UploadedFile::fake()->image('hero.jpg', 1600, 900),
+                    'product' => 'media/content/2026/07/product.webp',
+                    'hero' => 'media/content/2026/07/hero.webp',
                 ],
                 'default_media_alts' => [
                     'product' => 'Default product placeholder',
@@ -45,6 +48,7 @@ class GlobalDefaultMediaAssetsTest extends TestCase
         $this->assertDatabaseHas('site_assets', [
             'key' => 'default_media.product',
             'label' => 'Product placeholder image',
+            'path' => 'media/content/2026/07/product.webp',
             'alt' => 'Default product placeholder',
             'is_active' => true,
         ]);
@@ -55,9 +59,6 @@ class GlobalDefaultMediaAssetsTest extends TestCase
             'group' => DefaultMediaAssets::SETTINGS_GROUP,
             'is_active' => true,
         ]);
-
-        $productAsset = SiteAsset::where('key', 'default_media.product')->firstOrFail();
-        Storage::disk('public')->assertExists($productAsset->path);
 
         $deleteResponse = $this->actingAs($admin)
             ->delete(route('admin.settings.global-assets.default-media.destroy', 'product'));
@@ -70,7 +71,8 @@ class GlobalDefaultMediaAssetsTest extends TestCase
             'is_active' => false,
         ]);
 
-        Storage::disk('public')->assertMissing($productAsset->path);
+        // Detaching the asset must NOT delete the Media Library file (library-owned).
+        Storage::disk('public')->assertExists('media/content/2026/07/product.webp');
     }
 
     public function test_default_media_tab_only_shows_default_media_form(): void
@@ -89,7 +91,7 @@ class GlobalDefaultMediaAssetsTest extends TestCase
         $response->assertSee('Cover');
         $response->assertSee('Contain');
         $response->assertSee('No image uploaded');
-        $response->assertSee('Clear selected image');
+        $response->assertSee('Media Library');
         $response->assertDontSee('Default meta title');
         $response->assertDontSee('GA4 measurement ID');
     }

@@ -65,8 +65,12 @@
 
                                     <div class="mt-4 space-y-3">
                                         <div>
-                                            <label class="form-label">Upload</label>
-                                            <input type="file" name="logos[{{ $slug }}]" accept="image/jpeg,image/png,image/webp" class="admin-input">
+                                            <x-admin.media-image-field
+                                                name="logos[{{ $slug }}]"
+                                                :value="old('logos.'.$slug, $asset?->path)"
+                                                label="Logo image"
+                                                collection="logo"
+                                                hint="Pick from the Media Library or upload — saved to the Logo collection." />
                                             @error("logos.$slug") <p class="form-error">{{ $message }}</p> @enderror
                                         </div>
 
@@ -227,9 +231,12 @@
 
                     <div class="mt-5 space-y-4">
                         <div>
-                            <label class="form-label">Upload image</label>
-                            <input type="file" name="social_share_image" accept="image/jpeg,image/png,image/webp" class="admin-input">
-                            <p class="mt-2 text-xs text-admin-secondary">Recommended size: 1200 x 630 px. Accepted formats: JPG, PNG, WEBP. Maximum size: 4 MB.</p>
+                            <x-admin.media-image-field
+                                name="social_share_image"
+                                :value="old('social_share_image', $socialShareImage?->path)"
+                                label="Social share image"
+                                collection="content"
+                                hint="Recommended 1200 x 630 px. Pick from the Media Library or upload." />
                             @error('social_share_image') <p class="form-error">{{ $message }}</p> @enderror
                         </div>
 
@@ -952,9 +959,12 @@
 
                 <div class="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
                     <div class="rounded-xl border border-admin bg-admin-card p-4">
-                        <label class="form-label">Default OG image</label>
-                        <input type="file" name="seo_default_og_image" accept="image/jpeg,image/png,image/webp" class="admin-input">
-                        <p class="mt-2 text-xs text-admin-secondary">Fallback social preview image when a product or page does not provide one. Recommended size: 1200 x 630 px.</p>
+                        <x-admin.media-image-field
+                            name="seo_default_og_image"
+                            :value="old('seo_default_og_image', $seoDefaultOgImage?->path)"
+                            label="Default OG image"
+                            collection="content"
+                            hint="Fallback social preview when a product/page has none. Recommended 1200 x 630 px." />
                         <p class="mt-2 text-[11px] font-semibold uppercase text-admin-secondary">{{ \App\Support\SeoDefaultSettings::OG_IMAGE_KEY }}</p>
                         @error('seo_default_og_image') <p class="form-error">{{ $message }}</p> @enderror
                     </div>
@@ -1223,11 +1233,12 @@
 
                                     <div class="mt-4 space-y-3">
                                         <div>
-                                            <label class="form-label">Upload image</label>
-                                            <input type="file" name="default_media[{{ $slug }}]" accept="image/jpeg,image/png,image/webp" class="admin-input" data-default-media-input>
-                                            <button type="button" class="mt-3 hidden w-full rounded-lg border border-admin px-4 py-2 text-sm font-semibold text-admin-secondary transition hover:opacity-75" data-default-media-clear>
-                                                Clear selected image
-                                            </button>
+                                            <x-admin.media-image-field
+                                                name="default_media[{{ $slug }}]"
+                                                :value="old('default_media.'.$slug, $asset?->path)"
+                                                label="Placeholder image"
+                                                collection="content"
+                                                hint="Pick from the Media Library or upload." />
                                             @error("default_media.$slug") <p class="form-error">{{ $message }}</p> @enderror
                                         </div>
 
