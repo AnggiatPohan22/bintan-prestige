@@ -166,9 +166,20 @@ Flexible Content Modeling — custom content types, field groups, fields, and en
 - C3 ✅: Functional smoke test — schema (10 tables + morph), block registry ↔ view files, admin guards, public archive/single/draft, scheduler command.
 - C4 ✅: Documentation — `docs/modules/content-modeling.md`, `ai/skills/content-modeling-skill.md`, CHANGELOG Phase 6 entry, handoff finalized.
 
-**PHASE 6 COMPLETE.** Test suite: **845/845 pass** | PHPStan level 5: 0 errors (2026-07-07).
+**PHASE 6 COMPLETE.** Test suite: **846/846 pass** | PHPStan level 5: 0 errors (2026-07-08).
 Release gate: **PASS** (pending owner production pre-flight). App timezone: `Asia/Jakarta` (WIB).
 Grand plan + progress: `ai/reports/phase-6/phase-6-progress-handoff.md`
+
+**Post-release note (2026-07-08):** dev DB wiped by cached-config `migrate:fresh`,
+restored from MySQL binlog (see `ai/reports/phase-6/post-release-db-recovery.md`).
+Owner UI scheme is now **Navy + gold** (DB-stored: `site_settings` brand_colors +
+`admin_dashboard_appearances` preset `navy-light`). Guards: never `config:cache`
+in dev; `tests/TestCase.php` refuses non-sqlite test DB.
+
+**Phase 6.1 — CURRENT (interim, before Phase 7)**
+Dashboard & Media UX: sidebar accordion + sticky, category images,
+Media-Library-first uploads, media picker modal upload + theming, organized
+media folder structure. Plan + handoff: `ai/reports/phase-6.1/`.
 
 **Phase 7 — FUTURE**
 Internationalization — multi-language content for Bintan tourism market.

@@ -14,12 +14,14 @@
 > approval owner eksplisit** (AGENTS.md §9) — fase ini hampir seluruhnya schema
 > work, jadi approval gate sering by design.
 >
-> **Last updated:** 2026-07-07 — **PHASE 6 COMPLETE.** Stage A (A0–A4) + Stage B
-> (B1–B14) + Stage C (C1–C4) all DONE. Content types, fields, entries, per-field
-> validation, sidecar index, taxonomies, relations, revisions/audit/scheduling/SEO,
-> builder body, public routing, template resolution, content_query + content_field
-> blocks; release audit (static/perf/smoke/docs) passed. Test suite: **845/845 green**,
-> PHPStan level 5: 0 errors. Release gate: **PASS** (pending owner production pre-flight).
+> **Last updated:** 2026-07-08 — **PHASE 6 COMPLETE** + post-release incident
+> resolved (§16). Stage A (A0–A4) + Stage B (B1–B14) + Stage C (C1–C4) all DONE.
+> Content types, fields, entries, per-field validation, sidecar index, taxonomies,
+> relations, revisions/audit/scheduling/SEO, builder body, public routing, template
+> resolution, content_query + content_field blocks; release audit passed.
+> Test suite: **846/846 green**, PHPStan level 5: 0 errors. Release gate: **PASS**
+> (pending owner production pre-flight). Dev DB restored from binlog + Navy theme
+> applied (§16). Next: **Phase 6.1** (dashboard & media UX) before Phase 7.
 
 ---
 
@@ -472,3 +474,47 @@ When a task does X, update Y in the same PR/commit:
 - Always: read AGENTS.md → grand plan → this handoff; do one `⏳ TODO` task;
   stop at `⚠️` gates for owner approval; run the §12 Sync Matrix; write report
   in §11 format inside this folder.
+
+---
+
+## 16. Post-Release Incident — Dev DB Wipe & Binlog Recovery (2026-07-07 → 08)
+
+**Incident:** dev DB `bintan_prestige` wiped by `migrate:fresh` on 2026-07-07
+20:10:57 (`php artisan test` ran against MySQL because config was cached).
+Code/migrations/tests were never at risk (git).
+
+**Recovery (2026-07-08, non-destructive):** binlogs 000006–000013 replayed into a
+separate DB `bintan_prestige_recovery` (`--skip-gtids`, stop-datetime before the
+wipe, FK checks off + stub users). Tables that failed direct replay due to
+historical schema drift (`pages`, `page_blocks`, `admin_dashboard_appearances`)
+were rebuilt via era-aware row-event reconstruction. Selectively imported back:
+
+- `site_settings` (79), `pages` (5) + `page_blocks` (36), `content_types` (2) +
+  `field_groups`/`fields`, `content_entries` (4), `media` (4 — files never lost),
+  `menus` (3 + 16 items), `admin_dashboard_appearances` (1), `builder_patterns` (1).
+- Sidecar index + relations rebuilt via observer re-save. Verified: suite 846/846,
+  public smoke pass (pages 200, draft 404, admin redirect).
+- **Unrecoverable** (rows predate binlog range 2026-06-04): edits to
+  page_sections/faqs/products; original users. Seeded versions remain.
+
+**Theme decision (owner):** final UI scheme = **Navy + gold accent** (replaces
+black/gold). Stored in DB only: `site_settings` brand_colors (primary `#0B2545`,
+gold `#C8A24A`, accent `#35577D`) + `admin_dashboard_appearances` preset
+`navy-light` (sidebar `#0B1F3B`, primary `#1E3A8A`). No code changed.
+
+**Artifacts:** binlog copies `storage/app/binlog-recovery/` (do NOT delete);
+pre-import dump `storage/app/db-backups/pre-import-20260708.sql`; recovery DB
+`bintan_prestige_recovery` (droppable after owner confirms).
+
+**Guards added earlier the same day:** `tests/TestCase.php` refuses to run when
+the test DB is not sqlite; never `config:cache` in dev (use `optimize:clear`).
+Full report: `post-release-db-recovery.md`.
+
+---
+
+## 17. Phase 6.1 — Interim Dashboard & Media UX (before Phase 7)
+
+Owner-requested improvements, tracked in `ai/reports/phase-6.1/`:
+sidebar accordion + sticky, category images, Media-Library-first uploads,
+richer media picker modal (upload + theme-aware), organized media folder
+structure. See `ai/reports/phase-6.1/phase-6.1-plan-handoff.md`.
