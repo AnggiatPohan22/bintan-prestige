@@ -48,17 +48,22 @@ class MediaService
         $mime = (string) $file->getMimeType();
         $path = null;
 
+        $preserveOriginal = in_array($collection, (array) config('media.preserve_original_collections', []), true);
+
         try {
-            if (in_array($mime, self::OPTIMIZABLE, true)) {
+            if (! $preserveOriginal && in_array($mime, self::OPTIMIZABLE, true)) {
                 $path = $this->imageService->upload($file, $folder);
                 $extension = 'webp';
                 $mimeType = 'image/webp';
             } else {
-                // Preserve animated GIF frames instead of passing them through GD.
-                $filename = Str::uuid().'.gif';
+                // Store the original bytes untouched. Applies to:
+                //  - animated GIFs (never flatten via GD), and
+                //  - preserve-original collections (logo/icon) where transparency
+                //    and crisp edges matter more than re-encoding to WebP.
+                $extension = $this->originalExtension($file);
+                $filename = Str::uuid().'.'.$extension;
                 $path = $file->storeAs($folder, $filename, 'public');
-                $extension = 'gif';
-                $mimeType = 'image/gif';
+                $mimeType = $file->getMimeType() ?: 'image/'.$extension;
             }
 
             if (! is_string($path) || $path === '') {
@@ -202,6 +207,21 @@ class MediaService
         }
 
         return (string) config('media.default_collection', 'general');
+    }
+
+    /**
+     * Safe, lowercased original extension constrained to the allowed set.
+     * `jpeg` is normalised to `jpg` so stored filenames stay consistent.
+     */
+    private function originalExtension(UploadedFile $file): string
+    {
+        $extension = strtolower($file->getClientOriginalExtension() ?: (string) $file->guessExtension());
+
+        if ($extension === 'jpeg') {
+            $extension = 'jpg';
+        }
+
+        return in_array($extension, self::ALLOWED_EXTENSIONS, true) ? $extension : 'png';
     }
 
     private function validateUpload(UploadedFile $file): void

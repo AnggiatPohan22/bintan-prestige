@@ -67,10 +67,11 @@ class MediaLibraryTest extends TestCase
             $this->pngWithMalformedIccProfile(),
         );
 
-        // Before the fix this returned 500 (warning → ErrorException).
+        // Before the fix this returned 500 (warning → ErrorException). Use a
+        // WebP-optimizing collection so the decode path is actually exercised.
         $this->actingAs($admin)->post(route('admin.media.store'), [
             'files' => [$badIccPng],
-            'collection' => 'logo',
+            'collection' => 'content',
         ])->assertRedirect(route('admin.media.index'));
 
         $media = Media::query()->firstOrFail();
@@ -78,13 +79,82 @@ class MediaLibraryTest extends TestCase
         $this->assertSame('logo.png', $media->original_name);
         // PNGs are optimized to webp by the pipeline.
         $this->assertSame('webp', $media->extension);
-        $this->assertSame('logo', $media->collection);
+        $this->assertSame('content', $media->collection);
 
         // ImageOptimizationService writes via native GD to storage_path(),
         // bypassing Storage::fake — assert the real file, then clean it up.
         $fullPath = storage_path('app/public/'.$media->path);
         $this->assertFileExists($fullPath);
         @unlink($fullPath);
+    }
+
+    public function test_transparent_png_keeps_its_transparency_when_optimized_to_webp(): void
+    {
+        // WebP supports alpha; the optimizer must not flatten transparent areas
+        // to black. Uploaded to a normal (WebP-optimizing) collection.
+        Storage::fake('public');
+        $png = UploadedFile::fake()->createWithContent('badge.png', $this->transparentPng());
+
+        $this->actingAs($this->admin())->post(route('admin.media.store'), [
+            'files' => [$png],
+            'collection' => 'content',
+        ])->assertRedirect(route('admin.media.index'));
+
+        $media = Media::query()->firstOrFail();
+        $this->assertSame('webp', $media->extension);
+
+        // Optimizer writes via native GD to storage_path() (bypasses Storage::fake).
+        $fullPath = storage_path('app/public/'.$media->path);
+        $this->assertFileExists($fullPath);
+
+        $image = imagecreatefromwebp($fullPath);
+        $cornerAlpha = (imagecolorat($image, 0, 0) >> 24) & 0x7F; // 127 = transparent
+        imagedestroy($image);
+        @unlink($fullPath);
+
+        $this->assertGreaterThan(100, $cornerAlpha, 'Transparent corner was flattened.');
+    }
+
+    public function test_logo_collection_keeps_the_original_png_without_webp_conversion(): void
+    {
+        // Logos/icons are stored untouched (config: preserve_original_collections)
+        // so crisp edges and true transparency are guaranteed.
+        Storage::fake('public');
+        $bytes = $this->transparentPng();
+        $png = UploadedFile::fake()->createWithContent('brand.png', $bytes);
+
+        $this->actingAs($this->admin())->post(route('admin.media.store'), [
+            'files' => [$png],
+            'collection' => 'logo',
+        ])->assertRedirect(route('admin.media.index'));
+
+        $media = Media::query()->firstOrFail();
+
+        $this->assertSame('png', $media->extension);
+        $this->assertSame('image/png', $media->mime_type);
+        $this->assertSame('logo', $media->collection);
+        $this->assertStringStartsWith('media/logo/', $media->path);
+        // Original bytes preserved exactly (no re-encode).
+        Storage::disk('public')->assertExists($media->path);
+        $this->assertSame($bytes, Storage::disk('public')->get($media->path));
+    }
+
+    /** A small fully-transparent-background PNG (opaque block in the middle). */
+    private function transparentPng(): string
+    {
+        $image = imagecreatetruecolor(8, 8);
+        imagesavealpha($image, true);
+        $transparent = imagecolorallocatealpha($image, 0, 0, 0, 127);
+        imagefill($image, 0, 0, $transparent);
+        $navy = imagecolorallocate($image, 11, 31, 59);
+        imagefilledrectangle($image, 3, 3, 5, 5, $navy);
+
+        ob_start();
+        imagepng($image);
+        $bytes = (string) ob_get_clean();
+        imagedestroy($image);
+
+        return $bytes;
     }
 
     /**

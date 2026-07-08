@@ -14,6 +14,14 @@ return [
 
     'default_collection' => 'general',
 
+    /*
+    | Collections whose uploads are stored in their ORIGINAL format instead of
+    | being re-encoded to WebP. Logos/icons are typically transparent PNGs where
+    | crisp edges and exact fidelity matter more than a few KB — so we keep the
+    | file as-is. (Everything else is optimized to alpha-preserving WebP.)
+    */
+    'preserve_original_collections' => ['logo', 'icon'],
+
     'collections' => [
         'hero'        => 'Hero',
         'product'     => 'Product',

@@ -118,6 +118,15 @@ class ImageOptimizationService
                 $newHeight
             );
 
+        // Preserve alpha transparency. imagecreatetruecolor() starts opaque
+        // black; without these calls a transparent PNG/WebP would flatten to a
+        // black background. WebP fully supports alpha, so the output stays
+        // transparent. (Harmless for opaque JPEGs.)
+        imagealphablending($optimized, false);
+        imagesavealpha($optimized, true);
+        $transparent = imagecolorallocatealpha($optimized, 0, 0, 0, 127);
+        imagefill($optimized, 0, 0, $transparent);
+
         // resize
         imagecopyresampled(
             $optimized,
