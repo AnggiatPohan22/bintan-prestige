@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Frontend\ContactFormController;
+use App\Http\Controllers\Frontend\ContentEntryController as FrontendContentEntryController;
 use App\Http\Controllers\Frontend\HomeController;
 use App\Http\Controllers\Frontend\PageController as FrontendPageController;
 use App\Http\Controllers\Frontend\ProductController as FrontendProductController;
@@ -36,3 +37,15 @@ Route::post(
     '/forms/{form:slug}/submit',
     [ContactFormController::class, 'submit']
 )->name('forms.submit');
+
+/*
+|--------------------------------------------------------------------------
+| Content Entry public routing (Phase 6 — B11)
+|--------------------------------------------------------------------------
+| Registered as a fallback so it is ALWAYS the lowest-priority match: every
+| explicit route above (and all admin routes) wins first. The controller maps
+| /{route_base} → archive and /{route_base}/{slug} → single, resolving the
+| content type by its unique, reserved-prefix-guarded route_base. Unmatched
+| paths still 404 (thrown from the controller), preserving prior behaviour.
+*/
+Route::fallback([FrontendContentEntryController::class, 'resolve']);

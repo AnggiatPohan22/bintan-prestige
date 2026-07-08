@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Category;
+use App\Models\ContentType;
 use App\Models\Destination;
 use App\Models\FormDefinition;
 use App\Models\Page;
@@ -53,6 +54,11 @@ class PageBuilderController extends Controller
                 ->map(fn (Destination $d): array => ['value' => (string) $d->id, 'label' => $d->name])->all(),
             'forms' => FormDefinition::orderBy('name')->get(['id', 'name'])
                 ->map(fn (FormDefinition $f): array => ['value' => (string) $f->id, 'label' => $f->name])->all(),
+            'content_types' => ContentType::query()->public()->orderBy('label_plural')->get(['id', 'label_plural'])
+                ->map(fn (ContentType $t): array => ['value' => (string) $t->id, 'label' => $t->label_plural])->all(),
+            // No "current entry" on a page, so the content_field picker is empty
+            // here — use the block's Entry ID field to target a specific entry.
+            'entry_fields' => [],
         ];
 
         return view('backend.builder.index', compact('page', 'tree', 'registry', 'fieldOptions', 'layoutTemplates'));

@@ -120,6 +120,30 @@ class BuilderPatternTest extends TestCase
         $this->assertNotSame($older->id, $newer->id);
     }
 
+    public function test_pattern_index_is_paginated_at_twenty_per_page(): void
+    {
+        $admin = $this->admin();
+
+        for ($i = 1; $i <= 22; $i++) {
+            $this->pattern(['name' => "Pattern {$i}", 'slug' => "pattern-{$i}"]);
+        }
+
+        // `patterns` stays a flat array (builder client contract); pagination
+        // state is exposed under `meta`.
+        $this->actingAs($admin)->getJson(route('admin.builder-patterns.index'))
+            ->assertOk()
+            ->assertJsonCount(20, 'patterns')
+            ->assertJsonPath('meta.per_page', 20)
+            ->assertJsonPath('meta.total', 22)
+            ->assertJsonPath('meta.current_page', 1)
+            ->assertJsonPath('meta.last_page', 2);
+
+        $this->actingAs($admin)->getJson(route('admin.builder-patterns.index', ['page' => 2]))
+            ->assertOk()
+            ->assertJsonCount(2, 'patterns')
+            ->assertJsonPath('meta.current_page', 2);
+    }
+
     public function test_admin_can_delete_a_pattern_without_affecting_existing_page_blocks(): void
     {
         $admin = $this->admin();

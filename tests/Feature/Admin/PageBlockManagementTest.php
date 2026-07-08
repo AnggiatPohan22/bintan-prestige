@@ -457,7 +457,11 @@ class PageBlockManagementTest extends TestCase
             ->assertSee('aria-label="Move About image up"', false)
             ->assertSee('aria-controls="block-editor-panel-'.$block->id.'"', false)
             ->assertSee('Saving&hellip;', false)
-            ->assertSee('This permanently removes its content and cannot be undone.');
+            // Destructive block delete is accessibly labelled and gated behind a
+            // per-block confirmation (data-confirm modal — replaced the old inline
+            // warning during the Command Center Dark admin refactor).
+            ->assertSee('aria-label="Delete About image"', false)
+            ->assertSee('data-confirm="Permanently delete the &quot;About image&quot; block? This cannot be undone."', false);
     }
 
     public function test_block_validation_reopens_the_failed_editor_with_feedback(): void

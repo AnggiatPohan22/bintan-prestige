@@ -4,6 +4,13 @@ use App\Http\Controllers\Admin\AnalyticsDashboardController;
 use App\Http\Controllers\Admin\DashboardAppearanceController;
 use App\Http\Controllers\Admin\AuditLogController;
 use App\Http\Controllers\Admin\BuilderPatternController;
+use App\Http\Controllers\Admin\ContentEntryBuilderController;
+use App\Http\Controllers\Admin\ContentEntryController;
+use App\Http\Controllers\Admin\ContentTypeController;
+use App\Http\Controllers\Admin\FieldController;
+use App\Http\Controllers\Admin\FieldGroupController;
+use App\Http\Controllers\Admin\TaxonomyController;
+use App\Http\Controllers\Admin\TermController;
 use App\Http\Controllers\Admin\BuilderTemplateController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\DashboardController;
@@ -275,6 +282,102 @@ Route::middleware(['auth', 'admin'])
 
         Route::resource('pages', PageController::class)
             ->except(['show']);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Content Types (Phase 6 — Flexible Content Modeling)
+        |--------------------------------------------------------------------------
+        */
+        Route::resource('content-types', ContentTypeController::class)
+            ->except(['show'])
+            ->parameters(['content-types' => 'content_type']);
+
+        Route::patch('content-types/{id}/restore', [ContentTypeController::class, 'restore'])
+            ->name('content-types.restore');
+
+        Route::delete('content-types/{id}/force-delete', [ContentTypeController::class, 'forceDelete'])
+            ->name('content-types.force-delete');
+
+        /*
+        |--------------------------------------------------------------------------
+        | Content Entries (nested under Content Types)
+        |--------------------------------------------------------------------------
+        */
+        Route::prefix('content-types/{content_type}/entries')
+            ->name('content-types.entries.')
+            ->group(function () {
+                Route::get('/', [ContentEntryController::class, 'index'])->name('index');
+                Route::get('/create', [ContentEntryController::class, 'create'])->name('create');
+                Route::post('/', [ContentEntryController::class, 'store'])->name('store');
+                Route::get('/{entry}/edit', [ContentEntryController::class, 'edit'])->name('edit');
+                Route::put('/{entry}', [ContentEntryController::class, 'update'])->name('update');
+                Route::delete('/{entry}', [ContentEntryController::class, 'destroy'])->name('destroy');
+                Route::patch('/{id}/restore', [ContentEntryController::class, 'restore'])->name('restore');
+                Route::delete('/{id}/force-delete', [ContentEntryController::class, 'forceDelete'])->name('force-delete');
+                Route::post('/{entry}/revisions/{revision}/restore', [ContentEntryController::class, 'restoreRevision'])->name('revisions.restore');
+
+                // Visual builder (content types with `editor` support) — morph rail.
+                Route::get('/{entry}/builder', [ContentEntryBuilderController::class, 'show'])->name('builder');
+                Route::post('/{entry}/builder/save-tree', [ContentEntryBuilderController::class, 'saveTree'])->name('builder.save-tree');
+                Route::post('/{entry}/builder/preview-payload', [ContentEntryBuilderController::class, 'previewPayload'])->name('builder.preview-payload');
+                Route::post('/{entry}/builder/status', [ContentEntryBuilderController::class, 'updateStatus'])->name('builder.status');
+            });
+
+        /*
+        |--------------------------------------------------------------------------
+        | Field Groups + Fields (nested under Content Types)
+        |--------------------------------------------------------------------------
+        */
+        Route::prefix('content-types/{content_type}/field-groups')
+            ->name('content-types.field-groups.')
+            ->group(function () {
+
+                Route::get('/', [FieldGroupController::class, 'index'])->name('index');
+                Route::get('/create', [FieldGroupController::class, 'create'])->name('create');
+                Route::post('/', [FieldGroupController::class, 'store'])->name('store');
+                Route::get('/{field_group}/edit', [FieldGroupController::class, 'edit'])->name('edit');
+                Route::put('/{field_group}', [FieldGroupController::class, 'update'])->name('update');
+                Route::delete('/{field_group}', [FieldGroupController::class, 'destroy'])->name('destroy');
+                Route::post('/reorder', [FieldGroupController::class, 'reorder'])->name('reorder');
+
+                Route::prefix('{field_group}/fields')
+                    ->name('fields.')
+                    ->group(function () {
+                        Route::get('/create', [FieldController::class, 'create'])->name('create');
+                        Route::post('/', [FieldController::class, 'store'])->name('store');
+                        Route::get('/{field}/edit', [FieldController::class, 'edit'])->name('edit');
+                        Route::put('/{field}', [FieldController::class, 'update'])->name('update');
+                        Route::delete('/{field}', [FieldController::class, 'destroy'])->name('destroy');
+                        Route::post('/reorder', [FieldController::class, 'reorder'])->name('reorder');
+                    });
+            });
+
+        /*
+        |--------------------------------------------------------------------------
+        | Taxonomies + Terms (Phase 6 — B7)
+        |--------------------------------------------------------------------------
+        */
+        Route::resource('taxonomies', TaxonomyController::class)
+            ->except(['show']);
+
+        Route::patch('taxonomies/{id}/restore', [TaxonomyController::class, 'restore'])
+            ->name('taxonomies.restore');
+
+        Route::delete('taxonomies/{id}/force-delete', [TaxonomyController::class, 'forceDelete'])
+            ->name('taxonomies.force-delete');
+
+        Route::prefix('taxonomies/{taxonomy}/terms')
+            ->name('taxonomies.terms.')
+            ->group(function () {
+                Route::get('/', [TermController::class, 'index'])->name('index');
+                Route::get('/create', [TermController::class, 'create'])->name('create');
+                Route::post('/', [TermController::class, 'store'])->name('store');
+                Route::get('/{term}/edit', [TermController::class, 'edit'])->name('edit');
+                Route::put('/{term}', [TermController::class, 'update'])->name('update');
+                Route::delete('/{term}', [TermController::class, 'destroy'])->name('destroy');
+                Route::patch('/{id}/restore', [TermController::class, 'restore'])->name('restore');
+                Route::delete('/{id}/force-delete', [TermController::class, 'forceDelete'])->name('force-delete');
+            });
 
         /*
         |--------------------------------------------------------------------------

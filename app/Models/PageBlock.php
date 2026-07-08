@@ -7,10 +7,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 /**
  * @property array<int, array{question: mixed, answer: mixed}> $resolvedFaqItems
  * @property \Illuminate\Database\Eloquent\Collection<int, Product> $resolvedProducts
+ * @property \Illuminate\Database\Eloquent\Collection<int, ContentEntry> $resolvedEntries
+ * @property array<string, mixed>|null $resolvedField
  */
 class PageBlock extends Model
 {
@@ -18,6 +21,8 @@ class PageBlock extends Model
 
     protected $fillable = [
         'page_id',
+        'blockable_type',
+        'blockable_id',
         'parent_block_id',
         'block_type',
         'label',
@@ -29,6 +34,7 @@ class PageBlock extends Model
     protected $casts = [
         'data'       => 'array',
         'parent_block_id' => 'integer',
+        'blockable_id' => 'integer',
         'is_visible' => 'boolean',
         'sort_order' => 'integer',
     ];
@@ -37,6 +43,18 @@ class PageBlock extends Model
     public function page(): BelongsTo
     {
         return $this->belongsTo(Page::class);
+    }
+
+    /**
+     * The owning model — a Page (existing) or a ContentEntry (Phase 6, wired
+     * at B9). Pages also keep page_id (dual-rail); this morph is the generic
+     * accessor used when the owner type is not known ahead of time.
+     *
+     * @return MorphTo<Model, $this>
+     */
+    public function blockable(): MorphTo
+    {
+        return $this->morphTo();
     }
 
     /** @return BelongsTo<PageBlock, $this> */

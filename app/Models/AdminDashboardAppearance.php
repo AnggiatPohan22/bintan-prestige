@@ -42,18 +42,18 @@ class AdminDashboardAppearance extends Model
      * Ambil record appearance aktif (global, single-row pattern).
      * Jika DB kosong, return in-memory default — tidak menyimpan ke DB.
      */
-    public static function getCurrent(): static
+    public static function getCurrent(): self
     {
-        return static::first() ?? static::makeDefault();
+        return self::first() ?? self::makeDefault();
     }
 
     /**
      * Buat instance default "Command Center Dark" tanpa persist ke DB.
      * Digunakan sebagai fallback dan sebagai template reset.
      */
-    public static function makeDefault(): static
+    public static function makeDefault(): self
     {
-        return new static([
+        return new self([
             'mode'          => 'dark',
             'sidebar_bg'    => '#020617',
             'sidebar_style' => 'dark',

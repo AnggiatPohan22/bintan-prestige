@@ -19,7 +19,7 @@ Build a WordPress-like CMS where the complete website — pages, navigation,
 layout, content blocks, and appearance — is fully managed from one admin
 dashboard. No hardcoded frontend content. Backend controls everything.
 
-**Current Phase:** Phase 6 — Flexible Content Modeling (next)
+**Current Phase:** Phase 6 — Flexible Content Modeling **COMPLETE** — 2026-07-07.
 Phase 5 (Visual Page Builder) complete — 2026-06-23.
 Phase 4 (Plugin & Module System) complete at v4.0.0 — 2026-06-21.
 
@@ -66,6 +66,7 @@ Before working, read this file + the skill(s) below that match your task.
 | Product / Tour / Activity | `product-management-skill.md` |
 | Travel Business Logic | `travel-business-skill.md` |
 | Component Library | `COMPONENT-LIBRARY.md` |
+| Content Types / Field Groups / Fields / Entries (Phase 6) | `content-modeling-skill.md` + `field-types-skill.md` |
 
 > Skill files live in: `ai/skills/`
 > Guidelines live in: `ai/guidelines/`
@@ -131,8 +132,54 @@ Visual Page Builder & Foundation Hardening.
 - PHPStan: level 5 / 0 errors / no ignores / no baseline
 - Release Gate: PASS (pending 10 manual QA items + production env pre-flight)
 
-**Phase 6 — FUTURE**
-Flexible Content Modeling — custom content types & fields from admin.
+**Phase 6 — COMPLETE ✅** (branch: `feature/phase-6-a1-debt-clearing` — 2026-07-07)
+Flexible Content Modeling — custom content types, field groups, fields, and entries from admin.
+
+**Stage A — Foundation & Debt Clearing — COMPLETE ✅**
+- A0: Architecture decision record (Option A polymorphic page_blocks + hybrid JSON storage).
+- A1: Technical debt TD-04 (widget text sanitization) + TD-05 (DB query in Blade contact form) + PHPStan baseline fixes (TD-06) + test regression fix (TD-07) + admin copy consistency (TD-08).
+- A2: Patterns API pagination + PageBlock FormRequest extraction.
+- A3: Polymorphic `page_blocks` (dual-rail morph: `blockable_type` / `blockable_id`) — schema approved, migrated.
+- A4: `config/field-types.php` catalog (18 types) + `FieldTypeRegistry` static wrapper.
+
+**Stage B — Build the Engine — COMPLETE ✅ (B1–B14, M2–M4 done)**
+- B1 ✅: `content_types` table + full admin CRUD (slug auto-gen, reserved-prefix guard, soft delete).
+- B2 ✅: `field_groups` + `fields` tables + nested CRUD (compound unique key per scope, is_filterable inherits catalog, dual ownership check, reorder endpoints).
+- B3 ✅: Field rendering engine — `<x-admin.field-input>` Blade component dispatches to 18 type partials. Media types use Alpine.js + hidden inputs.
+- B4 ✅: `content_entries` table (FK RESTRICT, varchar status not ENUM, compound unique slug per type, author SET NULL, JSON data + seo) + admin CRUD. ContentType forceDelete guarded. B2+B3+B4 form integration complete.
+- B5 ✅: `FieldValidationResolver` (no schema) — resolves dynamic `data.*` rules per ContentType: placeholder substitution from `$field->settings`, `is_required` toggle, special handling for gallery/checkbox/relationship (wildcard `.*` rules) + datetime normalisation. Integrated into Store + Update FormRequests.
+- B6 ✅: `content_entry_index` table (CASCADE, no timestamps, 3 value columns) + `ContentEntryIndexService` (field projection by cast type) + `ContentEntryObserver` (saved/restored hooks). Filterable fields auto-projected on every entry save; stale rows cleaned up.
+- B7 ✅: `taxonomies` + `terms` + `content_entry_term` pivot. `Taxonomy` (softDeletes, appliesToType, content_type_ids JSON restriction) + `Term` (softDeletes, self-referential parent, ordered). `TaxonomyController` + `TermController` full CRUD. ContentEntryController syncs terms on save. Term picker partial in entry form (flat tag chips + hierarchical tree).
+- B8 ✅: `content_entry_relations` table (source/target FK CASCADE, field_key, sort_order; forward + reverse indexes; no timestamps). `ContentEntryRelation` model + `ContentEntryRelationService` projects relationship-type field values from data JSON on save (FK-safe filter to existing entries, no self-links, order preserved). Wired into `ContentEntryObserver`. `ContentEntry::relatedEntries()` (forward) + `relatingEntries()` (reverse).
+- B9 ✅: Phase 4 reuse wiring. NEW `content_entry_revisions` table (isolated CASCADE, flexible `snapshot` JSON) + `ContentEntryRevisionService` (20-keep prune, reversible restore) + revision history UI. Audit log via `ContentEntryObserver` created/updated/deleted (reuse polymorphic `AuditLog`). `PublishScheduledContentEntries` command (reuse status/published_at) scheduled everyMinute. `ContentEntry::seoMeta()` fallback resolver (reuse `seo` JSON).
+- B10 ✅: Entry body via visual builder on the A3 morph rail. `ContentEntry::blocks()` MorphMany (page_id NULL) + observer `forceDeleted()` cleanup. `ContentEntryBuilderController` (show/saveTree/previewPayload) reuses BuilderTreeSanitizer + PageBlockService + revision snapshot. Generic Phase 5 builder partials reused unchanged; entry builder view + topbar + standalone preview shell added. "Edit Body in Builder" button on entry edit for `editor`-supported types. Page builder untouched (dual-rail).
+- B11 ✅: Public frontend routing via `Route::fallback()` (always lowest priority — never shadows explicit/admin routes; route_base is unique + RESERVED_PREFIXES-guarded). `Frontend\ContentEntryController` resolve→archive (`/{route_base}`, needs has_archive) / single (`/{route_base}/{slug}`). Published-only (draft/future → 404). Single renders builder block body for `editor` types. `ContentEntry::publicUrl()` + archive/single views.
+- B12 ✅: Template resolution + structured data. `ContentEntryTemplateRegistry` maps per-entry `template` string → render container + schema type (default/contained → Article, full-width → WebPage; unknown → default). Single view applies resolved container width + emits JSON-LD (Article/WebPage) with headline/description/url/dates/author.
+- B13 ✅: Builder bridge — `content_query` block. Queries + renders a list of published entries of a chosen public type (heading/orderby/columns/limit/show_excerpt). Registered in config/blocks.php + PageBlockService. `ContentQueryResolver` (shared, resolve-before-Blade) used by PageRenderData (pages) + Frontend\ContentEntryController (entry bodies). `content_types` option source added to both builders (page builder otherwise untouched).
+- B14 ✅: Builder bridge — `content_field` block. Displays a single field value from the current entry (entry bodies) or a specific published+public entry by id. `ContentFieldResolver` (shared) formats by type — richtext sanitized, url/email href guarded against unsafe schemes. Registered in config/blocks.php + PageBlockService; resolved via PageRenderData (pages) + resolveBridgeBlocks (entry bodies).
+
+**Stage B COMPLETE (B1–B14). Milestone M4 done.**
+
+**Stage C — Release Audit — COMPLETE ✅ (C1–C4)**
+- C1 ✅: Static analysis & code quality. PHPStan level 5 / 0 errors; suite green; `{!! !!}`/debug/TODO scans clean. Security fix: single-entry JSON-LD hardened with `JSON_HEX_*` against `</script>` breakout (+ regression test). Flagged pre-existing `StructuredDataBuilder` (Phase 4) for follow-up.
+- C2 ✅: Performance. Fixed two N+1s (archive `contentType` eager-load; `content_field` field-lookup memoization) → public routes O(1); hot-path indexes verified; no new asset bundle.
+- C3 ✅: Functional smoke test — schema (10 tables + morph), block registry ↔ view files, admin guards, public archive/single/draft, scheduler command.
+- C4 ✅: Documentation — `docs/modules/content-modeling.md`, `ai/skills/content-modeling-skill.md`, CHANGELOG Phase 6 entry, handoff finalized.
+
+**PHASE 6 COMPLETE.** Test suite: **846/846 pass** | PHPStan level 5: 0 errors (2026-07-08).
+Release gate: **PASS** (pending owner production pre-flight). App timezone: `Asia/Jakarta` (WIB).
+Grand plan + progress: `ai/reports/phase-6/phase-6-progress-handoff.md`
+
+**Post-release note (2026-07-08):** dev DB wiped by cached-config `migrate:fresh`,
+restored from MySQL binlog (see `ai/reports/phase-6/post-release-db-recovery.md`).
+Owner UI scheme is now **Navy + gold** (DB-stored: `site_settings` brand_colors +
+`admin_dashboard_appearances` preset `navy-light`). Guards: never `config:cache`
+in dev; `tests/TestCase.php` refuses non-sqlite test DB.
+
+**Phase 6.1 — CURRENT (interim, before Phase 7)**
+Dashboard & Media UX: sidebar accordion + sticky, category images,
+Media-Library-first uploads, media picker modal upload + theming, organized
+media folder structure. Plan + handoff: `ai/reports/phase-6.1/`.
 
 **Phase 7 — FUTURE**
 Internationalization — multi-language content for Bintan tourism market.
@@ -154,6 +201,12 @@ Do not rebuild these from zero. Extend them safely only:
 - Global Settings (13 modules)
 - Site Assets, Site Settings
 - User Management (is_admin, admin_role, admin_status)
+
+**Phase 6 modules (protect after B1–B4 ship):**
+- Content Types (`content_types` table) — CRUD via `ContentTypeController`
+- Field Groups + Fields (`field_groups`, `fields` tables) — CRUD via `FieldGroupController`, `FieldController`
+- Content Entries (`content_entries` table) — CRUD via `ContentEntryController`
+- Field Type Catalog (`config/field-types.php` + `FieldTypeRegistry`) — extend only, never remove existing types
 
 ---
 

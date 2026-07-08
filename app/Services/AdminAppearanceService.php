@@ -155,7 +155,7 @@ class AdminAppearanceService
             : $this->lightModeVars();
 
         $customVars = '';
-        if (! empty($a->custom_vars) && is_array($a->custom_vars)) {
+        if (! empty($a->custom_vars)) {
             foreach ($a->custom_vars as $varName => $varValue) {
                 // Sanitize: only allow CSS var names and safe values
                 if (preg_match('/^--[\w-]+$/', $varName) && preg_match('/^[\w\s#().,%\/]+$/', $varValue)) {

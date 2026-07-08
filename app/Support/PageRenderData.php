@@ -3,6 +3,7 @@
 namespace App\Support;
 
 use App\Models\Faq;
+use App\Models\FormDefinition;
 use App\Models\Page;
 use App\Models\PageBlock;
 use App\Models\Product;
@@ -15,13 +16,76 @@ final class PageRenderData
      *
      * @return array{faqItems: array<int, array<string, mixed>>}
      */
+    public function __construct(
+        private readonly ContentQueryResolver $contentQuery = new ContentQueryResolver(),
+        private readonly ContentFieldResolver $contentField = new ContentFieldResolver(),
+    ) {}
+
     public function prepare(Page $page): array
     {
         $blocks = $this->flattenBlocks($page->blocks);
         $faqItems = $this->prepareFaqBlocks($blocks);
         $this->prepareProductBlocks($blocks);
+        $this->prepareContactFormBlocks($blocks);
+        $this->prepareContentQueryBlocks($blocks);
+        $this->prepareContentFieldBlocks($blocks);
 
         return ['faqItems' => $faqItems];
+    }
+
+    /**
+     * Resolve the entry list for every content_query block once, before Blade.
+     *
+     * @param  Collection<int, PageBlock>  $blocks
+     */
+    private function prepareContentQueryBlocks(Collection $blocks): void
+    {
+        foreach ($blocks->where('block_type', 'content_query') as $block) {
+            $block->resolvedEntries = $this->contentQuery->resolve($block->data ?? []);
+        }
+    }
+
+    /**
+     * Resolve every content_field block. On a page there is no "current entry",
+     * so only blocks that name a specific entry_id resolve to a value.
+     *
+     * @param  Collection<int, PageBlock>  $blocks
+     */
+    private function prepareContentFieldBlocks(Collection $blocks): void
+    {
+        foreach ($blocks->where('block_type', 'content_field') as $block) {
+            $block->resolvedField = $this->contentField->resolve($block->data ?? [], null);
+        }
+    }
+
+    /**
+     * Resolve the FormDefinition for every contact_form block once, before
+     * Blade rendering — keeps the model query out of the view (no queries in
+     * Blade). The render partial reads $block->resolvedFormDefinition.
+     */
+    private function prepareContactFormBlocks(Collection $blocks): void
+    {
+        $contactBlocks = $blocks->where('block_type', 'contact_form');
+
+        if ($contactBlocks->isEmpty()) {
+            return;
+        }
+
+        $formIds = $contactBlocks
+            ->map(fn (PageBlock $block): mixed => $block->data['form_definition_id'] ?? null)
+            ->filter(fn (mixed $id): bool => filter_var($id, FILTER_VALIDATE_INT) !== false)
+            ->map(fn (mixed $id): int => (int) $id)
+            ->unique()
+            ->values();
+
+        $formsById = $formIds->isEmpty()
+            ? collect()
+            : FormDefinition::whereIn('id', $formIds)->get()->keyBy('id');
+
+        foreach ($contactBlocks as $block) {
+            $id = $block->data['form_definition_id'] ?? null;
+            $block->resolvedFormDefinition = $id !== null ? $formsById->get((int) $id) : null;
+        }
     }
 
     /** @return array<int, array<string, mixed>> */

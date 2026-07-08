@@ -59,7 +59,7 @@
 
         <form method="POST" action="{{ route('admin.menu-items.destroy', [$menu, $item]) }}">
             @csrf @method('DELETE')
-            <button type=”submit” data-confirm=”Hapus &quot;{{ $item->label }}&quot;{{ $item->children->isNotEmpty() ? ' dan semua dropdown-nya' : '' }}?”
+            <button type="submit" data-confirm="Delete &quot;{{ $item->label }}&quot;{{ $item->children->isNotEmpty() ? ' and all its dropdown items' : '' }}?"
                     class="grid h-8 w-8 place-items-center rounded-lg text-red-400 hover:bg-red-50 hover:text-red-600" title="Delete">
                 <i class="fa-solid fa-trash text-xs"></i>
             </button>

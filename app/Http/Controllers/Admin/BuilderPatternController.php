@@ -16,12 +16,23 @@ class BuilderPatternController extends Controller
 
     public function index(): JsonResponse
     {
-        $patterns = BuilderPattern::query()
+        $paginator = BuilderPattern::query()
             ->latest()
-            ->get()
-            ->map(fn (BuilderPattern $pattern): array => $this->payload($pattern));
+            ->paginate(20);
 
-        return response()->json(['patterns' => $patterns]);
+        // Keep `patterns` a flat array for the builder client (it reads
+        // `json.patterns`); expose pagination state separately under `meta`.
+        return response()->json([
+            'patterns' => $paginator->getCollection()
+                ->map(fn (BuilderPattern $pattern): array => $this->payload($pattern))
+                ->values(),
+            'meta' => [
+                'current_page' => $paginator->currentPage(),
+                'last_page' => $paginator->lastPage(),
+                'per_page' => $paginator->perPage(),
+                'total' => $paginator->total(),
+            ],
+        ]);
     }
 
     public function store(StoreBuilderPatternRequest $request): JsonResponse

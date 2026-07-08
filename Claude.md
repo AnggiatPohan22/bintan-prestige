@@ -2,8 +2,8 @@
 **Version:** 1.0
 
 **Stack:** Laravel 13.8 | PHP 8.3 | Tailwind CSS | Alpine.js | MySQL
-**Phase:** Phase 6 — Flexible Content Modeling (next). Phase 5 (Visual Page Builder) complete — 2026-06-23.
-**Status:** Core CMS + page builder + theme system + plugin system + visual builder complete. See AGENTS.md §4 for full phase history.
+**Phase:** Phase 6.1 — Dashboard & Media UX (current, interim before Phase 7). Phase 6 (Flexible Content Modeling) complete — 2026-07-07.
+**Status:** Core CMS + page builder + theme system + plugin system + visual builder + content modeling complete. UI scheme: Navy + gold (DB-stored). See AGENTS.md §4 for full phase history.
 
 ---
 

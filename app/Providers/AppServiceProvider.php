@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\Category;
+use App\Models\ContentEntry;
 use App\Models\Destination;
 use App\Models\Menu;
 use App\Models\MenuItem;
@@ -11,6 +12,7 @@ use App\Models\Product;
 use App\Models\Redirect;
 use App\Models\Theme;
 use App\Models\Widget;
+use App\Observers\ContentEntryObserver;
 use App\Observers\MenuObserver;
 use App\Observers\PageObserver;
 use App\Observers\ProductObserver;
@@ -54,6 +56,7 @@ class AppServiceProvider extends ServiceProvider
     {
         Gate::define('manage-users', fn ($user) => $user->isSuperAdmin());
 
+        ContentEntry::observe(ContentEntryObserver::class);
         Page::observe(PageObserver::class);
         Product::observe(ProductObserver::class);
         Menu::observe(MenuObserver::class);

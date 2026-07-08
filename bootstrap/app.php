@@ -2,6 +2,7 @@
 
 use App\Console\Commands\AggregatePageViewStats;
 use App\Console\Commands\ProvisionFirstAdmin;
+use App\Console\Commands\PublishScheduledContentEntries;
 use App\Console\Commands\PublishScheduledPages;
 use App\Http\Middleware\AdminMiddleware;
 use App\Http\Middleware\HandleRedirects;
@@ -29,10 +30,12 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withCommands([
         ProvisionFirstAdmin::class,
         PublishScheduledPages::class,
+        PublishScheduledContentEntries::class,
         AggregatePageViewStats::class,
     ])
     ->withSchedule(function (\Illuminate\Console\Scheduling\Schedule $schedule): void {
         $schedule->command('pages:publish-scheduled')->everyMinute();
+        $schedule->command('content-entries:publish-scheduled')->everyMinute();
         $schedule->command('analytics:aggregate-daily')->dailyAt('00:05');
     })
     ->withMiddleware(function (Middleware $middleware): void {

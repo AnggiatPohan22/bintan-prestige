@@ -224,6 +224,32 @@ return [
             ['key' => 'show_price', 'type' => 'toggle', 'label' => 'Show price on product cards', 'default' => true],
         ],
     ],
+    'content_query' => [
+        'label' => 'Content Query', 'icon' => 'view-grid', 'category' => 'content',
+        'description' => 'Dynamic list of content entries from a chosen content type (e.g. latest blog posts).',
+        'keywords' => ['entries', 'list', 'dynamic', 'collection', 'loop'],
+        'supports' => ['background' => true, 'spacing' => false, 'alignment' => false, 'children' => false],
+        'fields' => [
+            ['key' => 'content_type', 'type' => 'select', 'label' => 'Content Type', 'optionsFrom' => 'content_types', 'emptyLabel' => '— Select a content type —'],
+            ['key' => 'heading', 'type' => 'text', 'label' => 'Section Heading', 'placeholder' => 'e.g. Latest Posts'],
+            ['key' => 'orderby', 'type' => 'select', 'label' => 'Order by', 'default' => 'newest', 'options' => ['newest' => 'Newest first', 'oldest' => 'Oldest first', 'title' => 'Title (A–Z)', 'sort_order' => 'Manual sort order']],
+            ['key' => 'columns', 'type' => 'select', 'label' => 'Columns', 'default' => '3', 'options' => ['1' => '1 column', '2' => '2 columns', '3' => '3 columns']],
+            ['key' => 'limit', 'type' => 'number', 'label' => 'Number of Entries', 'default' => 6, 'min' => 1, 'max' => 24, 'help' => 'Between 1 and 24.'],
+            ['key' => 'show_excerpt', 'type' => 'toggle', 'label' => 'Show excerpt', 'default' => true],
+        ],
+    ],
+    'content_field' => [
+        'label' => 'Content Field', 'icon' => 'tag', 'category' => 'content',
+        'description' => 'Display a single field value from the current content entry (or a specific one by ID).',
+        'keywords' => ['field', 'value', 'meta', 'dynamic', 'acf'],
+        'supports' => ['background' => true, 'spacing' => false, 'alignment' => false, 'children' => false],
+        'fields' => [
+            ['key' => 'field_key', 'type' => 'select', 'label' => 'Field', 'optionsFrom' => 'entry_fields', 'emptyLabel' => '— Select a field —', 'help' => 'Fields of this entry\'s content type.'],
+            ['key' => 'entry_id', 'type' => 'number', 'label' => 'Specific entry ID (optional)', 'min' => 1, 'help' => 'Leave blank to use the current entry (on entry bodies).'],
+            ['key' => 'label', 'type' => 'text', 'label' => 'Custom label (optional)', 'placeholder' => 'Defaults to the field label'],
+            ['key' => 'show_label', 'type' => 'toggle', 'label' => 'Show label', 'default' => true],
+        ],
+    ],
     'faq' => [
         'label' => 'FAQ', 'icon' => 'question-mark-circle', 'category' => 'content',
         'description' => 'Frequently asked questions from inline content or the FAQ library.',

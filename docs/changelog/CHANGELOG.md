@@ -2,6 +2,84 @@
 
 All notable project documentation and baseline improvement steps are tracked here.
 
+## 2026-06-29 — Phase 6: Flexible Content Modeling (COMPLETE 2026-07-07)
+
+### Stage A — Foundation, Decisions & Debt Clearing
+
+**A0 Architecture Decision Record**
+- Locked Phase 6 architecture §3.1–§3.6 (grand plan). Entry-body model: **Option A** — polymorphic `page_blocks` (`blockable_type`/`blockable_id`), approved by owner. No `content_entries.body` column. A3/B9 now active (A3 still gated on its own schema approval).
+- Confirmed **zero new packages**. Created `ai/reports/phase-6/a0-architecture-decisions.md`.
+
+**A1 Carry-over Debt — TD-04 + TD-05**
+- TD-04: `text` widget output now sanitized via `InlineContentSanitizer::richtext()` (was raw `{!! !!}`).
+- TD-05: moved `FormDefinition::find()` out of `contact-form` Blade into `PageRenderData::prepareContactFormBlocks()`; partial reads `$block->resolvedFormDefinition`.
+- Strengthened the Blade-query guard test to reject `::find(` / `\App\Models\`.
+- Added `tests/Feature/Phase6/A1DebtClearingTest.php` (6 tests). Zero new PHPStan errors; zero new test failures.
+- Flagged pre-existing baseline regressions from the `4c6cd6d` brand-identity merge (3 PHPStan errors + 1 failing admin test) as TD-06 / TD-07 — not introduced by Phase 6.
+
+**A1+ Baseline Fix — TD-06 + TD-07** (clear pre-existing RED before A2)
+- TD-06: `AdminDashboardAppearance` `static`→`self` (`getCurrent`/`makeDefault`); removed redundant `is_array` guard in `AdminAppearanceService::toCssVars`. PHPStan restored to 0 errors.
+- TD-07: updated `PageBlockManagementTest` block delete-state assertions to the new `data-confirm` confirmation + `aria-label="Delete …"` markup (Command Center Dark refactor). Full suite 627/627 green.
+- Hard gate restored: PHPStan level 5 / 0 errors, suite green.
+
+**A1+ Admin Copy Consistency — TD-08**
+- Translated the 3 Indonesian `data-confirm` strings to English to match the admin convention (block delete, menu-item delete, appearance reset).
+- Fixed a curly-quote markup bug (`type=”submit” data-confirm=”…”`) in `menus/partials/item-row.blade.php` that silently disabled the menu-item delete confirmation.
+- Synced the TD-07 assertion to the new English block-delete copy; added a menu-item delete regression test (straight quotes + English). Full suite 633 green.
+
+**A2 Carry-over Debt — pagination + FormRequest**
+- `BuilderPatternController@index` now `paginate(20)` (was unbounded `get()`); `patterns` stays a flat array for the builder client, pagination state under `meta`.
+- Extracted `PageBlockController` inline validation into `StorePageBlockRequest`, `UpdatePageBlockRequest`, `ReorderPageBlockRequest`.
+- Added pattern pagination test. Full suite 634 green, PHPStan 0 errors.
+
+**A3 Polymorphic `page_blocks` (dual-rail) — schema (owner-approved)**
+- Migration `2026_06_30_000001_add_blockable_morph_to_page_blocks_table`: adds nullable `blockable_type`/`blockable_id` + composite index; relaxes `page_id` to nullable; backfills existing rows to `blockable = Page`/`page_id`.
+- `PageBlock::blockable()` morphTo added. Dual-rail: pages keep `page_id`/`hasMany` (Phase 5 builder untouched); ContentEntry blocks (B9) will use the morph with NULL `page_id`.
+- Reversible `down()`; rollback path verified. Full suite 638 green, PHPStan 0 errors.
+
+**B1 Content Types Module — schema approved, Milestone 2 started**
+- New table `content_types`: slug, label_singular, label_plural, icon, description, is_public, has_archive, route_base (unique nullable), supports (json), menu_position, is_active, softDeletes.
+- `ContentType` model with `SUPPORTS` + `RESERVED_PREFIXES` constants, `supports()` helper, scopes (active/ordered/public).
+- `StoreContentTypeRequest` / `UpdateContentTypeRequest` — auto-generates slug from label_singular; auto-generates route_base from label_plural for public+archive types; reserved-prefix guard on both slug and route_base.
+- `ContentTypeController` — full CRUD (index/create/store/edit/update/destroy/restore/forceDelete).
+- Admin views: index (active + archive tables), form partial with Alpine.js route-base toggle, create/edit wrappers.
+- Sidebar: "Content Types" link in Content group.
+- 11 tests added. Suite 653 green, PHPStan 0 errors.
+
+**A4 Field Type Catalog (`config/field-types.php`) — Milestone 1 complete**
+- Created `config/field-types.php`: 18 field types across 6 categories (basic, choice, date_time, media, relational, advanced). Each entry declares label, icon, category, description, cast, is_filterable, sanitizer, settings_schema, validation_rules, admin_partial, render_partial.
+- Created `app/Support/FieldTypeRegistry::all()/keys()/get()/exists()/filterable()` — config-cached thin wrapper (mirrors `PageTemplateRegistry` pattern).
+- Created `ai/skills/field-types-skill.md` (authoring pattern + registry API reference; Sync Matrix §12 requirement for A4).
+- Added `tests/Feature/Phase6/A4FieldTypesCatalogTest.php` (4 tests, 351 assertions, 0 DB queries).
+- **Milestone 1 COMPLETE** (A0–A4): architecture locked, debt cleared, field catalog scaffolded. Full suite 642 green, PHPStan 0 errors.
+
+### Stage B — Build the Engine (B1–B14)
+
+- **B1** `content_types` table + full admin CRUD (slug auto-gen, reserved-prefix guard, soft delete + restore).
+- **B2** `field_groups` + `fields` tables + nested CRUD (compound-unique key per scope, `is_filterable` inherits catalog, reorder endpoints).
+- **B3** Field rendering engine — `<x-admin.field-input>` dispatches to 18 type partials.
+- **B4** `content_entries` table (FK RESTRICT, varchar status, compound-unique slug per type, JSON `data`/`seo`) + admin CRUD.
+- **B5** `FieldValidationResolver` — dynamic per-entry `data.*` validation rules from field defs (placeholder substitution, required toggle, array sub-rules).
+- **B6** `content_entry_index` sidecar + `ContentEntryIndexService` + `ContentEntryObserver` — filterable fields projected on every save.
+- **B7** `taxonomies` + `terms` + `content_entry_term` pivot; hierarchical terms; term picker on the entry form.
+- **B8** `content_entry_relations` — entry↔entry links projected from relationship fields (FK-safe, ordered, forward + reverse query).
+- **B9** Phase 4 reuse: `content_entry_revisions` (isolated, snapshot JSON, 20-keep prune, reversible restore) + audit log + `content-entries:publish-scheduled` command + `seoMeta()`.
+- **B10** Entry body via the Phase 5 visual builder on the dual-rail morph (`page_blocks.blockable_*`, page_id NULL); publish status control in the builder.
+- **B11** Public routing via `Route::fallback()` (route-ordering safe): `/{route_base}` archive + `/{route_base}/{slug}` single; published-only.
+- **B12** Template resolution (`ContentEntryTemplateRegistry`) + JSON-LD structured data (Article/WebPage).
+- **B13** Builder bridge — `content_query` block (dynamic list of published entries).
+- **B14** Builder bridge — `content_field` block (one field value; dropdown picker + live preview).
+- **UX passes (owner testing):** WIB timezone (`Asia/Jakarta`); "Published" clamps blank/future date to now(); template dropdown + click-to-open date picker; content_field field picker + preview values.
+
+### Stage C — Release Audit (C1–C4)
+
+- **C1 Static Analysis & Code Quality:** PHPStan level 5 / 0 errors; suite green; `{!! !!}` / debug / TODO scans clean. **Security fix:** single-entry JSON-LD hardened with `JSON_HEX_*` flags against `</script>` breakout (+ regression test). Noted pre-existing `StructuredDataBuilder` (Phase 4) for a follow-up.
+- **C2 Performance Audit:** fixed two N+1s (archive `contentType` eager-load; `content_field` field-lookup memoization) → public routes O(1) in entry/block count; verified hot-path indexes; no new asset bundle.
+- **C3 Functional Smoke Test:** schema (10 tables + morph columns), block registry ↔ view files, admin route guards, public archive/single/draft, scheduler command.
+- **C4 Documentation:** `docs/modules/content-modeling.md` developer reference, `ai/skills/content-modeling-skill.md`, this CHANGELOG entry, handoff finalized.
+
+**Phase 6 COMPLETE.** Full suite **845 tests / 0 failures**, PHPStan level 5 / 0 errors. Release gate: **PASS** (pending owner production pre-flight).
+
 ## 2026-06-23 — Phase 5: Visual Page Builder
 
 ### Phase 5 Stage A — Foundation Hardening
