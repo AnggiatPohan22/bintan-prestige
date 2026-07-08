@@ -297,26 +297,12 @@
                         </div>
 
                         <div>
-                            <label class="admin-form-label">OG Image</label>
-
-                            @if($page->og_image)
-                                <div class="mb-3 flex items-center gap-4">
-                                    <img
-                                        src="{{ asset('storage/' . $page->og_image) }}"
-                                        alt="OG image"
-                                        class="h-20 w-36 rounded-lg object-cover shadow"
-                                    >
-                                    <p class="text-sm text-admin-secondary">Current OG image. Upload a new one to replace it.</p>
-                                </div>
-                            @endif
-
-                            <input
-                                type="file"
+                            <x-admin.media-image-field
                                 name="og_image"
-                                accept="image/*"
-                                class="admin-input"
-                            >
-                            <p class="mt-1 text-xs text-admin-secondary">Max 2MB. Recommended: 1200×630px.</p>
+                                :value="old('og_image', $page->og_image ?? '')"
+                                label="OG Image"
+                                collection="content"
+                                hint="Recommended 1200×630px." />
                         </div>
 
                         <div>
