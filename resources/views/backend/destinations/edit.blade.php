@@ -58,34 +58,20 @@
                 @enderror
             </div>
 
-            <div class="grid grid-cols-1 gap-5 md:grid-cols-[minmax(0,1fr)_180px]">
-                <div>
-                    <label for="image" class="admin-form-label">Image</label>
-                    <input
-                        id="image"
-                        type="file"
-                        name="image"
-                        accept="image/*"
-                        class="admin-input @error('image') border-red-300 focus:border-red-500 focus:ring-red-500 @enderror"
-                    >
-                    @error('image')
-                        <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                <div>
-                    @if($destination->image)
-                        <img
-                            src="{{ asset('storage/'.$destination->image) }}"
-                            class="h-28 w-full rounded-xl border border-admin object-cover"
-                            alt="{{ $destination->name }}"
-                        >
-                    @else
-                        <div class="flex h-28 w-full items-center justify-center rounded-xl border border-admin bg-admin-card text-sm text-admin-secondary">
-                            No Image
-                        </div>
-                    @endif
-                </div>
+            <div>
+                <x-admin.media-image-field
+                    name="image_path"
+                    :value="old('image_path', $destination->image ?? '')"
+                    label="Image"
+                    collection="destination"
+                    hint="Pick from the Media Library or upload (saved to the Destination collection)."
+                />
+                @error('image')
+                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                @enderror
+                @error('image_path')
+                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                @enderror
             </div>
         </div>
     </x-slot:content>

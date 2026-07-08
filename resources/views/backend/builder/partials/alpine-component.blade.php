@@ -830,6 +830,7 @@ document.addEventListener('alpine:init', () => {
             if (!file) return;
             const form = new FormData();
             form.append('image', file);
+            form.append('collection', 'content');
             form.append('_token', cfg.csrf);
             try {
                 const res = await fetch(cfg.uploadUrl, { method: 'POST', body: form });
