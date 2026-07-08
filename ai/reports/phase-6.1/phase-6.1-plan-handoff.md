@@ -6,7 +6,10 @@
 >
 > **Branch:** `feature/phase-6.1-dashboard-media-ux` (dari `develop`)
 > **Created:** 2026-07-08 | **Owner request:** perbaikan dashboard sebelum Phase 7
-> **Last updated:** 2026-07-08 — plan drafted, implementation starting.
+> **Last updated:** 2026-07-08 — **S1–S6 + S8 DONE** (suite 850/850, PHPStan 0).
+> S7 dikerjakan sebagian (builder & block uploads sudah ter-trace via Media;
+> swap penuh products/page-sections/global-assets = staged, lihat §5).
+> Detail langkah: `phase-6.1-completion-report.md`.
 
 ---
 
@@ -48,14 +51,14 @@ Legend: `⏳ TODO` · `🔨 IN PROGRESS` · `✅ DONE` · `⚠️ schema (approv
 
 | # | Task | Scope | Status |
 |---|------|-------|--------|
-| S1 | Sidebar accordion + sticky fix | `admin.css` (.admin-shell overflow → clip), `components/admin/sidebar.blade.php` (Alpine single-open) | ⏳ |
-| S2 | Media collections (struktur folder) ⚠️ schema | Migration `media.collection` (varchar 50, nullable, index); `config/media.php` katalog koleksi; `MediaService::store($file,$user,$collection)`; path `media/{collection}/YYYY/MM`; filter koleksi di library + picker | ⏳ |
-| S3 | Picker modal: upload + theme | `picker.blade.php` — appearance vars + mode + upload drop-zone (POST `admin.media.store` JSON, `collection` context, auto-select hasil upload); modal shell tetap | ⏳ |
-| S4 | Komponen `<x-admin.media-image-field>` | Preview + tombol Media Library (open-media-picker + collection) + tombol Upload (uploadQuick) + hidden path input + alt; dipakai form apa pun | ⏳ |
-| S5 | Category image ⚠️ schema | Migration `categories.image` (varchar 500 nullable); model fillable; Store/UpdateCategoryRequest + CategoryService; form admin pakai S4; frontend: `CategoryDestinationDisplayState::category()` media state (paritas destination); daftarkan `categories.image` di DIRECT_REFERENCES | ⏳ |
-| S6 | Destinations form → S4 component | Ganti raw file input dengan komponen (path-based); service tetap back-compat menerima file | ⏳ |
-| S7 | Upload lain ter-trace ke Media Library | Products thumbnail/gallery, page-sections image, pages og_image, global-assets: upload existing tetap jalan **tapi** ikut tercatat sebagai record Media (registrasi via MediaService) — swap penuh ke komponen dicatat sebagai staged improvement (§5) | ⏳ |
-| S8 | Docs + verifikasi | Report step-by-step, update handoff ini, AGENTS.md/Claude.md sync, suite hijau, PHPStan 0 | ⏳ |
+| S1 | Sidebar accordion + sticky fix | `admin.css` (.admin-shell overflow → clip), `components/admin/sidebar.blade.php` (Alpine single-open) | ✅ `969f21a` |
+| S2 | Media collections (struktur folder) ⚠️ schema | Migration `media.collection` (varchar 50, nullable, index); `config/media.php` katalog koleksi; `MediaService::store($file,$user,$collection)`; path `media/{collection}/YYYY/MM`; filter koleksi di library + picker | ✅ `cbe40a8` |
+| S3 | Picker modal: upload + theme | `picker.blade.php` — appearance vars + mode + upload drop-zone (POST `admin.media.store` JSON, `collection` context, auto-select hasil upload); + preset resmi `navy-light` | ✅ `f00a59e` |
+| S4 | Komponen `<x-admin.media-image-field>` | Preview + tombol Media Library (open-media-picker + collection) + tombol Upload (uploadQuick) + path input | ✅ `18b30a8` |
+| S5 | Category image ⚠️ schema | Migration `categories.image`; Store/UpdateCategoryRequest + CategoryService; form create/edit pakai S4; frontend media state + DIRECT_REFERENCES | ✅ `18b30a8` |
+| S6 | Destinations form → S4 component | Komponen path-based; service back-compat file; file legacy `destinations/` dibersihkan saat diganti, aset `media/` tidak | ✅ `470fe1c` |
+| S7 | Upload lain ter-trace ke Media Library | Blok builder + hero/image/gallery/background SUDAH via uploadQuick/Batch (record Media + koleksi). Swap penuh products/page-sections/global-assets → **staged** (§5): form kompleks (multi-image, slot, favicon .ico/.svg di luar whitelist MediaService), butuh regression test per modul | 🔶 partial (sisanya staged) |
+| S8 | Docs + verifikasi | Completion report, handoff ini, AGENTS.md/Claude.md sync, suite 850/850, PHPStan 0 | ✅ |
 
 **Urutan eksekusi:** S1 → S2 → S3 → S4 → S5 → S6 → S7 → S8 (tiap task = 1 commit terfokus).
 

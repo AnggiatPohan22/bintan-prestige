@@ -176,10 +176,14 @@ Owner UI scheme is now **Navy + gold** (DB-stored: `site_settings` brand_colors 
 `admin_dashboard_appearances` preset `navy-light`). Guards: never `config:cache`
 in dev; `tests/TestCase.php` refuses non-sqlite test DB.
 
-**Phase 6.1 — CURRENT (interim, before Phase 7)**
-Dashboard & Media UX: sidebar accordion + sticky, category images,
-Media-Library-first uploads, media picker modal upload + theming, organized
-media folder structure. Plan + handoff: `ai/reports/phase-6.1/`.
+**Phase 6.1 — COMPLETE ✅ (2026-07-08, interim before Phase 7)**
+Dashboard & Media UX: sidebar accordion + sticky fix (`overflow-x: clip`),
+media collections (`media.collection` + `config/media.php`), picker modal
+upload + theme parity, `<x-admin.media-image-field>` component, category image
+(`categories.image` + frontend landing parity), destinations → picker,
+`navy-light` as first-class admin preset (config/admin_palettes.php).
+Suite **850/850** | PHPStan level 5: 0 errors.
+Plan + handoff + staged follow-ups: `ai/reports/phase-6.1/`.
 
 **Phase 7 — FUTURE**
 Internationalization — multi-language content for Bintan tourism market.

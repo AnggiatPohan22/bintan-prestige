@@ -2,6 +2,28 @@
 
 All notable project documentation and baseline improvement steps are tracked here.
 
+## 2026-07-08 — Phase 6.1: Dashboard & Media UX (interim before Phase 7)
+
+**S1 Sidebar accordion + sticky fix**
+- Root cause: `overflow-x: hidden` on `.admin-body`/`.admin-shell` broke the sidebar's `position: sticky` → switched to `overflow-x: clip`. Sidebar now sticks full-height with no gap below.
+- Sidebar groups are an accordion (single `openGroup`): opening one closes the rest, route-active group opens on load, last group remembered in localStorage. Dynamic `aria-expanded` on all 8 group buttons.
+
+**S2 Media collections (schema: `media.collection`, nullable + index)**
+- `config/media.php` collection catalog (hero, product, category, destination, logo, icon, gallery, section, content, general). Uploads stored under `media/{collection}/YYYY/MM/`; unknown values fall back to the default (path-traversal test included). Library UI: collection filter (incl. Uncategorized legacy rows), upload selector, card/detail labels. Legacy files untouched.
+
+**S3 Media picker modal: upload + theme parity**
+- Picker iframe page receives admin appearance CSS vars (`AdminAppearanceComposer` bound to `backend.media.picker`) — follows dashboard light/dark. In-picker upload zone posts to `admin.media.store` (registers Media), single uploads auto-select back into the calling field. `open-media-picker` events carry a collection hint.
+- `navy-light` registered as a first-class preset in `config/admin_palettes.php` and made the light default — fixes the maroon revert (preset actions previously overwrote the DB-only navy palette; traced via binlog).
+
+**S4 Reusable `<x-admin.media-image-field>`** — preview + path input + quick upload (Media record + collection) + picker button; includes the picker modal `@once`.
+
+**S5 Category image (schema: `categories.image`)** — parity with `destinations.image`; category create/edit use the S4 component; frontend category landing header renders the image (was destination-only); registered in `MediaService::DIRECT_REFERENCES` for usage tracking/delete guard.
+
+**S6 Destinations → picker component** — `image_path` string alongside legacy file upload; module-owned `destinations/` files cleaned on replace, `media/` assets left to the library's delete guard. Builder quick-uploads tagged `content`.
+
+- Suite: **850/850** (4,223 assertions) | PHPStan level 5: 0 errors.
+- Staged follow-ups in `ai/reports/phase-6.1/phase-6.1-plan-handoff.md` §5 (products/page-sections/global-assets swap, orphan-purge safety, gallery multi-select picker).
+
 ## 2026-06-29 — Phase 6: Flexible Content Modeling (COMPLETE 2026-07-07)
 
 ### Stage A — Foundation, Decisions & Debt Clearing
