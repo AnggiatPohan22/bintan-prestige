@@ -33,6 +33,7 @@ class UpdateCategoryRequest extends FormRequest
                     ->ignore($this->route('category')),
             ],
             'description' => ['nullable', 'string'],
+            'image' => ['nullable', 'string', 'max:500'],
             'is_active' => ['nullable', 'boolean'],
         ];
     }

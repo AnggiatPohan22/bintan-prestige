@@ -14,6 +14,7 @@ class CategoryService
             'name' => $request->name,
             'slug' => $request->slug ?: Str::slug($request->name),
             'description' => $request->description,
+            'image' => $request->input('image') ?: null,
             'is_active' => $request->boolean('is_active', true),
         ]);
     }
@@ -26,6 +27,7 @@ class CategoryService
             'name' => $request->name,
             'slug' => $request->slug ?: Str::slug($request->name),
             'description' => $request->description,
+            'image' => $request->input('image') ?: null,
             'is_active' => $request->boolean('is_active'),
         ]);
 

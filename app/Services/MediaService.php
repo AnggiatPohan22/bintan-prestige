@@ -23,6 +23,7 @@ class MediaService
 
     private const DIRECT_REFERENCES = [
         'pages' => ['og_image'],
+        'categories' => ['image'],
         'page_templates' => ['preview_image'],
         'products' => ['thumbnail', 'og_image'],
         'product_images' => ['image'],

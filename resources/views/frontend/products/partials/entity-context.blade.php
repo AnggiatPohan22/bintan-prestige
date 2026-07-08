@@ -33,7 +33,7 @@
         </ol>
     </nav>
 
-    <div class="product-entity__layout @if($isDestination && ! empty($media['available'])) product-entity__layout--media @endif">
+    <div class="product-entity__layout @if(! empty($media['available'])) product-entity__layout--media @endif">
         <div class="product-entity__content">
             <p class="product-entity__eyebrow">
                 {{ $isDestination ? 'Destination' : 'Category' }}
@@ -56,7 +56,7 @@
             </div>
         </div>
 
-        @if($isDestination && ! empty($media['available']))
+        @if(! empty($media['available']))
             <figure class="product-entity__media">
                 <img
                     src="{{ $media['url'] }}"
