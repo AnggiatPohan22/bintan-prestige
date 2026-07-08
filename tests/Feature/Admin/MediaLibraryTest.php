@@ -53,6 +53,63 @@ class MediaLibraryTest extends TestCase
         Storage::disk('public')->assertExists($media->path);
     }
 
+    public function test_png_with_a_malformed_icc_profile_still_uploads(): void
+    {
+        // Regression: many real PNGs (Photoshop/Canva exports) carry a colour
+        // profile libpng flags with a non-fatal warning ("iCCP: known incorrect
+        // sRGB profile" / "iCCP: too short"). Laravel upgrades that warning to an
+        // ErrorException, which used to abort the upload. The optimizer now
+        // warning-suppresses the GD decode, so such a PNG uploads successfully.
+        Storage::fake('public');
+        $admin = $this->admin();
+        $badIccPng = UploadedFile::fake()->createWithContent(
+            'logo.png',
+            $this->pngWithMalformedIccProfile(),
+        );
+
+        // Before the fix this returned 500 (warning → ErrorException).
+        $this->actingAs($admin)->post(route('admin.media.store'), [
+            'files' => [$badIccPng],
+            'collection' => 'logo',
+        ])->assertRedirect(route('admin.media.index'));
+
+        $media = Media::query()->firstOrFail();
+
+        $this->assertSame('logo.png', $media->original_name);
+        // PNGs are optimized to webp by the pipeline.
+        $this->assertSame('webp', $media->extension);
+        $this->assertSame('logo', $media->collection);
+
+        // ImageOptimizationService writes via native GD to storage_path(),
+        // bypassing Storage::fake — assert the real file, then clean it up.
+        $fullPath = storage_path('app/public/'.$media->path);
+        $this->assertFileExists($fullPath);
+        @unlink($fullPath);
+    }
+
+    /**
+     * A valid PNG carrying a malformed iCCP chunk. libpng emits a non-fatal
+     * warning on decode (the exact failure the fix guards against) while GD
+     * still returns a usable image.
+     */
+    private function pngWithMalformedIccProfile(): string
+    {
+        $image = imagecreatetruecolor(4, 4);
+        ob_start();
+        imagepng($image);
+        $png = (string) ob_get_clean();
+        imagedestroy($image);
+
+        $data = "icc\x00\x00".str_repeat("\x9c", 40); // junk "compressed" profile
+        $chunk = pack('N', strlen($data)).'iCCP'.$data.pack('N', crc32('iCCP'.$data));
+
+        // iCCP must sit before IDAT: insert right after the 8-byte signature +
+        // the 25-byte IHDR chunk.
+        $insertAt = 8 + 25;
+
+        return substr($png, 0, $insertAt).$chunk.substr($png, $insertAt);
+    }
+
     public function test_standard_quick_and_batch_uploads_share_the_webp_optimization_pipeline(): void
     {
         Storage::fake('public');
