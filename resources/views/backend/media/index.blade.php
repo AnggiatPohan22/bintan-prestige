@@ -57,17 +57,21 @@
             <button type="submit" class="admin-btn-secondary shrink-0"><i class="fa-solid fa-magnifying-glass"></i></button>
         </form>
 
-        <div class="flex flex-wrap gap-1.5">
-            <a href="{{ route('admin.media.index', ['search' => $search]) }}"
-               class="rounded-full px-3 py-1.5 text-xs font-semibold {{ ! $activeType ? 'bg-indigo-600 text-white' : 'bg-admin-card text-admin-secondary hover:opacity-75' }}">
-                All
-            </a>
-            @foreach($extensions as $ext)
-                <a href="{{ route('admin.media.index', ['type' => $ext, 'search' => $search]) }}"
-                   class="rounded-full px-3 py-1.5 text-xs font-semibold uppercase {{ $activeType === $ext ? 'bg-indigo-600 text-white' : 'bg-admin-card text-admin-secondary hover:opacity-75' }}">
-                    {{ $ext }}
+        <div class="flex flex-wrap items-center gap-3">
+            <div class="flex flex-wrap gap-1.5">
+                <a href="{{ route('admin.media.index', ['search' => $search]) }}"
+                   class="rounded-full px-3 py-1.5 text-xs font-semibold {{ ! $activeType ? 'bg-indigo-600 text-white' : 'bg-admin-card text-admin-secondary hover:opacity-75' }}">
+                    All
                 </a>
-            @endforeach
+                @foreach($extensions as $ext)
+                    <a href="{{ route('admin.media.index', ['type' => $ext, 'search' => $search]) }}"
+                       class="rounded-full px-3 py-1.5 text-xs font-semibold uppercase {{ $activeType === $ext ? 'bg-indigo-600 text-white' : 'bg-admin-card text-admin-secondary hover:opacity-75' }}">
+                        {{ $ext }}
+                    </a>
+                @endforeach
+            </div>
+
+            @include('backend.media.partials.view-switcher')
         </div>
     </div>
 
@@ -184,11 +188,20 @@
             uploadOpen: false,
             dragging: false,
             copied: false,
+            viewMode: 'small',
             selected: { id: null, path: '', url: '', name: '', alt: '', caption: '', size: '', dimensions: '', ext: '', date: '', uploader: '', usageCount: 0, usageReferences: [], missingFile: false },
             uploadTotal: 0,
             uploadDone: 0,
             uploadError: '',
             uploadCollection: @js(config('media.default_collection', 'general')),
+
+            init() {
+                try { this.viewMode = localStorage.getItem('mediaViewMode') || 'small'; } catch (e) { /* storage unavailable */ }
+            },
+            setView(mode) {
+                this.viewMode = mode;
+                try { localStorage.setItem('mediaViewMode', mode); } catch (e) { /* storage unavailable */ }
+            },
 
             select(payload) {
                 this.selected = { alt: '', caption: '', ...payload };

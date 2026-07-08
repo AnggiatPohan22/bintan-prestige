@@ -23,7 +23,10 @@
     {{-- Selection metadata is posted to the parent and routed to the requesting block field. --}}
     <div x-data="mediaPicker()">
         <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
-            <h1 class="text-base font-bold text-admin-secondary">Select media</h1>
+            <div class="flex items-center gap-3">
+                <h1 class="text-base font-bold text-admin-secondary">Select media</h1>
+                @include('backend.media.partials.view-switcher')
+            </div>
 
             <form method="GET" action="{{ route('admin.media.index') }}" class="flex flex-wrap gap-2">
                 <input type="hidden" name="picker" value="1">
@@ -71,7 +74,17 @@
                 uploading: false,
                 dragging: false,
                 error: '',
+                viewMode: 'small',
                 uploadCollection: @js($pickerHint ?? config('media.default_collection', 'general')),
+
+                init() {
+                    // Shared with the library page (same origin → same localStorage).
+                    try { this.viewMode = localStorage.getItem('mediaViewMode') || 'small'; } catch (e) { /* storage unavailable */ }
+                },
+                setView(mode) {
+                    this.viewMode = mode;
+                    try { localStorage.setItem('mediaViewMode', mode); } catch (e) { /* storage unavailable */ }
+                },
 
                 select(payload) {
                     window.parent.postMessage({ type: 'media-selected', media: payload }, window.location.origin);

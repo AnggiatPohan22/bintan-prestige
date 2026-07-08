@@ -397,6 +397,25 @@ class MediaLibraryTest extends TestCase
             ->assertDontSee('resort-card.webp');
     }
 
+    public function test_media_library_and_picker_expose_the_view_mode_switcher(): void
+    {
+        $admin = $this->admin();
+
+        foreach ([
+            route('admin.media.index'),
+            route('admin.media.index', ['picker' => 1]),
+        ] as $url) {
+            $this->actingAs($admin)->get($url)
+                ->assertOk()
+                ->assertSee('Media view mode')
+                ->assertSee('Small view')
+                ->assertSee('List view')
+                ->assertSee('Detail view')
+                // Default view mode is the densest (small).
+                ->assertSee("viewMode: 'small'", false);
+        }
+    }
+
     public function test_page_block_editor_exposes_media_picker_for_hero_image_gallery_and_background(): void
     {
         $page = $this->page();
