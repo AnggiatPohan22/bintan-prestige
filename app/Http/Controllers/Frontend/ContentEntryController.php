@@ -63,6 +63,7 @@ class ContentEntryController extends Controller
 
         $entries = $type->entries()
             ->published()
+            ->forLocale(Locales::current()) // Phase 7 (B5) — locale-aware archive
             ->with('contentType') // avoid N+1 from publicUrl() per card
             ->ordered()
             ->paginate(12);
@@ -90,6 +91,7 @@ class ContentEntryController extends Controller
 
         $entry = $type->entries()
             ->published()
+            ->forLocale(Locales::current()) // Phase 7 (B5) — locale-aware single
             ->where('slug', $slug)
             ->firstOrFail();
 
@@ -112,10 +114,20 @@ class ContentEntryController extends Controller
         $canonicalUrl   = $meta['canonical'] ?? $entry->publicUrl();
         $seoRobots      = 'index, follow';
 
+        // Locale switcher lands on the published counterpart (hides untranslated).
+        $localeAlternates = [];
+        foreach (Locales::activeCodes() as $code) {
+            $sibling = $entry->translationIn($code);
+            if ($sibling !== null && $sibling->isPublished()) {
+                $localeAlternates[$code] = $sibling->publicUrl();
+            }
+        }
+
         return view('frontend.content-entries.single', compact(
             'type', 'entry', 'blocks',
             'templateKey', 'templateContainer', 'schemaType',
-            'seoTitle', 'seoDescription', 'canonicalUrl', 'seoRobots'
+            'seoTitle', 'seoDescription', 'canonicalUrl', 'seoRobots',
+            'localeAlternates'
         ));
     }
 

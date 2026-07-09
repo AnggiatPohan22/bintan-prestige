@@ -38,6 +38,7 @@ final class ContentQueryResolver
 
         return $type->entries()
             ->published()
+            ->forLocale(Locales::current()) // Phase 7 (B9) — locale-aware content_query block
             ->with('contentType')
             ->when($orderby === 'newest', fn ($q) => $q->orderByDesc('published_at')->orderByDesc('id'))
             ->when($orderby === 'oldest', fn ($q) => $q->orderBy('published_at')->orderBy('id'))

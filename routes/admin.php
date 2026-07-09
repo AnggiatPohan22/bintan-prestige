@@ -322,6 +322,7 @@ Route::middleware(['auth', 'admin'])
                 Route::get('/{entry}/edit', [ContentEntryController::class, 'edit'])->name('edit');
                 Route::put('/{entry}', [ContentEntryController::class, 'update'])->name('update');
                 Route::delete('/{entry}', [ContentEntryController::class, 'destroy'])->name('destroy');
+                Route::post('/{entry}/translate', [ContentEntryController::class, 'translate'])->name('translate');
                 Route::patch('/{id}/restore', [ContentEntryController::class, 'restore'])->name('restore');
                 Route::delete('/{id}/force-delete', [ContentEntryController::class, 'forceDelete'])->name('force-delete');
                 Route::post('/{entry}/revisions/{revision}/restore', [ContentEntryController::class, 'restoreRevision'])->name('revisions.restore');

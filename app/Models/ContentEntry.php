@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\Locales;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -10,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Str;
 
 class ContentEntry extends Model
 {
@@ -31,6 +33,8 @@ class ContentEntry extends Model
         'content_type_id',
         'title',
         'slug',
+        'locale',
+        'translation_group_id',
         'excerpt',
         'status',
         'published_at',
@@ -40,6 +44,20 @@ class ContentEntry extends Model
         'data',
         'seo',
     ];
+
+    protected static function booted(): void
+    {
+        // Every entry belongs to a translation group and a locale (Phase 7 — B5).
+        static::creating(function (ContentEntry $entry): void {
+            if (blank($entry->locale)) {
+                $entry->locale = Locales::default();
+            }
+
+            if (blank($entry->translation_group_id)) {
+                $entry->translation_group_id = (string) Str::ulid();
+            }
+        });
+    }
 
     protected $casts = [
         'published_at'    => 'datetime',
@@ -106,6 +124,26 @@ class ContentEntry extends Model
     }
 
     /**
+     * All entries in this entry's translation group (one row per locale).
+     *
+     * @return HasMany<ContentEntry, $this>
+     */
+    public function translationSiblings(): HasMany
+    {
+        return $this->hasMany(ContentEntry::class, 'translation_group_id', 'translation_group_id');
+    }
+
+    /** The sibling entry for a given locale, or null if that locale is untranslated. */
+    public function translationIn(string $locale): ?ContentEntry
+    {
+        if ($locale === $this->locale) {
+            return $this;
+        }
+
+        return $this->translationSiblings()->where('locale', $locale)->first();
+    }
+
+    /**
      * Builder block-tree body, stored on the polymorphic page_blocks rail
      * (blockable morph, page_id NULL). Only meaningful when the content type
      * supports the `editor` feature. See A3 (dual-rail morph) + B10.
@@ -151,7 +189,12 @@ class ContentEntry extends Model
             return null;
         }
 
-        return url($base.'/'.$this->slug);
+        // Locale-aware URL: default locale unprefixed; others under /{locale}/... .
+        $prefix = ($this->locale && $this->locale !== Locales::default())
+            ? '/'.$this->locale
+            : '';
+
+        return url($prefix.'/'.$base.'/'.$this->slug);
     }
 
     // ---------------------------------------------------------------- field value access
@@ -214,6 +257,11 @@ class ContentEntry extends Model
     public function scopeForType(Builder $query, ContentType $type): Builder
     {
         return $query->where('content_type_id', $type->id);
+    }
+
+    public function scopeForLocale(Builder $query, string $locale): Builder
+    {
+        return $query->where('locale', $locale);
     }
 
     public function scopeOrdered(Builder $query): Builder

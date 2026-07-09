@@ -68,15 +68,22 @@ class A2LocaleFoundationTest extends TestCase
             'is_public' => true, 'is_active' => true, 'has_archive' => true,
             'route_base' => 'blog', 'supports' => ['title', 'slug'],
         ]);
-        ContentEntry::create([
+        // Under B5 (row-per-locale), each locale needs its own entry row; the
+        // prefixed fallback wins over the bare `.*` fallback for /{locale}/... paths.
+        $en = ContentEntry::create([
             'content_type_id' => $type->id, 'title' => 'Hello', 'slug' => 'hello',
             'status' => 'published',
         ]);
+        ContentEntry::create([
+            'content_type_id' => $type->id, 'title' => 'Halo', 'slug' => 'hello',
+            'status' => 'published',
+            'locale' => 'id', 'translation_group_id' => $en->translation_group_id,
+        ]);
 
-        // Default locale (bare) still resolves the entry.
+        // Default locale (bare) resolves the EN entry.
         $this->get('/blog/hello')->assertOk()->assertSee('Hello');
-        // Localized prefix also resolves (prefixed fallback wins over bare .*).
-        $this->get('/id/blog/hello')->assertOk()->assertSee('Hello');
+        // Localized prefix resolves the ID entry (prefixed fallback wins over bare .*).
+        $this->get('/id/blog/hello')->assertOk()->assertSee('Halo');
         // Unknown localized path still 404s.
         $this->get('/id/nope')->assertNotFound();
     }

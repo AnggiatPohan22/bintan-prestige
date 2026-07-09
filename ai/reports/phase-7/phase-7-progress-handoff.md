@@ -35,6 +35,19 @@ no `lang/` folder; **0** `__()`/`@lang`/`trans()` calls in `resources/views/fron
 | A1 | Carry-over debt (StructuredDataBuilder JSON-LD flags; close TD-03 child-theme) | ✅ DONE (2026-07-09) | ⚠️ edits Phase 4 code (no change needed) |
 | A2 | Locale foundation (config/locales.php, SetLocale middleware, prefix route group, reserved-prefix guard, lang scaffolding, switcher chrome) | ✅ DONE (2026-07-09) | ⚠️ route registration change (shipped) |
 
+> **B5 shipped (2026-07-09) — Milestone M3 COMPLETE:** `content_entries` ALTER
+> (owner-approved, mysqldump `storage/app/db-backups/pre-b5-entries-alter-20260709-213507.sql`,
+> migrated): `+ locale + translation_group_id`, unique `(content_type_id, slug)` →
+> `(content_type_id, slug, locale)`, backfill en+ULID. Model row-per-locale (boot,
+> `translationIn`, `publicUrl` locale-aware). Frontend archive+single filter by
+> `Locales::current()` (leading locale segment still stripped from `resolve()`), and
+> `single()` emits `$localeAlternates` from published siblings for the switcher.
+> Admin "Translate to…" replicates the entry into the same group as a draft, copies
+> block tree (morph rail) + taxonomy pivot (idempotent). B9 partial: `content_query`
+> now filters by `Locales::current()` (one line in `ContentQueryResolver`). Slug
+> uniqueness per (content_type, slug, locale) in FormRequests. Report:
+> `ai/reports/phase-7/b5-content-entries-row-per-locale.md`.
+
 > **B4 shipped (2026-07-09) — Milestone M3 started:** `pages` ALTER (owner-approved,
 > mysqldump `storage/app/db-backups/pre-b4-pages-alter-20260709-210206.sql`, migrated):
 > `+ locale + translation_group_id`, unique `slug` → `(slug, locale)`, backfilled
@@ -89,11 +102,11 @@ no `lang/` folder; **0** `__()`/`@lang`/`trans()` calls in `resources/views/fron
 | B2 | Global chrome localized (site_settings via sidecar; dedicated translation panel) | ✅ DONE (2026-07-09) | — |
 | B3 | Page Sections localized (sidecar; home bilingual; media shared) | ✅ DONE (2026-07-09) | — |
 | B4 | Pages row-per-locale (migration, backfill, locale-aware unique slug, "Translate to…") | ✅ DONE (2026-07-09) | ⚠️ ALTER on existing `pages` (approved, dumped, migrated) |
-| B5 | Content Entries row-per-locale (same as B4; locale-aware controllers + index) | ⏳ TODO | ⚠️ ALTER + unique-index on existing `content_entries` |
+| B5 | Content Entries row-per-locale (same as B4; locale-aware controllers + index) | ✅ DONE (2026-07-09) | ⚠️ ALTER on existing `content_entries` (approved, dumped, migrated) |
 | B6 | Catalog localized (Products/Categories/Destinations via sidecar) | ⏳ TODO | — (business milestone) |
 | B7 | Menus (sidecar labels) & Terms localized | ⏳ TODO | — |
 | B8 | Admin translation UX pass (status column, locale filter, edit-screen switcher) | ⏳ TODO | — |
-| B9 | Builder bridge locale-aware (`content_query` + `content_field`; per-locale preview) | ⏳ TODO | — |
+| B9 | Builder bridge locale-aware (`content_query` + `content_field`; per-locale preview) | 🔶 PARTIAL — `content_query` locale-filtered at B5; `content_field` + preview still TODO | — |
 | B10 | SEO i18n (hreflang + x-default, per-locale sitemap, canonical/OG/JSON-LD inLanguage, localized 404) | ⏳ TODO | — |
 
 ### Stage C — Release Audit

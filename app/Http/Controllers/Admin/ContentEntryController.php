@@ -10,8 +10,10 @@ use App\Models\ContentEntryRevision;
 use App\Models\ContentType;
 use App\Models\Taxonomy;
 use App\Support\ContentEntryRevisionService;
+use App\Support\Locales;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 
 class ContentEntryController extends Controller
 {
@@ -107,6 +109,68 @@ class ContentEntryController extends Controller
         return redirect()
             ->route('admin.content-types.entries.edit', [$contentType, $entry])
             ->with('success', 'Entry updated.');
+    }
+
+    /** Phase 7 (B5) — create/open a translation of this entry in another locale. */
+    public function translate(Request $request, ContentType $contentType, ContentEntry $entry)
+    {
+        $this->authorizeEntry($contentType, $entry);
+
+        $validated = $request->validate([
+            'locale' => ['required', 'string', Rule::in(Locales::nonDefaultActive())],
+        ]);
+
+        $existing = $entry->translationIn($validated['locale']);
+
+        if ($existing !== null) {
+            return redirect()
+                ->route('admin.content-types.entries.edit', [$contentType, $existing])
+                ->with('success', 'Opened existing '.strtoupper($validated['locale']).' translation.');
+        }
+
+        // Replicate the entry (copies title/slug/excerpt/data/seo/template/sort)
+        // into the SAME translation group as a draft in the target locale.
+        $copy = $entry->replicate(['published_at', 'author_id']);
+        $copy->locale = $validated['locale'];
+        $copy->translation_group_id = $entry->translation_group_id;
+        $copy->status = ContentEntry::STATUS_DRAFT;
+        $copy->author_id = Auth::id();
+        $copy->save();
+
+        // Duplicate the block tree (blockable morph rail) for editor-supported types.
+        if ($contentType->supports('editor')) {
+            $blockMap = [];
+            $blocks = $entry->blocks()->get();
+
+            foreach ($blocks as $block) {
+                $duplicate = $block->replicate(['parent_block_id']);
+                $duplicate->fill([
+                    'blockable_type'  => $entry->getMorphClass(),
+                    'blockable_id'    => $copy->id,
+                    'page_id'         => null,
+                    'parent_block_id' => null,
+                ])->save();
+                $blockMap[$block->id] = $duplicate;
+            }
+
+            foreach ($blocks as $block) {
+                if ($block->parent_block_id !== null && isset($blockMap[$block->parent_block_id])) {
+                    $blockMap[$block->id]->update(['parent_block_id' => $blockMap[$block->parent_block_id]->id]);
+                }
+            }
+        }
+
+        // Copy taxonomy links (structure is shared across locales).
+        $termIds = $entry->terms()->pluck('terms.id')->all();
+        if ($termIds !== []) {
+            $copy->terms()->sync($termIds);
+        }
+
+        $this->revisions->snapshot($copy);
+
+        return redirect()
+            ->route('admin.content-types.entries.edit', [$contentType, $copy])
+            ->with('success', 'Translation ('.strtoupper($validated['locale']).') ready as a draft — translate the copy and publish it.');
     }
 
     public function destroy(ContentType $contentType, ContentEntry $entry)
