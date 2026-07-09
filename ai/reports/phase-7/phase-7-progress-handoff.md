@@ -35,6 +35,13 @@ no `lang/` folder; **0** `__()`/`@lang`/`trans()` calls in `resources/views/fron
 | A1 | Carry-over debt (StructuredDataBuilder JSON-LD flags; close TD-03 child-theme) | ✅ DONE (2026-07-09) | ⚠️ edits Phase 4 code (no change needed) |
 | A2 | Locale foundation (config/locales.php, SetLocale middleware, prefix route group, reserved-prefix guard, lang scaffolding, switcher chrome) | ✅ DONE (2026-07-09) | ⚠️ route registration change (shipped) |
 
+> **B2 shipped (2026-07-09):** `GlobalSettingsService` payload now cached per locale
+> and resolves each `value` via the B1 sidecar (fallback to base; N+1-guarded eager
+> load) — header/footer/CTA/identity/SEO defaults localize with zero Blade/Support
+> changes. Owner chose a **dedicated admin translation panel** (`TranslatableSettings`
+> allow-list + `settings/global-assets/translations` GET/PUT) over per-field tabs;
+> the 8 per-group forms are untouched. Report: `ai/reports/phase-7/b2-global-chrome-localized.md`.
+
 > **B1 shipped (2026-07-09):** `translations` polymorphic sidecar (new table, A0 §3.4
 > shape, migrated additive/reversible) + `App\Models\Concerns\Translatable` trait
 > (current-locale resolution, base-column fallback, `withTranslations` eager-load N+1
@@ -61,7 +68,7 @@ no `lang/` folder; **0** `__()`/`@lang`/`trans()` calls in `resources/views/fron
 | Task | Name | Status | Gate |
 |---|---|---|---|
 | B1 | `translations` sidecar + `Translatable` trait | ✅ DONE (2026-07-09) | ⚠️ new table (shipped, migrated) |
-| B2 | Global chrome localized (site_settings via sidecar; per-locale tabs) | ⏳ TODO | — |
+| B2 | Global chrome localized (site_settings via sidecar; dedicated translation panel) | ✅ DONE (2026-07-09) | — |
 | B3 | Page Sections localized (sidecar; home bilingual; media shared) | ⏳ TODO | — |
 | B4 | Pages row-per-locale (migration, backfill, locale-aware unique slug, "Translate to…") | ⏳ TODO | ⚠️ ALTER + unique-index on existing `pages` |
 | B5 | Content Entries row-per-locale (same as B4; locale-aware controllers + index) | ⏳ TODO | ⚠️ ALTER + unique-index on existing `content_entries` |

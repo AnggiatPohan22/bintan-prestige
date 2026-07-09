@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\SiteAsset;
 use App\Models\SiteSetting;
+use App\Services\GlobalSettingsService;
 use App\Services\PageSectionImageService;
 use App\Support\BrandColorSettings;
 use App\Support\BookingCtaSettings;
@@ -13,11 +14,13 @@ use App\Support\ContactInformationSettings;
 use App\Support\DefaultMediaAssets;
 use App\Support\FooterSettings;
 use App\Support\HomepageSectionMedia;
+use App\Support\Locales;
 use App\Support\NavigationSettings;
 use App\Support\SeoDefaultSettings;
 use App\Support\SocialMediaLinkSettings;
 use App\Support\StructuredDataSettings;
 use App\Support\TrackingIntegrationSettings;
+use App\Support\TranslatableSettings;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\Rule;
@@ -858,6 +861,87 @@ class SiteSettingController extends Controller
         return redirect()
             ->route('admin.settings.global-assets.edit', ['tab' => 'structured-data'])
             ->with('success', 'Structured data settings updated successfully.');
+    }
+
+    /**
+     * Phase 7 (B2) — per-locale translation panel for global-chrome copy. A
+     * dedicated page (extend-only) so the existing per-group forms are untouched.
+     */
+    public function translations(Request $request)
+    {
+        if (! Schema::hasTable('site_settings') || ! Schema::hasTable('translations')) {
+            return redirect()
+                ->route('admin.settings.global-assets.edit')
+                ->withErrors(['translations' => 'Please run database migrations before translating settings.']);
+        }
+
+        $targetLocales = Locales::nonDefaultActive();
+
+        if ($targetLocales === []) {
+            return redirect()
+                ->route('admin.settings.global-assets.edit')
+                ->withErrors(['translations' => 'Only the default locale is active — add another locale in config/locales.php to translate.']);
+        }
+
+        $locale = (string) $request->query('locale', $targetLocales[0]);
+
+        if (! in_array($locale, $targetLocales, true)) {
+            $locale = $targetLocales[0];
+        }
+
+        $settings = SiteSetting::query()
+            ->whereIn('key', TranslatableSettings::keys())
+            ->withAllTranslations()
+            ->get()
+            ->keyBy('key');
+
+        return view('backend.settings.translations', [
+            'sections'      => TranslatableSettings::sections(),
+            'settings'      => $settings,
+            'locale'        => $locale,
+            'targetLocales' => $targetLocales,
+            'defaultLocale' => Locales::default(),
+        ]);
+    }
+
+    public function updateTranslations(Request $request, GlobalSettingsService $globalSettings)
+    {
+        if (! Schema::hasTable('site_settings') || ! Schema::hasTable('translations')) {
+            return redirect()
+                ->route('admin.settings.global-assets.edit')
+                ->withErrors(['translations' => 'Please run database migrations before translating settings.']);
+        }
+
+        $validated = $request->validate([
+            'locale'          => ['required', 'string', Rule::in(Locales::nonDefaultActive())],
+            'translations'    => ['nullable', 'array'],
+            'translations.*'  => ['nullable', 'string', 'max:1500'],
+        ]);
+
+        $locale = $validated['locale'];
+        $input = $validated['translations'] ?? [];
+
+        $settings = SiteSetting::query()
+            ->whereIn('key', TranslatableSettings::keys())
+            ->get()
+            ->keyBy('key');
+
+        foreach ($input as $key => $value) {
+            // Ignore anything not on the allow-list or without a base row.
+            if (! TranslatableSettings::isTranslatableKey($key) || ! $settings->has($key)) {
+                continue;
+            }
+
+            $settings->get($key)->setTranslation('value', $locale, is_string($value) ? trim($value) : null);
+        }
+
+        // Translations are written to the sidecar (not the SiteSetting row), so the
+        // model's saved-hook does not fire — invalidate the localized cache here.
+        $globalSettings->forgetSettingsCache();
+
+        return redirect()
+            ->route('admin.settings.global-assets.translations', ['locale' => $locale])
+            ->with('success', 'Translations for '.strtoupper($locale).' saved successfully.');
     }
 
     private function assetTabs(): array

@@ -96,6 +96,13 @@ Route::middleware(['auth', 'admin'])
         Route::get('settings/global-assets', [SiteSettingController::class, 'edit'])
             ->name('settings.global-assets.edit');
 
+        // Phase 7 (B2) — per-locale translations for global-chrome copy.
+        Route::get('settings/global-assets/translations', [SiteSettingController::class, 'translations'])
+            ->name('settings.global-assets.translations');
+
+        Route::put('settings/global-assets/translations', [SiteSettingController::class, 'updateTranslations'])
+            ->name('settings.global-assets.translations.update');
+
         Route::put('settings/global-assets/site-logo', [SiteSettingController::class, 'update'])
             ->name('settings.global-assets.site-logo.update');
 

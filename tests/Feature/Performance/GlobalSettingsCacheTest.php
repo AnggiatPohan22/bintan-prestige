@@ -78,7 +78,8 @@ class GlobalSettingsCacheTest extends TestCase
 
         $this->assertSame($first['brandColors']['palette_primary'], $second['brandColors']['palette_primary']);
         $this->assertTrue($second['siteAssets']->has('site.logo.dark'));
-        $this->assertIsArray(Cache::get(GlobalSettingsService::SETTINGS_CACHE_KEY));
+        // Settings payload is cached per locale (Phase 7 — B2).
+        $this->assertIsArray(Cache::get(GlobalSettingsService::SETTINGS_CACHE_KEY.'.'.app()->getLocale()));
         $this->assertIsArray(Cache::get(GlobalSettingsService::ASSETS_CACHE_KEY));
         $this->assertSame(0, $this->countSettingsAndAssetQueries());
     }
@@ -96,12 +97,14 @@ class GlobalSettingsCacheTest extends TestCase
             'is_active' => true,
         ]);
 
-        Cache::put(GlobalSettingsService::SETTINGS_CACHE_KEY, (object) ['legacy' => true], 300);
+        // A corrupt payload at the current locale's key must be discarded + rebuilt.
+        $localeKey = GlobalSettingsService::SETTINGS_CACHE_KEY.'.'.app()->getLocale();
+        Cache::put($localeKey, (object) ['legacy' => true], 300);
 
         $response = $this->actingAs($admin)->get('/dashboard');
 
         $response->assertOk();
-        $this->assertIsArray(Cache::get(GlobalSettingsService::SETTINGS_CACHE_KEY));
+        $this->assertIsArray(Cache::get($localeKey));
     }
 
     public function test_stale_invalid_assets_cache_payload_is_rebuilt(): void

@@ -10,6 +10,7 @@ use App\Support\BusinessIdentitySettings;
 use App\Support\ContactInformationSettings;
 use App\Support\DefaultMediaAssets;
 use App\Support\FooterSettings;
+use App\Support\Locales;
 use App\Support\NavigationSettings;
 use App\Support\SeoDefaultSettings;
 use App\Support\SocialMediaLinkSettings;
@@ -101,7 +102,12 @@ class GlobalSettingsService
 
     public function forgetSettingsCache(): void
     {
+        // Forget the legacy (unsuffixed) key plus every per-locale variant.
         Cache::forget(self::SETTINGS_CACHE_KEY);
+
+        foreach (Locales::activeCodes() as $locale) {
+            Cache::forget(self::SETTINGS_CACHE_KEY.'.'.$locale);
+        }
 
         $this->settingsByGroup = null;
         $this->viewData = null;
@@ -123,8 +129,11 @@ class GlobalSettingsService
 
     private function settingsPayload(): array
     {
+        // Cache is keyed per locale (Phase 7 — B2): each locale gets its own
+        // already-resolved payload, so the whole downstream pipeline (Support
+        // classes + Blade) stays locale-agnostic and unchanged.
         return $this->rememberArrayPayload(
-            self::SETTINGS_CACHE_KEY,
+            self::SETTINGS_CACHE_KEY.'.'.app()->getLocale(),
             fn () => $this->buildSettingsPayload()
         );
     }
@@ -178,17 +187,24 @@ class GlobalSettingsService
             return [];
         }
 
+        $locale = app()->getLocale();
+
+        // `id` is required so the polymorphic translations relation resolves;
+        // withTranslations() eager-loads only the current locale (N+1 guard).
         return SiteSetting::query()
             ->where('is_active', true)
             ->whereIn('group', self::PUBLIC_SETTING_GROUPS)
-            ->get(['key', 'label', 'value', 'type', 'group', 'is_active'])
+            ->withTranslations($locale)
+            ->get(['id', 'key', 'label', 'value', 'type', 'group', 'is_active'])
             ->groupBy('group')
             ->map(fn (Collection $settings) => $settings
                 ->mapWithKeys(fn (SiteSetting $setting) => [
                     $setting->key => [
                         'key' => $setting->key,
                         'label' => $setting->label,
-                        'value' => $setting->value,
+                        // Resolved for the current locale, falling back to the
+                        // default-locale base column when no translation exists.
+                        'value' => $setting->translate('value', $locale),
                         'type' => $setting->type,
                         'group' => $setting->group,
                         'is_active' => $setting->is_active,
