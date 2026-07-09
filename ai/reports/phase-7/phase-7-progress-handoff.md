@@ -35,6 +35,13 @@ no `lang/` folder; **0** `__()`/`@lang`/`trans()` calls in `resources/views/fron
 | A1 | Carry-over debt (StructuredDataBuilder JSON-LD flags; close TD-03 child-theme) | ✅ DONE (2026-07-09) | ⚠️ edits Phase 4 code (no change needed) |
 | A2 | Locale foundation (config/locales.php, SetLocale middleware, prefix route group, reserved-prefix guard, lang scaffolding, switcher chrome) | ✅ DONE (2026-07-09) | ⚠️ route registration change (shipped) |
 
+> **B1 shipped (2026-07-09):** `translations` polymorphic sidecar (new table, A0 §3.4
+> shape, migrated additive/reversible) + `App\Models\Concerns\Translatable` trait
+> (current-locale resolution, base-column fallback, `withTranslations` eager-load N+1
+> guard, soft-delete-aware cleanup). First consumer: `SiteSetting` (`$translatable=['value']`,
+> extend-only, inert until B2). Trait unit-tested in isolation (12/12). Report:
+> `ai/reports/phase-7/b1-translations-sidecar.md`.
+
 > **A2 shipped (2026-07-09):** `config/locales.php` (en default + id), `app/Support/Locales.php`,
 > `SetLocale` middleware, per-locale route groups in `bootstrap/app.php` (non-default
 > prefixed first so its `Route::fallback` wins per prefix; default bare + canonical
@@ -53,7 +60,7 @@ no `lang/` folder; **0** `__()`/`@lang`/`trans()` calls in `resources/views/fron
 ### Stage B — Build the Engine
 | Task | Name | Status | Gate |
 |---|---|---|---|
-| B1 | `translations` sidecar + `Translatable` trait | ⏳ TODO | ⚠️ new table |
+| B1 | `translations` sidecar + `Translatable` trait | ✅ DONE (2026-07-09) | ⚠️ new table (shipped, migrated) |
 | B2 | Global chrome localized (site_settings via sidecar; per-locale tabs) | ⏳ TODO | — |
 | B3 | Page Sections localized (sidecar; home bilingual; media shared) | ⏳ TODO | — |
 | B4 | Pages row-per-locale (migration, backfill, locale-aware unique slug, "Translate to…") | ⏳ TODO | ⚠️ ALTER + unique-index on existing `pages` |
