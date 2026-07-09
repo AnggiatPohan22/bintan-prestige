@@ -36,6 +36,7 @@ class ProductController extends Controller
             ->whereIn('section_key', $listingSectionKeys)
             ->where('is_active', true)
             ->with('media')
+            ->withTranslations() // localize section copy for the current locale (N+1 guard)
             ->get()
             ->keyBy('section_key');
         $listingContent = ProductListingContent::fromSections($listingSections);

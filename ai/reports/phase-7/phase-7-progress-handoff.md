@@ -35,6 +35,14 @@ no `lang/` folder; **0** `__()`/`@lang`/`trans()` calls in `resources/views/fron
 | A1 | Carry-over debt (StructuredDataBuilder JSON-LD flags; close TD-03 child-theme) | ✅ DONE (2026-07-09) | ⚠️ edits Phase 4 code (no change needed) |
 | A2 | Locale foundation (config/locales.php, SetLocale middleware, prefix route group, reserved-prefix guard, lang scaffolding, switcher chrome) | ✅ DONE (2026-07-09) | ⚠️ route registration change (shipped) |
 
+> **B3 shipped (2026-07-09) — Milestone M2 COMPLETE:** `PageSection` (protected)
+> now uses `Translatable` (`label/title/subtitle/description/button_text`) with
+> locale-aware accessors, so `HomepageSectionData` + section Blade localize
+> transparently (default locale = zero query overhead). Home + product-listing
+> section queries eager-load `withTranslations()`. Admin: per-locale translation
+> card on the PageSection edit form. Trait `translate()` now reads the raw base
+> attribute (accessor-safe). Report: `ai/reports/phase-7/b3-page-sections-localized.md`.
+
 > **B2 shipped (2026-07-09):** `GlobalSettingsService` payload now cached per locale
 > and resolves each `value` via the B1 sidecar (fallback to base; N+1-guarded eager
 > load) — header/footer/CTA/identity/SEO defaults localize with zero Blade/Support
@@ -69,7 +77,7 @@ no `lang/` folder; **0** `__()`/`@lang`/`trans()` calls in `resources/views/fron
 |---|---|---|---|
 | B1 | `translations` sidecar + `Translatable` trait | ✅ DONE (2026-07-09) | ⚠️ new table (shipped, migrated) |
 | B2 | Global chrome localized (site_settings via sidecar; dedicated translation panel) | ✅ DONE (2026-07-09) | — |
-| B3 | Page Sections localized (sidecar; home bilingual; media shared) | ⏳ TODO | — |
+| B3 | Page Sections localized (sidecar; home bilingual; media shared) | ✅ DONE (2026-07-09) | — |
 | B4 | Pages row-per-locale (migration, backfill, locale-aware unique slug, "Translate to…") | ⏳ TODO | ⚠️ ALTER + unique-index on existing `pages` |
 | B5 | Content Entries row-per-locale (same as B4; locale-aware controllers + index) | ⏳ TODO | ⚠️ ALTER + unique-index on existing `content_entries` |
 | B6 | Catalog localized (Products/Categories/Destinations via sidecar) | ⏳ TODO | — (business milestone) |

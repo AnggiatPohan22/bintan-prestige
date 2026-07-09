@@ -78,7 +78,10 @@ trait Translatable
     public function translate(string $field, ?string $locale = null): mixed
     {
         $locale = $locale ?: Locales::current();
-        $base = $this->getAttribute($field);
+        // Read the raw stored column, NOT getAttribute() — a model may expose a
+        // localized accessor of the same name (e.g. PageSection::title), which
+        // would recurse back into translate().
+        $base = $this->attributes[$field] ?? null;
 
         if ($locale === Locales::default() || ! $this->isTranslatableField($field)) {
             return $base;

@@ -44,6 +44,28 @@
             <div><label class="admin-form-label">Button text</label><input type="text" name="button_text" value="{{ old('button_text', $pageSection->button_text) }}" class="admin-input"></div>
             <div><label class="admin-form-label">Button URL</label><input type="text" name="button_url" value="{{ old('button_url', $pageSection->button_url) }}" class="admin-input"></div>
 
+            @php $translationLocales = \App\Support\Locales::nonDefaultActive(); @endphp
+            @if(count($translationLocales) > 0)
+                <div class="md:col-span-2 space-y-4">
+                    @foreach($translationLocales as $locale)
+                        <div class="rounded-xl border border-violet-200 bg-violet-50/40 p-4">
+                            <div class="mb-3 flex items-center gap-2">
+                                <span class="rounded-md bg-violet-600 px-2 py-0.5 text-xs font-bold uppercase text-white">{{ $locale }}</span>
+                                <h2 class="text-sm font-bold text-admin-secondary">{{ \App\Support\Locales::label($locale) ?? strtoupper($locale) }} translation</h2>
+                                <span class="text-xs text-admin-secondary opacity-70">Leave blank to fall back to the default language.</span>
+                            </div>
+                            <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+                                <div><label class="admin-form-label">Label</label><input type="text" name="translations[{{ $locale }}][label]" value="{{ old("translations.$locale.label", $pageSection->rawTranslation('label', $locale)) }}" class="admin-input"></div>
+                                <div><label class="admin-form-label">Title</label><input type="text" name="translations[{{ $locale }}][title]" value="{{ old("translations.$locale.title", $pageSection->rawTranslation('title', $locale)) }}" class="admin-input"></div>
+                                <div class="md:col-span-2"><label class="admin-form-label">Subtitle</label><input type="text" name="translations[{{ $locale }}][subtitle]" value="{{ old("translations.$locale.subtitle", $pageSection->rawTranslation('subtitle', $locale)) }}" class="admin-input"></div>
+                                <div class="md:col-span-2"><label class="admin-form-label">Description</label><textarea name="translations[{{ $locale }}][description]" rows="4" class="admin-textarea">{{ old("translations.$locale.description", $pageSection->rawTranslation('description', $locale)) }}</textarea></div>
+                                <div><label class="admin-form-label">Button text</label><input type="text" name="translations[{{ $locale }}][button_text]" value="{{ old("translations.$locale.button_text", $pageSection->rawTranslation('button_text', $locale)) }}" class="admin-input"></div>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            @endif
+
             @if($usesLogo)
                 <div class="md:col-span-2 rounded-xl border border-amber-200 bg-amber-50 p-4">
                     <h2 class="text-sm font-bold text-amber-900">Logo website global</h2>

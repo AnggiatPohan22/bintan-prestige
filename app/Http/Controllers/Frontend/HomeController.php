@@ -27,6 +27,7 @@ class HomeController extends Controller
             ->whereIn('section_key', $homepageSectionKeys)
             ->where('is_active', true)
             ->with('media')
+            ->withTranslations() // localize section copy for the current locale (N+1 guard)
             ->orderBy('sort_order')
             ->get()
             ->keyBy('section_key');
