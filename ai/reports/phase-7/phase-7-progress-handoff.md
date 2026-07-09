@@ -32,8 +32,14 @@ no `lang/` folder; **0** `__()`/`@lang`/`trans()` calls in `resources/views/fron
 | Task | Name | Status | Gate |
 |---|---|---|---|
 | A0 | Architecture Decision Record | ✅ DONE (2026-07-09) | Decision set signed off |
-| A1 | Carry-over debt (StructuredDataBuilder JSON-LD flags; close TD-03 child-theme) | ⏳ TODO | ⚠️ edits Phase 4 code |
+| A1 | Carry-over debt (StructuredDataBuilder JSON-LD flags; close TD-03 child-theme) | ✅ DONE (2026-07-09) | ⚠️ edits Phase 4 code (no change needed) |
 | A2 | Locale foundation (config/locales.php, SetLocale middleware, prefix route group, reserved-prefix guard, lang scaffolding, switcher chrome) | ⏳ TODO | ⚠️ route registration change |
+
+> **A1 disposition (2026-07-09):** C1-FU `StructuredDataBuilder` JSON-LD escaping
+> was **already fixed** by commit `74f1027` (2026-07-07, ancestor of HEAD) with a
+> passing regression test — no code change. **TD-03 child-theme = CLOSED (won't-do)**:
+> theme tokens + templates already cover per-site customization; revisit only on a
+> concrete owner request. Report: `ai/reports/phase-7/a1-carryover-debt.md`.
 
 ### Stage B — Build the Engine
 | Task | Name | Status | Gate |
