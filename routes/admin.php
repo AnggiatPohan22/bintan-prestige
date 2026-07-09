@@ -260,6 +260,9 @@ Route::middleware(['auth', 'admin'])
         Route::post('pages/{page}/duplicate', [PageController::class, 'duplicate'])
             ->name('pages.duplicate');
 
+        Route::post('pages/{page}/translate', [PageController::class, 'translate'])
+            ->name('pages.translate');
+
         Route::get('pages/{page}/preview', [FrontendPageController::class, 'preview'])
             ->name('pages.preview');
 

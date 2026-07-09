@@ -35,6 +35,16 @@ no `lang/` folder; **0** `__()`/`@lang`/`trans()` calls in `resources/views/fron
 | A1 | Carry-over debt (StructuredDataBuilder JSON-LD flags; close TD-03 child-theme) | ✅ DONE (2026-07-09) | ⚠️ edits Phase 4 code (no change needed) |
 | A2 | Locale foundation (config/locales.php, SetLocale middleware, prefix route group, reserved-prefix guard, lang scaffolding, switcher chrome) | ✅ DONE (2026-07-09) | ⚠️ route registration change (shipped) |
 
+> **B4 shipped (2026-07-09) — Milestone M3 started:** `pages` ALTER (owner-approved,
+> mysqldump `storage/app/db-backups/pre-b4-pages-alter-20260709-210206.sql`, migrated):
+> `+ locale + translation_group_id`, unique `slug` → `(slug, locale)`, backfilled
+> en+ULID. `Page` row-per-locale (boot group/locale, `translationIn`, `publicUrl`,
+> locale-scoped `resolveRouteBinding` via `Locales::localeFromRequest()` — binding
+> runs before SetLocale). `PageService::translateTo` copies blocks as a draft into the
+> same group. Admin "Translate to…" action + panel + list locale badge. Frontend
+> `/{locale}/pages/{slug}` (404 if untranslated), switcher lands on the published
+> counterpart. Report: `ai/reports/phase-7/b4-pages-row-per-locale.md`.
+
 > **B3 shipped (2026-07-09) — Milestone M2 COMPLETE:** `PageSection` (protected)
 > now uses `Translatable` (`label/title/subtitle/description/button_text`) with
 > locale-aware accessors, so `HomepageSectionData` + section Blade localize
@@ -78,7 +88,7 @@ no `lang/` folder; **0** `__()`/`@lang`/`trans()` calls in `resources/views/fron
 | B1 | `translations` sidecar + `Translatable` trait | ✅ DONE (2026-07-09) | ⚠️ new table (shipped, migrated) |
 | B2 | Global chrome localized (site_settings via sidecar; dedicated translation panel) | ✅ DONE (2026-07-09) | — |
 | B3 | Page Sections localized (sidecar; home bilingual; media shared) | ✅ DONE (2026-07-09) | — |
-| B4 | Pages row-per-locale (migration, backfill, locale-aware unique slug, "Translate to…") | ⏳ TODO | ⚠️ ALTER + unique-index on existing `pages` |
+| B4 | Pages row-per-locale (migration, backfill, locale-aware unique slug, "Translate to…") | ✅ DONE (2026-07-09) | ⚠️ ALTER on existing `pages` (approved, dumped, migrated) |
 | B5 | Content Entries row-per-locale (same as B4; locale-aware controllers + index) | ⏳ TODO | ⚠️ ALTER + unique-index on existing `content_entries` |
 | B6 | Catalog localized (Products/Categories/Destinations via sidecar) | ⏳ TODO | — (business milestone) |
 | B7 | Menus (sidecar labels) & Terms localized | ⏳ TODO | — |

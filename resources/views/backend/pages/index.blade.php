@@ -68,11 +68,14 @@
                         @forelse($pages as $page)
                             <tr class="admin-table-row">
                                 <td class="px-4 py-4">
-                                    <div class="font-semibold text-admin-primary">
+                                    <div class="flex items-center gap-2 font-semibold text-admin-primary">
                                         {{ $page->title }}
+                                        @if(count(\App\Support\Locales::active()) > 1)
+                                            <span class="rounded bg-violet-100 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-violet-700">{{ $page->locale }}</span>
+                                        @endif
                                     </div>
                                     <div class="mt-1 text-xs text-admin-secondary">
-                                        /pages/{{ $page->slug }}
+                                        {{ $page->locale === \App\Support\Locales::default() ? '' : '/'.$page->locale }}/pages/{{ $page->slug }}
                                     </div>
                                 </td>
 

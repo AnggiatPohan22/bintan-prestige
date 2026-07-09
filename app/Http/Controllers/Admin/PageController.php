@@ -14,8 +14,10 @@ use App\Models\PageRevision;
 use App\Models\PageTemplate;
 use App\Services\PageService;
 use Illuminate\Support\Facades\DB;
+use App\Support\Locales;
 use App\Support\PageTemplateRegistry;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class PageController extends Controller
 {
@@ -103,6 +105,20 @@ class PageController extends Controller
         return redirect()
             ->route('admin.pages.edit', $copy)
             ->with('success', "Page duplicated. You are now editing \"{$copy->title}\".");
+    }
+
+    /** Phase 7 (B4) — create/open a translation of this page in another locale. */
+    public function translate(Request $request, Page $page)
+    {
+        $validated = $request->validate([
+            'locale' => ['required', 'string', Rule::in(Locales::nonDefaultActive())],
+        ]);
+
+        $translation = $this->pageService->translateTo($page, $validated['locale']);
+
+        return redirect()
+            ->route('admin.pages.edit', $translation)
+            ->with('success', 'Translation ('.strtoupper($validated['locale']).') ready as a draft — translate the copy and publish it.');
     }
 
     public function restoreRevision(Page $page, PageRevision $revision)

@@ -65,6 +65,20 @@ class Locales
         return app()->getLocale();
     }
 
+    /**
+     * Locale derived straight from the URL's first segment — independent of the
+     * SetLocale middleware, so it is safe to use during route-model binding
+     * (SubstituteBindings runs before SetLocale). Falls back to the default.
+     */
+    public static function localeFromRequest(): string
+    {
+        $segment = Request::segment(1);
+
+        return ($segment !== null && $segment !== self::default() && self::isActive($segment))
+            ? $segment
+            : self::default();
+    }
+
     public static function label(string $code): ?string
     {
         return self::all()[$code]['label'] ?? null;

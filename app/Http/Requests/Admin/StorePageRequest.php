@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Admin;
 
+use App\Support\Locales;
 use App\Support\PageTemplateRegistry;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Str;
@@ -27,7 +28,8 @@ class StorePageRequest extends FormRequest
     {
         return [
             'title' => ['required', 'string', 'max:255'],
-            'slug' => ['nullable', 'string', 'max:255', 'unique:pages,slug', Rule::notIn(['admin', 'products', 'api', 'login', 'register'])],
+            // New pages are authored in the default locale; slug is unique per locale.
+            'slug' => ['nullable', 'string', 'max:255', Rule::unique('pages', 'slug')->where('locale', Locales::default()), Rule::notIn(['admin', 'products', 'api', 'login', 'register'])],
             'status' => ['required', Rule::in(['draft', 'published', 'scheduled'])],
             'publish_at' => ['nullable', 'date'],
             'template_id' => [
