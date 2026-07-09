@@ -53,6 +53,133 @@ class MediaLibraryTest extends TestCase
         Storage::disk('public')->assertExists($media->path);
     }
 
+    public function test_png_with_a_malformed_icc_profile_still_uploads(): void
+    {
+        // Regression: many real PNGs (Photoshop/Canva exports) carry a colour
+        // profile libpng flags with a non-fatal warning ("iCCP: known incorrect
+        // sRGB profile" / "iCCP: too short"). Laravel upgrades that warning to an
+        // ErrorException, which used to abort the upload. The optimizer now
+        // warning-suppresses the GD decode, so such a PNG uploads successfully.
+        Storage::fake('public');
+        $admin = $this->admin();
+        $badIccPng = UploadedFile::fake()->createWithContent(
+            'logo.png',
+            $this->pngWithMalformedIccProfile(),
+        );
+
+        // Before the fix this returned 500 (warning → ErrorException). Use a
+        // WebP-optimizing collection so the decode path is actually exercised.
+        $this->actingAs($admin)->post(route('admin.media.store'), [
+            'files' => [$badIccPng],
+            'collection' => 'content',
+        ])->assertRedirect(route('admin.media.index'));
+
+        $media = Media::query()->firstOrFail();
+
+        $this->assertSame('logo.png', $media->original_name);
+        // PNGs are optimized to webp by the pipeline.
+        $this->assertSame('webp', $media->extension);
+        $this->assertSame('content', $media->collection);
+
+        // ImageOptimizationService writes via native GD to storage_path(),
+        // bypassing Storage::fake — assert the real file, then clean it up.
+        $fullPath = storage_path('app/public/'.$media->path);
+        $this->assertFileExists($fullPath);
+        @unlink($fullPath);
+    }
+
+    public function test_transparent_png_keeps_its_transparency_when_optimized_to_webp(): void
+    {
+        // WebP supports alpha; the optimizer must not flatten transparent areas
+        // to black. Uploaded to a normal (WebP-optimizing) collection.
+        Storage::fake('public');
+        $png = UploadedFile::fake()->createWithContent('badge.png', $this->transparentPng());
+
+        $this->actingAs($this->admin())->post(route('admin.media.store'), [
+            'files' => [$png],
+            'collection' => 'content',
+        ])->assertRedirect(route('admin.media.index'));
+
+        $media = Media::query()->firstOrFail();
+        $this->assertSame('webp', $media->extension);
+
+        // Optimizer writes via native GD to storage_path() (bypasses Storage::fake).
+        $fullPath = storage_path('app/public/'.$media->path);
+        $this->assertFileExists($fullPath);
+
+        $image = imagecreatefromwebp($fullPath);
+        $cornerAlpha = (imagecolorat($image, 0, 0) >> 24) & 0x7F; // 127 = transparent
+        imagedestroy($image);
+        @unlink($fullPath);
+
+        $this->assertGreaterThan(100, $cornerAlpha, 'Transparent corner was flattened.');
+    }
+
+    public function test_logo_collection_keeps_the_original_png_without_webp_conversion(): void
+    {
+        // Logos/icons are stored untouched (config: preserve_original_collections)
+        // so crisp edges and true transparency are guaranteed.
+        Storage::fake('public');
+        $bytes = $this->transparentPng();
+        $png = UploadedFile::fake()->createWithContent('brand.png', $bytes);
+
+        $this->actingAs($this->admin())->post(route('admin.media.store'), [
+            'files' => [$png],
+            'collection' => 'logo',
+        ])->assertRedirect(route('admin.media.index'));
+
+        $media = Media::query()->firstOrFail();
+
+        $this->assertSame('png', $media->extension);
+        $this->assertSame('image/png', $media->mime_type);
+        $this->assertSame('logo', $media->collection);
+        $this->assertStringStartsWith('media/logo/', $media->path);
+        // Original bytes preserved exactly (no re-encode).
+        Storage::disk('public')->assertExists($media->path);
+        $this->assertSame($bytes, Storage::disk('public')->get($media->path));
+    }
+
+    /** A small fully-transparent-background PNG (opaque block in the middle). */
+    private function transparentPng(): string
+    {
+        $image = imagecreatetruecolor(8, 8);
+        imagesavealpha($image, true);
+        $transparent = imagecolorallocatealpha($image, 0, 0, 0, 127);
+        imagefill($image, 0, 0, $transparent);
+        $navy = imagecolorallocate($image, 11, 31, 59);
+        imagefilledrectangle($image, 3, 3, 5, 5, $navy);
+
+        ob_start();
+        imagepng($image);
+        $bytes = (string) ob_get_clean();
+        imagedestroy($image);
+
+        return $bytes;
+    }
+
+    /**
+     * A valid PNG carrying a malformed iCCP chunk. libpng emits a non-fatal
+     * warning on decode (the exact failure the fix guards against) while GD
+     * still returns a usable image.
+     */
+    private function pngWithMalformedIccProfile(): string
+    {
+        $image = imagecreatetruecolor(4, 4);
+        ob_start();
+        imagepng($image);
+        $png = (string) ob_get_clean();
+        imagedestroy($image);
+
+        $data = "icc\x00\x00".str_repeat("\x9c", 40); // junk "compressed" profile
+        $chunk = pack('N', strlen($data)).'iCCP'.$data.pack('N', crc32('iCCP'.$data));
+
+        // iCCP must sit before IDAT: insert right after the 8-byte signature +
+        // the 25-byte IHDR chunk.
+        $insertAt = 8 + 25;
+
+        return substr($png, 0, $insertAt).$chunk.substr($png, $insertAt);
+    }
+
     public function test_standard_quick_and_batch_uploads_share_the_webp_optimization_pipeline(): void
     {
         Storage::fake('public');
@@ -270,6 +397,25 @@ class MediaLibraryTest extends TestCase
             ->assertDontSee('resort-card.webp');
     }
 
+    public function test_media_library_and_picker_expose_the_view_mode_switcher(): void
+    {
+        $admin = $this->admin();
+
+        foreach ([
+            route('admin.media.index'),
+            route('admin.media.index', ['picker' => 1]),
+        ] as $url) {
+            $this->actingAs($admin)->get($url)
+                ->assertOk()
+                ->assertSee('Media view mode')
+                ->assertSee('Small view')
+                ->assertSee('List view')
+                ->assertSee('Detail view')
+                // Default view mode is the densest (small).
+                ->assertSee("viewMode: 'small'", false);
+        }
+    }
+
     public function test_page_block_editor_exposes_media_picker_for_hero_image_gallery_and_background(): void
     {
         $page = $this->page();
@@ -293,6 +439,74 @@ class MediaLibraryTest extends TestCase
             ->assertSee('image-block-', false)
             ->assertSee('gallery-block-', false)
             ->assertSee('background-', false);
+    }
+
+    public function test_uploads_are_stored_under_their_collection_folder(): void
+    {
+        Storage::fake('public');
+        $admin = $this->admin();
+        $gif = UploadedFile::fake()->createWithContent(
+            'hero.gif',
+            base64_decode('R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw=='),
+        );
+
+        $this->actingAs($admin)->post(route('admin.media.store'), [
+            'files' => [$gif],
+            'collection' => 'hero',
+        ])->assertRedirect(route('admin.media.index'));
+
+        $media = Media::query()->firstOrFail();
+
+        $this->assertSame('hero', $media->collection);
+        $this->assertStringStartsWith('media/hero/', $media->path);
+        Storage::disk('public')->assertExists($media->path);
+    }
+
+    public function test_unknown_collection_falls_back_to_the_default(): void
+    {
+        Storage::fake('public');
+        $gif = UploadedFile::fake()->createWithContent(
+            'evil.gif',
+            base64_decode('R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw=='),
+        );
+
+        $this->actingAs($this->admin())->post(route('admin.media.store'), [
+            'files' => [$gif],
+            'collection' => '../../escape',
+        ])->assertRedirect(route('admin.media.index'));
+
+        $media = Media::query()->firstOrFail();
+
+        $this->assertSame(config('media.default_collection'), $media->collection);
+        $this->assertStringStartsWith('media/'.config('media.default_collection').'/', $media->path);
+    }
+
+    public function test_media_index_filters_by_collection_including_uncategorized_legacy_rows(): void
+    {
+        Storage::fake('public');
+        $admin = $this->admin();
+
+        $this->media([
+            'original_name' => 'in-hero-collection.webp',
+            'path' => 'media/hero/2026/07/a.webp',
+            'collection' => 'hero',
+        ]);
+        $this->media([
+            'original_name' => 'legacy-uncategorized.webp',
+            'path' => 'media/2026/06/b.webp',
+        ]);
+
+        $this->actingAs($admin)
+            ->get(route('admin.media.index', ['collection' => 'hero']))
+            ->assertOk()
+            ->assertSee('in-hero-collection.webp')
+            ->assertDontSee('legacy-uncategorized.webp');
+
+        $this->actingAs($admin)
+            ->get(route('admin.media.index', ['collection' => 'uncategorized']))
+            ->assertOk()
+            ->assertSee('legacy-uncategorized.webp')
+            ->assertDontSee('in-hero-collection.webp');
     }
 
     private function admin(): User

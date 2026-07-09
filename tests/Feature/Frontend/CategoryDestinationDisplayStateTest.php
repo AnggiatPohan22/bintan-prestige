@@ -89,6 +89,24 @@ class CategoryDestinationDisplayStateTest extends TestCase
         $this->assertFalse($state['metadataReady']['is_final_seo']);
     }
 
+    public function test_category_display_state_exposes_media_when_an_image_is_set(): void
+    {
+        $category = Category::factory()->create([
+            'name' => 'Beach Escapes',
+            'slug' => 'beach-escapes',
+            'image' => 'media/category/2026/07/beach.webp',
+        ]);
+
+        $products = CategoryDestinationDisplayState::categoryProductsQuery($category)->paginate(9);
+        $state = CategoryDestinationDisplayState::category($category, $products);
+
+        $this->assertTrue($state['media']['available']);
+        $this->assertSame('image_first', $state['mediaStrategy']['type']);
+        $this->assertSame(asset('storage/media/category/2026/07/beach.webp'), $state['media']['url']);
+        $this->assertSame('category', $state['media']['source']);
+        $this->assertSame($state['media']['url'], $state['metadataReady']['image']);
+    }
+
     public function test_category_display_state_handles_empty_filtered_and_high_page_contexts(): void
     {
         $category = Category::factory()->create([

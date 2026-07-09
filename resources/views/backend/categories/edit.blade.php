@@ -56,6 +56,19 @@
                     <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                 @enderror
             </div>
+
+            <div>
+                <x-admin.media-image-field
+                    name="image"
+                    :value="old('image', $category->image ?? '')"
+                    label="Category Image"
+                    collection="category"
+                    hint="Shown on the frontend category landing header. Pick from the Media Library or upload (saved to the Category collection)."
+                />
+                @error('image')
+                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                @enderror
+            </div>
         </div>
     </x-slot:content>
 

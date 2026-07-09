@@ -145,13 +145,17 @@
     ========================== */
 
     .admin-body {
-        @apply min-h-screen overflow-x-hidden;
+        @apply min-h-screen;
+        /* clip (not hidden): overflow-x-hidden turns <body>/.admin-shell into
+           scroll containers, which silently breaks the sidebar position:sticky */
+        overflow-x: clip;
         background: var(--admin-bg-base);
         color:      var(--admin-text-primary);
     }
 
     .admin-shell {
-        @apply flex min-h-screen w-full overflow-x-hidden;
+        @apply flex min-h-screen w-full;
+        overflow-x: clip;
         background: var(--admin-bg-base);
         background-image: radial-gradient(
             circle,

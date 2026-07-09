@@ -42,6 +42,81 @@ class PageSectionImageService
         ]);
     }
 
+    /**
+     * Point a gallery/slot media row at an existing Media Library path
+     * (selected via the picker) instead of uploading a new file. A previous
+     * *local* page-section upload is cleaned up; Media Library files (media/…)
+     * are left intact.
+     */
+    public function setSlotPath(
+        PageSection $section,
+        string $role,
+        string $slotKey,
+        string $label,
+        string $path,
+        ?string $objectFit = null,
+        ?string $objectPosition = null
+    ): PageSectionMedia {
+        $media = $section->media()
+            ->where('role', $role)
+            ->where('slot_key', $slotKey)
+            ->first();
+
+        $data = [
+            'label' => $label,
+            'path' => $path,
+            'alt' => $label,
+            'is_active' => true,
+        ];
+
+        if ($this->supportsMediaDisplayOptions()) {
+            $data['object_fit'] = $objectFit;
+            $data['object_position'] = $objectPosition;
+        }
+
+        if ($media) {
+            if ($media->path !== $path) {
+                $this->deleteIfLocalPageSectionImage($media->path);
+            }
+
+            $media->update($data);
+
+            return $media;
+        }
+
+        return $section->media()->create($data + [
+            'role' => $role,
+            'slot_key' => $slotKey,
+            'sort_order' => 0,
+        ]);
+    }
+
+    /**
+     * Append gallery images from Media Library paths (no re-upload).
+     *
+     * @param  array<int, mixed>  $paths  raw request input; non-strings ignored
+     */
+    public function attachGalleryPaths(PageSection $section, array $paths, int $startSort = 0): void
+    {
+        $sortOrder = $startSort;
+
+        foreach ($paths as $path) {
+            if (! is_string($path) || trim($path) === '') {
+                continue;
+            }
+
+            $section->media()->create([
+                'role' => 'gallery',
+                'slot_key' => 'gallery',
+                'label' => 'Gallery image',
+                'path' => trim($path),
+                'alt' => $section->title,
+                'sort_order' => $sortOrder++,
+                'is_active' => true,
+            ]);
+        }
+    }
+
     public function storeSlotUpload(
         UploadedFile $file,
         PageSection $section,
@@ -103,6 +178,31 @@ class PageSectionImageService
         $asset->fill([
             'label' => $label,
             'path' => $this->storeFile($file, 'site-assets/' . Str::slug($key)),
+            'alt' => $alt ?: $label,
+            'is_active' => true,
+        ])->save();
+
+        return $asset;
+    }
+
+    /**
+     * Point a site asset at an existing Media Library path (selected via the
+     * picker) instead of uploading a new file. Mirrors storeSiteAssetUpload but
+     * stores the given path as-is. A previous *local* upload (site-assets/…) is
+     * cleaned up; Media Library paths (media/…) are left intact — they belong to
+     * the library and are usage-tracked there.
+     */
+    public function setSiteAssetPath(string $path, string $key, string $label, ?string $alt = null): SiteAsset
+    {
+        $asset = SiteAsset::firstOrNew(['key' => $key]);
+
+        if ($asset->path !== $path) {
+            $this->deleteIfLocalSiteAssetImage($asset->path);
+        }
+
+        $asset->fill([
+            'label' => $label,
+            'path' => $path,
             'alt' => $alt ?: $label,
             'is_active' => true,
         ])->save();

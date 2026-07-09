@@ -52,6 +52,7 @@ ALWAYS:
 - Focus rings: `focus:ring-4 focus:ring-indigo-100` on inputs; checkboxes use `text-indigo-600 focus:ring-indigo-500`
 - Instant feedback: loading states, toast notifications, error messages on every data action
 - Badges: use `admin-badge-success/warning/danger/info` — never add `style=` overrides on top
+- Image/file inputs: ALWAYS `<x-admin.media-image-field>` (single) or `<x-admin.media-gallery-field>` (multiple) — these route through the Media Library. Store the returned path string (`string(500)`), FormRequest rule `string`, register the column in `MediaService::DIRECT_REFERENCES`. See `ai/skills/media-library-skill.md` ⭐ Canonical Image Input Standard.
 
 NEVER:
 - Use `btn-primary` / `btn-secondary` (legacy emerald — inconsistent with admin-btn-primary indigo)
@@ -60,6 +61,7 @@ NEVER:
 - Add `style="color/background"` inline overrides on top of admin badge classes
 - Skip loading/error states on data-fetching actions
 - Create interactive elements without a visible focus ring
+- Use a raw `<input type="file">` for images in admin — always the Media Library picker (only exception: favicon .ico/.svg)
 
 ---
 
@@ -95,6 +97,7 @@ dashboard. No hardcoded frontend content. Backend controls everything.
 | Pages module | `page-module-skill.md` + `backend-skill.md` |
 | Menu / Navigation | `menu-manager-skill.md` |
 | Media Library | `media-library-skill.md` |
+| Any image/file upload field | `media-library-skill.md` (⭐ Canonical Image Input Standard) |
 | Performance | `performance-skill.md` |
 | Testing / QA | `testing-qa-skill.md` |
 | Documentation | `documentation-skill.md` |

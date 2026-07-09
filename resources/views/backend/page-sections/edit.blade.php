@@ -65,21 +65,20 @@
                         @foreach($mediaSlots as $slot)
                             @php
                                 $slotMedia = $pageSection->mediaSlot($slot['role'], $slot['slot_key']);
-                                $slotInputName = "slot_uploads[{$slot['role']}][{$slot['slot_key']}]";
+                                $slotPathName = "slot_paths[{$slot['role']}][{$slot['slot_key']}]";
+                                $slotPathValue = old("slot_paths.{$slot['role']}.{$slot['slot_key']}", $slotMedia?->path ?? '');
                                 $slotFitName = "slot_object_fits[{$slot['role']}][{$slot['slot_key']}]";
                                 $slotPositionName = "slot_object_positions[{$slot['role']}][{$slot['slot_key']}]";
                                 $slotFit = old("slot_object_fits.{$slot['role']}.{$slot['slot_key']}", $slotMedia?->resolved_object_fit ?? 'cover');
                                 $slotPosition = old("slot_object_positions.{$slot['role']}.{$slot['slot_key']}", $slotMedia?->resolved_object_position ?? 'center center');
                             @endphp
                             <div class="rounded-xl border border-admin bg-admin-card p-4">
-                                <label class="admin-form-label">{{ $slot['label'] }}</label>
-                                <input type="file" name="{{ $slotInputName }}" accept="image/jpeg,image/png,image/webp" class="admin-input">
-                                <p class="mt-2 text-xs text-admin-secondary">{{ $slot['hint'] ?? 'Leave empty to keep current image.' }}</p>
-                                @if($slotMedia?->url)
-                                    <img src="{{ $slotMedia->url }}" alt="{{ $slotMedia->alt }}" class="mt-3 h-32 w-full rounded-lg border bg-admin-card" style="{{ $slotMedia->image_style }}">
-                                @else
-                                    <div class="mt-3 flex h-32 items-center justify-center rounded-lg border border-dashed bg-admin-card text-xs font-bold uppercase text-admin-secondary">No image</div>
-                                @endif
+                                <x-admin.media-image-field
+                                    :name="$slotPathName"
+                                    :value="$slotPathValue"
+                                    :label="$slot['label']"
+                                    collection="section"
+                                    :hint="$slot['hint'] ?? 'Pick from the Media Library or upload. Leave empty to keep current.'" />
                                 @if($supportsMediaDisplayOptions ?? false)
                                     <div class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
                                         <div>
@@ -111,16 +110,20 @@
                 </div>
             @elseif($supportsLegacyImages)
                 <div>
-                    <label class="admin-form-label">Legacy image upload</label>
-                    <input type="file" name="image" accept="image/jpeg,image/png,image/webp" class="admin-input">
-                    <p class="mt-2 text-xs text-admin-secondary">Fallback lama. Leave empty to keep current image.</p>
-                    @if($pageSection->image_url)<img src="{{ $pageSection->image_url }}" alt="{{ $pageSection->title }}" class="mt-3 h-32 w-full rounded-lg border object-cover">@endif
+                    <x-admin.media-image-field
+                        name="image_path"
+                        :value="old('image_path', $pageSection->image)"
+                        label="Section image"
+                        collection="section"
+                        hint="Pick from the Media Library or upload. Leave empty to keep current." />
                 </div>
                 <div>
-                    <label class="admin-form-label">Legacy mobile image upload</label>
-                    <input type="file" name="mobile_image" accept="image/jpeg,image/png,image/webp" class="admin-input">
-                    <p class="mt-2 text-xs text-admin-secondary">Fallback lama. Leave empty to keep current image.</p>
-                    @if($pageSection->mobile_image_url)<img src="{{ $pageSection->mobile_image_url }}" alt="{{ $pageSection->title }}" class="mt-3 h-32 w-full rounded-lg border object-cover">@endif
+                    <x-admin.media-image-field
+                        name="mobile_image_path"
+                        :value="old('mobile_image_path', $pageSection->mobile_image)"
+                        label="Mobile image"
+                        collection="section"
+                        hint="Optional mobile variant." />
                 </div>
             @else
                 <div class="md:col-span-2 rounded-xl border border-admin bg-admin-card p-4">
@@ -129,18 +132,16 @@
                 </div>
             @endif
 
-            @if($supportsLegacyImages)
-                <div><label class="admin-form-label">Legacy image path</label><input type="text" name="image_path" value="{{ old('image_path', $pageSection->image) }}" class="admin-input"></div>
-                <div><label class="admin-form-label">Legacy mobile image path</label><input type="text" name="mobile_image_path" value="{{ old('mobile_image_path', $pageSection->mobile_image) }}" class="admin-input"></div>
-            @endif
-
             @if($allowsGallery)
                 <div class="md:col-span-2">
-                    <label class="admin-form-label">Section gallery images</label>
-                    <input type="file" name="media_uploads[]" accept="image/jpeg,image/png,image/webp" multiple class="admin-input" @disabled($remainingSlots === 0)>
-                    <p class="mt-2 text-xs text-admin-secondary">Upload up to {{ \App\Models\PageSection::MEDIA_LIMIT }} images. Remaining slots: {{ $remainingSlots }}.</p>
-                    @error('media_uploads') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
-                    @error('media_uploads.*') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
+                    <x-admin.media-gallery-field
+                        name="media_paths"
+                        collection="section"
+                        label="Section gallery images"
+                        :max="$remainingSlots"
+                        :hint="'Pick or upload up to '.\App\Models\PageSection::MEDIA_LIMIT.' images via the Media Library. Remaining slots: '.$remainingSlots.'.'" />
+                    @error('media_paths') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
+                    @error('media_paths.*') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
                 </div>
             @endif
 

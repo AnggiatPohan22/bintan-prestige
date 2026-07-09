@@ -52,6 +52,7 @@ class CategoryDestinationDisplayState
     ): array {
         $name = self::displayText($category->name) ?: 'Category';
         $description = self::displayText($category->description);
+        $media = self::categoryMediaState($category);
         $baseParameters = [
             'category' => [(string) $category->id],
         ];
@@ -70,10 +71,11 @@ class CategoryDestinationDisplayState
             'pageTitle' => $name,
             'description' => $description,
             'descriptionState' => self::descriptionState($description),
+            'media' => $media,
             'mediaStrategy' => [
-                'type' => 'text_first',
-                'available' => false,
-                'reason' => 'Category has no public image field.',
+                'type' => $media['available'] ? 'image_first' : 'text_first',
+                'available' => $media['available'],
+                'reason' => $media['available'] ? 'Category image set via Media Library.' : 'Category has no image yet.',
             ],
             'productCount' => $products->total(),
             'products' => $products,
@@ -87,7 +89,36 @@ class CategoryDestinationDisplayState
             'emptyState' => self::emptyState($products, $filterState, $baseUrl, 'category'),
             'cmsIntro' => self::optionalContentState($options['cmsIntro'] ?? []),
             'finalCta' => self::optionalContentState($options['finalCta'] ?? []),
-            'metadataReady' => self::metadataReady($name, $description, null),
+            'metadataReady' => self::metadataReady($name, $description, $media['available'] ? $media : null),
+        ];
+    }
+
+    /**
+     * Category media parity with destinations (Phase 6.1 S5): image only,
+     * no site-asset fallback — categories render text-first when unset.
+     */
+    private static function categoryMediaState(Category $category): array
+    {
+        $name = self::displayText($category->name) ?: 'Category';
+
+        if (filled($category->image)) {
+            return [
+                'available' => true,
+                'url' => asset('storage/' . ltrim($category->image, '/')),
+                'alt' => $name . ' category image',
+                'fit' => null,
+                'is_fallback' => false,
+                'source' => 'category',
+            ];
+        }
+
+        return [
+            'available' => false,
+            'url' => null,
+            'alt' => $name . ' category image',
+            'fit' => null,
+            'is_fallback' => false,
+            'source' => 'none',
         ];
     }
 

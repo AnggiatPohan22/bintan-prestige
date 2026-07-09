@@ -7,6 +7,7 @@ use App\Models\PageBlock;
 use App\Models\PageTemplate;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class PageManagementTest extends TestCase
@@ -249,6 +250,48 @@ class PageManagementTest extends TestCase
         }
 
         $this->assertDatabaseCount('pages', 0);
+    }
+
+    public function test_page_og_image_is_set_from_a_media_library_path(): void
+    {
+        $admin = $this->admin();
+
+        $this->actingAs($admin)->post(route('admin.pages.store'), [
+            'title' => 'OG Page',
+            'slug' => 'og-page',
+            'status' => 'draft',
+            'og_image' => 'media/content/2026/07/og.webp',
+        ])->assertRedirect(route('admin.pages.index'));
+
+        $this->assertDatabaseHas('pages', [
+            'slug' => 'og-page',
+            'og_image' => 'media/content/2026/07/og.webp',
+        ]);
+    }
+
+    public function test_deleting_a_page_preserves_a_media_library_og_image_but_clears_a_legacy_upload(): void
+    {
+        Storage::fake('public');
+        $admin = $this->admin();
+
+        Storage::disk('public')->put('media/content/2026/07/lib-og.webp', 'x');
+        Storage::disk('public')->put('pages/legacy-og.webp', 'x');
+
+        $libraryPage = Page::create([
+            'title' => 'Library OG', 'slug' => 'library-og', 'status' => 'draft',
+            'og_image' => 'media/content/2026/07/lib-og.webp',
+        ]);
+        $legacyPage = Page::create([
+            'title' => 'Legacy OG', 'slug' => 'legacy-og', 'status' => 'draft',
+            'og_image' => 'pages/legacy-og.webp',
+        ]);
+
+        $this->actingAs($admin)->delete(route('admin.pages.destroy', $libraryPage))->assertRedirect();
+        $this->actingAs($admin)->delete(route('admin.pages.destroy', $legacyPage))->assertRedirect();
+
+        // Library file survives; legacy module upload is cleaned up.
+        Storage::disk('public')->assertExists('media/content/2026/07/lib-og.webp');
+        Storage::disk('public')->assertMissing('pages/legacy-og.webp');
     }
 
     private function admin(): User

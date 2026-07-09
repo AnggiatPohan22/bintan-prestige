@@ -386,6 +386,31 @@ Admin     → Button, Card/Panel, Form Group, Table Row, Sidebar Item, Toast
 </div>
 ```
 
+### Admin Image Field — Media Library picker ⭐ (use for ALL admin image inputs)
+
+Never use a raw `<input type="file">` for images in admin. These route through the
+Media Library (upload + browse + preview), submit a storage **path string**, and are
+usage-tracked. Full rules: `ai/skills/media-library-skill.md` ⭐ Canonical Image Input Standard.
+
+```blade
+{{-- Single image --}}
+<x-admin.media-image-field
+    name="thumbnail"
+    :value="old('thumbnail', $model->thumbnail ?? '')"
+    label="Thumbnail"
+    collection="product"          {{-- hero|product|category|destination|logo|icon|gallery|section|content|general --}}
+    hint="Recommended 1200×800px." />
+
+{{-- Multiple images --}}
+<x-admin.media-gallery-field
+    name="gallery" collection="product" label="Gallery" :max="10" />
+```
+
+Backend: column `string(500)` nullable (no `media_id` FK), FormRequest rule `string`,
+controller reads `$request->input('name')`, register the column in
+`MediaService::DIRECT_REFERENCES`, and only delete the module's own legacy files
+(never a `media/…` path).
+
 ### Admin Table Row
 
 ```blade

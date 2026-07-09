@@ -58,6 +58,7 @@ Before working, read this file + the skill(s) below that match your task.
 | Pages module (About, Contact, etc.) | `page-module-skill.md` + `backend-skill.md` |
 | Menu / Navigation | `menu-manager-skill.md` + `backend-skill.md` |
 | Media Library | `media-library-skill.md` |
+| **Any image/file upload field (admin)** | `media-library-skill.md` — see its ⭐ Canonical Image Input Standard |
 | Performance / Cache | `performance-skill.md` |
 | Testing / QA | `testing-qa-skill.md` |
 | Documentation | `documentation-skill.md` |
@@ -176,10 +177,14 @@ Owner UI scheme is now **Navy + gold** (DB-stored: `site_settings` brand_colors 
 `admin_dashboard_appearances` preset `navy-light`). Guards: never `config:cache`
 in dev; `tests/TestCase.php` refuses non-sqlite test DB.
 
-**Phase 6.1 — CURRENT (interim, before Phase 7)**
-Dashboard & Media UX: sidebar accordion + sticky, category images,
-Media-Library-first uploads, media picker modal upload + theming, organized
-media folder structure. Plan + handoff: `ai/reports/phase-6.1/`.
+**Phase 6.1 — COMPLETE ✅ (2026-07-08, interim before Phase 7)**
+Dashboard & Media UX: sidebar accordion + sticky fix (`overflow-x: clip`),
+media collections (`media.collection` + `config/media.php`), picker modal
+upload + theme parity, `<x-admin.media-image-field>` component, category image
+(`categories.image` + frontend landing parity), destinations → picker,
+`navy-light` as first-class admin preset (config/admin_palettes.php).
+Suite **850/850** | PHPStan level 5: 0 errors.
+Plan + handoff + staged follow-ups: `ai/reports/phase-6.1/`.
 
 **Phase 7 — FUTURE**
 Internationalization — multi-language content for Bintan tourism market.
@@ -252,6 +257,18 @@ Every new module must follow this sequence:
 - Remove existing documentation
 - Install new packages
 - Change authentication or authorization logic
+
+**Image / file inputs — PATENT RULE (mandatory, no exceptions but favicon):**
+- **Every** admin image/file field goes through the Media Library via
+  `<x-admin.media-image-field>` (single) or `<x-admin.media-gallery-field>`
+  (multiple). A raw `<input type="file">` in an admin form is not allowed.
+- Store the returned **path string** (`string(500)` nullable) — no `media_id` FK,
+  no schema change. FormRequest rule = `string`, never `image|mimes`.
+- On replace/delete, only remove the module's own legacy files (`products/`,
+  `pages/`, `site-assets/`, `page-sections/`); **never** delete a `media/…` path.
+- Register the new column in `MediaService::DIRECT_REFERENCES`.
+- Full pattern + checklist: `ai/skills/media-library-skill.md` (⭐ Canonical
+  Image Input Standard). Only exception: favicon (raw `.ico`/`.svg` upload).
 
 **Always do these:**
 - Inspect existing files before editing

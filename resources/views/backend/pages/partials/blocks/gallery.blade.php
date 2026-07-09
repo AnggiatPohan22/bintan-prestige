@@ -28,7 +28,7 @@
                 <button type="button" x-on:click="addImage()" class="admin-btn-soft px-3 py-1.5 text-xs">
                     <i class="fa-solid fa-link mr-1"></i>Add URL
                 </button>
-                <button type="button" x-on:click="$dispatch('open-media-picker', { target: pickerTarget })" class="admin-btn-soft px-3 py-1.5 text-xs">
+                <button type="button" x-on:click="$dispatch('open-media-picker', { target: pickerTarget, collection: 'gallery' })" class="admin-btn-soft px-3 py-1.5 text-xs">
                     <i class="fa-solid fa-photo-film mr-1"></i>Media Library
                 </button>
             </div>
@@ -247,6 +247,7 @@ function galleryBlock(blockData, pickerTarget) {
                 try {
                     const form = new FormData();
                     form.append('files[]', file);
+                    form.append('collection', 'gallery');
                     form.append('_token', token);
 
                     const res  = await fetch('{{ route('admin.media.upload-batch') }}', { method: 'POST', body: form });

@@ -34,6 +34,7 @@ class UpdateDestinationRequest extends FormRequest
             ],
             'description' => ['nullable', 'string'],
             'image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'extensions:jpg,jpeg,png,webp', 'max:2048'],
+            'image_path' => ['nullable', 'string', 'max:500'],
             'is_active' => ['nullable', 'boolean'],
         ];
     }

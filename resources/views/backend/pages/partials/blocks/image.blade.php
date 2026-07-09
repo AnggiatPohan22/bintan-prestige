@@ -4,7 +4,8 @@
         @js(old('data.src', $block->data['src'] ?? '')),
         'image-block-{{ $block->id }}',
         @js(old('data.alt', $block->data['alt'] ?? '')),
-        @js(old('data.caption', $block->data['caption'] ?? ''))
+        @js(old('data.caption', $block->data['caption'] ?? '')),
+        'content'
     )"
     x-on:media-picker-selected.window="selectMedia($event.detail)"
 >
@@ -34,7 +35,7 @@
                 >
             </label>
             <button type="button" class="admin-btn-secondary whitespace-nowrap px-4 py-2 text-sm"
-                    x-on:click="$dispatch('open-media-picker', { target: pickerTarget })">
+                    x-on:click="$dispatch('open-media-picker', { target: pickerTarget, collection: collection })">
                 Media Library
             </button>
         </div>

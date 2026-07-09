@@ -23,6 +23,7 @@ class MediaService
 
     private const DIRECT_REFERENCES = [
         'pages' => ['og_image'],
+        'categories' => ['image'],
         'page_templates' => ['preview_image'],
         'products' => ['thumbnail', 'og_image'],
         'product_images' => ['image'],
@@ -37,26 +38,32 @@ class MediaService
         protected ImageOptimizationService $imageService,
     ) {}
 
-    public function store(UploadedFile $file, ?User $uploader = null): Media
+    public function store(UploadedFile $file, ?User $uploader = null, ?string $collection = null): Media
     {
         $this->validateUpload($file);
 
-        $folder = 'media/'.now()->format('Y/m');
+        $collection = $this->resolveCollection($collection);
+        $folder = 'media/'.$collection.'/'.now()->format('Y/m');
         $originalName = $file->getClientOriginalName();
         $mime = (string) $file->getMimeType();
         $path = null;
 
+        $preserveOriginal = in_array($collection, (array) config('media.preserve_original_collections', []), true);
+
         try {
-            if (in_array($mime, self::OPTIMIZABLE, true)) {
+            if (! $preserveOriginal && in_array($mime, self::OPTIMIZABLE, true)) {
                 $path = $this->imageService->upload($file, $folder);
                 $extension = 'webp';
                 $mimeType = 'image/webp';
             } else {
-                // Preserve animated GIF frames instead of passing them through GD.
-                $filename = Str::uuid().'.gif';
+                // Store the original bytes untouched. Applies to:
+                //  - animated GIFs (never flatten via GD), and
+                //  - preserve-original collections (logo/icon) where transparency
+                //    and crisp edges matter more than re-encoding to WebP.
+                $extension = $this->originalExtension($file);
+                $filename = Str::uuid().'.'.$extension;
                 $path = $file->storeAs($folder, $filename, 'public');
-                $extension = 'gif';
-                $mimeType = 'image/gif';
+                $mimeType = $file->getMimeType() ?: 'image/'.$extension;
             }
 
             if (! is_string($path) || $path === '') {
@@ -77,6 +84,7 @@ class MediaService
                 'height' => $height,
                 'path' => $path,
                 'disk' => 'public',
+                'collection' => $collection,
                 'uploaded_by' => $uploader?->id,
             ]);
         } catch (Throwable $exception) {
@@ -118,6 +126,7 @@ class MediaService
             ->with('uploader:id,name')
             ->search($filters['search'] ?? null)
             ->extension($filters['extension'] ?? null)
+            ->collection($filters['collection'] ?? null)
             ->latest()
             ->paginate($perPage)
             ->withQueryString();
@@ -181,6 +190,38 @@ class MediaService
             ->orderBy('extension')
             ->pluck('extension')
             ->all();
+    }
+
+    /**
+     * Collections drive the storage folder (media/{collection}/YYYY/MM).
+     * Unknown values fall back to the configured default so a stale client
+     * can never write outside the media tree.
+     */
+    private function resolveCollection(?string $collection): string
+    {
+        $collection = trim((string) $collection);
+        $known = array_keys((array) config('media.collections', []));
+
+        if ($collection !== '' && in_array($collection, $known, true)) {
+            return $collection;
+        }
+
+        return (string) config('media.default_collection', 'general');
+    }
+
+    /**
+     * Safe, lowercased original extension constrained to the allowed set.
+     * `jpeg` is normalised to `jpg` so stored filenames stay consistent.
+     */
+    private function originalExtension(UploadedFile $file): string
+    {
+        $extension = strtolower($file->getClientOriginalExtension() ?: (string) $file->guessExtension());
+
+        if ($extension === 'jpeg') {
+            $extension = 'jpg';
+        }
+
+        return in_array($extension, self::ALLOWED_EXTENSIONS, true) ? $extension : 'png';
     }
 
     private function validateUpload(UploadedFile $file): void

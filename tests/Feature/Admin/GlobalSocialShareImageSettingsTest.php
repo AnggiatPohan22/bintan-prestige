@@ -5,7 +5,6 @@ namespace Tests\Feature\Admin;
 use App\Models\SiteAsset;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
@@ -13,15 +12,17 @@ class GlobalSocialShareImageSettingsTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_admin_can_manage_default_social_share_image_from_global_assets_settings(): void
+    public function test_admin_can_set_default_social_share_image_from_the_media_library(): void
     {
         Storage::fake('public');
+        // Simulate an image already in the Media Library (what the picker returns).
+        Storage::disk('public')->put('media/content/2026/07/share.webp', 'x');
 
         $admin = User::factory()->admin()->create();
 
         $response = $this->actingAs($admin)
             ->put(route('admin.settings.global-assets.social-share-image.update'), [
-                'social_share_image' => UploadedFile::fake()->image('share.jpg', 1200, 630),
+                'social_share_image' => 'media/content/2026/07/share.webp',
                 'social_share_image_alt' => 'Bintan Prestige default social share image',
             ]);
 
@@ -30,12 +31,10 @@ class GlobalSocialShareImageSettingsTest extends TestCase
         $this->assertDatabaseHas('site_assets', [
             'key' => 'site.social_share.default_image',
             'label' => 'Default social share image',
+            'path' => 'media/content/2026/07/share.webp',
             'alt' => 'Bintan Prestige default social share image',
             'is_active' => true,
         ]);
-
-        $shareImage = SiteAsset::where('key', 'site.social_share.default_image')->firstOrFail();
-        Storage::disk('public')->assertExists($shareImage->path);
 
         $deleteResponse = $this->actingAs($admin)
             ->delete(route('admin.settings.global-assets.social-share-image.destroy'));
@@ -48,7 +47,8 @@ class GlobalSocialShareImageSettingsTest extends TestCase
             'is_active' => false,
         ]);
 
-        Storage::disk('public')->assertMissing($shareImage->path);
+        // Detaching the asset must NOT delete the Media Library file (library-owned).
+        Storage::disk('public')->assertExists('media/content/2026/07/share.webp');
     }
 
     public function test_social_share_image_tab_only_shows_share_image_form(): void
@@ -60,7 +60,8 @@ class GlobalSocialShareImageSettingsTest extends TestCase
 
         $response->assertOk();
         $response->assertSee('Default Social Share Image');
-        $response->assertSee('Recommended size: 1200 x 630 px');
+        $response->assertSee('Recommended 1200 x 630 px');
+        $response->assertSee('Media Library');
         $response->assertDontSee('Upload favicon');
         $response->assertDontSee('Site Logo Variants');
     }

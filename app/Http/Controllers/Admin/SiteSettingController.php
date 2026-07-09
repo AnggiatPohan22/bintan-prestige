@@ -161,7 +161,7 @@ class SiteSettingController extends Controller
     {
         $validated = $request->validate([
             'logos' => ['nullable', 'array'],
-            'logos.*' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'extensions:jpg,jpeg,png,webp', 'max:2048'],
+            'logos.*' => ['nullable', 'string', 'max:500'],
             'logo_alts' => ['nullable', 'array'],
             'logo_alts.*' => ['nullable', 'string', 'max:255'],
         ]);
@@ -169,10 +169,11 @@ class SiteSettingController extends Controller
         foreach ($this->logoVariants() as $variant) {
             $slug = $variant['slug'];
             $alt = $validated['logo_alts'][$slug] ?? null;
+            $path = $validated['logos'][$slug] ?? null;
 
-            if ($request->hasFile("logos.$slug")) {
-                $this->imageService->storeSiteAssetUpload(
-                    $request->file("logos.$slug"),
+            if (filled($path)) {
+                $this->imageService->setSiteAssetPath(
+                    $path,
                     $variant['key'],
                     $variant['label'],
                     $alt
@@ -287,14 +288,14 @@ class SiteSettingController extends Controller
     public function updateSocialShareImage(Request $request)
     {
         $validated = $request->validate([
-            'social_share_image' => ['required', 'image', 'mimes:jpg,jpeg,png,webp', 'extensions:jpg,jpeg,png,webp', 'max:4096'],
+            'social_share_image' => ['required', 'string', 'max:500'],
             'social_share_image_alt' => ['nullable', 'string', 'max:255'],
         ]);
 
         $asset = $this->socialShareConfig();
 
-        $this->imageService->storeSiteAssetUpload(
-            $request->file('social_share_image'),
+        $this->imageService->setSiteAssetPath(
+            $validated['social_share_image'],
             $asset['key'],
             $asset['label'],
             $validated['social_share_image_alt'] ?? null
@@ -605,7 +606,7 @@ class SiteSettingController extends Controller
             };
         }
 
-        $rules['seo_default_og_image'] = ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'extensions:jpg,jpeg,png,webp', 'max:4096'];
+        $rules['seo_default_og_image'] = ['nullable', 'string', 'max:500'];
 
         $validated = $request->validate($rules);
         $settings = $validated['seo_default'] ?? [];
@@ -625,9 +626,9 @@ class SiteSettingController extends Controller
             );
         }
 
-        if ($request->hasFile('seo_default_og_image')) {
-            $this->imageService->storeSiteAssetUpload(
-                $request->file('seo_default_og_image'),
+        if (filled($validated['seo_default_og_image'] ?? null)) {
+            $this->imageService->setSiteAssetPath(
+                $validated['seo_default_og_image'],
                 SeoDefaultSettings::OG_IMAGE_KEY,
                 'Default SEO OG image',
                 $settings['og_image_alt'] ?? null
@@ -747,7 +748,7 @@ class SiteSettingController extends Controller
     {
         $validated = $request->validate([
             'default_media' => ['nullable', 'array'],
-            'default_media.*' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'extensions:jpg,jpeg,png,webp', 'max:4096'],
+            'default_media.*' => ['nullable', 'string', 'max:500'],
             'default_media_alts' => ['nullable', 'array'],
             'default_media_alts.*' => ['nullable', 'string', 'max:255'],
             'default_media_fits' => ['nullable', 'array'],
@@ -772,9 +773,11 @@ class SiteSettingController extends Controller
                 );
             }
 
-            if ($request->hasFile("default_media.$slug")) {
-                $this->imageService->storeSiteAssetUpload(
-                    $request->file("default_media.$slug"),
+            $path = $validated['default_media'][$slug] ?? null;
+
+            if (filled($path)) {
+                $this->imageService->setSiteAssetPath(
+                    $path,
                     $variant['key'],
                     $variant['label'],
                     $alt

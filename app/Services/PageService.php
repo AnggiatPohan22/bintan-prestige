@@ -11,10 +11,6 @@ use Illuminate\Support\Str;
 
 class PageService
 {
-    public function __construct(
-        protected ImageOptimizationService $imageService,
-    ) {}
-
     public function store(Request $request): Page
     {
         $publishAt = $request->filled('publish_at') ? $request->date('publish_at') : null;
@@ -30,8 +26,9 @@ class PageService
             'sort_order'       => $request->input('sort_order', 0),
         ];
 
-        if ($request->hasFile('og_image')) {
-            $data['og_image'] = $this->imageService->upload($request->file('og_image'), 'pages');
+        $ogImage = trim((string) $request->input('og_image', ''));
+        if ($ogImage !== '') {
+            $data['og_image'] = $ogImage;
         }
 
         return Page::create($data);
@@ -54,9 +51,10 @@ class PageService
             'sort_order'       => $request->input('sort_order', 0),
         ];
 
-        if ($request->hasFile('og_image')) {
+        $ogImage = trim((string) $request->input('og_image', ''));
+        if ($ogImage !== $page->og_image) {
             $this->deleteOgImage($page);
-            $data['og_image'] = $this->imageService->upload($request->file('og_image'), 'pages');
+            $data['og_image'] = $ogImage !== '' ? $ogImage : null;
         }
 
         $page->update($data);
@@ -107,7 +105,12 @@ class PageService
 
     public function deleteOgImage(Page $page): void
     {
-        if ($page->og_image && Storage::disk('public')->exists($page->og_image)) {
+        // Only remove a legacy module upload (pages/…). Media Library files
+        // (media/…) belong to the library and are usage-tracked + delete-guarded
+        // there, so they must never be deleted from here.
+        if ($page->og_image
+            && str_starts_with($page->og_image, 'pages/')
+            && Storage::disk('public')->exists($page->og_image)) {
             Storage::disk('public')->delete($page->og_image);
         }
     }

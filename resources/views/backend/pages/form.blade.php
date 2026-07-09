@@ -157,34 +157,15 @@
             </div>
 
             <div>
-                <label for="og_image" class="admin-form-label">OG Image</label>
-
-                @if(isset($page) && $page->og_image)
-                    <div class="mb-3 flex items-center gap-4">
-                        <img
-                            src="{{ asset('storage/' . $page->og_image) }}"
-                            alt="OG image preview"
-                            class="h-20 w-36 rounded-lg object-cover shadow"
-                        >
-                        <p class="text-sm text-admin-secondary">
-                            Current OG image. Upload a new one to replace it.
-                        </p>
-                    </div>
-                @endif
-
-                <input
-                    id="og_image"
-                    type="file"
+                <x-admin.media-image-field
                     name="og_image"
-                    accept="image/*"
-                    class="admin-input @error('og_image') border-red-300 focus:border-red-500 focus:ring-red-500 @enderror"
-                >
+                    :value="old('og_image', $page->og_image ?? '')"
+                    label="OG Image"
+                    collection="content"
+                    hint="Recommended 1200×630px. Defaults to the global OG image if empty." />
                 @error('og_image')
                     <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                 @enderror
-                <p class="mt-1 text-xs text-admin-secondary">
-                    Max 2MB. Recommended: 1200×630px. Defaults to global OG image if empty.
-                </p>
             </div>
         </div>
     </div>

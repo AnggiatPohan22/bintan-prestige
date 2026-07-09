@@ -2,7 +2,11 @@
     x-data="{
         open: false,
         target: null,
-        pickerUrl: @js(route('admin.media.index', ['picker' => 1])),
+        hint: '',
+        pickerBase: @js(route('admin.media.index', ['picker' => 1])),
+        get pickerUrl() {
+            return this.hint ? `${this.pickerBase}&hint=${encodeURIComponent(this.hint)}` : this.pickerBase;
+        },
         init() {
             window.addEventListener('message', (event) => {
                 if (event.origin !== window.location.origin || event.data?.type !== 'media-selected' || ! this.open) return;
@@ -14,7 +18,7 @@
             });
         },
     }"
-    x-on:open-media-picker.window="target = $event.detail.target; open = true"
+    x-on:open-media-picker.window="target = $event.detail.target; hint = $event.detail.collection || ''; open = true"
     x-on:keydown.escape.window="open = false; target = null"
 >
     <div x-show="open" x-cloak class="fixed inset-0 z-[70]" style="display:none">
@@ -35,12 +39,13 @@
 @once
 @push('scripts')
 <script>
-window.imageUploader = function(initialPath, pickerTarget, initialAlt = '', initialCaption = '') {
+window.imageUploader = function(initialPath, pickerTarget, initialAlt = '', initialCaption = '', collection = '') {
     return {
         path: initialPath,
         alt: initialAlt,
         caption: initialCaption,
         pickerTarget,
+        collection,
         uploading: false,
         error: '',
         get preview() {
@@ -61,6 +66,7 @@ window.imageUploader = function(initialPath, pickerTarget, initialAlt = '', init
             this.error = '';
             const form = new FormData();
             form.append('image', file);
+            if (this.collection) form.append('collection', this.collection);
             form.append('_token', document.querySelector('meta[name="csrf-token"]').content);
             try {
                 const response = await fetch(@js(route('admin.media.upload-quick')), { method: 'POST', body: form });

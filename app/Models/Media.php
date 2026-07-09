@@ -20,6 +20,7 @@ class Media extends Model
         'height',
         'path',
         'disk',
+        'collection',
         'alt',
         'caption',
         'uploaded_by',
@@ -88,5 +89,30 @@ class Media extends Model
         }
 
         return $query->where('extension', $extension);
+    }
+
+    public function scopeCollection(Builder $query, ?string $collection): Builder
+    {
+        $collection = trim((string) $collection);
+
+        if ($collection === '') {
+            return $query;
+        }
+
+        // Legacy uploads predate collections and carry NULL.
+        if ($collection === 'uncategorized') {
+            return $query->whereNull('collection');
+        }
+
+        return $query->where('collection', $collection);
+    }
+
+    public function collectionLabel(): string
+    {
+        if ($this->collection === null) {
+            return 'Uncategorized';
+        }
+
+        return config('media.collections')[$this->collection] ?? ucfirst($this->collection);
     }
 }

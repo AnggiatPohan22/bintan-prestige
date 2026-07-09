@@ -41,26 +41,34 @@ class ImageOptimizationService
             $file->getMimeType();
 
         // create source image
+        //
+        // The imagecreatefrom* calls are warning-suppressed with '@' on purpose:
+        // many otherwise-valid images (e.g. PNGs exported by Photoshop/Canva)
+        // carry a non-standard colour profile, which makes libpng emit a
+        // non-fatal warning ("iCCP: known incorrect sRGB profile"). GD still
+        // decodes the image, but Laravel's error handler upgrades that warning
+        // to an ErrorException and aborts the upload. Suppressing lets the load
+        // continue; a genuinely unreadable file returns false and is handled below.
         switch ($mime) {
 
             case 'image/jpeg':
             case 'image/jpg':
                 $source =
-                    imagecreatefromjpeg(
+                    @imagecreatefromjpeg(
                         $file->getRealPath()
                     );
                 break;
 
             case 'image/png':
                 $source =
-                    imagecreatefrompng(
+                    @imagecreatefrompng(
                         $file->getRealPath()
                     );
                 break;
 
             case 'image/webp':
                 $source =
-                    imagecreatefromwebp(
+                    @imagecreatefromwebp(
                         $file->getRealPath()
                     );
                 break;
@@ -69,6 +77,13 @@ class ImageOptimizationService
                 throw new \Exception(
                     'Unsupported image type.'
                 );
+        }
+
+        // A false result means the file is genuinely corrupt/unreadable.
+        if ($source === false) {
+            throw new \Exception(
+                'The image could not be read.'
+            );
         }
 
         // get dimensions
@@ -102,6 +117,15 @@ class ImageOptimizationService
                 $newWidth,
                 $newHeight
             );
+
+        // Preserve alpha transparency. imagecreatetruecolor() starts opaque
+        // black; without these calls a transparent PNG/WebP would flatten to a
+        // black background. WebP fully supports alpha, so the output stays
+        // transparent. (Harmless for opaque JPEGs.)
+        imagealphablending($optimized, false);
+        imagesavealpha($optimized, true);
+        $transparent = imagecolorallocatealpha($optimized, 0, 0, 0, 127);
+        imagefill($optimized, 0, 0, $transparent);
 
         // resize
         imagecopyresampled(

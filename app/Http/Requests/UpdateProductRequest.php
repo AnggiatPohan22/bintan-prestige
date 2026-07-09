@@ -43,22 +43,19 @@ class UpdateProductRequest
 
             'thumbnail' => [
                 'nullable',
-                'image',
-                'mimes:jpg,jpeg,png,webp',
-                'extensions:jpg,jpeg,png,webp',
-                'max:2048'
+                'string',
+                'max:500'
             ],
 
             'gallery' => [
                 'nullable',
                 'array',
+                'max:10',
             ],
 
             'gallery.*' => [
-                'image',
-                'mimes:jpg,jpeg,png,webp',
-                'extensions:jpg,jpeg,png,webp',
-                'max:2048',
+                'string',
+                'max:500',
             ],
 
             'pickup_available' => ['nullable'],

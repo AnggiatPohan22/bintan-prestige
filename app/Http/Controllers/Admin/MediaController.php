@@ -24,6 +24,7 @@ class MediaController extends Controller
         $media = $this->mediaService->list([
             'search' => $request->query('search'),
             'extension' => $request->query('type'),
+            'collection' => $request->query('collection'),
         ]);
 
         $view = $request->boolean('picker')
@@ -33,8 +34,11 @@ class MediaController extends Controller
         return view($view, [
             'media' => $media,
             'extensions' => $this->mediaService->availableExtensions(),
+            'collections' => config('media.collections', []),
             'search' => $request->query('search'),
             'activeType' => $request->query('type'),
+            'activeCollection' => $request->query('collection'),
+            'pickerHint' => $request->query('hint'),
             'orphanCount' => $request->boolean('picker') ? 0 : count($this->mediaService->orphanedFiles()),
         ]);
     }
@@ -44,7 +48,7 @@ class MediaController extends Controller
         $created = [];
 
         foreach ($request->file('files', []) as $file) {
-            $created[] = $this->mediaService->store($file, $request->user());
+            $created[] = $this->mediaService->store($file, $request->user(), $request->input('collection'));
         }
 
         if ($request->expectsJson()) {
@@ -103,12 +107,13 @@ class MediaController extends Controller
         $request->validate([
             'files' => ['required', 'array', 'max:20'],
             'files.*' => ['required', 'image', 'mimes:jpg,jpeg,png,gif,webp', 'extensions:jpg,jpeg,png,gif,webp', 'max:5120'],
+            'collection' => ['nullable', 'string', 'max:50'],
         ]);
 
         $results = [];
 
         foreach ($request->file('files') as $file) {
-            $media = $this->mediaService->store($file, $request->user());
+            $media = $this->mediaService->store($file, $request->user(), $request->input('collection'));
             $results[] = $this->payload($media);
         }
 
@@ -123,9 +128,10 @@ class MediaController extends Controller
     {
         $request->validate([
             'image' => ['required', 'image', 'mimes:jpg,jpeg,png,gif,webp', 'extensions:jpg,jpeg,png,gif,webp', 'max:5120'],
+            'collection' => ['nullable', 'string', 'max:50'],
         ]);
 
-        $media = $this->mediaService->store($request->file('image'), $request->user());
+        $media = $this->mediaService->store($request->file('image'), $request->user(), $request->input('collection'));
 
         return response()->json($this->payload($media) + ['success' => true]);
     }
@@ -140,6 +146,7 @@ class MediaController extends Controller
             'filename' => $media->original_name,
             'alt' => $media->alt,
             'caption' => $media->caption,
+            'collection' => $media->collection,
         ];
     }
 }

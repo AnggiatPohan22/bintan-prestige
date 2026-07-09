@@ -31,6 +31,7 @@
             this.bgError = '';
             const form = new FormData();
             form.append('image', file);
+            form.append('collection', 'section');
             form.append('_token', document.querySelector('meta[name=csrf-token]').content);
             try {
                 const res = await fetch('{{ route('admin.media.upload-quick') }}', { method: 'POST', body: form });
@@ -115,7 +116,7 @@
                     <input type="file" accept="image/jpeg,image/png,image/webp" class="hidden" x-on:change="uploadBg($event)">
                 </label>
                 <button type="button" class="admin-btn-secondary whitespace-nowrap px-3 py-2 text-xs"
-                        x-on:click="$dispatch('open-media-picker', { target: pickerTarget })">
+                        x-on:click="$dispatch('open-media-picker', { target: pickerTarget, collection: 'section' })">
                     Library
                 </button>
             </div>

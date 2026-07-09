@@ -110,8 +110,12 @@ class PageSectionController extends Controller
             'mobile_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'extensions:jpg,jpeg,png,webp', 'max:2048'],
             'slot_uploads' => ['nullable', 'array'],
             'slot_uploads.*.*' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'extensions:jpg,jpeg,png,webp', 'max:2048'],
+            'slot_paths' => ['nullable', 'array'],
+            'slot_paths.*.*' => ['nullable', 'string', 'max:500'],
             'media_uploads' => ['nullable', 'array', 'max:' . PageSection::MEDIA_LIMIT],
             'media_uploads.*' => ['image', 'mimes:jpg,jpeg,png,webp', 'extensions:jpg,jpeg,png,webp', 'max:2048'],
+            'media_paths' => ['nullable', 'array', 'max:' . PageSection::MEDIA_LIMIT],
+            'media_paths.*' => ['string', 'max:500'],
             'extra_data' => ['nullable', 'json'],
             'animation' => ['nullable', 'string', 'in:' . implode(',', PageSection::ANIMATION_OPTIONS)],
             'is_active' => ['nullable', 'boolean'],
@@ -127,20 +131,23 @@ class PageSectionController extends Controller
 
         $validated = $request->validate($rules);
 
-        $uploadedMedia = Arr::wrap($request->file('media_uploads', []));
+        $mediaPaths = array_values(array_filter(
+            Arr::wrap($validated['media_paths'] ?? []),
+            fn ($path) => is_string($path) && trim($path) !== '',
+        ));
         $mediaCount = $pageSection->media()
             ->where('role', 'gallery')
             ->count();
 
-        if (! $allowsGallery && count($uploadedMedia)) {
+        if (! $allowsGallery && count($mediaPaths)) {
             return back()
-                ->withErrors(['media_uploads' => 'Gallery upload is not enabled for this section.'])
+                ->withErrors(['media_paths' => 'Gallery images are not enabled for this section.'])
                 ->withInput();
         }
 
-        if ($allowsGallery && $mediaCount + count($uploadedMedia) > PageSection::MEDIA_LIMIT) {
+        if ($allowsGallery && $mediaCount + count($mediaPaths) > PageSection::MEDIA_LIMIT) {
             return back()
-                ->withErrors(['media_uploads' => 'Maximum ' . PageSection::MEDIA_LIMIT . ' gallery images are allowed for each section.'])
+                ->withErrors(['media_paths' => 'Maximum ' . PageSection::MEDIA_LIMIT . ' gallery images are allowed for each section.'])
                 ->withInput();
         }
 
@@ -180,7 +187,9 @@ class PageSectionController extends Controller
             $objectFit = $supportsMediaDisplayOptions ? ($validated['slot_object_fits'][$role][$slotKey] ?? null) : null;
             $objectPosition = $supportsMediaDisplayOptions ? ($validated['slot_object_positions'][$role][$slotKey] ?? null) : null;
 
-            if (! $request->hasFile("slot_uploads.$role.$slotKey")) {
+            $slotPath = $validated['slot_paths'][$role][$slotKey] ?? null;
+
+            if (! is_string($slotPath) || trim($slotPath) === '') {
                 if ($supportsMediaDisplayOptions) {
                     $pageSection->media()
                         ->where('role', $role)
@@ -194,21 +203,19 @@ class PageSectionController extends Controller
                 continue;
             }
 
-            $this->imageService->storeSlotUpload(
-                $request->file("slot_uploads.$role.$slotKey"),
+            $this->imageService->setSlotPath(
                 $pageSection,
                 $role,
                 $slotKey,
                 $slot['label'],
+                trim($slotPath),
                 $objectFit,
                 $objectPosition
             );
         }
 
-        if ($allowsGallery) {
-            foreach ($uploadedMedia as $mediaFile) {
-                $this->imageService->storeMediaUpload($mediaFile, $pageSection, $mediaCount++);
-            }
+        if ($allowsGallery && $mediaPaths !== []) {
+            $this->imageService->attachGalleryPaths($pageSection, $mediaPaths, $mediaCount);
         }
 
         return redirect()->route('admin.page-sections.edit', $pageSection)->with('success', 'Page section updated successfully.');

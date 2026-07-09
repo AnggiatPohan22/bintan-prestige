@@ -5,6 +5,115 @@ Build the Media Library: a central asset manager where admin uploads, organizes,
 searches, and reuses images and files. Integrated with the Block Editor and Page module.
 Extends the existing `ImageOptimizationService` — do not rebuild it.
 
+---
+
+## ⭐ CANONICAL IMAGE / FILE INPUT STANDARD (MANDATORY — since Phase 6.1)
+
+> **Read this before adding ANY image or file field to the admin dashboard.**
+> **Every** admin image/file input MUST go through the Media Library. A raw
+> `<input type="file">` in an admin form is a bug. "One door": all upload +
+> selection flows through the library so assets are centralized, de-duplicated,
+> usage-tracked, and delete-guarded.
+
+### 1. Use the two existing components — build nothing new
+
+**Single image:**
+```blade
+<x-admin.media-image-field
+    name="og_image"                              {{-- submits a storage-relative PATH string --}}
+    :value="old('og_image', $model->og_image ?? '')"
+    label="OG Image"
+    collection="content"                         {{-- routes uploads to media/{collection}/YYYY/MM --}}
+    hint="Recommended 1200×630px." />
+```
+
+**Multiple images (gallery):**
+```blade
+<x-admin.media-gallery-field
+    name="gallery"                               {{-- submits gallery[] = array of PATH strings --}}
+    collection="product"
+    label="Gallery"
+    :max="10" />
+```
+
+Both render: live preview + **Upload** (registers a Media record in the collection)
++ **Media Library** picker (browse/upload, theme-aware, view-mode switcher), and
+include the picker modal `@once`. Files live in
+`resources/views/components/admin/media-image-field.blade.php` and
+`media-gallery-field.blade.php`.
+
+### 2. Collections (`config/media.php`)
+
+Pick the closest key: `hero, product, category, destination, logo, icon, gallery,
+section, content, general` (default). Uploads land in `media/{collection}/YYYY/MM/`.
+`logo`/`icon` are in `preserve_original_collections` (stored as-is — transparent
+PNGs keep transparency + crisp edges); everything else is optimized to
+**alpha-preserving** WebP. Add a new key to the config **before** using it; never
+rename an existing key (paths on disk reference it).
+
+### 3. Backend contract (the pattern for every field)
+
+1. **Store a PATH string. No `media_id` FK, no schema change.** Column =
+   `string(500)` nullable (mirrors `pages.og_image`, `products.thumbnail`,
+   `categories.image`). The picker returns a path; the file already lives in the
+   library.
+2. **FormRequest:** `['nullable','string','max:500']` (single) or
+   `['nullable','array','max:N']` + `field.*` = `['string','max:500']` (multiple).
+   **NEVER** `image|mimes:...` for a picker field.
+3. **Controller/Service:** read `$request->input('field')` (a path) and store it
+   as-is. **Do NOT** call `ImageOptimizationService::upload()` — no re-upload.
+4. **Delete guard (CRITICAL):** on replace/remove, delete **only the module's own
+   legacy files** (prefix like `products/`, `pages/`, `page-sections/`,
+   `site-assets/`). **NEVER** delete a `media/…` path — it belongs to the library.
+   ```php
+   if ($path && str_starts_with($path, 'products/')) {
+       Storage::disk('public')->delete($path);   // legacy module upload only
+   }
+   ```
+5. **Register usage:** add `table => ['column']` to
+   `MediaService::DIRECT_REFERENCES` so the library's "Used ×N" badge + delete
+   guard cover the new field.
+
+### 4. Reference implementations (copy the closest one)
+
+| Shape | Where |
+|---|---|
+| Single path column | `categories.image` — `CategoryService`, `backend/categories/*.blade.php` |
+| Single via `SiteAsset` row | `PageSectionImageService::setSiteAssetPath()` — `SiteSettingController` |
+| Multiple / gallery | `ProductImageService::attachGalleryPaths()` + `<x-admin.media-gallery-field>` |
+| Keyed slots | `PageSectionImageService::setSlotPath()` — `PageSectionController` |
+| OG image + delete-on-page-destroy guard | `PageService` (`deleteOgImage()` guarded to `pages/`) |
+
+### 5. Tests to add (always)
+
+- Store a path → the column/rows hold that exact path.
+- Replace → old **module-owned** file deleted, the `media/…` file **preserved**.
+- Delete → the `media/…` file **preserved**.
+
+Patterns: `ProductMediaLibraryTest`, `GlobalSiteLogoSettingsTest`, `PageManagementTest`,
+`PageSectionMediaSlotTest`.
+
+### 6. The ONLY allowed exception
+
+**Favicon** stays a raw upload (`.ico`/`.svg` are outside
+`MediaService::ALLOWED_EXTENSIONS`, and SVG needs sanitizing). Any *other* new
+SVG/ICO requirement = extend the library first (allowed types + SVG sanitizer),
+do **not** drop in a raw file input.
+
+### 7. New-image-field checklist
+
+- [ ] Column is `string(500)` nullable (no `media_id` FK, no schema churn)
+- [ ] View uses `<x-admin.media-image-field>` / `<x-admin.media-gallery-field>` (zero `<input type="file">`)
+- [ ] Correct `collection` (add to `config/media.php` if new)
+- [ ] FormRequest rule is `string` (not `image|mimes`)
+- [ ] Controller reads the path; no `ImageOptimizationService::upload()` call
+- [ ] Delete guard limited to the module's own legacy prefix
+- [ ] Column added to `MediaService::DIRECT_REFERENCES`
+- [ ] Tests: store + replace-preserves-library + delete-preserves-library
+
+> Full rollout history + rationale: `ai/reports/media/media-library-integration-plan.md`
+> and `ai/reports/media/media-library-audit.md`.
+
 ## Required References
 - `AGENTS.md` — master rules
 - `ai/skills/backend-skill.md` — Laravel MVC patterns

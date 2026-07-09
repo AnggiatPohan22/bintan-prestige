@@ -13,6 +13,17 @@
             </button>
         </div>
 
+        {{-- Collection (drives the storage folder: media/{collection}/YYYY/MM) --}}
+        <div class="mb-4">
+            <label for="upload-collection" class="admin-form-label">Collection</label>
+            <select id="upload-collection" x-model="uploadCollection" class="admin-select">
+                @foreach(config('media.collections', []) as $key => $label)
+                    <option value="{{ $key }}">{{ $label }}</option>
+                @endforeach
+            </select>
+            <p class="admin-form-hint mt-1">Organizes the file by position (Hero, Product, Logo, …).</p>
+        </div>
+
         {{-- Drop zone --}}
         <label
             class="flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed px-6 py-10 text-center transition"

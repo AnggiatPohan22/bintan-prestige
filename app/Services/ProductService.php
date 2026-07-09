@@ -23,24 +23,12 @@ class ProductService
     ): Product {
 
         $thumbnail =
-            null;
-
-        if (
-            $request->hasFile(
-                'thumbnail'
-            )
-        ) {
-
-            $thumbnail =
-                $this
-                ->productImageService
-                ->replaceThumbnail(
-                    new Product(),
-                    $request->file(
-                        'thumbnail'
-                    )
-                );
-        }
+            $this
+            ->productImageService
+            ->resolveThumbnail(
+                new Product(),
+                $request->input('thumbnail')
+            );
 
         $product =
             Product::create([
@@ -123,9 +111,9 @@ class ProductService
         */
 
         $this->productImageService
-            ->uploadGallery(
+            ->attachGalleryPaths(
                 $product,
-                $request->file(
+                $request->input(
                     'gallery',
                     []
                 )
@@ -148,11 +136,9 @@ class ProductService
         $thumbnail =
             $this
             ->productImageService
-            ->replaceThumbnail(
+            ->resolveThumbnail(
                 $product,
-                $request->file(
-                    'thumbnail'
-                )
+                $request->input('thumbnail')
             );
 
         $product->update([
@@ -222,9 +208,9 @@ class ProductService
             );
 
         $this->productImageService
-            ->uploadGallery(
+            ->attachGalleryPaths(
                 $product,
-                $request->file(
+                $request->input(
                     'gallery',
                     []
                 )
