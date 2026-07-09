@@ -43,11 +43,13 @@ class ProductController extends Controller
 
         $categories = Category::query()
             ->where('is_active', true)
+            ->withTranslations() // Phase 7 (B6)
             ->orderBy('name')
             ->get();
 
         $destinations = Destination::query()
             ->where('is_active', true)
+            ->withTranslations() // Phase 7 (B6)
             ->orderBy('name')
             ->get();
 
@@ -144,6 +146,7 @@ class ProductController extends Controller
         $productsQuery = Product::query()
             ->publiclyVisible()
             ->frontendListingReady()
+            ->withTranslations() // Phase 7 (B6) — localize product cards (N+1 guard)
             ->when($hasInvalidFilter, function ($query) {
                 $query->whereRaw('1 = 0');
             })
@@ -820,9 +823,10 @@ class ProductController extends Controller
         $product = Product::query()
             ->publiclyVisible()
             ->where('slug', $slug)
+            ->withTranslations() // Phase 7 (B6) — localize product detail (N+1 guard)
             ->with([
-                'category',
-                'destination',
+                'category' => fn ($q) => $q->withTranslations(),
+                'destination' => fn ($q) => $q->withTranslations(),
                 'prices',
                 'images' => fn ($query) => $query
                     ->orderBy('sort_order')

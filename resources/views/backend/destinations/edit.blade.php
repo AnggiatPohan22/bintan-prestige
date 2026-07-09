@@ -73,6 +73,30 @@
                     <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                 @enderror
             </div>
+
+            {{-- Per-locale translations (Phase 7 — B6) --}}
+            @php $__locales = \App\Support\Locales::nonDefaultActive(); @endphp
+            @foreach($__locales as $__loc)
+                <div class="rounded-xl border border-violet-200 bg-violet-50/40 p-4">
+                    <div class="mb-3 flex items-center gap-2">
+                        <span class="rounded-md bg-violet-600 px-2 py-0.5 text-xs font-bold uppercase text-white">{{ $__loc }}</span>
+                        <span class="text-sm font-bold text-admin-secondary">{{ \App\Support\Locales::label($__loc) ?? strtoupper($__loc) }} translation</span>
+                        <span class="text-xs text-admin-secondary opacity-70">Leave blank to fall back to the default language.</span>
+                    </div>
+                    <div class="space-y-3">
+                        <div>
+                            <label class="admin-form-label">Name</label>
+                            <input type="text" name="translations[{{ $__loc }}][name]"
+                                   value="{{ old("translations.$__loc.name", $destination->rawTranslation('name', $__loc)) }}"
+                                   class="admin-input">
+                        </div>
+                        <div>
+                            <label class="admin-form-label">Description</label>
+                            <textarea name="translations[{{ $__loc }}][description]" rows="4" class="admin-textarea">{{ old("translations.$__loc.description", $destination->rawTranslation('description', $__loc)) }}</textarea>
+                        </div>
+                    </div>
+                </div>
+            @endforeach
         </div>
     </x-slot:content>
 

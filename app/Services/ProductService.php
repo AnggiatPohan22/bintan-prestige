@@ -3,10 +3,30 @@
 namespace App\Services;
 
 use App\Models\Product;
+use App\Support\Locales;
 use Illuminate\Http\Request;
 
 class ProductService
 {
+    /**
+     * Product copy fields translated per locale via the translations sidecar
+     * (Phase 7 — B6). Base columns keep the default locale; prices, images,
+     * slugs, relations, and status stay shared.
+     *
+     * @var list<string>
+     */
+    private const TRANSLATABLE_FIELDS = [
+        'name',
+        'short_description',
+        'description',
+        'meeting_point',
+        'pickup_note',
+        'cta_title',
+        'cta_description',
+        'cta_button_text',
+        'meta_title',
+        'meta_description',
+    ];
     public function __construct(
         protected ProductPriceService $productPriceService,
         protected ProductImageService $productImageService
@@ -119,6 +139,8 @@ class ProductService
                 )
             );
 
+        $this->syncTranslations($request, $product);
+
         return $product;
     }
 
@@ -216,7 +238,25 @@ class ProductService
                 )
             );
 
+        $this->syncTranslations($request, $product);
+
         return $product
             ->refresh();
+    }
+
+    /**
+     * Persist per-locale copy translations for the product. Only non-default
+     * active locales; empty clears the sidecar row (fallback resumes).
+     */
+    private function syncTranslations(Request $request, Product $product): void
+    {
+        $translations = (array) $request->input('translations', []);
+
+        foreach (Locales::nonDefaultActive() as $locale) {
+            foreach (self::TRANSLATABLE_FIELDS as $field) {
+                $value = $translations[$locale][$field] ?? null;
+                $product->setTranslation($field, $locale, is_string($value) ? trim($value) : null);
+            }
+        }
     }
 }

@@ -44,6 +44,7 @@ class HomeController extends Controller
         $homeProducts = Product::query()
             ->publiclyVisible()
             ->frontendListingReady()
+            ->withTranslations() // Phase 7 (B6) — localize card copy (N+1 guard)
             ->latest()
             ->take(12)
             ->get();
@@ -56,6 +57,7 @@ class HomeController extends Controller
 
         $categories = Category::query()
             ->where('is_active', true)
+            ->withTranslations() // Phase 7 (B6)
             ->withCount([
                 'products' => fn ($query) => $query->published()
             ])
@@ -64,6 +66,7 @@ class HomeController extends Controller
 
         $destinations = Destination::query()
             ->where('is_active', true)
+            ->withTranslations() // Phase 7 (B6)
             ->withCount([
                 'products' => fn ($query) => $query->publiclyVisible()
             ])
