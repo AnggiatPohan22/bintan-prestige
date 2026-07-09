@@ -127,8 +127,10 @@ class ProductMediaLibraryTest extends TestCase
      */
     private function payload(array $overrides = []): array
     {
-        $category = Category::factory()->create();
-        $destination = Destination::factory()->create();
+        // Reuse existing rows so tests that also seed a Category/Destination for
+        // Product::factory() don't hit a slug-unique collision.
+        $category = Category::first() ?? Category::factory()->create();
+        $destination = Destination::first() ?? Destination::factory()->create();
 
         return array_merge([
             'category_id' => $category->id,
