@@ -40,7 +40,7 @@ class StoreContentTypeRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'slug'           => ['required', 'string', 'max:100', 'regex:/^[a-z0-9][a-z0-9\-]*$/', 'unique:content_types,slug', Rule::notIn(ContentType::RESERVED_PREFIXES)],
+            'slug'           => ['required', 'string', 'max:100', 'regex:/^[a-z0-9][a-z0-9\-]*$/', 'unique:content_types,slug', Rule::notIn(ContentType::reservedPrefixes())],
             'label_singular' => ['required', 'string', 'max:150'],
             'label_plural'   => ['required', 'string', 'max:150'],
             'icon'           => ['nullable', 'string', 'max:50'],
@@ -50,7 +50,7 @@ class StoreContentTypeRequest extends FormRequest
             'route_base'     => [
                 'nullable', 'string', 'max:100', 'regex:/^[a-z0-9][a-z0-9\-]*$/',
                 'unique:content_types,route_base',
-                Rule::notIn(ContentType::RESERVED_PREFIXES),
+                Rule::notIn(ContentType::reservedPrefixes()),
                 'required_if:is_public,1,has_archive,1',
             ],
             'supports'       => ['nullable', 'array'],

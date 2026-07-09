@@ -33,7 +33,16 @@ no `lang/` folder; **0** `__()`/`@lang`/`trans()` calls in `resources/views/fron
 |---|---|---|---|
 | A0 | Architecture Decision Record | ✅ DONE (2026-07-09) | Decision set signed off |
 | A1 | Carry-over debt (StructuredDataBuilder JSON-LD flags; close TD-03 child-theme) | ✅ DONE (2026-07-09) | ⚠️ edits Phase 4 code (no change needed) |
-| A2 | Locale foundation (config/locales.php, SetLocale middleware, prefix route group, reserved-prefix guard, lang scaffolding, switcher chrome) | ⏳ TODO | ⚠️ route registration change |
+| A2 | Locale foundation (config/locales.php, SetLocale middleware, prefix route group, reserved-prefix guard, lang scaffolding, switcher chrome) | ✅ DONE (2026-07-09) | ⚠️ route registration change (shipped) |
+
+> **A2 shipped (2026-07-09):** `config/locales.php` (en default + id), `app/Support/Locales.php`,
+> `SetLocale` middleware, per-locale route groups in `bootstrap/app.php` (non-default
+> prefixed first so its `Route::fallback` wins per prefix; default bare + canonical
+> names), `ContentType::reservedPrefixes()` blocks locale codes as route_base,
+> `ContentEntryController::resolve()` strips leading locale segment, `lang/en|id/frontend.php`
+> scaffolding, and the header locale switcher. Suite **877/877**, PHPStan 0.
+> Report: `ai/reports/phase-7/a2-locale-foundation.md`. **Test baseline reconciled = 866**
+> (grand plan value confirmed; 877 = 866 + 11 core A2 tests, +2 switcher-render = 13 total).
 
 > **A1 disposition (2026-07-09):** C1-FU `StructuredDataBuilder` JSON-LD escaping
 > was **already fixed** by commit `74f1027` (2026-07-07, ancestor of HEAD) with a
@@ -223,7 +232,7 @@ New files this phase:
 - [ ] hreflang, per-locale sitemap, localized canonical/OG/JSON-LD verified.
 - [ ] `content_query`/`content_field` locale-aware.
 - [ ] End-to-end proof: home + one tour + one page fully bilingual (en/id).
-- [ ] PHPStan level 5 / 0 errors; full suite green (no regression — reconcile exact baseline at A1; recorded counts: Phase 6 = 846, Phase 6.1 = 850, grand plan cited 866).
+- [ ] PHPStan level 5 / 0 errors; full suite green (no regression — **baseline reconciled = 866** at A2; now 877 with A2 tests).
 - [ ] Localized routes ≤300ms warm; no translation N+1.
 - [ ] Carry-over debt (grand plan §11) cleared or re-dispositioned.
 - [ ] Docs: i18n module doc + skill file + CHANGELOG + AGENTS/Claude sync + Phase 8 prep notes.

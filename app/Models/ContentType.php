@@ -22,6 +22,20 @@ class ContentType extends Model
         'sitemap', 'sitemap.xml', '_debugbar',
     ];
 
+    /**
+     * Reserved prefixes including the i18n locale codes (Phase 7 — A2). A locale
+     * code such as `id` owns the `/id/...` URL prefix, so it can never be a
+     * content-type route_base. Merged dynamically so adding a locale in
+     * config/locales.php auto-protects its prefix.
+     */
+    public static function reservedPrefixes(): array
+    {
+        return array_values(array_unique(array_merge(
+            self::RESERVED_PREFIXES,
+            array_keys((array) config('locales.locales', []))
+        )));
+    }
+
     protected $fillable = [
         'slug',
         'label_singular',

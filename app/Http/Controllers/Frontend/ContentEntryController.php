@@ -9,6 +9,7 @@ use App\Models\PageBlock;
 use App\Support\ContentEntryTemplateRegistry;
 use App\Support\ContentFieldResolver;
 use App\Support\ContentQueryResolver;
+use App\Support\Locales;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 
@@ -33,6 +34,13 @@ class ContentEntryController extends Controller
     public function resolve(Request $request): mixed
     {
         $segments = array_values(array_filter(explode('/', trim($request->path(), '/')), fn ($s): bool => $s !== ''));
+
+        // Phase 7 (A2): drop a leading locale prefix (e.g. /id/blog/hello) so the
+        // route_base/slug resolution below is identical across locales. The app
+        // locale is already set by SetLocale middleware for this prefix group.
+        if (isset($segments[0]) && $segments[0] !== Locales::default() && Locales::isActive($segments[0])) {
+            array_shift($segments); // array_shift reindexes, so $segments stays a list
+        }
 
         return match (count($segments)) {
             1       => $this->archive($segments[0]),
