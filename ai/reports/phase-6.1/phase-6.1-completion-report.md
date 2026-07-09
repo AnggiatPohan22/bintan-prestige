@@ -114,8 +114,8 @@ ikut ter-include `@once` — komponen bisa dipakai form mana pun.
    **upload ulang** dari Media Library agar transparan (kini akan disimpan PNG asli).
 
 **S11 — Media Library integration Stage 1 (Settings) + Stage 2 (Products)**
-Owner-approved initiative (audit: `ai/reports/media-library-audit.md`, plan:
-`ai/reports/media-library-integration-plan.md`). Path-string approach, no schema.
+Owner-approved initiative (audit: `ai/reports/media/media-library-audit.md`, plan:
+`ai/reports/media/media-library-integration-plan.md`). Path-string approach, no schema.
 - **Stage 1 (Settings → Global Assets):** logo variants, social share, SEO OG,
   default-media placeholders → `<x-admin.media-image-field>`. Favicon left raw
   (owner decision). New `PageSectionImageService::setSiteAssetPath()`. Commit `e8156a9`.

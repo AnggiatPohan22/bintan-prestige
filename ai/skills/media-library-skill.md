@@ -111,8 +111,8 @@ do **not** drop in a raw file input.
 - [ ] Column added to `MediaService::DIRECT_REFERENCES`
 - [ ] Tests: store + replace-preserves-library + delete-preserves-library
 
-> Full rollout history + rationale: `ai/reports/media-library-integration-plan.md`
-> and `ai/reports/media-library-audit.md`.
+> Full rollout history + rationale: `ai/reports/media/media-library-integration-plan.md`
+> and `ai/reports/media/media-library-audit.md`.
 
 ## Required References
 - `AGENTS.md` — master rules

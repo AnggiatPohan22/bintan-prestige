@@ -1,6 +1,6 @@
 # Media Library Integration — Implementation Plan (PROPOSAL)
 **Date:** 2026-07-08 | **Status:** ⏳ Awaiting owner approval — nothing implemented yet
-**Companion:** `ai/reports/media-library-audit.md`
+**Companion:** `ai/reports/media/media-library-audit.md`
 
 ## Goal
 Every image selection in admin goes through **one door** — the Media Library —
@@ -141,7 +141,7 @@ Priority follows the brief, adjusted for what Phase 6.1 already finished.
 ---
 
 ## §Deliverables status
-1. ✅ `ai/reports/media-library-audit.md`
+1. ✅ `ai/reports/media/media-library-audit.md`
 2. ✅ This plan + DB recommendation (path-string, no schema change)
 3. ⏳ **Owner approval** — required before any implementation
 4. ⏳ Component multi-select + page-by-page replacement (after approval)
