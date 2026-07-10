@@ -515,6 +515,54 @@
 
         </details>
 
+        {{-- Per-locale translations (Phase 7 — B6) --}}
+        @php
+            $__locales = \App\Support\Locales::nonDefaultActive();
+            $__ptxFields = [
+                'name' => 'Name',
+                'short_description' => 'Short description',
+                'description' => 'Description',
+                'meeting_point' => 'Meeting point',
+                'pickup_note' => 'Pickup note',
+                'cta_title' => 'CTA title',
+                'cta_description' => 'CTA description',
+                'cta_button_text' => 'CTA button text',
+                'meta_title' => 'Meta title',
+                'meta_description' => 'Meta description',
+            ];
+            $__ptxTextareas = ['short_description', 'description', 'meeting_point', 'pickup_note', 'cta_description', 'meta_description'];
+        @endphp
+        @if(count($__locales) > 0 && isset($product) && $product->exists)
+            <details class="rounded-2xl border border-violet-200 bg-violet-50/40 p-5">
+                <summary class="cursor-pointer text-lg font-bold text-admin-primary">🌐 Translations</summary>
+                <div class="mt-4 space-y-6">
+                    @foreach($__locales as $__loc)
+                        <div class="rounded-xl border border-violet-200 bg-admin-card p-4">
+                            <div class="mb-3 flex items-center gap-2">
+                                <span class="rounded-md bg-violet-600 px-2 py-0.5 text-xs font-bold uppercase text-white">{{ $__loc }}</span>
+                                <span class="text-sm font-bold text-admin-secondary">{{ \App\Support\Locales::label($__loc) ?? strtoupper($__loc) }} translation</span>
+                                <span class="text-xs text-admin-secondary opacity-70">Leave blank to fall back to the default language.</span>
+                            </div>
+                            <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
+                                @foreach($__ptxFields as $__field => $__flabel)
+                                    <div class="{{ in_array($__field, $__ptxTextareas, true) ? 'md:col-span-2' : '' }}">
+                                        <label class="admin-form-label">{{ $__flabel }}</label>
+                                        @if(in_array($__field, $__ptxTextareas, true))
+                                            <textarea name="translations[{{ $__loc }}][{{ $__field }}]" rows="3" class="admin-textarea">{{ old("translations.$__loc.$__field", $product->rawTranslation($__field, $__loc)) }}</textarea>
+                                        @else
+                                            <input type="text" name="translations[{{ $__loc }}][{{ $__field }}]"
+                                                   value="{{ old("translations.$__loc.$__field", $product->rawTranslation($__field, $__loc)) }}"
+                                                   class="admin-input">
+                                        @endif
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </details>
+        @endif
+
 
         {{-- ACTION BUTTON --}}
         <div

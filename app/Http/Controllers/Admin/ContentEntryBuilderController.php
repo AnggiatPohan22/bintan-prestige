@@ -15,6 +15,7 @@ use App\Services\PageBlockService;
 use App\Support\ContentEntryRevisionService;
 use App\Support\ContentFieldResolver;
 use App\Support\ContentQueryResolver;
+use App\Support\Locales;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -139,6 +140,11 @@ class ContentEntryBuilderController extends Controller
             'blocks'      => ['nullable', 'array', 'max:200'],
             'template_id' => ['nullable'],
         ]);
+
+        // Phase 7 (B9) — align app locale to the entry's own locale so
+        // localized copy, content_field, and content_query resolve against the
+        // entry being edited (admin routes are unprefixed).
+        app()->setLocale($entry->locale ?: Locales::default());
 
         $rawNodes = $validated['blocks'] ?? [];
         $nodes    = $this->treeSanitizer->sanitizeTree(is_array($rawNodes) ? $rawNodes : [], 'blocks');

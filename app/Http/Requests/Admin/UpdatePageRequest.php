@@ -27,7 +27,8 @@ class UpdatePageRequest extends FormRequest
     {
         return [
             'title' => ['required', 'string', 'max:255'],
-            'slug' => ['nullable', 'string', 'max:255', Rule::unique('pages', 'slug')->ignore($this->page), Rule::notIn(['admin', 'products', 'api', 'login', 'register'])],
+            // Slug is unique within the page's own locale.
+            'slug' => ['nullable', 'string', 'max:255', Rule::unique('pages', 'slug')->where('locale', $this->page->locale)->ignore($this->page), Rule::notIn(['admin', 'products', 'api', 'login', 'register'])],
             'status' => ['required', Rule::in(['draft', 'published', 'scheduled'])],
             'publish_at' => ['nullable', 'date'],
             'template_id' => [

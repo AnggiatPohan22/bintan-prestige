@@ -179,6 +179,27 @@
                         <input type="text" name="label" x-model="form.label" class="admin-input" placeholder="e.g. About Us" required>
                     </div>
 
+                    {{-- Per-locale label translations (Phase 7 — B7) --}}
+                    @php $__menuLocales = \App\Support\Locales::nonDefaultActive(); @endphp
+                    @if(count($__menuLocales) > 0)
+                        <div class="rounded-xl border border-violet-200 bg-violet-50/40 p-3">
+                            <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-violet-700">🌐 Translations (label)</p>
+                            @foreach($__menuLocales as $__loc)
+                                <div class="mt-2 first:mt-0">
+                                    <label class="admin-form-label text-xs">
+                                        {{ strtoupper($__loc) }} label
+                                        <span class="ml-1 font-normal text-admin-secondary opacity-70">(leave blank to fall back)</span>
+                                    </label>
+                                    <input type="text"
+                                           name="translations[{{ $__loc }}][label]"
+                                           x-model="form.translations['{{ $__loc }}']"
+                                           class="admin-input"
+                                           placeholder="{{ strtoupper($__loc) }} translation…">
+                                </div>
+                            @endforeach
+                        </div>
+                    @endif
+
                     {{-- Link type picker --}}
                     <div>
                         <label class="admin-form-label">Link type</label>
@@ -262,7 +283,7 @@
             drawer: false,
             mode: 'add',
             search: '',
-            form: { id: null, label: '', linkType: 'page', linkableId: '', url: '', newTab: false, parentId: '' },
+            form: { id: null, label: '', linkType: 'page', linkableId: '', url: '', newTab: false, parentId: '', translations: {} },
             options: config.options,
             types: config.types,
             parents: config.parents,
@@ -285,6 +306,7 @@
                     url: item.url || '',
                     newTab: !!item.newTab,
                     parentId: item.parentId != null ? String(item.parentId) : '',
+                    translations: item.translations || {},
                 };
                 this.mode = 'edit';
                 this.search = '';

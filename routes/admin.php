@@ -96,6 +96,13 @@ Route::middleware(['auth', 'admin'])
         Route::get('settings/global-assets', [SiteSettingController::class, 'edit'])
             ->name('settings.global-assets.edit');
 
+        // Phase 7 (B2) — per-locale translations for global-chrome copy.
+        Route::get('settings/global-assets/translations', [SiteSettingController::class, 'translations'])
+            ->name('settings.global-assets.translations');
+
+        Route::put('settings/global-assets/translations', [SiteSettingController::class, 'updateTranslations'])
+            ->name('settings.global-assets.translations.update');
+
         Route::put('settings/global-assets/site-logo', [SiteSettingController::class, 'update'])
             ->name('settings.global-assets.site-logo.update');
 
@@ -253,6 +260,9 @@ Route::middleware(['auth', 'admin'])
         Route::post('pages/{page}/duplicate', [PageController::class, 'duplicate'])
             ->name('pages.duplicate');
 
+        Route::post('pages/{page}/translate', [PageController::class, 'translate'])
+            ->name('pages.translate');
+
         Route::get('pages/{page}/preview', [FrontendPageController::class, 'preview'])
             ->name('pages.preview');
 
@@ -312,6 +322,7 @@ Route::middleware(['auth', 'admin'])
                 Route::get('/{entry}/edit', [ContentEntryController::class, 'edit'])->name('edit');
                 Route::put('/{entry}', [ContentEntryController::class, 'update'])->name('update');
                 Route::delete('/{entry}', [ContentEntryController::class, 'destroy'])->name('destroy');
+                Route::post('/{entry}/translate', [ContentEntryController::class, 'translate'])->name('translate');
                 Route::patch('/{id}/restore', [ContentEntryController::class, 'restore'])->name('restore');
                 Route::delete('/{id}/force-delete', [ContentEntryController::class, 'forceDelete'])->name('force-delete');
                 Route::post('/{entry}/revisions/{revision}/restore', [ContentEntryController::class, 'restoreRevision'])->name('revisions.restore');

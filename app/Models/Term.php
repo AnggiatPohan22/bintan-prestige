@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\Translatable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -12,6 +13,10 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Term extends Model
 {
     use SoftDeletes;
+    use Translatable;
+
+    /** @var list<string> Phase 7 (B7) — sidecar-translated taxonomy copy. */
+    protected array $translatable = ['name', 'description'];
 
     protected $fillable = [
         'taxonomy_id',
@@ -61,4 +66,7 @@ class Term extends Model
     {
         return $query->orderBy('sort_order')->orderBy('name');
     }
+
+    public function getNameAttribute(): ?string        { return $this->translate('name'); }
+    public function getDescriptionAttribute(): ?string { return $this->translate('description'); }
 }

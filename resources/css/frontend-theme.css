@@ -795,6 +795,20 @@
         @apply flex items-center gap-2;
     }
 
+    /* LOCALE SWITCHER (Phase 7 — A2): language links; colours inherit from
+       .frontend-nav__link so it matches the surrounding nav in every header state. */
+    .frontend-locale-switcher--inline {
+        @apply hidden sm:flex items-center gap-1;
+    }
+
+    .frontend-locale-switcher__link {
+        @apply text-sm uppercase tracking-wide;
+    }
+
+    .frontend-locale-switcher--stacked {
+        @apply flex items-center gap-3 mt-5;
+    }
+
     /* FRONTEND HEADER CTA: Styles the small trip-planning button in the navbar. */
     .frontend-header__cta {
         @apply hidden sm:inline-flex;

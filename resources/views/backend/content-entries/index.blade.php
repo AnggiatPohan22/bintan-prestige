@@ -18,7 +18,7 @@
             </div>
 
             <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
-                <form class="w-full sm:w-64" method="GET">
+                <form class="flex w-full flex-col gap-2 sm:w-96 sm:flex-row" method="GET">
                     @if(request('status'))
                         <input type="hidden" name="status" value="{{ request('status') }}">
                     @endif
@@ -27,8 +27,22 @@
                         name="search"
                         value="{{ request('search') }}"
                         placeholder="Search entries..."
-                        class="admin-input"
+                        class="admin-input flex-1"
                     >
+
+                    @if(count(\App\Support\Locales::active()) > 1)
+                        <select
+                            name="locale"
+                            class="admin-input sm:w-32"
+                            onchange="this.form.submit()"
+                            title="Filter by locale"
+                        >
+                            <option value="">All Locales</option>
+                            @foreach(\App\Support\Locales::active() as $__code => $__meta)
+                                <option value="{{ $__code }}" @selected(request('locale') === $__code)>{{ strtoupper($__code) }}</option>
+                            @endforeach
+                        </select>
+                    @endif
                 </form>
 
                 <a href="{{ route('admin.content-types.entries.create', $contentType) }}"
@@ -68,6 +82,9 @@
         <x-slot:thead>
             <th class="px-4 py-4">Entry</th>
             <th class="px-4 py-4">Status</th>
+            @if(count(\App\Support\Locales::active()) > 1)
+                <th class="px-4 py-4">Translations</th>
+            @endif
             <th class="px-4 py-4">Author</th>
             <th class="px-4 py-4">Date</th>
             <th class="px-4 py-4 text-right">Action</th>
@@ -77,8 +94,11 @@
             @forelse($active as $entry)
                 <tr class="admin-table-row">
                     <td class="px-4 py-4">
-                        <div class="font-semibold text-admin-secondary">
+                        <div class="flex items-center gap-2 font-semibold text-admin-secondary">
                             {{ $entry->title ?? '(no title)' }}
+                            @if(count(\App\Support\Locales::active()) > 1)
+                                <span class="rounded bg-violet-100 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-violet-700">{{ $entry->locale }}</span>
+                            @endif
                         </div>
                         @if($entry->slug)
                             <div class="mt-0.5 font-mono text-xs text-admin-secondary">/{{ $entry->slug }}</div>
@@ -96,6 +116,15 @@
                             <div class="mt-0.5 text-xs text-admin-secondary">{{ $entry->published_at->format('d M Y') }}</div>
                         @endif
                     </td>
+
+                    @if(count(\App\Support\Locales::active()) > 1)
+                        <td class="px-4 py-4">
+                            @include('backend._partials.translation-badges', [
+                                'record'   => $entry,
+                                'siblings' => $entry->translationSiblings,
+                            ])
+                        </td>
+                    @endif
 
                     <td class="px-4 py-4 text-sm text-admin-secondary">
                         {{ $entry->author?->name ?? '—' }}

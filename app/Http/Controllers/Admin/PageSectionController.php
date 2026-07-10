@@ -7,6 +7,7 @@ use App\Models\PageSection;
 use App\Models\PageSectionMedia;
 use App\Services\PageSectionImageService;
 use App\Support\HomepageSectionMedia;
+use App\Support\Locales;
 use App\Support\PageSectionRegistry;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -120,6 +121,13 @@ class PageSectionController extends Controller
             'animation' => ['nullable', 'string', 'in:' . implode(',', PageSection::ANIMATION_OPTIONS)],
             'is_active' => ['nullable', 'boolean'],
             'sort_order' => ['nullable', 'integer', 'min:0'],
+            // Phase 7 (B3) — per-locale copy translations (sidecar).
+            'translations' => ['nullable', 'array'],
+            'translations.*.label' => ['nullable', 'string', 'max:255'],
+            'translations.*.title' => ['nullable', 'string', 'max:255'],
+            'translations.*.subtitle' => ['nullable', 'string', 'max:500'],
+            'translations.*.description' => ['nullable', 'string'],
+            'translations.*.button_text' => ['nullable', 'string', 'max:100'],
         ];
 
         if ($supportsMediaDisplayOptions) {
@@ -180,6 +188,15 @@ class PageSectionController extends Controller
         }
 
         $pageSection->update($data);
+
+        // Persist per-locale copy translations (only for active non-default
+        // locales; the default locale lives in the base columns updated above).
+        foreach (Locales::nonDefaultActive() as $locale) {
+            foreach (['label', 'title', 'subtitle', 'description', 'button_text'] as $field) {
+                $value = $validated['translations'][$locale][$field] ?? null;
+                $pageSection->setTranslation($field, $locale, is_string($value) ? trim($value) : null);
+            }
+        }
 
         foreach ($mediaSlots as $slot) {
             $role = $slot['role'];

@@ -143,6 +143,44 @@ class PageService
         return $copy;
     }
 
+    /**
+     * Create (or return the existing) translation of a page in another locale
+     * (Phase 7 — B4). The new row joins the SAME translation group, copies the
+     * builder block tree, and starts as a draft for in-place translation.
+     */
+    public function translateTo(Page $page, string $locale): Page
+    {
+        $existing = $page->translationIn($locale);
+
+        if ($existing !== null) {
+            return $existing;
+        }
+
+        $copy = $page->replicate();
+        $copy->locale = $locale;
+        $copy->translation_group_id = $page->translation_group_id;
+        $copy->status = 'draft';
+        $copy->publish_at = null;
+        $copy->save();
+
+        $blockMap = [];
+        $blocks = $page->blocks()->get();
+
+        foreach ($blocks as $block) {
+            $duplicate = $block->replicate(['parent_block_id']);
+            $duplicate->fill(['page_id' => $copy->id, 'parent_block_id' => null])->save();
+            $blockMap[$block->id] = $duplicate;
+        }
+
+        foreach ($blocks as $block) {
+            if ($block->parent_block_id !== null && isset($blockMap[$block->parent_block_id])) {
+                $blockMap[$block->id]->update(['parent_block_id' => $blockMap[$block->parent_block_id]->id]);
+            }
+        }
+
+        return $copy;
+    }
+
     public function reorder(array $ids): void
     {
         foreach ($ids as $sortOrder => $id) {

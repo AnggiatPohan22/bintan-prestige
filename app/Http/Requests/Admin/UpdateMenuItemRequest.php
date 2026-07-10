@@ -40,6 +40,9 @@ class UpdateMenuItemRequest extends FormRequest
             'url' => [Rule::requiredIf($needsUrl), 'nullable', 'string', 'max:2048'],
             'parent_id' => $parentRules,
             'target' => ['nullable', Rule::in(['_self', '_blank'])],
+            // Phase 7 (B7) — per-locale label translations.
+            'translations' => ['nullable', 'array'],
+            'translations.*.label' => ['nullable', 'string', 'max:255'],
         ];
     }
 

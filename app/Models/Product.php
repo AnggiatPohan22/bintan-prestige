@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\Translatable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -12,6 +13,27 @@ use Illuminate\Support\Str;
 class Product extends Model
 {
     use HasFactory;
+    use Translatable;
+
+    /**
+     * Copy columns translated per locale via the translations sidecar (Phase 7 —
+     * B6). The base columns keep the default-locale copy; prices, images, slugs,
+     * relations (category/destination), and status stay shared across locales.
+     *
+     * @var list<string>
+     */
+    protected array $translatable = [
+        'name',
+        'short_description',
+        'description',
+        'meeting_point',
+        'pickup_note',
+        'cta_title',
+        'cta_description',
+        'cta_button_text',
+        'meta_title',
+        'meta_description',
+    ];
 
     protected static function booted(): void
     {
@@ -292,4 +314,19 @@ class Product extends Model
         ]);
     }
     // End of scope for frontend ready products with eager loading
+
+    // ------------------------------------------------------------- i18n accessors (Phase 7 — B6)
+    // Reading $product->name (etc.) transparently returns the current locale's
+    // value with fallback to the base column. Default locale short-circuits to
+    // the base column (zero query overhead).
+    public function getNameAttribute(): ?string             { return $this->translate('name'); }
+    public function getShortDescriptionAttribute(): ?string { return $this->translate('short_description'); }
+    public function getDescriptionAttribute(): ?string      { return $this->translate('description'); }
+    public function getMeetingPointAttribute(): ?string     { return $this->translate('meeting_point'); }
+    public function getPickupNoteAttribute(): ?string       { return $this->translate('pickup_note'); }
+    public function getCtaTitleAttribute(): ?string         { return $this->translate('cta_title'); }
+    public function getCtaDescriptionAttribute(): ?string   { return $this->translate('cta_description'); }
+    public function getCtaButtonTextAttribute(): ?string    { return $this->translate('cta_button_text'); }
+    public function getMetaTitleAttribute(): ?string        { return $this->translate('meta_title'); }
+    public function getMetaDescriptionAttribute(): ?string  { return $this->translate('meta_description'); }
 }

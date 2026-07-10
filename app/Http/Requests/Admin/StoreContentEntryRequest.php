@@ -5,6 +5,7 @@ namespace App\Http\Requests\Admin;
 use App\Http\Requests\Concerns\NormalizesColumnDefaults;
 use App\Models\ContentEntry;
 use App\Support\FieldValidationResolver;
+use App\Support\Locales;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -54,7 +55,9 @@ class StoreContentEntryRequest extends FormRequest
             'slug'            => [
                 'nullable', 'string', 'max:200',
                 'regex:/^[a-z0-9][a-z0-9\-]*$/',
-                Rule::unique('content_entries')->where('content_type_id', $contentTypeId),
+                Rule::unique('content_entries')
+                    ->where('content_type_id', $contentTypeId)
+                    ->where('locale', Locales::default()),
             ],
             'excerpt'         => ['nullable', 'string', 'max:5000'],
             'status'          => ['required', Rule::in(ContentEntry::STATUSES)],

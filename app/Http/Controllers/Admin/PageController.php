@@ -14,8 +14,10 @@ use App\Models\PageRevision;
 use App\Models\PageTemplate;
 use App\Services\PageService;
 use Illuminate\Support\Facades\DB;
+use App\Support\Locales;
 use App\Support\PageTemplateRegistry;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class PageController extends Controller
 {
@@ -25,6 +27,13 @@ class PageController extends Controller
 
     public function index(Request $request)
     {
+        $localeFilter = $request->query('locale');
+        $activeCodes  = Locales::activeCodes();
+
+        if ($localeFilter !== null && ! in_array($localeFilter, $activeCodes, true)) {
+            $localeFilter = null;
+        }
+
         $pages = Page::query()
             ->when(
                 $request->search,
@@ -34,13 +43,18 @@ class PageController extends Controller
                 $request->status,
                 fn ($q) => $q->where('status', $request->status)
             )
+            ->when($localeFilter, fn ($q) => $q->where('locale', $localeFilter))
+            // Phase 7 (B8) — one lookup for every sibling's status; per-locale
+            // badges rendered from this collection without N+1.
+            ->with(['translationSiblings' => fn ($q) => $q->select('id', 'translation_group_id', 'locale', 'status')])
             ->ordered()
             ->latest('updated_at')
             ->paginate(15)
             ->withQueryString();
 
         return view('backend.pages.index', [
-            'pages' => $pages,
+            'pages'        => $pages,
+            'localeFilter' => $localeFilter,
         ]);
     }
 
@@ -103,6 +117,20 @@ class PageController extends Controller
         return redirect()
             ->route('admin.pages.edit', $copy)
             ->with('success', "Page duplicated. You are now editing \"{$copy->title}\".");
+    }
+
+    /** Phase 7 (B4) — create/open a translation of this page in another locale. */
+    public function translate(Request $request, Page $page)
+    {
+        $validated = $request->validate([
+            'locale' => ['required', 'string', Rule::in(Locales::nonDefaultActive())],
+        ]);
+
+        $translation = $this->pageService->translateTo($page, $validated['locale']);
+
+        return redirect()
+            ->route('admin.pages.edit', $translation)
+            ->with('success', 'Translation ('.strtoupper($validated['locale']).') ready as a draft — translate the copy and publish it.');
     }
 
     public function restoreRevision(Page $page, PageRevision $revision)

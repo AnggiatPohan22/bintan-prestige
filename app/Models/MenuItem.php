@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\Translatable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -10,6 +11,17 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class MenuItem extends Model
 {
+    use Translatable;
+
+    /**
+     * Phase 7 (B7) — menu structure is shared across locales; only the label is
+     * translated per locale via the sidecar (A0 §3.5 Option A). URLs, targets,
+     * children, and link resolution stay identical.
+     *
+     * @var list<string>
+     */
+    protected array $translatable = ['label'];
+
     public const LINK_TYPES = [
         'page',
         'product',
@@ -103,5 +115,11 @@ class MenuItem extends Model
 
         return $this->link_type === 'url'
             && (str_starts_with((string) $this->url, 'http://') || str_starts_with((string) $this->url, 'https://'));
+    }
+
+    // Locale-aware accessor (Phase 7 — B7): default locale short-circuits to base.
+    public function getLabelAttribute(): ?string
+    {
+        return $this->translate('label');
     }
 }

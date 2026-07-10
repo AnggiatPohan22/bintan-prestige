@@ -26,7 +26,7 @@
 
 <meta property="og:type" content="{{ $socialShareType ?? 'website' }}">
 <meta property="og:site_name" content="{{ $siteName }}">
-<meta property="og:locale" content="{{ $seoDefaults['locale'] ?? 'en_US' }}">
+<meta property="og:locale" content="{{ \App\Support\Locales::ogLocale(\App\Support\Locales::current()) }}">
 <meta property="og:url" content="{{ $canonical }}">
 <meta property="og:title" content="{{ $shareTitle }}">
 <meta property="og:description" content="{{ $shareDescription }}">

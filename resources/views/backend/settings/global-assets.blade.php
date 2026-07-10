@@ -3,9 +3,17 @@
 @section('content')
 
 <div class="min-w-0 rounded-xl bg-admin-card p-6">
-    <div class="mb-6">
-        <h1 class="text-2xl font-bold text-admin-secondary">Global Assets</h1>
-        <p class="mt-1 text-sm text-admin-secondary">Manage assets that are shared by frontend header, footer, and homepage sections.</p>
+    <div class="mb-6 flex flex-wrap items-start justify-between gap-3">
+        <div>
+            <h1 class="text-2xl font-bold text-admin-secondary">Global Assets</h1>
+            <p class="mt-1 text-sm text-admin-secondary">Manage assets that are shared by frontend header, footer, and homepage sections.</p>
+        </div>
+        @if(count(\App\Support\Locales::nonDefaultActive()) > 0)
+            <a href="{{ route('admin.settings.global-assets.translations') }}"
+               class="shrink-0 rounded-lg border border-violet-500 bg-violet-900/20 px-4 py-2 text-sm font-semibold text-violet-300 transition hover:opacity-75">
+                🌐 Translations
+            </a>
+        @endif
     </div>
 
     <div class="mb-6 max-w-full overflow-x-auto border-b border-admin pb-4">

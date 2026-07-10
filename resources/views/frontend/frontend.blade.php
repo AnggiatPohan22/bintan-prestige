@@ -5,7 +5,7 @@
 @endphp
 
 <!DOCTYPE html>
-<html lang="{{ $seoDefaults['language'] ?? 'en' }}">
+<html lang="{{ \App\Support\Locales::current() }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport"
@@ -17,6 +17,7 @@
 
     @include('partials.site-favicon')
     @include('partials.site-social-share-meta')
+    @include('partials.site-hreflang')
     @include('partials.site-structured-data')
     @include('partials.tracking-head')
 

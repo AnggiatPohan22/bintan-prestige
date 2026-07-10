@@ -9,6 +9,7 @@ use App\Models\PageBlock;
 use App\Support\ContentEntryTemplateRegistry;
 use App\Support\ContentFieldResolver;
 use App\Support\ContentQueryResolver;
+use App\Support\Locales;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 
@@ -34,6 +35,13 @@ class ContentEntryController extends Controller
     {
         $segments = array_values(array_filter(explode('/', trim($request->path(), '/')), fn ($s): bool => $s !== ''));
 
+        // Phase 7 (A2): drop a leading locale prefix (e.g. /id/blog/hello) so the
+        // route_base/slug resolution below is identical across locales. The app
+        // locale is already set by SetLocale middleware for this prefix group.
+        if (isset($segments[0]) && $segments[0] !== Locales::default() && Locales::isActive($segments[0])) {
+            array_shift($segments); // array_shift reindexes, so $segments stays a list
+        }
+
         return match (count($segments)) {
             1       => $this->archive($segments[0]),
             2       => $this->single($segments[0], $segments[1]),
@@ -55,6 +63,7 @@ class ContentEntryController extends Controller
 
         $entries = $type->entries()
             ->published()
+            ->forLocale(Locales::current()) // Phase 7 (B5) — locale-aware archive
             ->with('contentType') // avoid N+1 from publicUrl() per card
             ->ordered()
             ->paginate(12);
@@ -82,6 +91,7 @@ class ContentEntryController extends Controller
 
         $entry = $type->entries()
             ->published()
+            ->forLocale(Locales::current()) // Phase 7 (B5) — locale-aware single
             ->where('slug', $slug)
             ->firstOrFail();
 
@@ -104,10 +114,20 @@ class ContentEntryController extends Controller
         $canonicalUrl   = $meta['canonical'] ?? $entry->publicUrl();
         $seoRobots      = 'index, follow';
 
+        // Locale switcher lands on the published counterpart (hides untranslated).
+        $localeAlternates = [];
+        foreach (Locales::activeCodes() as $code) {
+            $sibling = $entry->translationIn($code);
+            if ($sibling !== null && $sibling->isPublished()) {
+                $localeAlternates[$code] = $sibling->publicUrl();
+            }
+        }
+
         return view('frontend.content-entries.single', compact(
             'type', 'entry', 'blocks',
             'templateKey', 'templateContainer', 'schemaType',
-            'seoTitle', 'seoDescription', 'canonicalUrl', 'seoRobots'
+            'seoTitle', 'seoDescription', 'canonicalUrl', 'seoRobots',
+            'localeAlternates'
         ));
     }
 

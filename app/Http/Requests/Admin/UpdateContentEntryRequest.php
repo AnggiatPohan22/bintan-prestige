@@ -36,7 +36,9 @@ class UpdateContentEntryRequest extends FormRequest
     {
         $contentType   = $this->route('content_type');
         $contentTypeId = $contentType?->id;
-        $entryId       = $this->route('entry')?->id;
+        $entry         = $this->route('entry');
+        $entryId       = $entry?->id;
+        $entryLocale   = $entry?->locale;
         $fieldRules    = $contentType !== null
             ? (new FieldValidationResolver())->resolveForContentType($contentType)
             : [];
@@ -48,6 +50,7 @@ class UpdateContentEntryRequest extends FormRequest
                 'regex:/^[a-z0-9][a-z0-9\-]*$/',
                 Rule::unique('content_entries')
                     ->where('content_type_id', $contentTypeId)
+                    ->where('locale', $entryLocale)
                     ->ignore($entryId),
             ],
             'excerpt'         => ['nullable', 'string', 'max:5000'],

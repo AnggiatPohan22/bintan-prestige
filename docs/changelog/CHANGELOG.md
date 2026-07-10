@@ -2,6 +2,47 @@
 
 All notable project documentation and baseline improvement steps are tracked here.
 
+## 2026-07-10 — Phase 7: Internationalization (COMPLETE)
+
+Ship: `en` (default, unprefixed) + `id` (`/id/…`). Extend-only. Zero new packages. All migrations additive + reversible; every ALTER preceded by a `mysqldump` (`storage/app/db-backups/pre-b*-*.sql`). Adding a locale later = one entry in `config/locales.php`.
+
+### Two translation shapes (A0 §3.3 / §3.4)
+
+- **Documents** (Pages, ContentEntries) = **row-per-locale** linked by `translation_group_id` (ULID). Independent slug, SEO, builder tree, publish state per locale.
+- **Attributes** (Products, Categories, Destinations, PageSections, MenuItems, Terms, SiteSettings) = single **polymorphic `translations` sidecar**. Base column keeps the default-locale value — protected modules stay fully functional even if Phase 7 is reverted.
+
+### Stage A — Foundation & decisions
+
+- **A0** Architecture decisions locked with owner sign-off. Locale set + default: `id`+`en`, default `en` unprefixed. URL: prefix `/{code}` non-default, bare default. Menus = shared structure + sidecar labels (Opt A). Untranslated documents hide/404. Zero new packages.
+- **A1** `StructuredDataBuilder` JSON-LD hex-escape flags already fixed (74f1027, ancestor of HEAD); TD-03 child-theme CLOSED as won't-do (theme tokens + templates cover per-site customization).
+- **A2** `config/locales.php` (`en`/`id`, `default`, `og_locale`); `SetLocale` middleware; per-locale route groups in `bootstrap/app.php` (non-default first, so prefixed `Route::fallback` wins per prefix over the bare fallback); `ContentType::reservedPrefixes()` merges locale codes; `lang/{en,id}/frontend.php` scaffolding; header locale switcher.
+
+### Stage B — The engine
+
+- **B1** `translations` polymorphic sidecar (`type`, `id`, `locale`, `field`, `value` longtext; unique + index) + `App\Models\Concerns\Translatable` trait: `translate()` (current-locale + base-column fallback; default locale short-circuits to base — zero query overhead), `setTranslation()` (upsert; empty clears), `withTranslations()` / `withAllTranslations()` eager-load scopes (N+1 guard), `bootTranslatable()` (soft-delete aware cleanup).
+- **B2** Global chrome localized via `SiteSetting.value` sidecar. `GlobalSettingsService` payload cached **per locale**; downstream Support classes + Blade unchanged. Dedicated admin translation panel (`App\Support\TranslatableSettings` allow-list; 8 per-group forms untouched).
+- **B3** `PageSection` localized (`label`, `title`, `subtitle`, `description`, `button_text` via sidecar; media/layout/`extra_data` shared). Locale-aware accessors → `HomepageSectionData` + section Blade auto-localize. Home + product-listing queries `->withTranslations()`.
+- **B4** ⚠️ ALTER `pages` (mysqldump `storage/app/db-backups/pre-b4-pages-alter-20260709-210206.sql`): `+ locale`, `+ translation_group_id`, `unique(slug)` → `unique(slug, locale)`; backfill `en` + ULID per row. `Page` row-per-locale (boot group/locale, `translationIn`, `publicUrl` locale-aware, `resolveRouteBinding` scopes by `Locales::localeFromRequest()` — binding runs before SetLocale). `PageService::translateTo` copies blocks as draft into the same group. Admin "Translate to…" action + panel + list locale badge. Frontend `/{locale}/pages/{slug}` (404 if untranslated); switcher targets published counterparts.
+- **B5** ⚠️ ALTER `content_entries` (mysqldump `storage/app/db-backups/pre-b5-entries-alter-20260709-213507.sql`): same row-per-locale pattern; unique `(content_type_id, slug)` → `(content_type_id, slug, locale)`. Archive + single filter by `Locales::current()`. `content_query` block filters by locale (B9 partial). Admin translate action copies block tree (morph rail) + taxonomy pivots as draft (idempotent). Milestone M3 complete.
+- **B6** Catalog localized (business milestone). `Product` (10 copy fields: `name`, `short_description`, `description`, `meeting_point`, `pickup_note`, `cta_*`, `meta_*`), `Category`, `Destination` use `Translatable`. Locale-aware accessors → all downstream Blade auto-localizes. Frontend queries eager-load translations (nested for Product show). Services (Category/Destination/Product) `syncTranslations()` on store/update. Admin edit views gain per-locale Translations cards. Bounded-query test bumped 22→25 to reflect the intentional +3 batched translation eager-loads.
+- **B7** `MenuItem.label` (structure shared, Opt A) + `Term.name/description` via sidecar. `MenuService::buildMany` eager-loads translations on root + children; cache **keyed per locale** (`menu.tree.v2.{location}.{locale}`); `forget()` clears all variants. Admin: menu drawer form per-locale label card; Term form per-locale name+description card.
+- **B8** Admin translation UX polish. Shared `_partials/translation-badges.blade.php` (● published, ● draft, ○ missing per active locale) + locale filter `<select>` on Pages + Content Entries list views. Controllers eager-load `translationSiblings` — badges add 1 query total for the whole list (regression-tested).
+- **B9** Builder bridge locale-aware finish. `ContentFieldResolver::targetEntry()` for `entry_id` resolves the group sibling in current locale (attribute fallback to referenced row if published; hides when both draft). Admin builder previews (unprefixed URLs) call `app()->setLocale($record->locale)` so translated chrome + `content_field`/`content_query` render correctly. Milestone M4 complete.
+- **B10** SEO i18n. Dynamic `<html lang>` (both `frontend/frontend.blade.php` AND `layouts/frontend.blade.php` — the second was a lurking bug caught by test). `partials/site-hreflang.blade.php` (per-locale alternates from `$localeAlternates` — only published translations; `x-default` on default). OG `og:locale` config-driven (`en_US`/`id_ID`). JSON-LD `WebPage`/`Article` + `WebSite` emit `inLanguage`. Sitemap rewritten: groups Pages **and** published ContentEntries by `translation_group_id`, emits one `<url>` per row with `xhtml:link` alternates + `x-default`. Localized 404 view (sets locale from URL because exception handler bypasses route-group middleware).
+
+### Stage C — Release audit
+
+- **C1** PHPStan level 5 = 0 errors. 0 debug leaks (`dd`/`dump`/`var_dump`/`print_r`), 0 TODO/FIXME/HACK/XXX, 0 mass-assignment `->all()`, 0 hardcoded credentials. Every `{!! !!}` classified as safe (sanitized inline / hex-escaped / owner-provided tracking / admin CSS). **Zero raw-echo of translation-sourced values.** `C1EscapeAuditTest` (3 tests) as regression fence — malicious `<script>` / `<img onerror>` / `</script>` in translated SiteSetting + PageSection + business-name render escaped in chrome + hero + site-wide JSON-LD.
+- **C2** 10 performance fences. Warm-latency budgets: `/`, `/id`, `/products`, `/id/products`, `/pages/{slug}`, `/id/pages/{slug}` all under 300ms. **Product listing translation query count SCALES FLAT with catalog size** (6→24 products = same count; N+1 would multiply). Home ≤6 translation queries. Switcher/hreflang no per-link fanout. Sitemap 20 translated pages → ≤1 "from pages" query.
+- **C3** 13 functional smoke fences across 5 axes: locale route matrix (default + prefixed all 200; route names `home` + `id.home` etc.); document fallback (untranslated + draft → 404 that locale only, for Pages + ContentEntries); attribute fallback; admin guards on `pages.translate` + `entries.translate` + `settings.global-assets.translations`; legacy-URL parity (`route('pages.show', $slug)` byte-identical; locale codes still reserved as `route_base`).
+- **C4** Documentation: `docs/modules/internationalization.md` (developer reference), `ai/skills/i18n-skill.md` (canonical i18n standard + Skill Map row in AGENTS.md §3 + CLAUDE.md), this CHANGELOG entry, AGENTS.md §4 phase-status sync, CLAUDE.md phase-line sync, Phase 8 prep notes in the handoff.
+
+### Baseline
+
+- Test suite: **990/990** (4,616 assertions) | PHPStan level 5: **0 errors** | Zero new packages.
+- Migrations added: `2026_07_09_000001_create_translations_table`, `2026_07_09_000002_add_locale_to_pages_table`, `2026_07_09_000003_add_locale_to_content_entries_table`.
+- New files: `config/locales.php`, `app/Support/Locales.php`, `app/Support/TranslatableSettings.php`, `app/Http/Middleware/SetLocale.php`, `app/Models/Concerns/Translatable.php`, `app/Models/Translation.php`, `resources/views/partials/site-hreflang.blade.php`, `resources/views/errors/404.blade.php`, `resources/views/backend/_partials/translation-badges.blade.php`, `resources/views/backend/settings/translations.blade.php`, `lang/{en,id}/frontend.php`, `docs/modules/internationalization.md`, `ai/skills/i18n-skill.md`.
+
 ## 2026-07-08 — Phase 6.1: Dashboard & Media UX (interim before Phase 7)
 
 **S1 Sidebar accordion + sticky fix**

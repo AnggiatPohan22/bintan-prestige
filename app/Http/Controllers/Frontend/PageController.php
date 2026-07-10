@@ -9,6 +9,7 @@ use App\Models\PageBlock;
 use App\Models\PageTemplate;
 use App\Services\GlobalSettingsService;
 use App\Services\PageBlockService;
+use App\Support\Locales;
 use App\Support\PageRenderData;
 use App\Support\PageTemplateRegistry;
 use App\Support\SeoDefaultSettings;
@@ -31,7 +32,29 @@ class PageController extends Controller
     {
         abort_if(! $page->isPublished(), 404);
 
-        return $this->renderPage($page);
+        return $this->renderPage($page, localeAlternates: $this->localeAlternates($page));
+    }
+
+    /**
+     * Published translation-group siblings as [locale => url], used by the locale
+     * switcher so switching language on a page lands on its counterpart (and hides
+     * locales with no published translation).
+     *
+     * @return array<string, string>
+     */
+    private function localeAlternates(Page $page): array
+    {
+        $alternates = [];
+
+        foreach (Locales::activeCodes() as $code) {
+            $sibling = $page->translationIn($code);
+
+            if ($sibling !== null && $sibling->isPublished()) {
+                $alternates[$code] = $sibling->publicUrl();
+            }
+        }
+
+        return $alternates;
     }
 
     /** Admin-only preview (route is behind auth+admin) — renders any status. */
@@ -72,8 +95,16 @@ class PageController extends Controller
         return $this->renderPage($page, preview: true, injectedBlocks: $blocks, builderCanvas: true);
     }
 
-    private function renderPage(Page $page, bool $preview = false, ?Collection $injectedBlocks = null, bool $builderCanvas = false)
+    private function renderPage(Page $page, bool $preview = false, ?Collection $injectedBlocks = null, bool $builderCanvas = false, ?array $localeAlternates = null)
     {
+        // Phase 7 (B9) — align the app locale to the page's own locale so admin
+        // previews (which are served under the default-locale route, not /{locale}/…)
+        // render in the target language: translated chrome, catalog copy, and
+        // content_field values all resolve against the page being previewed.
+        if ($preview) {
+            app()->setLocale($page->locale ?: Locales::default());
+        }
+
         if (! $page->relationLoaded('template')) {
             $page->load(['template']);
         }
@@ -99,10 +130,10 @@ class PageController extends Controller
             ? asset('storage/'.ltrim($page->og_image, '/'))
             : (($siteAssets[SeoDefaultSettings::OG_IMAGE_KEY] ?? null)?->url
                 ?: ($siteAssets['site.social_share.default_image'] ?? null)?->url);
-        $canonicalUrl = SeoDefaultSettings::canonicalUrl(
-            route('pages.show', $page->slug, false),
-            $seoDefaults,
-        );
+        $pagePath = $page->locale === Locales::default()
+            ? route('pages.show', $page->slug, false)
+            : route($page->locale.'.pages.show', $page->slug, false);
+        $canonicalUrl = SeoDefaultSettings::canonicalUrl($pagePath, $seoDefaults);
         $socialShareTitle = $seoTitle;
         $socialShareDescription = $page->meta_description ?: null;
         $seoRobots = $preview ? 'noindex, nofollow' : ($page->seo_robots ?: null);
@@ -122,6 +153,7 @@ class PageController extends Controller
             'seoRobots',
             'pageSchemaType',
             'pageFaqItems',
+            'localeAlternates',
         ));
     }
 

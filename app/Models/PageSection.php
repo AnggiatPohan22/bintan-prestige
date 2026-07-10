@@ -2,12 +2,24 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\Translatable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class PageSection extends Model
 {
+    use Translatable;
+
     public const MEDIA_LIMIT = 10;
+
+    /**
+     * Copy fields translated per locale via the translations sidecar (Phase 7 —
+     * B3). The base columns keep the default-locale text; media slots, button_url,
+     * layout and extra_data stay shared across locales.
+     *
+     * @var list<string>
+     */
+    protected array $translatable = ['label', 'title', 'subtitle', 'description', 'button_text'];
 
     public const ANIMATION_OPTIONS = [
         'ken-burns',
@@ -70,6 +82,34 @@ class PageSection extends Model
         return $this->media
             ->filter(fn (PageSectionMedia $media) => $media->role === 'gallery' && $media->is_active)
             ->values();
+    }
+
+    // Locale-aware accessors — reading $section->title (etc.) transparently
+    // returns the current locale's value with fallback to the base column. The
+    // default locale short-circuits to the base column (zero query overhead).
+    public function getLabelAttribute(): ?string
+    {
+        return $this->translate('label');
+    }
+
+    public function getTitleAttribute(): ?string
+    {
+        return $this->translate('title');
+    }
+
+    public function getSubtitleAttribute(): ?string
+    {
+        return $this->translate('subtitle');
+    }
+
+    public function getDescriptionAttribute(): ?string
+    {
+        return $this->translate('description');
+    }
+
+    public function getButtonTextAttribute(): ?string
+    {
+        return $this->translate('button_text');
     }
 
     public function getImageUrlAttribute(): ?string

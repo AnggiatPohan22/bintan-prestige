@@ -8,6 +8,7 @@ use App\Models\Menu;
 use App\Models\MenuItem;
 use App\Models\Page;
 use App\Models\Product;
+use App\Support\Locales;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -60,7 +61,7 @@ class MenuService
         $missingLocations = [];
 
         foreach ($locations as $location) {
-            $cacheKey = self::CACHE_PREFIX.$location;
+            $cacheKey = self::cacheKey($location);
 
             if (Cache::has($cacheKey)) {
                 $sources[$location] = Cache::get($cacheKey);
@@ -76,7 +77,7 @@ class MenuService
                 $source = $resolved[$location] ?? ['managed' => false, 'items' => []];
                 $sources[$location] = $source;
                 Cache::put(
-                    self::CACHE_PREFIX.$location,
+                    self::cacheKey($location),
                     $source,
                     now()->addMinutes(self::CACHE_TTL_MINUTES),
                 );
@@ -92,9 +93,22 @@ class MenuService
 
     public function forget(?string $location = null): void
     {
-        foreach ($location ? [$location] : self::LOCATIONS as $loc) {
+        // Phase 7 (B7) — clear every locale variant of the given location(s).
+        $locations = $location ? [$location] : self::LOCATIONS;
+        $localeCodes = Locales::activeCodes();
+        // Also drop the legacy (unsuffixed) key if it survives from before B7.
+        foreach ($locations as $loc) {
             Cache::forget(self::CACHE_PREFIX.$loc);
+            foreach ($localeCodes as $code) {
+                Cache::forget(self::CACHE_PREFIX.$loc.'.'.$code);
+            }
         }
+    }
+
+    /** Locale-aware cache key (Phase 7 — B7). */
+    private static function cacheKey(string $location): string
+    {
+        return self::CACHE_PREFIX.$location.'.'.app()->getLocale();
     }
 
     public function nextSortOrder(Menu $menu, ?int $parentId): int
@@ -175,10 +189,12 @@ class MenuService
             ->whereIn('location', $locations)
             ->with(['rootItems' => fn ($query) => $query
                 ->active()
+                ->withTranslations() // Phase 7 (B7) — localize labels (N+1 guard)
                 ->with([
                     'linkable' => fn (MorphTo $linkable) => $this->constrainLinkable($linkable),
                     'children' => fn ($children) => $children
                         ->active()
+                        ->withTranslations()
                         ->with(['linkable' => fn (MorphTo $linkable) => $this->constrainLinkable($linkable)]),
                 ]),
             ])

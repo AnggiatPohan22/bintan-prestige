@@ -68,6 +68,7 @@ Before working, read this file + the skill(s) below that match your task.
 | Travel Business Logic | `travel-business-skill.md` |
 | Component Library | `COMPONENT-LIBRARY.md` |
 | Content Types / Field Groups / Fields / Entries (Phase 6) | `content-modeling-skill.md` + `field-types-skill.md` |
+| **Multi-language / locale / translation (Phase 7)** | `i18n-skill.md` |
 
 > Skill files live in: `ai/skills/`
 > Guidelines live in: `ai/guidelines/`
@@ -186,8 +187,64 @@ upload + theme parity, `<x-admin.media-image-field>` component, category image
 Suite **850/850** | PHPStan level 5: 0 errors.
 Plan + handoff + staged follow-ups: `ai/reports/phase-6.1/`.
 
-**Phase 7 — FUTURE**
+**Phase 7 — COMPLETE ✅ (branch: `feature/phase-7-a1-foundation` — 2026-07-10)**
 Internationalization — multi-language content for Bintan tourism market.
+Ship configuration: `en` (default, unprefixed) + `id` (`/id/…`). Everything localizes
+end-to-end from one admin: chrome (nav/CTA/footer/SEO defaults), pages,
+content entries, catalog (products/categories/destinations), menus, taxonomy
+terms, plus SEO surfaces (hreflang + x-default, per-locale sitemap with
+xhtml:link, canonical, OG `og:locale`, JSON-LD `inLanguage`, localized 404).
+
+**Stage A — Foundation, decisions & debt clearing — COMPLETE ✅**
+- A0 Architecture decisions: `id`+`en` (default `en` unprefixed), URL prefix
+  `/{code}` non-default, documents = row-per-locale, attributes = polymorphic
+  `translations` sidecar, menus = shared structure + sidecar labels, untranslated
+  documents hide/404, **zero new packages**.
+- A1: `StructuredDataBuilder` JSON-LD hex-escape flags (already at 74f1027);
+  TD-03 child-theme CLOSED (theme tokens + templates cover the need).
+- A2: `config/locales.php`, `SetLocale` middleware, per-locale route groups
+  (non-default first so prefixed `Route::fallback` wins), reserved-prefix guard
+  gains locale codes, lang scaffolding, header locale switcher.
+
+**Stage B — Build the engine — COMPLETE ✅ (B1–B10)**
+- B1: `translations` polymorphic sidecar + `App\Models\Concerns\Translatable`
+  trait (locale resolve + base-column fallback + N+1-guard eager-load scope).
+- B2: Global chrome localized via `SiteSetting.value` sidecar + dedicated admin
+  translation panel (allow-list) — 8 per-group forms untouched.
+- B3: `PageSection` localized (5 copy columns via sidecar; media/layout shared;
+  locale-aware accessors → home + product listing sections auto-localize).
+- B4 ⚠️: `pages` row-per-locale (mysqldump + ALTER: + locale + translation_group_id;
+  unique slug → (slug, locale)); admin "Translate to…" + per-locale panel; switcher
+  targets published counterparts.
+- B5 ⚠️: `content_entries` row-per-locale (same ALTER pattern); archive+single
+  filter by locale; `content_query` filters by locale.
+- B6: Catalog localized — `Product` (10 copy fields), `Category`, `Destination`
+  via sidecar + accessors; frontend queries eager-load translations.
+- B7: `MenuItem.label` + `Term.name/description` via sidecar (menu tree cache
+  keyed per locale).
+- B8: Admin translation-status badges (published/draft/missing) + locale filter
+  on Pages + Content Entries list views (N+1-fenced).
+- B9: `content_field` block resolves group sibling in current locale (attribute
+  fallback); admin builder preview sets `app locale = record.locale`.
+- B10: SEO i18n — dynamic `<html lang>`; `partials/site-hreflang.blade.php` with
+  `x-default`; OG `og:locale`; JSON-LD `inLanguage`; sitemap grouped by
+  translation_group_id with `xhtml:link` alternates; localized 404 view.
+
+**Stage C — Release audit — COMPLETE ✅ (C1–C4)**
+- C1: PHPStan L5/0 errors; every `{!! !!}` classified as safe; zero raw-echo of
+  translation-sourced values. Added `C1EscapeAuditTest` as regression fence
+  (malicious sidecar values render escaped in chrome + hero + JSON-LD).
+- C2: 10 performance fences — 6 warm-latency budgets ≤300ms, product-listing
+  translation query count SCALES FLAT with catalog size (6→24 products; N+1
+  would multiply), home ≤6, switcher/hreflang no fanout, sitemap ≤1 pages query.
+- C3: 13 functional smoke fences — locale route matrix (default + prefixed),
+  document fallback (untranslated/draft 404 in that locale only), attribute
+  fallback, admin guards on all Phase 7 endpoints, legacy-URL parity
+  (route('pages.show', $slug) byte-identical).
+- C4: `docs/modules/internationalization.md`, `ai/skills/i18n-skill.md`,
+  CHANGELOG, AGENTS/CLAUDE.md sync, Phase 8 prep notes.
+
+Grand plan + progress: `ai/reports/phase-7/phase-7-progress-handoff.md`
 
 **Phase 8 — FUTURE**
 Operational Maturity — backup/restore, import/export, monitoring dashboard.
@@ -277,6 +334,44 @@ Every new module must follow this sequence:
 - Work section by section
 - Keep commits focused on one concern
 
+**Database — non-negotiable (formalized after the Phase 6 §16 dev-DB wipe incident):**
+- **NEVER** run `php artisan migrate:fresh` or `migrate:reset` against a MySQL DB —
+  our test suite uses sqlite in-memory; there is no legitimate reason to wipe
+  MySQL. The dev DB carries recovery data that cannot be reconstructed.
+- **NEVER** run `php artisan config:cache` in dev. `.env` values leak into a
+  stale cache — this is the exact mechanism that triggered the Phase 6 wipe.
+  Use `php artisan optimize:clear` instead.
+- **ALWAYS** take a `mysqldump` before every ALTER on an existing table
+  (including `DROP INDEX`, `RENAME COLUMN`, `ALTER … DEFAULT`).
+  Naming convention: `storage/app/db-backups/pre-{task-id}-{YYYYMMDD-HHMMSS}.sql`.
+  This is a hard rule, not a suggestion — even for "trivial" ALTERs.
+- **ALL** migrations must be additive + reversible. Test `migrate:rollback --step=1`
+  on the branch before merging. If a migration drops a column, split it into a
+  separate migration so the rollback point is clean.
+- MySQL `log_bin` must stay ON (binlog recovery saved us in Phase 6). Retention
+  ≥14 days. Never delete files in `storage/app/binlog-recovery/`.
+- Every deploy (even hotfix) preceded by a `mysqldump`. Automate this in Phase 8.
+
+**Environment isolation:**
+- `.env`, `.env.testing`, `.env.production` MUST have different `DB_DATABASE`
+  values. `tests/TestCase.php` refuses non-sqlite test DBs — never loosen that
+  guard.
+- `.env*` files never commit (only `.env.example`). Verify `.gitignore` before
+  each session.
+- Deploy checklist: `optimize:clear` → `mysqldump` → `migrate --pretend` (review
+  SQL) → `migrate --force`. Skipping any step is a bug.
+
+**Every task must leave a regression fence:**
+- Fences over benchmarks (Phase 7 C1/C2/C3 pattern). One-shot smoke tests age
+  badly; every new feature ships with named tests that fail loudly when the
+  invariant regresses.
+- New N+1-sensitive path → test that scales the fixture and asserts query count
+  is flat (see `C2PerformanceAuditTest::test_products_index_translation_queries_do_not_grow_with_product_count`).
+- New surface with escaping → test that malicious input renders escaped (see
+  `C1EscapeAuditTest`).
+- New behavioural rule → smoke test that fails when the rule is violated (see
+  `C3FunctionalSmokeTest`).
+
 ---
 
 ## 9. Approval Required Before Acting
@@ -290,8 +385,17 @@ Ask for explicit approval before:
 - Installing new Composer or NPM packages
 - Changing auth or security-sensitive logic
 - Moving or deleting existing documentation
+- **Any production deploy or `migrate --force` on the dev DB after an ALTER**
+- **Any change to `.env*` files** (production or otherwise)
 
-Write the plan first. Wait for approval. Then implement.
+Write the plan first. Wait for approval. Then implement. The owner must write
+"approved" explicitly in the conversation before the task starts — a thumbs-up
+emoji or "ok" is not enough for schema/security/package changes.
+
+**Zero new packages by default.** Every Composer/NPM addition needs a specific
+justification ("no clean way to build X in ≤50 LOC") AND a 24-hour review window.
+Phase 7 shipped a full multi-language stack with zero new packages — the same
+bar applies going forward.
 
 ---
 
@@ -349,7 +453,65 @@ Use this after every completed task. Keep it short — use the template:
 
 ---
 
-## 13. Final Principle
+## 13. Data-Safety Runbook (mandatory quick-reference)
+
+**Before ANY task that touches an existing table:**
+
+```bash
+# 1. Backup FIRST (naming convention is enforced)
+TS=$(date +%Y%m%d-%H%M%S)
+mysqldump -h127.0.0.1 -uroot bintan_prestige \
+  > storage/app/db-backups/pre-{task-id}-$TS.sql
+
+# 2. Review the SQL Laravel will run BEFORE running it
+php artisan migrate --pretend
+
+# 3. Only then apply
+php artisan migrate --force
+
+# 4. Verify rollback path works on the same branch (before merging)
+php artisan migrate:rollback --step=1
+php artisan migrate --force
+```
+
+**If a migration fails mid-run:**
+
+```bash
+# a. Do NOT panic-run migrate:fresh — that will complete the wipe.
+php artisan migrate:status                     # see which ran
+php artisan migrate:rollback --step=<n>        # roll back the failed one
+# b. If down() itself fails (FK/index conflicts):
+mysql bintan_prestige < storage/app/db-backups/pre-<task>-<ts>.sql
+```
+
+**If data gets corrupted or accidentally deleted:**
+
+1. **Do not run any writes** to bintan_prestige. Screenshot the error.
+2. Restore into a SEPARATE DB first — never into the live DB:
+   ```bash
+   mysql -e "CREATE DATABASE bintan_prestige_recovery"
+   mysql bintan_prestige_recovery < storage/app/db-backups/<newest-backup>.sql
+   ```
+3. Selectively import back what you need (mirror Phase 6 §16 recovery pattern).
+4. Only after verification, swap DBs or replay binlogs.
+
+**Guards that must NEVER be loosened:**
+
+- `tests/TestCase.php` refuses non-sqlite test DBs.
+- `.gitignore` excludes `.env*` (except `.env.example`).
+- MySQL `log_bin` stays ON with ≥14 day retention.
+- `storage/app/binlog-recovery/` files are never deleted.
+- `storage/app/db-backups/` is gitignored but kept on disk indefinitely for
+  any backup < 90 days old.
+
+**Every feature branch must include, in its final commit:**
+
+- A regression fence test (see §8 "Every task must leave a regression fence").
+- A one-line rollback command in the report `### Rollback` section.
+
+---
+
+## 14. Final Principle
 
 Improve this project safely, incrementally, and transparently.
 

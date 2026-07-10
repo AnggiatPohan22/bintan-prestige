@@ -106,6 +106,8 @@
         </nav>
 
         <div class="frontend-header__actions">
+            @include('frontend.partials.locale-switcher', ['variant' => 'inline'])
+
             <button
                 type="button"
                 class="btn btn-outline btn-icon frontend-header__menu"
@@ -229,6 +231,8 @@
                     </div>
                 @endforeach
             </nav>
+
+            @include('frontend.partials.locale-switcher', ['variant' => 'stacked'])
 
             <a
                 href="{{ $headerCtaUrl }}"

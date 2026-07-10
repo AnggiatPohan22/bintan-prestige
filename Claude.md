@@ -2,8 +2,8 @@
 **Version:** 1.0
 
 **Stack:** Laravel 13.8 | PHP 8.3 | Tailwind CSS | Alpine.js | MySQL
-**Phase:** Phase 6.1 — Dashboard & Media UX (current, interim before Phase 7). Phase 6 (Flexible Content Modeling) complete — 2026-07-07.
-**Status:** Core CMS + page builder + theme system + plugin system + visual builder + content modeling complete. UI scheme: Navy + gold (DB-stored). See AGENTS.md §4 for full phase history.
+**Phase:** Phase 7 — Internationalization COMPLETE ✅ (2026-07-10). Phase 6.1 (Dashboard & Media UX) complete — 2026-07-08. Phase 6 (Flexible Content Modeling) complete — 2026-07-07.
+**Status:** Core CMS + page builder + theme system + plugin system + visual builder + content modeling + **multi-language (en/id)** complete. UI scheme: Navy + gold (DB-stored). See AGENTS.md §4 for full phase history.
 
 ---
 
@@ -84,6 +84,28 @@ dashboard. No hardcoded frontend content. Backend controls everything.
 
 ---
 
+## Data-Safety Hard Rules (read every session — non-negotiable)
+
+These are formalized in `AGENTS.md` §8 + §13. Never violate them, even if a task
+seems trivial:
+
+- **NEVER** `php artisan migrate:fresh` or `migrate:reset` — sqlite in-memory is
+  used for tests; MySQL never needs wiping. This is the exact mistake that wiped
+  the dev DB in Phase 6.
+- **NEVER** `php artisan config:cache` in dev. Use `optimize:clear`.
+- **ALWAYS** `mysqldump` before ANY ALTER on an existing table, filename
+  `storage/app/db-backups/pre-{task}-{YYYYMMDD-HHMMSS}.sql`. No exceptions.
+- **ALWAYS** additive + reversible migrations. Test `migrate:rollback --step=1`
+  before merging.
+- **NEVER** loosen `tests/TestCase.php`'s non-sqlite refusal guard.
+- Owner writes "**approved**" (not "ok" or 👍) before schema/security/package
+  changes. See AGENTS.md §9.
+- Every feature branch must ship a **regression fence test** (Phase 7
+  C1/C2/C3 pattern) — not just happy-path smoke.
+- Zero new packages by default. Phase 7 shipped end-to-end i18n without any.
+
+---
+
 ## Skill Map — Load Only What's Needed
 
 | Task | Skill Files to Read |
@@ -105,6 +127,7 @@ dashboard. No hardcoded frontend content. Backend controls everything.
 | Component Library | `COMPONENT-LIBRARY.md` |
 | Admin Dashboard | `admin-dashboard-skill.md` |
 | Products / Tours | `product-management-skill.md` |
+| **Multi-language / locale / translation (Phase 7)** | `i18n-skill.md` |
 
 > Skill files are in `ai/skills/`. Guidelines are in `ai/guidelines/`.
 
