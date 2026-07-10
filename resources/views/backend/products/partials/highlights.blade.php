@@ -134,7 +134,8 @@
 
                             <div class="min-w-0">
                                 <p class="font-semibold text-admin-primary">
-                                    {{ $highlight->title }}
+                                    {{-- Admin is EN-only (§1.2); show base column regardless. --}}
+                                    {{ $highlight->getRawOriginal('title') }}
                                 </p>
 
                                 <p class="mt-1 text-xs font-semibold text-admin-secondary">
@@ -172,10 +173,10 @@
 
                         <div
                             id="edit-highlight-{{ $highlight->id }}"
-                            class="fixed inset-0 z-50 hidden bg-slate-900/50 p-4"
+                            class="fixed inset-0 z-50 hidden overflow-y-auto bg-slate-900/50 p-4"
                             data-modal
                         >
-                        <div class="admin-modal-content mx-auto mt-16 max-w-lg">
+                        <div class="admin-modal-content mx-auto my-10 max-w-lg">
                             <div class="mb-5 flex items-center justify-between gap-4">
                                 <h3 class="text-lg font-bold text-admin-primary">
                                     Edit Highlight
@@ -204,11 +205,17 @@
                                     <input
                                         type="text"
                                         name="title"
-                                        value="{{ $highlight->title }}"
+                                        value="{{ $highlight->getRawOriginal('title') }}"
                                         class="admin-input"
                                         required
                                     >
                                 </div>
+
+                                @include('backend.products.partials._translations-inline', [
+                                    'record' => $highlight,
+                                    'fields' => ['title' => 'Title'],
+                                    'textareaFields' => [],
+                                ])
 
                                 <div>
                                     <label class="admin-form-label">Icon</label>

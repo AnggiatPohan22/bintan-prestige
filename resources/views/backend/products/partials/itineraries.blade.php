@@ -140,19 +140,20 @@
                             <div class="min-w-0 flex-1">
                                 <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                                     <div class="min-w-0">
-                                        @if($itinerary->time)
+                                        {{-- Admin is EN-only (§1.2); show base column regardless. --}}
+                                        @if($itinerary->getRawOriginal('time'))
                                             <div class="mb-2 inline-flex items-center rounded-full border border-admin bg-admin-card px-3 py-1 text-xs font-semibold text-admin-secondary">
-                                                {{ $itinerary->time }}
+                                                {{ $itinerary->getRawOriginal('time') }}
                                             </div>
                                         @endif
 
                                         <h4 class="text-base font-semibold leading-snug text-admin-primary">
-                                            {{ $itinerary->title }}
+                                            {{ $itinerary->getRawOriginal('title') }}
                                         </h4>
 
-                                        @if($itinerary->description)
+                                        @if($itinerary->getRawOriginal('description'))
                                             <p class="mt-2 whitespace-pre-line text-sm leading-relaxed text-admin-secondary">
-                                                {{ $itinerary->description }}
+                                                {{ $itinerary->getRawOriginal('description') }}
                                             </p>
                                         @endif
 
@@ -228,7 +229,7 @@
                                                     <input
                                                         type="text"
                                                         name="time"
-                                                        value="{{ $itinerary->time }}"
+                                                        value="{{ $itinerary->getRawOriginal('time') }}"
                                                         class="admin-input"
                                                     >
                                                 </div>
@@ -238,7 +239,7 @@
                                                     <input
                                                         type="text"
                                                         name="title"
-                                                        value="{{ $itinerary->title }}"
+                                                        value="{{ $itinerary->getRawOriginal('title') }}"
                                                         class="admin-input"
                                                         required
                                                     >
@@ -250,8 +251,18 @@
                                                         name="description"
                                                         rows="4"
                                                         class="admin-textarea"
-                                                    >{{ $itinerary->description }}</textarea>
+                                                    >{{ $itinerary->getRawOriginal('description') }}</textarea>
                                                 </div>
+
+                                                @include('backend.products.partials._translations-inline', [
+                                                    'record' => $itinerary,
+                                                    'fields' => [
+                                                        'time' => 'Time',
+                                                        'title' => 'Title',
+                                                        'description' => 'Description',
+                                                    ],
+                                                    'textareaFields' => ['description'],
+                                                ])
 
                                                 <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                                     <div>

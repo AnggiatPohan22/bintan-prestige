@@ -523,6 +523,7 @@
                 'short_description' => 'Short description',
                 'description' => 'Description',
                 'meeting_point' => 'Meeting point',
+                'duration' => 'Duration',
                 'pickup_note' => 'Pickup note',
                 'cta_title' => 'CTA title',
                 'cta_description' => 'CTA description',

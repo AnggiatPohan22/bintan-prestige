@@ -174,7 +174,8 @@
                                     <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                                         <div class="min-w-0">
                                             <p class="font-semibold text-admin-primary">
-                                                {{ $feature->value }}
+                                                {{-- Admin is EN-only (§1.2); show base column regardless. --}}
+                                                {{ $feature->getRawOriginal('value') }}
                                             </p>
 
                                             <p class="mt-1 text-xs font-semibold text-admin-secondary">
@@ -212,10 +213,10 @@
 
                                     <div
                                         id="edit-feature-{{ $feature->id }}"
-                                        class="fixed inset-0 z-50 hidden bg-slate-900/50 p-4"
+                                        class="fixed inset-0 z-50 hidden overflow-y-auto bg-slate-900/50 p-4"
                                         data-modal
                                     >
-                                        <div class="admin-modal-content mx-auto mt-16 max-w-lg">
+                                        <div class="admin-modal-content mx-auto my-10 max-w-lg">
                                             <div class="mb-5 flex items-center justify-between gap-4">
                                                 <h3 class="text-lg font-bold text-admin-primary">
                                                     Edit Feature
@@ -255,11 +256,17 @@
                                                     <input
                                                         type="text"
                                                         name="value"
-                                                        value="{{ $feature->value }}"
+                                                        value="{{ $feature->getRawOriginal('value') }}"
                                                         class="admin-input"
                                                         required
                                                     >
                                                 </div>
+
+                                                @include('backend.products.partials._translations-inline', [
+                                                    'record' => $feature,
+                                                    'fields' => ['value' => 'Value'],
+                                                    'textareaFields' => [],
+                                                ])
 
                                                 <div>
                                                     <label class="admin-form-label">Sort Order</label>

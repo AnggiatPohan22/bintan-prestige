@@ -831,11 +831,14 @@ class ProductController extends Controller
                 'images' => fn ($query) => $query
                     ->orderBy('sort_order')
                     ->orderBy('id'),
-                'highlights',
-                'features',
-                'faqs',
-                'itineraries',
-                'notes',
+                // Phase 7 (B6.1) — child sections localize via the same sidecar;
+                // each relation is one batched WHERE-IN, so translated child copy
+                // stays free of per-attribute lookups.
+                'highlights'  => fn ($q) => $q->withTranslations(),
+                'features'    => fn ($q) => $q->withTranslations(),
+                'faqs'        => fn ($q) => $q->withTranslations(),
+                'itineraries' => fn ($q) => $q->withTranslations(),
+                'notes'       => fn ($q) => $q->withTranslations(),
             ])
             ->firstOrFail();
         $globalViewData = $globalSettings->viewData();

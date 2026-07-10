@@ -27,6 +27,7 @@ class Product extends Model
         'short_description',
         'description',
         'meeting_point',
+        'duration',
         'pickup_note',
         'cta_title',
         'cta_description',
@@ -329,4 +330,5 @@ class Product extends Model
     public function getCtaButtonTextAttribute(): ?string    { return $this->translate('cta_button_text'); }
     public function getMetaTitleAttribute(): ?string        { return $this->translate('meta_title'); }
     public function getMetaDescriptionAttribute(): ?string  { return $this->translate('meta_description'); }
+    public function getDurationAttribute(): ?string         { return $this->translate('duration'); }
 }
