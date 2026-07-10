@@ -122,12 +122,13 @@
                             </span>
 
                             <h4 class="font-semibold text-admin-primary leading-snug">
-                                {{ $faq->question }}
+                                {{-- Admin is EN-only (§1.2); show base column regardless. --}}
+                                {{ $faq->getRawOriginal('question') }}
                             </h4>
                         </div>
 
                         <p class="text-sm text-admin-secondary leading-relaxed whitespace-pre-line">
-                            {{ $faq->answer }}
+                            {{ $faq->getRawOriginal('answer') }}
                         </p>
                     </div>
 
@@ -192,7 +193,7 @@
                                     <input
                                         type="text"
                                         name="question"
-                                        value="{{ $faq->question }}"
+                                        value="{{ $faq->getRawOriginal('question') }}"
                                         class="admin-input"
                                         required
                                     >
@@ -205,8 +206,14 @@
                                         rows="4"
                                         class="admin-textarea"
                                         required
-                                    >{{ $faq->answer }}</textarea>
+                                    >{{ $faq->getRawOriginal('answer') }}</textarea>
                                 </div>
+
+                                @include('backend.products.partials._translations-inline', [
+                                    'record' => $faq,
+                                    'fields' => ['question' => 'Question', 'answer' => 'Answer'],
+                                    'textareaFields' => ['answer'],
+                                ])
 
                                 <div>
                                     <label class="admin-form-label">Sort Order</label>

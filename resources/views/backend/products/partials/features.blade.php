@@ -174,7 +174,8 @@
                                     <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                                         <div class="min-w-0">
                                             <p class="font-semibold text-admin-primary">
-                                                {{ $feature->value }}
+                                                {{-- Admin is EN-only (§1.2); show base column regardless. --}}
+                                                {{ $feature->getRawOriginal('value') }}
                                             </p>
 
                                             <p class="mt-1 text-xs font-semibold text-admin-secondary">
@@ -255,11 +256,17 @@
                                                     <input
                                                         type="text"
                                                         name="value"
-                                                        value="{{ $feature->value }}"
+                                                        value="{{ $feature->getRawOriginal('value') }}"
                                                         class="admin-input"
                                                         required
                                                     >
                                                 </div>
+
+                                                @include('backend.products.partials._translations-inline', [
+                                                    'record' => $feature,
+                                                    'fields' => ['value' => 'Value'],
+                                                    'textareaFields' => [],
+                                                ])
 
                                                 <div>
                                                     <label class="admin-form-label">Sort Order</label>

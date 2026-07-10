@@ -10,9 +10,12 @@ use App\Models\ProductHighlight;
 use Illuminate\Http\Request;
 
 use App\Services\ProductHighlightService;
+use App\Support\ChildTranslations;
 
 class ProductHighlightController extends Controller
 {
+    private const TRANSLATABLE_FIELDS = ['title'];
+
     public function __construct(
         protected ProductHighlightService
         $productHighlightService
@@ -23,29 +26,19 @@ class ProductHighlightController extends Controller
         Product $product
     ) {
 
-        $validated = $request->validate([
+        $validated = $request->validate(array_merge([
+            'title' => ['required', 'max:255'],
+            'icon' => ['nullable', 'max:255'],
+            'sort_order' => ['nullable', 'integer'],
+        ], ChildTranslations::rulesFor(self::TRANSLATABLE_FIELDS, 255)));
 
-            'title' => [
-                'required',
-                'max:255'
-            ],
-
-            'icon' => [
-                'nullable',
-                'max:255'
-            ],
-
-            'sort_order' => [
-                'nullable',
-                'integer'
-            ],
-        ]);
-
-        $this->productHighlightService
+        $highlight = $this->productHighlightService
             ->create(
                 $product,
                 $validated
             );
+
+        ChildTranslations::syncFromRequest($request, $highlight, self::TRANSLATABLE_FIELDS);
 
         return redirect()->back()->withFragment('highlights-section')->with(
             'success',
@@ -58,29 +51,19 @@ class ProductHighlightController extends Controller
         ProductHighlight $highlight
     ) {
 
-        $validated = $request->validate([
-
-            'title' => [
-                'required',
-                'max:255'
-            ],
-
-            'icon' => [
-                'nullable',
-                'max:255'
-            ],
-
-            'sort_order' => [
-                'nullable',
-                'integer'
-            ],
-        ]);
+        $validated = $request->validate(array_merge([
+            'title' => ['required', 'max:255'],
+            'icon' => ['nullable', 'max:255'],
+            'sort_order' => ['nullable', 'integer'],
+        ], ChildTranslations::rulesFor(self::TRANSLATABLE_FIELDS, 255)));
 
         $this->productHighlightService
             ->update(
                 $highlight,
                 $validated
             );
+
+        ChildTranslations::syncFromRequest($request, $highlight, self::TRANSLATABLE_FIELDS);
 
         return redirect()->back()->withFragment('highlights-section')->with(
             'success',

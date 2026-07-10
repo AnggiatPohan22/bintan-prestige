@@ -134,7 +134,8 @@
 
                             <div class="min-w-0">
                                 <p class="font-semibold text-admin-primary">
-                                    {{ $highlight->title }}
+                                    {{-- Admin is EN-only (§1.2); show base column regardless. --}}
+                                    {{ $highlight->getRawOriginal('title') }}
                                 </p>
 
                                 <p class="mt-1 text-xs font-semibold text-admin-secondary">
@@ -204,11 +205,17 @@
                                     <input
                                         type="text"
                                         name="title"
-                                        value="{{ $highlight->title }}"
+                                        value="{{ $highlight->getRawOriginal('title') }}"
                                         class="admin-input"
                                         required
                                     >
                                 </div>
+
+                                @include('backend.products.partials._translations-inline', [
+                                    'record' => $highlight,
+                                    'fields' => ['title' => 'Title'],
+                                    'textareaFields' => [],
+                                ])
 
                                 <div>
                                     <label class="admin-form-label">Icon</label>

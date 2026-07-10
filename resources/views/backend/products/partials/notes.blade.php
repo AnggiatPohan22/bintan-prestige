@@ -105,9 +105,10 @@
 
                                 <div class="min-w-0 flex-1">
                                     <div class="mb-2 flex flex-wrap items-center gap-2">
-                                        @if($note->title)
+                                        {{-- Admin is EN-only (§1.2); show base column regardless. --}}
+                                        @if($note->getRawOriginal('title'))
                                             <h4 class="font-semibold leading-snug text-admin-primary">
-                                                {{ $note->title }}
+                                                {{ $note->getRawOriginal('title') }}
                                             </h4>
                                         @else
                                             <h4 class="font-semibold leading-snug text-admin-primary">
@@ -121,7 +122,7 @@
                                     </div>
 
                                     <p class="whitespace-pre-line text-sm leading-relaxed text-admin-secondary">
-                                        {{ $note->description }}
+                                        {{ $note->getRawOriginal('description') }}
                                     </p>
                                 </div>
                             </div>
@@ -187,7 +188,7 @@
                                             <input
                                                 type="text"
                                                 name="title"
-                                                value="{{ $note->title }}"
+                                                value="{{ $note->getRawOriginal('title') }}"
                                                 class="admin-input"
                                             >
                                         </div>
@@ -199,8 +200,14 @@
                                                 rows="4"
                                                 class="admin-textarea"
                                                 required
-                                            >{{ $note->description }}</textarea>
+                                            >{{ $note->getRawOriginal('description') }}</textarea>
                                         </div>
+
+                                        @include('backend.products.partials._translations-inline', [
+                                            'record' => $note,
+                                            'fields' => ['title' => 'Title', 'description' => 'Description'],
+                                            'textareaFields' => ['description'],
+                                        ])
 
                                         <div>
                                             <label class="admin-form-label">Sort Order</label>

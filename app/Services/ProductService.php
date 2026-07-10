@@ -20,6 +20,7 @@ class ProductService
         'short_description',
         'description',
         'meeting_point',
+        'duration',
         'pickup_note',
         'cta_title',
         'cta_description',

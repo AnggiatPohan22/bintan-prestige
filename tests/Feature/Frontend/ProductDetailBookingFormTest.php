@@ -1368,7 +1368,10 @@ class ProductDetailBookingFormTest extends TestCase
         // +1 for HandleRedirects middleware (cold cache on first request).
         // Phase 7 (B6): +3 for translations eager-load on product + category +
         // destination (traded per-attribute lazy queries for one per-relation).
-        $this->assertLessThanOrEqual(25, $queryCount);
+        // Phase 7 (B6.1): +4 for translations eager-load on highlights, features,
+        // faqs, itineraries, notes (same batched-vs-per-attribute trade-off; one
+        // relation may not fire when its fixture is empty).
+        $this->assertLessThanOrEqual(29, $queryCount);
     }
 
     private function createProduct(

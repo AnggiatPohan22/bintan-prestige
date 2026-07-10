@@ -6,32 +6,29 @@ use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\ProductFaq;
 use App\Services\ProductFaqService;
+use App\Support\ChildTranslations;
 use Illuminate\Http\Request;
 
 class ProductFaqController extends Controller
 {
+    private const TRANSLATABLE_FIELDS = ['question', 'answer'];
+
     public function __construct(
         protected ProductFaqService $productFaqService
     ) {}
 
     public function store(Request $request, Product $product)
     {
-        $validated = $request->validate([
-            'question' => [
-                'required',
-                'max:255',
-            ],
-            'answer' => [
-                'required',
-            ],
-            'sort_order' => [
-                'nullable',
-                'integer',
-            ],
-        ]);
+        $validated = $request->validate(array_merge([
+            'question' => ['required', 'max:255'],
+            'answer' => ['required'],
+            'sort_order' => ['nullable', 'integer'],
+        ], ChildTranslations::rulesFor(self::TRANSLATABLE_FIELDS)));
 
-        $this->productFaqService
+        $faq = $this->productFaqService
             ->create($product, $validated);
+
+        ChildTranslations::syncFromRequest($request, $faq, self::TRANSLATABLE_FIELDS);
 
         return redirect()->back()->withFragment('faqs-section')->with(
             'success',
@@ -41,22 +38,16 @@ class ProductFaqController extends Controller
 
     public function update(Request $request, ProductFaq $faq)
     {
-        $validated = $request->validate([
-            'question' => [
-                'required',
-                'max:255',
-            ],
-            'answer' => [
-                'required',
-            ],
-            'sort_order' => [
-                'nullable',
-                'integer',
-            ],
-        ]);
+        $validated = $request->validate(array_merge([
+            'question' => ['required', 'max:255'],
+            'answer' => ['required'],
+            'sort_order' => ['nullable', 'integer'],
+        ], ChildTranslations::rulesFor(self::TRANSLATABLE_FIELDS)));
 
         $this->productFaqService
             ->update($faq, $validated);
+
+        ChildTranslations::syncFromRequest($request, $faq, self::TRANSLATABLE_FIELDS);
 
         return redirect()->back()->withFragment('faqs-section')->with(
             'success',
