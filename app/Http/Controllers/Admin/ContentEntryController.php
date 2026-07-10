@@ -21,7 +21,13 @@ class ContentEntryController extends Controller
 
     public function index(Request $request, ContentType $contentType)
     {
-        $status = $request->query('status');
+        $status       = $request->query('status');
+        $localeFilter = $request->query('locale');
+        $activeCodes  = Locales::activeCodes();
+
+        if ($localeFilter !== null && ! in_array($localeFilter, $activeCodes, true)) {
+            $localeFilter = null;
+        }
 
         $active = $contentType->entries()
             ->when($status && $status !== 'all', fn ($q) => $q->where('status', $status))
@@ -29,7 +35,12 @@ class ContentEntryController extends Controller
                 fn ($q2) => $q2->where('title', 'like', '%'.$request->search.'%')
                                ->orWhere('slug', 'like', '%'.$request->search.'%')
             ))
-            ->with('author')
+            ->when($localeFilter, fn ($q) => $q->where('locale', $localeFilter))
+            ->with([
+                'author',
+                // Phase 7 (B8) — sibling status for per-locale badges (N+1 guard).
+                'translationSiblings' => fn ($q) => $q->select('id', 'translation_group_id', 'locale', 'status'),
+            ])
             ->ordered()
             ->paginate(20)
             ->withQueryString();
@@ -41,7 +52,7 @@ class ContentEntryController extends Controller
 
         $counts = ContentEntry::STATUSES;
 
-        return view('backend.content-entries.index', compact('contentType', 'active', 'archived', 'counts'));
+        return view('backend.content-entries.index', compact('contentType', 'active', 'archived', 'counts', 'localeFilter'));
     }
 
     public function create(ContentType $contentType)

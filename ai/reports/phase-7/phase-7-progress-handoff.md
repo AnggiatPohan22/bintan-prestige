@@ -35,6 +35,15 @@ no `lang/` folder; **0** `__()`/`@lang`/`trans()` calls in `resources/views/fron
 | A1 | Carry-over debt (StructuredDataBuilder JSON-LD flags; close TD-03 child-theme) | ✅ DONE (2026-07-09) | ⚠️ edits Phase 4 code (no change needed) |
 | A2 | Locale foundation (config/locales.php, SetLocale middleware, prefix route group, reserved-prefix guard, lang scaffolding, switcher chrome) | ✅ DONE (2026-07-09) | ⚠️ route registration change (shipped) |
 
+> **B8 shipped (2026-07-10) — M4 admin polish:** Pages + Content Entries list views
+> gained a shared `translation-badges.blade.php` partial (● per active locale:
+> published/draft/missing) between Status and Sort/Author, plus a locale filter
+> `<select>` next to the existing status filter. Controllers accept a validated
+> `locale` query param and eager-load `translationSiblings` (id, group, locale,
+> status) — badges add 1 query total for the whole list (regression-tested).
+> Everything is opt-in on `count(Locales::active()) > 1`. Report:
+> `ai/reports/phase-7/b8-admin-translation-ux.md`.
+
 > **B7 shipped (2026-07-10) — M4 further progress:** `MenuItem` uses `Translatable`
 > (`$translatable=['label']`, A0 §3.5 Opt A: structure shared, only labels localized),
 > `Term` gains name+description. `MenuService::buildMany` eager-loads translations on
@@ -123,7 +132,7 @@ no `lang/` folder; **0** `__()`/`@lang`/`trans()` calls in `resources/views/fron
 | B5 | Content Entries row-per-locale (same as B4; locale-aware controllers + index) | ✅ DONE (2026-07-09) | ⚠️ ALTER on existing `content_entries` (approved, dumped, migrated) |
 | B6 | Catalog localized (Products/Categories/Destinations via sidecar) | ✅ DONE (2026-07-10) | — (business milestone shipped) |
 | B7 | Menus (sidecar labels) & Terms localized | ✅ DONE (2026-07-10) | — |
-| B8 | Admin translation UX pass (status column, locale filter, edit-screen switcher) | ⏳ TODO | — |
+| B8 | Admin translation UX pass (status column, locale filter, edit-screen switcher) | ✅ DONE (2026-07-10) | — |
 | B9 | Builder bridge locale-aware (`content_query` + `content_field`; per-locale preview) | 🔶 PARTIAL — `content_query` locale-filtered at B5; `content_field` + preview still TODO | — |
 | B10 | SEO i18n (hreflang + x-default, per-locale sitemap, canonical/OG/JSON-LD inLanguage, localized 404) | ⏳ TODO | — |
 

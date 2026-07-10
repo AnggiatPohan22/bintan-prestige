@@ -31,6 +31,20 @@
                         <option value="draft" @selected(request('status') === 'draft')>Draft</option>
                         <option value="scheduled" @selected(request('status') === 'scheduled')>Scheduled</option>
                     </select>
+
+                    @if(count(\App\Support\Locales::active()) > 1)
+                        <select
+                            name="locale"
+                            class="admin-input w-full sm:w-32"
+                            onchange="this.form.submit()"
+                            title="Filter by locale"
+                        >
+                            <option value="">All Locales</option>
+                            @foreach(\App\Support\Locales::active() as $__code => $__meta)
+                                <option value="{{ $__code }}" @selected(request('locale') === $__code)>{{ strtoupper($__code) }}</option>
+                            @endforeach
+                        </select>
+                    @endif
                 </form>
 
                 <a
@@ -58,6 +72,9 @@
                         <tr class="admin-table-header">
                             <th class="px-4 py-4">Page</th>
                             <th class="px-4 py-4">Status</th>
+                            @if(count(\App\Support\Locales::active()) > 1)
+                                <th class="px-4 py-4">Translations</th>
+                            @endif
                             <th class="px-4 py-4">Sort</th>
                             <th class="px-4 py-4">Updated</th>
                             <th class="px-4 py-4 text-right">Action</th>
@@ -93,6 +110,15 @@
                                         <p class="mt-1 max-w-44 text-xs text-admin-secondary">Admin preview only; hidden from public pages and menus.</p>
                                     @endif
                                 </td>
+
+                                @if(count(\App\Support\Locales::active()) > 1)
+                                    <td class="px-4 py-4">
+                                        @include('backend._partials.translation-badges', [
+                                            'record'   => $page,
+                                            'siblings' => $page->translationSiblings,
+                                        ])
+                                    </td>
+                                @endif
 
                                 <td class="px-4 py-4 text-sm text-admin-secondary">
                                     {{ $page->sort_order }}
@@ -165,7 +191,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="5" class="px-4 py-10">
+                                <td colspan="{{ count(\App\Support\Locales::active()) > 1 ? 6 : 5 }}" class="px-4 py-10">
                                     <div class="admin-empty-state">
                                         <p class="font-medium text-admin-secondary">No pages found.</p>
                                         <p class="mt-1 text-sm text-admin-secondary">

@@ -27,6 +27,13 @@ class PageController extends Controller
 
     public function index(Request $request)
     {
+        $localeFilter = $request->query('locale');
+        $activeCodes  = Locales::activeCodes();
+
+        if ($localeFilter !== null && ! in_array($localeFilter, $activeCodes, true)) {
+            $localeFilter = null;
+        }
+
         $pages = Page::query()
             ->when(
                 $request->search,
@@ -36,13 +43,18 @@ class PageController extends Controller
                 $request->status,
                 fn ($q) => $q->where('status', $request->status)
             )
+            ->when($localeFilter, fn ($q) => $q->where('locale', $localeFilter))
+            // Phase 7 (B8) — one lookup for every sibling's status; per-locale
+            // badges rendered from this collection without N+1.
+            ->with(['translationSiblings' => fn ($q) => $q->select('id', 'translation_group_id', 'locale', 'status')])
             ->ordered()
             ->latest('updated_at')
             ->paginate(15)
             ->withQueryString();
 
         return view('backend.pages.index', [
-            'pages' => $pages,
+            'pages'        => $pages,
+            'localeFilter' => $localeFilter,
         ]);
     }
 
