@@ -35,6 +35,16 @@ no `lang/` folder; **0** `__()`/`@lang`/`trans()` calls in `resources/views/fron
 | A1 | Carry-over debt (StructuredDataBuilder JSON-LD flags; close TD-03 child-theme) | ✅ DONE (2026-07-09) | ⚠️ edits Phase 4 code (no change needed) |
 | A2 | Locale foundation (config/locales.php, SetLocale middleware, prefix route group, reserved-prefix guard, lang scaffolding, switcher chrome) | ✅ DONE (2026-07-09) | ⚠️ route registration change (shipped) |
 
+> **C3 shipped (2026-07-10) — Functional smoke fences green:** 13 tests across
+> five axes: locale route matrix (default + prefixed variants all 200; route
+> names both unprefixed and `id.*` resolve); document fallback (untranslated →
+> 404 that locale only, draft translation → 404 that locale only, both for pages
+> and content entries); attribute fallback (base column = ID locale value on that
+> row); admin guards on `pages.translate`, `entries.translate`, and the settings
+> translation panel; legacy-URL parity (default `<html lang="en">`, canonical,
+> switcher present; `route('pages.show', $slug)` byte-identical; locale codes
+> reserved as content-type route_base). Report: `ai/reports/phase-7/c3-functional-smoke-test.md`.
+
 > **C2 shipped (2026-07-10) — Performance fences green:** 10 regression fences
 > in `C2PerformanceAuditTest`: 6 warm-latency budgets (`/`, `/id`, `/products`,
 > `/id/products`, `/pages/{slug}`, `/id/pages/{slug}` — all under 300 ms);
@@ -174,7 +184,7 @@ no `lang/` folder; **0** `__()`/`@lang`/`trans()` calls in `resources/views/fron
 |---|---|---|
 | C1 | Static analysis & code quality (PHPStan L5/0; `{!! !!}` audit incl. translated output) | ✅ DONE (2026-07-10) |
 | C2 | Performance audit (localized routes ≤300ms warm; **no per-attribute translation N+1**) | ✅ DONE (2026-07-10) |
-| C3 | Functional smoke test (per-locale routes; fallback; draft-in-one-locale 404; legacy URLs unchanged) | ⏳ TODO |
+| C3 | Functional smoke test (per-locale routes; fallback; draft-in-one-locale 404; legacy URLs unchanged) | ✅ DONE (2026-07-10) |
 | C4 | Documentation (i18n module doc + skill file + CHANGELOG + AGENTS/Claude sync + Phase 8 prep) | ⏳ TODO |
 
 ---
