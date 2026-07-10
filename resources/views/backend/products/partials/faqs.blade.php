@@ -161,10 +161,10 @@
 
                     <div
                         id="edit-faq-{{ $faq->id }}"
-                        class="fixed inset-0 z-50 hidden bg-slate-900/50 p-4"
+                        class="fixed inset-0 z-50 hidden overflow-y-auto bg-slate-900/50 p-4"
                         data-modal
                     >
-                        <div class="mx-auto mt-16 max-w-2xl rounded-2xl bg-admin-card p-6 shadow-2xl">
+                        <div class="mx-auto my-10 max-w-2xl rounded-2xl bg-admin-card p-6 shadow-2xl">
                             <div class="mb-5 flex items-center justify-between gap-4">
                                 <h3 class="text-lg font-bold text-admin-primary">
                                     Edit FAQ

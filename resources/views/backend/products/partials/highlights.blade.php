@@ -173,10 +173,10 @@
 
                         <div
                             id="edit-highlight-{{ $highlight->id }}"
-                            class="fixed inset-0 z-50 hidden bg-slate-900/50 p-4"
+                            class="fixed inset-0 z-50 hidden overflow-y-auto bg-slate-900/50 p-4"
                             data-modal
                         >
-                        <div class="admin-modal-content mx-auto mt-16 max-w-lg">
+                        <div class="admin-modal-content mx-auto my-10 max-w-lg">
                             <div class="mb-5 flex items-center justify-between gap-4">
                                 <h3 class="text-lg font-bold text-admin-primary">
                                     Edit Highlight
