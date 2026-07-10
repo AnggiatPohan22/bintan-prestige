@@ -35,6 +35,15 @@ no `lang/` folder; **0** `__()`/`@lang`/`trans()` calls in `resources/views/fron
 | A1 | Carry-over debt (StructuredDataBuilder JSON-LD flags; close TD-03 child-theme) | ✅ DONE (2026-07-09) | ⚠️ edits Phase 4 code (no change needed) |
 | A2 | Locale foundation (config/locales.php, SetLocale middleware, prefix route group, reserved-prefix guard, lang scaffolding, switcher chrome) | ✅ DONE (2026-07-09) | ⚠️ route registration change (shipped) |
 
+> **C1 shipped (2026-07-10) — Static analysis + `{!! !!}` audit clean:** PHPStan
+> L5 = 0 errors. 0 `dd/dump/var_dump/print_r`, 0 TODO/FIXME/HACK/XXX, 0 mass-assignment
+> `->all()`, 0 hardcoded credentials. Every `{!! !!}` classified as safe (all
+> translation-sourced values reach Blade via accessors → `{{ }}`; the sole richtext
+> block goes through `InlineContentSanitizer::richtext`; JSON-LD uses `JSON_HEX_*`).
+> Added `C1EscapeAuditTest` (3 tests) as a regression fence — malicious sidecar
+> values render escaped in the chrome, home hero, AND the site-wide JSON-LD.
+> Report: `ai/reports/phase-7/c1-static-analysis-code-quality.md`.
+
 > **B10 shipped (2026-07-10) — All Stage-B tasks done:** dynamic `<html lang>`,
 > `partials/site-hreflang.blade.php` (per-locale alternates + x-default; only
 > published translations), OG `og:locale` (config-driven `en_US`/`id_ID`), JSON-LD
@@ -155,7 +164,7 @@ no `lang/` folder; **0** `__()`/`@lang`/`trans()` calls in `resources/views/fron
 ### Stage C — Release Audit
 | Task | Name | Status |
 |---|---|---|
-| C1 | Static analysis & code quality (PHPStan L5/0; `{!! !!}` audit incl. translated output) | ⏳ TODO |
+| C1 | Static analysis & code quality (PHPStan L5/0; `{!! !!}` audit incl. translated output) | ✅ DONE (2026-07-10) |
 | C2 | Performance audit (localized routes ≤300ms warm; **no per-attribute translation N+1**) | ⏳ TODO |
 | C3 | Functional smoke test (per-locale routes; fallback; draft-in-one-locale 404; legacy URLs unchanged) | ⏳ TODO |
 | C4 | Documentation (i18n module doc + skill file + CHANGELOG + AGENTS/Claude sync + Phase 8 prep) | ⏳ TODO |
