@@ -7,6 +7,8 @@ use App\Http\Requests\Admin\StoreTermRequest;
 use App\Http\Requests\Admin\UpdateTermRequest;
 use App\Models\Taxonomy;
 use App\Models\Term;
+use App\Support\Locales;
+use Illuminate\Http\Request;
 
 class TermController extends Controller
 {
@@ -36,7 +38,8 @@ class TermController extends Controller
 
     public function store(StoreTermRequest $request, Taxonomy $taxonomy)
     {
-        $taxonomy->terms()->create($request->validated());
+        $term = $taxonomy->terms()->create($request->validated());
+        $this->syncTranslations($request, $term);
 
         return redirect()
             ->route('admin.taxonomies.terms.index', $taxonomy)
@@ -58,10 +61,27 @@ class TermController extends Controller
     {
         $this->authorizeTerm($taxonomy, $term);
         $term->update($request->validated());
+        $this->syncTranslations($request, $term);
 
         return redirect()
             ->route('admin.taxonomies.terms.index', $taxonomy)
             ->with('success', 'Term updated.');
+    }
+
+    /**
+     * Persist per-locale name + description translations (Phase 7 — B7).
+     * Only non-default active locales; empty clears the sidecar row (fallback).
+     */
+    private function syncTranslations(Request $request, Term $term): void
+    {
+        $translations = (array) $request->input('translations', []);
+
+        foreach (Locales::nonDefaultActive() as $locale) {
+            foreach (['name', 'description'] as $field) {
+                $value = $translations[$locale][$field] ?? null;
+                $term->setTranslation($field, $locale, is_string($value) ? trim($value) : null);
+            }
+        }
     }
 
     public function destroy(Taxonomy $taxonomy, Term $term)

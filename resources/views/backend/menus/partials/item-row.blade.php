@@ -21,7 +21,8 @@
     {{-- Label + resolved URL --}}
     <div class="min-w-0 flex-1">
         <p class="truncate text-sm font-semibold text-admin-secondary">
-            {{ $item->label }}
+            {{-- Admin is EN-only (§1.2); base column is shown regardless of app locale. --}}
+            {{ $item->getRawOriginal('label') }}
             @unless($item->is_active)
                 <span class="ml-1 rounded bg-admin-card px-1.5 py-0.5 text-[10px] font-medium text-admin-secondary">Hidden</span>
             @endunless
@@ -35,15 +36,21 @@
 
     {{-- Actions --}}
     <div class="flex shrink-0 items-center gap-1">
+        @php
+            $__labelTranslations = collect(\App\Support\Locales::nonDefaultActive())
+                ->mapWithKeys(fn (string $__loc) => [$__loc => (string) $item->rawTranslation('label', $__loc)])
+                ->all();
+        @endphp
         <button type="button"
                 x-on:click="openEdit({
                     id: {{ $item->id }},
-                    label: @js($item->label),
+                    label: @js($item->getRawOriginal('label')),
                     linkType: '{{ $item->link_type }}',
                     linkableId: '{{ $item->linkable_id }}',
                     url: @js($item->url),
                     newTab: {{ $item->target === '_blank' ? 'true' : 'false' }},
-                    parentId: '{{ $item->parent_id }}'
+                    parentId: '{{ $item->parent_id }}',
+                    translations: @js($__labelTranslations)
                 })"
                 class="grid h-8 w-8 place-items-center rounded-lg text-admin-secondary hover:opacity-75" title="Edit">
             <i class="fa-solid fa-pen text-xs"></i>

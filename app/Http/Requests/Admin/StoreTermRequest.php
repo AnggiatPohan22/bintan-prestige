@@ -44,6 +44,10 @@ class StoreTermRequest extends FormRequest
             'description' => ['nullable', 'string', 'max:5000'],
             'parent_id'   => ['nullable', 'integer', 'exists:terms,id'],
             'sort_order'  => ['nullable', 'integer', 'min:0'],
+            // Phase 7 (B7) — per-locale translations.
+            'translations' => ['nullable', 'array'],
+            'translations.*.name' => ['nullable', 'string', 'max:200'],
+            'translations.*.description' => ['nullable', 'string', 'max:5000'],
         ];
     }
 

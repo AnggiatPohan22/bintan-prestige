@@ -96,6 +96,36 @@
                    class="admin-input">
         </div>
 
+        {{-- Per-locale translations (Phase 7 — B7) --}}
+        @php $__termLocales = \App\Support\Locales::nonDefaultActive(); @endphp
+        @if(count($__termLocales) > 0 && $isEdit)
+            <div class="rounded-xl border border-violet-200 bg-violet-50/40 p-4">
+                <p class="mb-2 text-sm font-bold text-admin-secondary">🌐 Translations</p>
+                <div class="space-y-4">
+                    @foreach($__termLocales as $__loc)
+                        <div class="rounded-lg border border-violet-200 bg-admin-card p-3">
+                            <div class="mb-2 flex items-center gap-2">
+                                <span class="rounded bg-violet-600 px-2 py-0.5 text-xs font-bold uppercase text-white">{{ $__loc }}</span>
+                                <span class="text-xs text-admin-secondary opacity-70">Leave blank to fall back to the default language.</span>
+                            </div>
+                            <div class="space-y-2">
+                                <div>
+                                    <label class="admin-form-label">Name</label>
+                                    <input type="text" name="translations[{{ $__loc }}][name]"
+                                           value="{{ old("translations.$__loc.name", $term->rawTranslation('name', $__loc)) }}"
+                                           class="admin-input">
+                                </div>
+                                <div>
+                                    <label class="admin-form-label">Description</label>
+                                    <textarea name="translations[{{ $__loc }}][description]" rows="2" class="admin-input">{{ old("translations.$__loc.description", $term->rawTranslation('description', $__loc)) }}</textarea>
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        @endif
+
         {{-- Submit --}}
         <div class="flex flex-col gap-3 sm:flex-row">
             <button type="submit" class="admin-btn-primary">

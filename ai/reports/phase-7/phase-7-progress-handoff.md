@@ -35,6 +35,15 @@ no `lang/` folder; **0** `__()`/`@lang`/`trans()` calls in `resources/views/fron
 | A1 | Carry-over debt (StructuredDataBuilder JSON-LD flags; close TD-03 child-theme) | ✅ DONE (2026-07-09) | ⚠️ edits Phase 4 code (no change needed) |
 | A2 | Locale foundation (config/locales.php, SetLocale middleware, prefix route group, reserved-prefix guard, lang scaffolding, switcher chrome) | ✅ DONE (2026-07-09) | ⚠️ route registration change (shipped) |
 
+> **B7 shipped (2026-07-10) — M4 further progress:** `MenuItem` uses `Translatable`
+> (`$translatable=['label']`, A0 §3.5 Opt A: structure shared, only labels localized),
+> `Term` gains name+description. `MenuService::buildMany` eager-loads translations on
+> root items + children; cache is keyed per locale (`menu.tree.v2.{location}.{locale}`),
+> `forget()` clears all variants + legacy key. Admin: MenuItem drawer form has per-locale
+> label card (Alpine form.translations state on openEdit); Term edit form has per-locale
+> name+description card. FormRequests allow-list `translations.*`. No schema change.
+> Report: `ai/reports/phase-7/b7-menus-and-terms-localized.md`.
+
 > **B6 shipped (2026-07-10) — Business milestone (M4 partial):** Product, Category,
 > Destination now use `Translatable`. Product: 10 copy fields; Category/Destination:
 > name+description. Locale-aware accessors → Home/Product listing+detail Blade auto-localize.
@@ -113,7 +122,7 @@ no `lang/` folder; **0** `__()`/`@lang`/`trans()` calls in `resources/views/fron
 | B4 | Pages row-per-locale (migration, backfill, locale-aware unique slug, "Translate to…") | ✅ DONE (2026-07-09) | ⚠️ ALTER on existing `pages` (approved, dumped, migrated) |
 | B5 | Content Entries row-per-locale (same as B4; locale-aware controllers + index) | ✅ DONE (2026-07-09) | ⚠️ ALTER on existing `content_entries` (approved, dumped, migrated) |
 | B6 | Catalog localized (Products/Categories/Destinations via sidecar) | ✅ DONE (2026-07-10) | — (business milestone shipped) |
-| B7 | Menus (sidecar labels) & Terms localized | ⏳ TODO | — |
+| B7 | Menus (sidecar labels) & Terms localized | ✅ DONE (2026-07-10) | — |
 | B8 | Admin translation UX pass (status column, locale filter, edit-screen switcher) | ⏳ TODO | — |
 | B9 | Builder bridge locale-aware (`content_query` + `content_field`; per-locale preview) | 🔶 PARTIAL — `content_query` locale-filtered at B5; `content_field` + preview still TODO | — |
 | B10 | SEO i18n (hreflang + x-default, per-locale sitemap, canonical/OG/JSON-LD inLanguage, localized 404) | ⏳ TODO | — |

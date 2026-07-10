@@ -12,6 +12,7 @@ use App\Models\MenuItem;
 use App\Models\Page;
 use App\Models\Product;
 use App\Services\MenuService;
+use App\Support\Locales;
 use Illuminate\Http\Request;
 
 class MenuItemController extends Controller
@@ -33,7 +34,8 @@ class MenuItemController extends Controller
         $data['is_active'] = true;
         $data['sort_order'] = $this->menuService->nextSortOrder($menu, $data['parent_id']);
 
-        $menu->items()->create($data);
+        $item = $menu->items()->create($data);
+        $this->syncLabelTranslations($request, $item);
         $this->menuService->forget($menu->location);
 
         return back()->with('success', 'Menu item added.');
@@ -51,10 +53,25 @@ class MenuItemController extends Controller
         }
 
         $item->update($data);
+        $this->syncLabelTranslations($request, $item);
         $this->menuService->normalizeSiblingOrders($menu, [$oldParentId, $data['parent_id']]);
         $this->menuService->forget($menu->location);
 
         return back()->with('success', 'Menu item updated.');
+    }
+
+    /**
+     * Persist per-locale label translations (Phase 7 — B7). Only non-default
+     * active locales; empty clears the sidecar row (fallback resumes).
+     */
+    private function syncLabelTranslations(Request $request, MenuItem $item): void
+    {
+        $translations = (array) $request->input('translations', []);
+
+        foreach (Locales::nonDefaultActive() as $locale) {
+            $value = $translations[$locale]['label'] ?? null;
+            $item->setTranslation('label', $locale, is_string($value) ? trim($value) : null);
+        }
     }
 
     public function destroy(Menu $menu, MenuItem $item)
