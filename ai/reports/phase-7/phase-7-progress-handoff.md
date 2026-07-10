@@ -35,6 +35,15 @@ no `lang/` folder; **0** `__()`/`@lang`/`trans()` calls in `resources/views/fron
 | A1 | Carry-over debt (StructuredDataBuilder JSON-LD flags; close TD-03 child-theme) | ✅ DONE (2026-07-09) | ⚠️ edits Phase 4 code (no change needed) |
 | A2 | Locale foundation (config/locales.php, SetLocale middleware, prefix route group, reserved-prefix guard, lang scaffolding, switcher chrome) | ✅ DONE (2026-07-09) | ⚠️ route registration change (shipped) |
 
+> **C4 shipped (2026-07-10) — Phase 7 CLOSED:** `docs/modules/internationalization.md`
+> (developer reference) + `ai/skills/i18n-skill.md` (canonical i18n standard) added;
+> Skill Map row in AGENTS.md §3 + CLAUDE.md; AGENTS.md §4 Phase 7 rewritten to
+> COMPLETE with full A0–C4 summary; CLAUDE.md phase header updated; CHANGELOG
+> Phase 7 entry with backup filenames + baseline; handoff §11 DoD 10/10 checked;
+> §13 Phase 8 prep notes expanded (auto-mysqldump, locale add/remove tooling,
+> translation-status export, machine translation, sitemap index).
+> **Release gate: PASS.** 990/990, PHPStan L5 = 0. Report: `ai/reports/phase-7/c4-documentation.md`.
+
 > **C3 shipped (2026-07-10) — Functional smoke fences green:** 13 tests across
 > five axes: locale route matrix (default + prefixed variants all 200; route
 > names both unprefixed and `id.*` resolve); document fallback (untranslated →
@@ -185,7 +194,7 @@ no `lang/` folder; **0** `__()`/`@lang`/`trans()` calls in `resources/views/fron
 | C1 | Static analysis & code quality (PHPStan L5/0; `{!! !!}` audit incl. translated output) | ✅ DONE (2026-07-10) |
 | C2 | Performance audit (localized routes ≤300ms warm; **no per-attribute translation N+1**) | ✅ DONE (2026-07-10) |
 | C3 | Functional smoke test (per-locale routes; fallback; draft-in-one-locale 404; legacy URLs unchanged) | ✅ DONE (2026-07-10) |
-| C4 | Documentation (i18n module doc + skill file + CHANGELOG + AGENTS/Claude sync + Phase 8 prep) | ⏳ TODO |
+| C4 | Documentation (i18n module doc + skill file + CHANGELOG + AGENTS/Claude sync + Phase 8 prep) | ✅ DONE (2026-07-10) |
 
 ---
 
@@ -339,18 +348,20 @@ New files this phase:
 
 ---
 
-## 11. Definition of Done (Release Gate — grand plan §12)
+## 11. Definition of Done (Release Gate — grand plan §12) — **ALL CHECKED ✅**
 
-- [ ] ≥2 locales at locale-aware URLs; default-locale URLs unchanged.
-- [ ] Owner translates pages, entries (incl. builder bodies), products, categories, destinations, menus, home sections, global settings from one admin — zero code.
-- [ ] Fallback works: nothing blank; untranslated documents 404 politely per locale.
-- [ ] hreflang, per-locale sitemap, localized canonical/OG/JSON-LD verified.
-- [ ] `content_query`/`content_field` locale-aware.
-- [ ] End-to-end proof: home + one tour + one page fully bilingual (en/id).
-- [ ] PHPStan level 5 / 0 errors; full suite green (no regression — **baseline reconciled = 866** at A2; now 877 with A2 tests).
-- [ ] Localized routes ≤300ms warm; no translation N+1.
-- [ ] Carry-over debt (grand plan §11) cleared or re-dispositioned.
-- [ ] Docs: i18n module doc + skill file + CHANGELOG + AGENTS/Claude sync + Phase 8 prep notes.
+- [x] ≥2 locales at locale-aware URLs; default-locale URLs unchanged (C3 test).
+- [x] Owner translates pages, entries (incl. builder bodies), products, categories, destinations, menus, home sections, global settings from one admin — zero code (B2/B3/B4/B5/B6/B7 UI).
+- [x] Fallback works: attributes fall back to base column (B1 trait + B9 content_field); untranslated documents 404 politely per locale (C3 test).
+- [x] hreflang, per-locale sitemap, localized canonical/OG/JSON-LD verified (B10 + C3 tests).
+- [x] `content_query`/`content_field` locale-aware (B5 for content_query; B9 for content_field with tests).
+- [x] End-to-end proof: home + one tour + one page fully bilingual (en/id) — manually verified against dev DB after B6 ("ok works" acknowledgement); C3 fences lock in the semantic surface for regression.
+- [x] PHPStan level 5 / 0 errors; full suite green — baseline 866 → **990/990** with Phase 7 test additions, no regression.
+- [x] Localized routes ≤300ms warm; no translation N+1 (C2 fences: 6 warm-latency budgets + query counts scale flat with catalog size).
+- [x] Carry-over debt (grand plan §11) cleared or re-dispositioned (A1: C1-FU already fixed by 74f1027; TD-03 CLOSED as won't-do).
+- [x] Docs: i18n module doc (`docs/modules/internationalization.md`) + skill file (`ai/skills/i18n-skill.md`) + CHANGELOG + AGENTS/Claude sync + Phase 8 prep notes (this §13).
+
+**Release gate: PASS.** Merge to `develop` when the owner is ready — the branch stands alone as a working build (988 → 990 tests green; migrations additive + reversible; backups on disk).
 
 ---
 
@@ -367,12 +378,28 @@ New files this phase:
 
 ---
 
-## 13. Phase 8 Preparation Notes (finalize at C4)
+## 13. Phase 8 Preparation Notes (finalized at C4)
 
-- Staged media follow-ups (orphan-purge safety, SVG sanitizer, media re-organize) — Phase 6.1 §5 → Phase 8 (ops).
-- Automatic `mysqldump` before ALTERs → make a first-class ops feature in Phase 8.
-- Machine/auto-translation (DeepL/Google) integration — Phase 8+ candidate.
-- Content REST/GraphQL API — Phase 8 candidate (unchanged).
+Phase 8 is **Operational Maturity**: backup/restore, import/export, monitoring dashboard. Concrete candidates surfaced during Phase 7:
+
+**Carried from Phase 6.1 (`ai/reports/media/media-library-integration-plan.md` §5) — deferred to Phase 8:**
+- Orphan-file purge safety (dry-run mode + grace window before deletion).
+- SVG sanitizer for Media Library uploads.
+- Media directory re-organize / migration tooling.
+
+**Surfaced during Phase 7:**
+- **Automatic `mysqldump` before every ALTER.** Phase 7 ran this manually before B4/B5 (stored under `storage/app/db-backups/pre-*.sql`). Should become an artisan command wired into a pre-migration hook — the operational cost is trivial and it saved us at B4 when route-binding needed a mid-migration fix.
+- **Locale add/remove tooling.** Adding a locale today is a one-line config edit; removing one leaves orphan `translations` rows. Phase 8 should ship an artisan command that safely drops a locale's sidecar rows (with a dry-run preview) and refuses to remove the default locale.
+- **Translation-status export.** Owner-facing report: per model, which entries + attributes are missing translations. Useful for a "we're 87% ID-translated" dashboard tile.
+- **Machine/auto-translation (DeepL / Google) integration** — grand plan §1.2 flagged it as Phase 8+; deliberately not built here so owner stays in control.
+- **Sitemap index for very large catalogs.** Phase 7 emits one flat `sitemap.xml` grouped by locale — fine up to ~50k URLs. Phase 8 should partition by content type + locale into a sitemap index when either dimension crosses a threshold.
+- **Content REST / GraphQL API** — Phase 8 candidate (grand plan §1.2 unchanged).
+
+**Guardrails to keep after Phase 7:**
+- Never `migrate:fresh` / `migrate:reset` on the dev DB (Phase 6 §16 incident still applies).
+- Never `config:cache` in dev.
+- New ALTER on any existing table → `mysqldump` first (until the ops feature above ships).
+- Any new translatable attribute → follow `ai/skills/i18n-skill.md`, no exceptions.
 
 ---
 

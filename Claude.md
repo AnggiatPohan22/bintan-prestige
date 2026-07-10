@@ -2,8 +2,8 @@
 **Version:** 1.0
 
 **Stack:** Laravel 13.8 | PHP 8.3 | Tailwind CSS | Alpine.js | MySQL
-**Phase:** Phase 6.1 — Dashboard & Media UX (current, interim before Phase 7). Phase 6 (Flexible Content Modeling) complete — 2026-07-07.
-**Status:** Core CMS + page builder + theme system + plugin system + visual builder + content modeling complete. UI scheme: Navy + gold (DB-stored). See AGENTS.md §4 for full phase history.
+**Phase:** Phase 7 — Internationalization COMPLETE ✅ (2026-07-10). Phase 6.1 (Dashboard & Media UX) complete — 2026-07-08. Phase 6 (Flexible Content Modeling) complete — 2026-07-07.
+**Status:** Core CMS + page builder + theme system + plugin system + visual builder + content modeling + **multi-language (en/id)** complete. UI scheme: Navy + gold (DB-stored). See AGENTS.md §4 for full phase history.
 
 ---
 
@@ -105,6 +105,7 @@ dashboard. No hardcoded frontend content. Backend controls everything.
 | Component Library | `COMPONENT-LIBRARY.md` |
 | Admin Dashboard | `admin-dashboard-skill.md` |
 | Products / Tours | `product-management-skill.md` |
+| **Multi-language / locale / translation (Phase 7)** | `i18n-skill.md` |
 
 > Skill files are in `ai/skills/`. Guidelines are in `ai/guidelines/`.
 
