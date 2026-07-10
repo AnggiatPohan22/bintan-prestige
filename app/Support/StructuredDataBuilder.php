@@ -93,6 +93,7 @@ class StructuredDataBuilder
             'name' => $siteName,
             'url' => $baseUrl,
             'description' => $identity['short_description'] ?? ($seo['meta_description'] ?? null),
+            'inLanguage' => \App\Support\Locales::current(),
             'publisher' => ['@id' => rtrim($baseUrl, '/').'#business'],
         ]);
     }
@@ -184,6 +185,7 @@ class StructuredDataBuilder
             'name' => self::plainText($context['listingName'] ?? null) ?? $page->title,
             'description' => $description,
             'image' => $image,
+            'inLanguage' => \App\Support\Locales::current(),
             'isPartOf' => ['@id' => rtrim($baseUrl, '/').'#website'],
             'datePublished' => $page->created_at?->toAtomString(),
             'dateModified' => $page->updated_at?->toAtomString(),

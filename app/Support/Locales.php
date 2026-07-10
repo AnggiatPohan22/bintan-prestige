@@ -95,6 +95,15 @@ class Locales
     }
 
     /**
+     * Open Graph / HTML locale code for the given locale (e.g. `en_US`, `id_ID`).
+     * Falls back to `{code}_{UPPER(code)}` for unlisted locales.
+     */
+    public static function ogLocale(string $code): string
+    {
+        return (string) (self::all()[$code]['og_locale'] ?? ($code.'_'.strtoupper($code)));
+    }
+
+    /**
      * Rewrite the current request path into the target locale.
      *
      * A2 (no translation groups yet) simply swaps the locale prefix on the

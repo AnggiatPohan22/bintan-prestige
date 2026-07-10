@@ -16,4 +16,7 @@ return [
     'close_menu'  => 'Close menu',
     'open_menu'   => 'Open menu',
     'skip_to_content' => 'Skip to content',
+    'not_found_title'    => 'Page not found',
+    'not_found_body'     => 'The page you were looking for does not exist or has moved.',
+    'not_found_home_cta' => 'Back to home',
 ];

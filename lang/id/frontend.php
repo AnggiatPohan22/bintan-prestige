@@ -15,4 +15,7 @@ return [
     'close_menu'  => 'Tutup menu',
     'open_menu'   => 'Buka menu',
     'skip_to_content' => 'Lewati ke konten',
+    'not_found_title'    => 'Halaman tidak ditemukan',
+    'not_found_body'     => 'Halaman yang Anda cari tidak ada atau telah dipindahkan.',
+    'not_found_home_cta' => 'Kembali ke beranda',
 ];

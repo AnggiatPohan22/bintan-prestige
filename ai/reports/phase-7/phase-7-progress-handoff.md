@@ -35,6 +35,15 @@ no `lang/` folder; **0** `__()`/`@lang`/`trans()` calls in `resources/views/fron
 | A1 | Carry-over debt (StructuredDataBuilder JSON-LD flags; close TD-03 child-theme) | ✅ DONE (2026-07-09) | ⚠️ edits Phase 4 code (no change needed) |
 | A2 | Locale foundation (config/locales.php, SetLocale middleware, prefix route group, reserved-prefix guard, lang scaffolding, switcher chrome) | ✅ DONE (2026-07-09) | ⚠️ route registration change (shipped) |
 
+> **B10 shipped (2026-07-10) — All Stage-B tasks done:** dynamic `<html lang>`,
+> `partials/site-hreflang.blade.php` (per-locale alternates + x-default; only
+> published translations), OG `og:locale` (config-driven `en_US`/`id_ID`), JSON-LD
+> `inLanguage` on WebPage/Article + WebSite, sitemap rewritten to group Pages +
+> Content Entries by translation_group_id and emit `xhtml:link` alternates + x-default,
+> localized 404 view (sets locale from URL because exception handler skips route
+> middleware). Also fixed a lurking bug: two active frontend layouts had to be
+> updated together. Report: `ai/reports/phase-7/b10-seo-i18n.md`.
+
 > **B9 shipped (2026-07-10) — Milestone M4 COMPLETE:** `content_field` resolves the
 > published sibling in the current locale via translation group (attribute fallback
 > to referenced row when no sibling; hides when both draft — respecting A0 semantics).
@@ -141,7 +150,7 @@ no `lang/` folder; **0** `__()`/`@lang`/`trans()` calls in `resources/views/fron
 | B7 | Menus (sidecar labels) & Terms localized | ✅ DONE (2026-07-10) | — |
 | B8 | Admin translation UX pass (status column, locale filter, edit-screen switcher) | ✅ DONE (2026-07-10) | — |
 | B9 | Builder bridge locale-aware (`content_query` + `content_field`; per-locale preview) | ✅ DONE (2026-07-10) | — |
-| B10 | SEO i18n (hreflang + x-default, per-locale sitemap, canonical/OG/JSON-LD inLanguage, localized 404) | ⏳ TODO | — |
+| B10 | SEO i18n (hreflang + x-default, per-locale sitemap, canonical/OG/JSON-LD inLanguage, localized 404) | ✅ DONE (2026-07-10) | — |
 
 ### Stage C — Release Audit
 | Task | Name | Status |
