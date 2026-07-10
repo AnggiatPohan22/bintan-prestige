@@ -455,13 +455,16 @@ Use this after every completed task. Keep it short — use the template:
 
 ## 13. Data-Safety Runbook (mandatory quick-reference)
 
+> Full playbooks live in `docs/runbooks/` (`db-backup.md`, `rollback.md`,
+> `deploy-checklist.md`). Read the relevant one BEFORE the crisis.
+
 **Before ANY task that touches an existing table:**
 
 ```bash
-# 1. Backup FIRST (naming convention is enforced)
-TS=$(date +%Y%m%d-%H%M%S)
-mysqldump -h127.0.0.1 -uroot bintan_prestige \
-  > storage/app/db-backups/pre-{task-id}-$TS.sql
+# 1. Backup FIRST — enforced naming convention, size + header verified,
+#    partial dumps auto-deleted on failure. Non-zero exit on error so CI /
+#    deploy scripts can fail loudly. See docs/runbooks/db-backup.md.
+php artisan db:backup <task-id> --purpose="short desc of the ALTER"
 
 # 2. Review the SQL Laravel will run BEFORE running it
 php artisan migrate --pretend
