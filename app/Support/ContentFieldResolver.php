@@ -91,10 +91,36 @@ final class ContentFieldResolver
         $id = ($data['entry_id'] ?? null) ?: null;
 
         if ($id !== null && is_numeric($id)) {
-            return ContentEntry::query()
-                ->published()
+            // Phase 7 (B9) — when the block references a specific entry by ID,
+            // resolve the sibling in the current locale (via the translation
+            // group) so the visitor sees the localized copy. Falls back to the
+            // referenced row itself if that locale has no translation (allowing
+            // the block's field to still render — the block is opt-in).
+            $referenced = ContentEntry::query()
                 ->whereHas('contentType', fn ($q) => $q->where('is_public', true)->where('is_active', true))
                 ->find((int) $id);
+
+            if ($referenced === null) {
+                return null;
+            }
+
+            $currentLocale = Locales::current();
+
+            if ($referenced->locale === $currentLocale) {
+                return $referenced->isPublished() ? $referenced : null;
+            }
+
+            $sibling = $referenced->translationSiblings()
+                ->where('locale', $currentLocale)
+                ->first();
+
+            if ($sibling !== null && $sibling->isPublished()) {
+                return $sibling;
+            }
+
+            // No published sibling → fall back to the originally referenced row
+            // if IT is published (default locale content stays visible cross-locale).
+            return $referenced->isPublished() ? $referenced : null;
         }
 
         return $currentEntry;

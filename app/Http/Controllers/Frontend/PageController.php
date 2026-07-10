@@ -97,6 +97,14 @@ class PageController extends Controller
 
     private function renderPage(Page $page, bool $preview = false, ?Collection $injectedBlocks = null, bool $builderCanvas = false, ?array $localeAlternates = null)
     {
+        // Phase 7 (B9) — align the app locale to the page's own locale so admin
+        // previews (which are served under the default-locale route, not /{locale}/…)
+        // render in the target language: translated chrome, catalog copy, and
+        // content_field values all resolve against the page being previewed.
+        if ($preview) {
+            app()->setLocale($page->locale ?: Locales::default());
+        }
+
         if (! $page->relationLoaded('template')) {
             $page->load(['template']);
         }

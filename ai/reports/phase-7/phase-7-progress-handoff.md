@@ -35,6 +35,13 @@ no `lang/` folder; **0** `__()`/`@lang`/`trans()` calls in `resources/views/fron
 | A1 | Carry-over debt (StructuredDataBuilder JSON-LD flags; close TD-03 child-theme) | ✅ DONE (2026-07-09) | ⚠️ edits Phase 4 code (no change needed) |
 | A2 | Locale foundation (config/locales.php, SetLocale middleware, prefix route group, reserved-prefix guard, lang scaffolding, switcher chrome) | ✅ DONE (2026-07-09) | ⚠️ route registration change (shipped) |
 
+> **B9 shipped (2026-07-10) — Milestone M4 COMPLETE:** `content_field` resolves the
+> published sibling in the current locale via translation group (attribute fallback
+> to referenced row when no sibling; hides when both draft — respecting A0 semantics).
+> Page + entry admin preview endpoints run `app()->setLocale($record->locale)` so
+> unprefixed preview URLs render translated chrome/catalog/`content_field`. Public
+> routing unchanged. Report: `ai/reports/phase-7/b9-builder-bridge-locale.md`.
+
 > **B8 shipped (2026-07-10) — M4 admin polish:** Pages + Content Entries list views
 > gained a shared `translation-badges.blade.php` partial (● per active locale:
 > published/draft/missing) between Status and Sort/Author, plus a locale filter
@@ -133,7 +140,7 @@ no `lang/` folder; **0** `__()`/`@lang`/`trans()` calls in `resources/views/fron
 | B6 | Catalog localized (Products/Categories/Destinations via sidecar) | ✅ DONE (2026-07-10) | — (business milestone shipped) |
 | B7 | Menus (sidecar labels) & Terms localized | ✅ DONE (2026-07-10) | — |
 | B8 | Admin translation UX pass (status column, locale filter, edit-screen switcher) | ✅ DONE (2026-07-10) | — |
-| B9 | Builder bridge locale-aware (`content_query` + `content_field`; per-locale preview) | 🔶 PARTIAL — `content_query` locale-filtered at B5; `content_field` + preview still TODO | — |
+| B9 | Builder bridge locale-aware (`content_query` + `content_field`; per-locale preview) | ✅ DONE (2026-07-10) | — |
 | B10 | SEO i18n (hreflang + x-default, per-locale sitemap, canonical/OG/JSON-LD inLanguage, localized 404) | ⏳ TODO | — |
 
 ### Stage C — Release Audit
