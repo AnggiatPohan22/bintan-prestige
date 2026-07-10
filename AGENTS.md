@@ -334,6 +334,44 @@ Every new module must follow this sequence:
 - Work section by section
 - Keep commits focused on one concern
 
+**Database — non-negotiable (formalized after the Phase 6 §16 dev-DB wipe incident):**
+- **NEVER** run `php artisan migrate:fresh` or `migrate:reset` against a MySQL DB —
+  our test suite uses sqlite in-memory; there is no legitimate reason to wipe
+  MySQL. The dev DB carries recovery data that cannot be reconstructed.
+- **NEVER** run `php artisan config:cache` in dev. `.env` values leak into a
+  stale cache — this is the exact mechanism that triggered the Phase 6 wipe.
+  Use `php artisan optimize:clear` instead.
+- **ALWAYS** take a `mysqldump` before every ALTER on an existing table
+  (including `DROP INDEX`, `RENAME COLUMN`, `ALTER … DEFAULT`).
+  Naming convention: `storage/app/db-backups/pre-{task-id}-{YYYYMMDD-HHMMSS}.sql`.
+  This is a hard rule, not a suggestion — even for "trivial" ALTERs.
+- **ALL** migrations must be additive + reversible. Test `migrate:rollback --step=1`
+  on the branch before merging. If a migration drops a column, split it into a
+  separate migration so the rollback point is clean.
+- MySQL `log_bin` must stay ON (binlog recovery saved us in Phase 6). Retention
+  ≥14 days. Never delete files in `storage/app/binlog-recovery/`.
+- Every deploy (even hotfix) preceded by a `mysqldump`. Automate this in Phase 8.
+
+**Environment isolation:**
+- `.env`, `.env.testing`, `.env.production` MUST have different `DB_DATABASE`
+  values. `tests/TestCase.php` refuses non-sqlite test DBs — never loosen that
+  guard.
+- `.env*` files never commit (only `.env.example`). Verify `.gitignore` before
+  each session.
+- Deploy checklist: `optimize:clear` → `mysqldump` → `migrate --pretend` (review
+  SQL) → `migrate --force`. Skipping any step is a bug.
+
+**Every task must leave a regression fence:**
+- Fences over benchmarks (Phase 7 C1/C2/C3 pattern). One-shot smoke tests age
+  badly; every new feature ships with named tests that fail loudly when the
+  invariant regresses.
+- New N+1-sensitive path → test that scales the fixture and asserts query count
+  is flat (see `C2PerformanceAuditTest::test_products_index_translation_queries_do_not_grow_with_product_count`).
+- New surface with escaping → test that malicious input renders escaped (see
+  `C1EscapeAuditTest`).
+- New behavioural rule → smoke test that fails when the rule is violated (see
+  `C3FunctionalSmokeTest`).
+
 ---
 
 ## 9. Approval Required Before Acting
@@ -347,8 +385,17 @@ Ask for explicit approval before:
 - Installing new Composer or NPM packages
 - Changing auth or security-sensitive logic
 - Moving or deleting existing documentation
+- **Any production deploy or `migrate --force` on the dev DB after an ALTER**
+- **Any change to `.env*` files** (production or otherwise)
 
-Write the plan first. Wait for approval. Then implement.
+Write the plan first. Wait for approval. Then implement. The owner must write
+"approved" explicitly in the conversation before the task starts — a thumbs-up
+emoji or "ok" is not enough for schema/security/package changes.
+
+**Zero new packages by default.** Every Composer/NPM addition needs a specific
+justification ("no clean way to build X in ≤50 LOC") AND a 24-hour review window.
+Phase 7 shipped a full multi-language stack with zero new packages — the same
+bar applies going forward.
 
 ---
 
@@ -406,7 +453,65 @@ Use this after every completed task. Keep it short — use the template:
 
 ---
 
-## 13. Final Principle
+## 13. Data-Safety Runbook (mandatory quick-reference)
+
+**Before ANY task that touches an existing table:**
+
+```bash
+# 1. Backup FIRST (naming convention is enforced)
+TS=$(date +%Y%m%d-%H%M%S)
+mysqldump -h127.0.0.1 -uroot bintan_prestige \
+  > storage/app/db-backups/pre-{task-id}-$TS.sql
+
+# 2. Review the SQL Laravel will run BEFORE running it
+php artisan migrate --pretend
+
+# 3. Only then apply
+php artisan migrate --force
+
+# 4. Verify rollback path works on the same branch (before merging)
+php artisan migrate:rollback --step=1
+php artisan migrate --force
+```
+
+**If a migration fails mid-run:**
+
+```bash
+# a. Do NOT panic-run migrate:fresh — that will complete the wipe.
+php artisan migrate:status                     # see which ran
+php artisan migrate:rollback --step=<n>        # roll back the failed one
+# b. If down() itself fails (FK/index conflicts):
+mysql bintan_prestige < storage/app/db-backups/pre-<task>-<ts>.sql
+```
+
+**If data gets corrupted or accidentally deleted:**
+
+1. **Do not run any writes** to bintan_prestige. Screenshot the error.
+2. Restore into a SEPARATE DB first — never into the live DB:
+   ```bash
+   mysql -e "CREATE DATABASE bintan_prestige_recovery"
+   mysql bintan_prestige_recovery < storage/app/db-backups/<newest-backup>.sql
+   ```
+3. Selectively import back what you need (mirror Phase 6 §16 recovery pattern).
+4. Only after verification, swap DBs or replay binlogs.
+
+**Guards that must NEVER be loosened:**
+
+- `tests/TestCase.php` refuses non-sqlite test DBs.
+- `.gitignore` excludes `.env*` (except `.env.example`).
+- MySQL `log_bin` stays ON with ≥14 day retention.
+- `storage/app/binlog-recovery/` files are never deleted.
+- `storage/app/db-backups/` is gitignored but kept on disk indefinitely for
+  any backup < 90 days old.
+
+**Every feature branch must include, in its final commit:**
+
+- A regression fence test (see §8 "Every task must leave a regression fence").
+- A one-line rollback command in the report `### Rollback` section.
+
+---
+
+## 14. Final Principle
 
 Improve this project safely, incrementally, and transparently.
 
