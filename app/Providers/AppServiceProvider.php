@@ -25,8 +25,11 @@ use App\Services\MenuService;
 use App\Services\Plugin\PluginManager;
 use App\Services\Plugin\PluginRegistry;
 use App\Services\ThemeService;
+use App\Support\DestructiveCommandGuard;
 use App\Support\HookManager;
 use App\View\Composers\AdminAppearanceComposer;
+use Illuminate\Console\Events\CommandStarting;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
@@ -54,6 +57,13 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Phase 8 A1 — destructive-command guards (G1/G2/G3). Kept in a
+        // dedicated support class so the logic is unit-testable without
+        // needing to boot artisan; the listener here is a thin forwarder.
+        Event::listen(CommandStarting::class, function (CommandStarting $event) {
+            $this->app->make(DestructiveCommandGuard::class)->handle($event);
+        });
+
         Gate::define('manage-users', fn ($user) => $user->isSuperAdmin());
 
         ContentEntry::observe(ContentEntryObserver::class);
