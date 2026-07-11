@@ -60,6 +60,24 @@ return [
             'report' => false,
         ],
 
+        // Phase 8 B2 — Cloudflare R2 (S3-compatible) offsite backup target.
+        // Same S3 driver, defaults tuned for R2: `region=auto`,
+        // path-style endpoint on, private visibility. Everything except the
+        // credential trio (KEY/SECRET/BUCKET/ENDPOINT) has a safe default so
+        // the app boots even when R2 isn't configured yet.
+        'r2' => [
+            'driver'                  => 's3',
+            'key'                     => env('R2_ACCESS_KEY_ID', env('AWS_ACCESS_KEY_ID')),
+            'secret'                  => env('R2_SECRET_ACCESS_KEY', env('AWS_SECRET_ACCESS_KEY')),
+            'region'                  => env('R2_DEFAULT_REGION', 'auto'),
+            'bucket'                  => env('R2_BUCKET', env('AWS_BUCKET')),
+            'endpoint'                => env('R2_ENDPOINT', env('AWS_ENDPOINT')),
+            'use_path_style_endpoint' => filter_var(env('R2_USE_PATH_STYLE_ENDPOINT', true), FILTER_VALIDATE_BOOLEAN),
+            'visibility'              => 'private',
+            'throw'                   => true,
+            'report'                  => false,
+        ],
+
     ],
 
     /*

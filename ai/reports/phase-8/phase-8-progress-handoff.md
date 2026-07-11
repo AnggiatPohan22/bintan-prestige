@@ -36,7 +36,9 @@
 
 **After A2 (2026-07-11):** merged into `develop` at `9e7e588`. Test suite 1032/1032, PHPStan L5 = 0. **Milestone M1 (Never again) — CLOSED.**
 
-**After B1 (2026-07-11):** `feature/phase-8-b1-media-backup` — Test suite **1046/1046**, 4741 assertions, PHPStan L5 = 0. `backup:snapshot-media` proven end-to-end on real dev media (21.6 MB ZIP for 68 files; dedup skip confirmed on second invocation). Weekly scheduler registered at Sunday 04:00 Asia/Jakarta. Ready to merge into `develop`.
+**After B1 (2026-07-11):** merged into `develop` at `64beb05`. Test suite 1046/1046, PHPStan L5 = 0.
+
+**After B2 (2026-07-11):** `feature/phase-8-b2-offsite-target` — Test suite **1057/1057**, 4767 assertions, PHPStan L5 = 0. Cloudflare R2 driver wired up. Two new packages added (`league/flysystem-aws-s3-v3` + `aws/aws-sdk-php`) under owner-approved §9 waiver. Offsite disabled by default; owner must set `BACKUP_DB_OFFSITE_DISK=r2` + `BACKUP_MEDIA_OFFSITE_DISK=r2` + R2 credentials in `.env` to activate. Ready to merge into `develop`.
 
 ### Stage A — Foundation, Decisions & Guards
 | Task | Name | Status | Gate |
@@ -50,7 +52,7 @@
 | Task | Name | Status | Gate |
 |---|---|---|---|
 | B1 | Media/storage backup (weekly ZIP + manifest dedup + retention) | ✅ DONE (2026-07-11) | — (Option (a) full-ZIP with skip-when-unchanged; ADR §2 chain-based incremental deferred as B1.5) |
-| B2 | Off-machine target (second disk via Laravel filesystems + failure alert) | ⏳ TODO | ⚠️ new filesystem credentials |
+| B2 | Off-machine target (Cloudflare R2 via S3-compatible driver) + failure alert | ✅ CODE DONE (2026-07-11) | ⚠️ owner still needs to add R2 credentials to `.env` to actually enable copies |
 | B3 | Backups admin UI (list/verify/download/trigger) | ⏳ TODO | — |
 | B4 | Restore engine (`backup:restore` CLI-first, admin wrapper LAST) | ⏳ TODO | ⚠️ sign-off before admin wrapper |
 | B5 | Export bundles (`content:export` + admin UI, versioned ZIP) | ⏳ TODO | — |
