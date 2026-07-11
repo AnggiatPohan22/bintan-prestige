@@ -25,6 +25,8 @@ use App\Services\MenuService;
 use App\Services\Plugin\PluginManager;
 use App\Services\Plugin\PluginRegistry;
 use App\Services\ThemeService;
+use App\Services\Backup\DatabaseDumper;
+use App\Services\Backup\MysqldumpRunner;
 use App\Support\DestructiveCommandGuard;
 use App\Support\HookManager;
 use App\View\Composers\AdminAppearanceComposer;
@@ -47,6 +49,10 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(HookManager::class);
         $this->app->singleton(PluginRegistry::class);
         $this->app->singleton(PluginManager::class);
+
+        // Phase 8 A2 — bind the default DatabaseDumper implementation.
+        // Tests bind a fake so BackupService can run without real mysqldump.
+        $this->app->bind(DatabaseDumper::class, MysqldumpRunner::class);
 
         // Boot active plugin providers so they participate in the full boot cycle.
         $this->app->make(PluginManager::class)->boot();

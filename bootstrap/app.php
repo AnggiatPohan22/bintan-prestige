@@ -2,6 +2,7 @@
 
 use App\Console\Commands\AggregatePageViewStats;
 use App\Console\Commands\BackupDatabase;
+use App\Console\Commands\BackupSnapshot;
 use App\Console\Commands\ProvisionFirstAdmin;
 use App\Console\Commands\PublishScheduledContentEntries;
 use App\Console\Commands\PublishScheduledPages;
@@ -52,11 +53,20 @@ return Application::configure(basePath: dirname(__DIR__))
         PublishScheduledContentEntries::class,
         AggregatePageViewStats::class,
         BackupDatabase::class,
+        BackupSnapshot::class,
     ])
     ->withSchedule(function (\Illuminate\Console\Scheduling\Schedule $schedule): void {
         $schedule->command('pages:publish-scheduled')->everyMinute();
         $schedule->command('content-entries:publish-scheduled')->everyMinute();
         $schedule->command('analytics:aggregate-daily')->dailyAt('00:05');
+
+        // Phase 8 A2 — daily DB snapshot with retention prune. Time is
+        // config-tunable via BACKUP_DB_DAILY_AT (defaults to 03:00 WIB).
+        $schedule->command('backup:snapshot --purpose="Scheduled daily"')
+            ->dailyAt((string) config('backup.schedule.db_daily_at', '03:00'))
+            ->timezone((string) config('app.timezone', 'UTC'))
+            ->withoutOverlapping()
+            ->onOneServer();
     })
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
