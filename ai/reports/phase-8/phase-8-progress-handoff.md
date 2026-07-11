@@ -38,7 +38,7 @@
 
 **After B1 (2026-07-11):** merged into `develop` at `64beb05`. Test suite 1046/1046, PHPStan L5 = 0.
 
-**After B2 (2026-07-11):** `feature/phase-8-b2-offsite-target` — Test suite **1057/1057**, 4767 assertions, PHPStan L5 = 0. Cloudflare R2 driver wired up. Two new packages added (`league/flysystem-aws-s3-v3` + `aws/aws-sdk-php`) under owner-approved §9 waiver. Offsite disabled by default; owner must set `BACKUP_DB_OFFSITE_DISK=r2` + `BACKUP_MEDIA_OFFSITE_DISK=r2` + R2 credentials in `.env` to activate. Ready to merge into `develop`.
+**After B2 (2026-07-11):** merged into `develop` at `4d62bf1`. Test suite 1057/1057, PHPStan L5 = 0. Cloudflare R2 credentials configured + verified end-to-end by owner: `backup:sync-offsite` pushed all local backups to R2 bucket `bintan-prestige-backups`; subsequent `backup:snapshot` populated `meta.offsite_verified_at` on the new row. Two new packages installed (`league/flysystem-aws-s3-v3` + `aws/aws-sdk-php`) under owner-approved §9 waiver.
 
 ### Stage A — Foundation, Decisions & Guards
 | Task | Name | Status | Gate |
@@ -52,7 +52,7 @@
 | Task | Name | Status | Gate |
 |---|---|---|---|
 | B1 | Media/storage backup (weekly ZIP + manifest dedup + retention) | ✅ DONE (2026-07-11) | — (Option (a) full-ZIP with skip-when-unchanged; ADR §2 chain-based incremental deferred as B1.5) |
-| B2 | Off-machine target (Cloudflare R2 via S3-compatible driver) + failure alert | ✅ CODE DONE (2026-07-11) | ⚠️ owner still needs to add R2 credentials to `.env` to actually enable copies |
+| B2 | Off-machine target (Cloudflare R2 via S3-compatible driver) + failure alert | ✅ DONE (2026-07-11, verified end-to-end against real R2) | ⚠️ new packages: `league/flysystem-aws-s3-v3` + `aws/aws-sdk-php` (owner-approved §9 waiver) |
 | B3 | Backups admin UI (list/verify/download/trigger) | ⏳ TODO | — |
 | B4 | Restore engine (`backup:restore` CLI-first, admin wrapper LAST) | ⏳ TODO | ⚠️ sign-off before admin wrapper |
 | B5 | Export bundles (`content:export` + admin UI, versioned ZIP) | ⏳ TODO | — |
