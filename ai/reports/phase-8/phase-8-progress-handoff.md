@@ -32,7 +32,9 @@
 - PHPStan L5: **0 errors**.
 - App timezone: `Asia/Jakarta` (WIB). Locales: `en` (default, unprefixed) + `id` (`/id/…`).
 
-**After A1 (2026-07-11):** `feature/phase-8-a1-guards` — Test suite **1017/1017**, 4664 assertions, PHPStan L5 = 0 errors. Ready to merge into `develop`.
+**After A1 (2026-07-11):** `feature/phase-8-a1-guards` — merged into `develop` at `0ca0f01`. Test suite 1017/1017, PHPStan L5 = 0.
+
+**After A2 (2026-07-11):** `feature/phase-8-a2-backup-service` — Test suite **1032/1032**, 4703 assertions, PHPStan L5 = 0. Migration applied + rollback verified on dev MySQL. `backup:snapshot` proven end-to-end. Scheduler registered at `03:00 Asia/Jakarta`. Ready to merge into `develop`. **Milestone M1 (Never again) — CLOSED.**
 
 ### Stage A — Foundation, Decisions & Guards
 | Task | Name | Status | Gate |
@@ -40,7 +42,7 @@
 | A0-pre | Manual `db:backup` command + 4 runbooks | ✅ SHIPPED (2026-07-11, merged as `008e242`) | — |
 | A0 | Architecture Decision Record (Decisions 1–8 locked) | ✅ DONE (2026-07-11) | Owner sign-off wording *"approved"* |
 | A1 | Destructive-command guards (G1 block / G2 auto pre-migrate / G3 dev config-cache warn) | ✅ DONE (2026-07-11) | ⚠️ touches artisan lifecycle (approach pre-approved in Decision 6) |
-| A2 | `BackupService` core + `backups` table + scheduled daily | ⏳ TODO | ⚠️ new `backups` table |
+| A2 | `BackupService` core + `backups` table + scheduled daily | ✅ DONE (2026-07-11) | ⚠️ new `backups` table (owner-approved, pre-ALTER backup filed, rollback verified) |
 
 ### Stage B — Build the Modules
 | Task | Name | Status | Gate |
