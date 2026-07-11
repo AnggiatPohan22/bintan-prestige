@@ -4,26 +4,30 @@ namespace App\Services;
 
 use App\Models\Backup;
 use App\Services\Backup\DatabaseDumper;
+use App\Services\Backup\MediaSnapshotter;
 use Illuminate\Contracts\Config\Repository;
 use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Filesystem\FilesystemManager;
 use RuntimeException;
 
 /**
- * Phase 8 A2 — core backup engine.
+ * Phase 8 A2 + B1 — core backup engine.
  *
- * The public surface is deliberately narrow: `dumpDatabase()`, `verify()`,
- * `prune()`, `record()`. Each backup produces both a physical artifact on
- * disk and a `Backup` row so the admin surface (B3), restore path (B4), and
- * retention prune can all query the same source of truth.
+ * Public surface: `dumpDatabase()`, `snapshotMedia()`, `verify()`, `prune()`,
+ * `record()`. Each backup produces both a physical artifact on disk (except
+ * the `skipped` media case) and a `Backup` row so the admin surface (B3),
+ * restore path (B4), and retention prune all query the same source of truth.
  *
- * Process execution is delegated to `DatabaseDumper` so BackupService can be
- * tested end-to-end without invoking real `mysqldump`.
+ * Process execution is delegated: `DatabaseDumper` for mysqldump,
+ * `MediaSnapshotter` for the media walker + ZIP writer. Both are DI-injected
+ * so BackupService can be tested end-to-end without a real mysqldump binary
+ * and without touching production storage paths.
  */
 class BackupService
 {
     public function __construct(
         private DatabaseDumper $dumper,
+        private MediaSnapshotter $mediaSnapshotter,
         private FilesystemManager $filesystem,
         private Repository $config,
     ) {
@@ -50,7 +54,7 @@ class BackupService
         $disk        = $this->filesystem->disk($diskName);
         $absoluteDir = $this->ensureDirectory($disk, $relativeDir);
 
-        $stamp        = date('Ymd-His');
+        $stamp        = $this->timestampMs();
         $baseName     = "{$stamp}.sql";
         $absoluteRaw  = $absoluteDir.DIRECTORY_SEPARATOR.$baseName;
         $absoluteGz   = $absoluteRaw.'.gz';
@@ -145,6 +149,144 @@ class BackupService
     }
 
     /**
+     * Full media backup pipeline (B1): walk source paths → per-file SHA-256 →
+     * dedup against prev backup's manifest → (optional) ZIP write → record →
+     * verify → prune.
+     *
+     * When the current manifest's total_sha256 matches the newest ok backup,
+     * we record a `skipped` row (audit trail: "backup ran, nothing changed")
+     * without writing a new ZIP.
+     */
+    public function snapshotMedia(?string $purpose = null): Backup
+    {
+        $diskName    = (string) $this->config->get('backup.disks.media', 'local');
+        $relativeDir = trim((string) $this->config->get('backup.paths.media', 'backups/media'), '/');
+        $disk        = $this->filesystem->disk($diskName);
+        $absoluteDir = $this->ensureDirectory($disk, $relativeDir);
+
+        /** @var list<string> $sourcePaths */
+        $sourcePaths     = (array) $this->config->get('backup.media.source_paths', []);
+        $excludePatterns = (array) $this->config->get('backup.media.exclude_patterns', []);
+        $followSymlinks  = (bool)  $this->config->get('backup.media.follow_symlinks', false);
+
+        if ($sourcePaths === []) {
+            return $this->record([
+                'type'    => Backup::TYPE_MEDIA,
+                'disk'    => $diskName,
+                'path'    => '',
+                'status'  => Backup::STATUS_FAILED,
+                'purpose' => $purpose,
+                'meta'    => ['error' => 'no media source_paths configured — set backup.media.source_paths'],
+            ]);
+        }
+
+        $rootBase = base_path();
+        $manifest = $this->mediaSnapshotter->computeManifest(
+            $sourcePaths,
+            $rootBase,
+            $excludePatterns,
+            $followSymlinks,
+        );
+
+        if ($manifest['files'] === []) {
+            return $this->record([
+                'type'    => Backup::TYPE_MEDIA,
+                'disk'    => $diskName,
+                'path'    => '',
+                'status'  => Backup::STATUS_FAILED,
+                'purpose' => $purpose,
+                'meta'    => [
+                    'error'        => 'no readable files found under configured source_paths',
+                    'source_paths' => $sourcePaths,
+                ],
+            ]);
+        }
+
+        // Dedup: latest ok media backup wins as the comparison target.
+        /** @var Backup|null $prev */
+        $prev = Backup::query()
+            ->where('type', Backup::TYPE_MEDIA)
+            ->where('status', Backup::STATUS_OK)
+            ->orderByDesc('created_at')
+            ->orderByDesc('id')
+            ->first();
+
+        if ($prev !== null) {
+            $prevAbsolute = $this->absolutePath($this->filesystem->disk($prev->disk), $prev->path);
+            $prevManifest = $prevAbsolute !== null
+                ? $this->mediaSnapshotter->readEmbeddedManifest($prevAbsolute)
+                : null;
+
+            if ($prevManifest !== null && $prevManifest['total_sha256'] === $manifest['total_sha256']) {
+                return $this->record([
+                    'type'    => Backup::TYPE_MEDIA,
+                    'disk'    => $diskName,
+                    'path'    => $prev->path, // pointer to the still-current ZIP
+                    'status'  => Backup::STATUS_SKIPPED,
+                    'purpose' => $purpose,
+                    'meta'    => [
+                        'reason'             => 'no media changes since previous backup',
+                        'previous_backup_id' => $prev->id,
+                        'file_count'         => count($manifest['files']),
+                        'total_sha256'       => $manifest['total_sha256'],
+                    ],
+                ]);
+            }
+        }
+
+        $stamp       = $this->timestampMs();
+        $baseName    = "{$stamp}.zip";
+        $absoluteZip = $absoluteDir.DIRECTORY_SEPARATOR.$baseName;
+        $relativeZip = "{$relativeDir}/{$baseName}";
+
+        try {
+            $this->mediaSnapshotter->writeZip($manifest, $absoluteZip);
+        } catch (RuntimeException $e) {
+            @unlink($absoluteZip);
+
+            return $this->record([
+                'type'    => Backup::TYPE_MEDIA,
+                'disk'    => $diskName,
+                'path'    => $relativeZip,
+                'status'  => Backup::STATUS_FAILED,
+                'purpose' => $purpose,
+                'meta'    => ['error' => $e->getMessage()],
+            ]);
+        }
+
+        $checksum = hash_file('sha256', $absoluteZip);
+        $sizeBytes = (int) filesize($absoluteZip);
+
+        @file_put_contents($absoluteZip.'.sha256', "{$checksum}  ".basename($absoluteZip)."\n");
+
+        $backup = $this->record([
+            'type'            => Backup::TYPE_MEDIA,
+            'disk'            => $diskName,
+            'path'            => $relativeZip,
+            'size_bytes'      => $sizeBytes,
+            'checksum_sha256' => $checksum,
+            'status'          => Backup::STATUS_OK,
+            'purpose'         => $purpose,
+            'meta'            => [
+                'file_count'   => count($manifest['files']),
+                'total_sha256' => $manifest['total_sha256'],
+                'source_paths' => $sourcePaths,
+            ],
+        ]);
+
+        if ((bool) $this->config->get('backup.verify.enabled', true) && ! $this->verify($backup)) {
+            $backup->update([
+                'status' => Backup::STATUS_FAILED,
+                'meta'   => array_merge((array) $backup->meta, ['error' => 'verify failed after write']),
+            ]);
+        }
+
+        $this->prune(Backup::TYPE_MEDIA);
+
+        return $backup->fresh() ?? $backup;
+    }
+
+    /**
      * Recompute checksum + confirm file exists + confirm size threshold.
      * Used both post-write and by C3 rehearsal / admin verify actions.
      */
@@ -184,7 +326,11 @@ class BackupService
      */
     public function prune(string $type = Backup::TYPE_DB): int
     {
-        $keep = (int) $this->config->get("backup.retention.{$type}_daily", 14);
+        $keep = match ($type) {
+            Backup::TYPE_MEDIA => (int) $this->config->get('backup.retention.media_weekly', 4),
+            default            => (int) $this->config->get('backup.retention.db_daily', 14),
+        };
+
         if ($keep < 1) {
             return 0;
         }
@@ -276,6 +422,21 @@ class BackupService
         if ($disk->exists($checksumPath)) {
             $disk->delete($checksumPath);
         }
+    }
+
+    /**
+     * Timestamp with millisecond precision — makes rapid-successive snapshots
+     * (test suites, manual retries) produce unique filenames. Format
+     * `YYYYMMDD-HHMMSS-mmm`.
+     */
+    private function timestampMs(): string
+    {
+        $now  = microtime(true);
+        $sec  = (int) $now;
+        $ms   = (int) round(($now - $sec) * 1000);
+        $ms   = str_pad((string) $ms, 3, '0', STR_PAD_LEFT);
+
+        return date('Ymd-His', $sec).'-'.$ms;
     }
 
     /**

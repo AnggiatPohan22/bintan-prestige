@@ -44,6 +44,27 @@ return [
     ],
 
     /*
+    | Media snapshot source configuration (B1).
+    |
+    | `source_paths` — filesystem paths (relative to `base_path()`) whose
+    |                  contents are folded into the weekly ZIP. Add more
+    |                  paths (comma-separated in the env var) as the CMS
+    |                  grows.
+    | `follow_symlinks` — default false; broken symlinks always skipped.
+    | `exclude_patterns` — case-sensitive glob-ish substrings applied to
+    |                  each candidate's relative path. Useful for '.gitignore'
+    |                  files or third-party junk.
+    */
+    'media' => [
+        'source_paths' => array_values(array_filter(array_map(
+            'trim',
+            explode(',', (string) env('BACKUP_MEDIA_SOURCE_PATHS', 'storage/app/public'))
+        ))),
+        'follow_symlinks'  => filter_var(env('BACKUP_MEDIA_FOLLOW_SYMLINKS', false), FILTER_VALIDATE_BOOLEAN),
+        'exclude_patterns' => ['/.DS_Store', '/Thumbs.db'],
+    ],
+
+    /*
     | Retention policy — how many backups per bucket to keep. When pruning
     | fires, older entries are marked `status='pruned'` and their file is
     | removed from disk; the row is never hard-deleted (audit trail).
@@ -59,7 +80,10 @@ return [
     | `config('app.timezone')`).
     */
     'schedule' => [
-        'db_daily_at' => env('BACKUP_DB_DAILY_AT', '03:00'),
+        'db_daily_at'      => env('BACKUP_DB_DAILY_AT', '03:00'),
+        'media_weekly_at'  => env('BACKUP_MEDIA_WEEKLY_AT', '04:00'),
+        // 0 = Sunday, 6 = Saturday (matches Laravel scheduler weeklyOn()).
+        'media_weekly_day' => (int) env('BACKUP_MEDIA_WEEKLY_DAY', 0),
     ],
 
     /*
