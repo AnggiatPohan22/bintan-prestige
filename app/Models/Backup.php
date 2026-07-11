@@ -25,9 +25,10 @@ class Backup extends Model
     public const TYPE_DB    = 'db';
     public const TYPE_MEDIA = 'media';
 
-    public const STATUS_OK     = 'ok';
-    public const STATUS_FAILED = 'failed';
-    public const STATUS_PRUNED = 'pruned';
+    public const STATUS_OK      = 'ok';
+    public const STATUS_FAILED  = 'failed';
+    public const STATUS_PRUNED  = 'pruned';
+    public const STATUS_SKIPPED = 'skipped';
 
     protected $fillable = [
         'type',

@@ -3,6 +3,7 @@
 use App\Console\Commands\AggregatePageViewStats;
 use App\Console\Commands\BackupDatabase;
 use App\Console\Commands\BackupSnapshot;
+use App\Console\Commands\BackupSnapshotMedia;
 use App\Console\Commands\ProvisionFirstAdmin;
 use App\Console\Commands\PublishScheduledContentEntries;
 use App\Console\Commands\PublishScheduledPages;
@@ -54,6 +55,7 @@ return Application::configure(basePath: dirname(__DIR__))
         AggregatePageViewStats::class,
         BackupDatabase::class,
         BackupSnapshot::class,
+        BackupSnapshotMedia::class,
     ])
     ->withSchedule(function (\Illuminate\Console\Scheduling\Schedule $schedule): void {
         $schedule->command('pages:publish-scheduled')->everyMinute();
@@ -64,6 +66,18 @@ return Application::configure(basePath: dirname(__DIR__))
         // config-tunable via BACKUP_DB_DAILY_AT (defaults to 03:00 WIB).
         $schedule->command('backup:snapshot --purpose="Scheduled daily"')
             ->dailyAt((string) config('backup.schedule.db_daily_at', '03:00'))
+            ->timezone((string) config('app.timezone', 'UTC'))
+            ->withoutOverlapping()
+            ->onOneServer();
+
+        // Phase 8 B1 — weekly media snapshot with dedup + retention prune.
+        // Day + time are config-tunable via BACKUP_MEDIA_WEEKLY_DAY (0=Sun)
+        // + BACKUP_MEDIA_WEEKLY_AT (defaults to Sun 04:00 WIB).
+        $schedule->command('backup:snapshot-media --purpose="Scheduled weekly"')
+            ->weeklyOn(
+                (int) config('backup.schedule.media_weekly_day', 0),
+                (string) config('backup.schedule.media_weekly_at', '04:00'),
+            )
             ->timezone((string) config('app.timezone', 'UTC'))
             ->withoutOverlapping()
             ->onOneServer();
