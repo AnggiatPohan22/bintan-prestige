@@ -8,7 +8,10 @@ use App\Services\Backup\MediaSnapshotter;
 use Illuminate\Contracts\Config\Repository;
 use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Filesystem\FilesystemManager;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use RuntimeException;
+use Throwable;
 
 /**
  * Phase 8 A2 + B1 — core backup engine.
@@ -144,6 +147,12 @@ class BackupService
         }
 
         $this->prune(Backup::TYPE_DB);
+
+        $backup = $backup->fresh() ?? $backup;
+
+        if ($backup->status === Backup::STATUS_OK) {
+            $this->copyToOffsiteIfConfigured($backup);
+        }
 
         return $backup->fresh() ?? $backup;
     }
@@ -283,7 +292,127 @@ class BackupService
 
         $this->prune(Backup::TYPE_MEDIA);
 
+        $backup = $backup->fresh() ?? $backup;
+
+        if ($backup->status === Backup::STATUS_OK) {
+            $this->copyToOffsiteIfConfigured($backup);
+        }
+
         return $backup->fresh() ?? $backup;
+    }
+
+    /**
+     * Copy an ok backup to the configured offsite disk (B2). Handles retry
+     * with a delay between attempts; on final failure, updates the row's
+     * `meta.offsite_error` and (optionally) mails an alert. Returns the row.
+     *
+     * The physical bytes are streamed via readStream/writeStream so a
+     * multi-gigabyte media ZIP doesn't need to be buffered in memory. After
+     * upload, the SHA-256 is recomputed from the remote disk to catch
+     * transport corruption.
+     */
+    public function copyToOffsite(Backup $backup): Backup
+    {
+        $offsiteDiskName = $this->offsiteDiskFor($backup->type);
+        if ($offsiteDiskName === null) {
+            return $backup;
+        }
+
+        if ($backup->status !== Backup::STATUS_OK) {
+            return $backup;
+        }
+
+        $sourceDisk = $this->filesystem->disk($backup->disk);
+        $sourcePath = $backup->path;
+
+        if (! $sourceDisk->exists($sourcePath)) {
+            return $this->markOffsiteFailed($backup, $offsiteDiskName, 'source file missing on local disk');
+        }
+
+        $attempts   = max(1, (int) $this->config->get('backup.offsite.retry_attempts', 3));
+        $retryDelay = max(0, (int) $this->config->get('backup.offsite.retry_delay_seconds', 30));
+
+        for ($attempt = 1; $attempt <= $attempts; $attempt++) {
+            try {
+                $offsiteDisk = $this->filesystem->disk($offsiteDiskName);
+
+                // Streaming write of the backup artifact.
+                $sourceStream = $sourceDisk->readStream($sourcePath);
+                if ($sourceStream === null) {
+                    throw new RuntimeException('readStream returned null for '.$sourcePath);
+                }
+                $offsiteDisk->writeStream($sourcePath, $sourceStream);
+                if (is_resource($sourceStream)) {
+                    @fclose($sourceStream);
+                }
+
+                // Sidecar checksum file (best-effort; local layouts include it,
+                // remote-only restores can regenerate).
+                $checksumPath = $sourcePath.'.sha256';
+                if ($sourceDisk->exists($checksumPath)) {
+                    $sidecarStream = $sourceDisk->readStream($checksumPath);
+                    if (is_resource($sidecarStream)) {
+                        $offsiteDisk->writeStream($checksumPath, $sidecarStream);
+                        @fclose($sidecarStream);
+                    }
+                }
+
+                // Post-upload verification: fetch a stream from offsite and
+                // recompute SHA-256. Catches silent transport corruption.
+                if ($backup->checksum_sha256 !== null) {
+                    $remoteChecksum = $this->hashRemoteFile($offsiteDisk, $sourcePath);
+                    if ($remoteChecksum !== $backup->checksum_sha256) {
+                        throw new RuntimeException(
+                            "offsite checksum mismatch (local={$backup->checksum_sha256}, remote={$remoteChecksum})"
+                        );
+                    }
+                }
+
+                $meta = (array) $backup->meta;
+                $meta['offsite_disk']                 = $offsiteDiskName;
+                $meta['offsite_path']                 = $sourcePath;
+                $meta['offsite_verified_at']          = now()->toIso8601String();
+                $meta['offsite_attempts']             = $attempt;
+                unset($meta['offsite_error'], $meta['offsite_last_attempt_at']);
+
+                $backup->update(['meta' => $meta]);
+
+                return $backup->fresh() ?? $backup;
+            } catch (Throwable $e) {
+                if ($attempt < $attempts) {
+                    if ($retryDelay > 0) {
+                        sleep($retryDelay);
+                    }
+                    continue;
+                }
+
+                return $this->markOffsiteFailed(
+                    $backup,
+                    $offsiteDiskName,
+                    $e->getMessage()
+                );
+            }
+        }
+
+        return $backup->fresh() ?? $backup;
+    }
+
+    /**
+     * Convenience wrapper — used from `dumpDatabase()` and `snapshotMedia()`
+     * so the write path is a no-op when offsite isn't configured, and to
+     * respect the master `backup.offsite.copy_after_snapshot` toggle.
+     */
+    public function copyToOffsiteIfConfigured(Backup $backup): Backup
+    {
+        if (! (bool) $this->config->get('backup.offsite.copy_after_snapshot', true)) {
+            return $backup;
+        }
+
+        if ($this->offsiteDiskFor($backup->type) === null) {
+            return $backup;
+        }
+
+        return $this->copyToOffsite($backup);
     }
 
     /**
@@ -422,6 +551,106 @@ class BackupService
         if ($disk->exists($checksumPath)) {
             $disk->delete($checksumPath);
         }
+    }
+
+    /**
+     * Resolve the offsite disk name for a given backup type — or null when
+     * offsite is not configured for that type.
+     */
+    private function offsiteDiskFor(string $type): ?string
+    {
+        $key  = "backup.disks.{$type}_offsite";
+        $name = (string) $this->config->get($key, '');
+
+        return $name !== '' ? $name : null;
+    }
+
+    /**
+     * Compute SHA-256 of a file on a Laravel disk by streaming — safe for
+     * multi-gigabyte backups because we never hold the whole file in memory.
+     */
+    private function hashRemoteFile(Filesystem $disk, string $path): string
+    {
+        $stream = $disk->readStream($path);
+        if (! is_resource($stream)) {
+            throw new RuntimeException("Could not open remote stream for {$path}");
+        }
+
+        $ctx = hash_init('sha256');
+        while (! feof($stream)) {
+            $chunk = fread($stream, 262144);
+            if ($chunk === false) {
+                break;
+            }
+            hash_update($ctx, $chunk);
+        }
+        @fclose($stream);
+
+        return hash_final($ctx);
+    }
+
+    /**
+     * Record an offsite failure into `meta`, emit an alert mail when
+     * configured, and log it. Never throws — offsite failure must not
+     * prevent the local backup from being usable.
+     */
+    private function markOffsiteFailed(Backup $backup, string $offsiteDiskName, string $error): Backup
+    {
+        $meta = (array) $backup->meta;
+        $meta['offsite_disk']            = $offsiteDiskName;
+        $meta['offsite_error']           = $error;
+        $meta['offsite_last_attempt_at'] = now()->toIso8601String();
+        $meta['offsite_attempts']        = (int) $this->config->get('backup.offsite.retry_attempts', 3);
+
+        $backup->update(['meta' => $meta]);
+
+        Log::warning('Backup offsite copy failed', [
+            'backup_id' => $backup->id,
+            'type'      => $backup->type,
+            'disk'      => $offsiteDiskName,
+            'error'     => $error,
+        ]);
+
+        $recipient = $this->offsiteAlertRecipient();
+        if ($recipient !== null) {
+            try {
+                Mail::raw(
+                    "Backup offsite copy FAILED\n\n"
+                    ."Backup ID: {$backup->id}\n"
+                    ."Type: {$backup->type}\n"
+                    ."Offsite disk: {$offsiteDiskName}\n"
+                    ."Error: {$error}\n\n"
+                    ."Take a manual `php artisan backup:sync-offsite {$backup->id}` and investigate the disk.",
+                    function ($message) use ($recipient, $backup) {
+                        $message->to($recipient)
+                            ->subject("[Bintan Prestige] Backup offsite copy failed (id={$backup->id})");
+                    }
+                );
+            } catch (Throwable $mailError) {
+                Log::warning('Backup offsite alert mail failed', [
+                    'error' => $mailError->getMessage(),
+                ]);
+            }
+        }
+
+        return $backup->fresh() ?? $backup;
+    }
+
+    /**
+     * Recipient for offsite failure alerts. Config value wins; falls back to
+     * `mail.from.address`. Returns null when neither is set (silent failure
+     * mode — the row still records the error via `meta`).
+     */
+    private function offsiteAlertRecipient(): ?string
+    {
+        $configured = (string) $this->config->get('backup.offsite.alert_email', '');
+        if ($configured !== '') {
+            return $configured;
+        }
+
+        $fallback = (string) $this->config->get('mail.from.address', '');
+
+        return $fallback !== '' ? $fallback : null;
     }
 
     /**

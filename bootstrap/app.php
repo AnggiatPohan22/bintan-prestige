@@ -4,6 +4,7 @@ use App\Console\Commands\AggregatePageViewStats;
 use App\Console\Commands\BackupDatabase;
 use App\Console\Commands\BackupSnapshot;
 use App\Console\Commands\BackupSnapshotMedia;
+use App\Console\Commands\BackupSyncOffsite;
 use App\Console\Commands\ProvisionFirstAdmin;
 use App\Console\Commands\PublishScheduledContentEntries;
 use App\Console\Commands\PublishScheduledPages;
@@ -56,6 +57,7 @@ return Application::configure(basePath: dirname(__DIR__))
         BackupDatabase::class,
         BackupSnapshot::class,
         BackupSnapshotMedia::class,
+        BackupSyncOffsite::class,
     ])
     ->withSchedule(function (\Illuminate\Console\Scheduling\Schedule $schedule): void {
         $schedule->command('pages:publish-scheduled')->everyMinute();

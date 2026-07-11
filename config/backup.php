@@ -32,6 +32,12 @@ return [
     'disks' => [
         'db'    => env('BACKUP_DB_DISK', 'local'),
         'media' => env('BACKUP_MEDIA_DISK', 'local'),
+
+        // Phase 8 B2 — offsite mirror targets. Leave `null` to disable
+        // offsite copy for that backup type. Point at any Laravel
+        // filesystems disk (e.g. `r2`, `s3`, `sftp`).
+        'db_offsite'    => env('BACKUP_DB_OFFSITE_DISK'),
+        'media_offsite' => env('BACKUP_MEDIA_OFFSITE_DISK'),
     ],
 
     /*
@@ -102,6 +108,22 @@ return [
     */
     'mysqldump' => [
         'timeout_seconds' => (int) env('BACKUP_MYSQLDUMP_TIMEOUT', 1800),
+    ],
+
+    /*
+    | Phase 8 B2 — offsite copy behavior.
+    |
+    | `copy_after_snapshot` — auto-invoke offsite mirror right after each
+    |                         ok db/media snapshot (opt-in default: true).
+    | `retry_attempts` / `retry_delay_seconds` — for transient network errors.
+    | `alert_email` — optional recipient for critical-red alerts on final
+    |                 offsite failure. Falls back to `config('mail.from.address')`.
+    */
+    'offsite' => [
+        'copy_after_snapshot' => filter_var(env('BACKUP_OFFSITE_COPY_AFTER_SNAPSHOT', true), FILTER_VALIDATE_BOOLEAN),
+        'retry_attempts'      => (int) env('BACKUP_OFFSITE_RETRY_ATTEMPTS', 3),
+        'retry_delay_seconds' => (int) env('BACKUP_OFFSITE_RETRY_DELAY', 30),
+        'alert_email'         => env('BACKUP_OFFSITE_ALERT_EMAIL'),
     ],
 
 ];
